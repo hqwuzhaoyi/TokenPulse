@@ -1,0 +1,1058 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E00000000000000000000001 /* QuotaFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020; };
+		E00000000000000000000002 /* QuotaFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020; };
+		E00000000000000000000003 /* QuotaFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020; };
+		D0000000000000000000000B /* ProviderIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001; };
+		D0000000000000000000000C /* ProviderIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002; };
+		D0000000000000000000000D /* ProviderIconNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003; };
+		D0000000000000000000000E /* ProviderIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001; };
+		D0000000000000000000000F /* ProviderIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002; };
+		D00000000000000000000010 /* ProviderIconNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003; };
+		D00000000000000000000011 /* ProviderIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001; };
+		D00000000000000000000012 /* ProviderIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002; };
+		D00000000000000000000013 /* ProviderIconNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003; };
+		D00000000000000000000014 /* ProviderIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001; };
+		D00000000000000000000015 /* ProviderIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002; };
+		D00000000000000000000016 /* ProviderIconNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003; };
+		B00000000000000000000033 /* TokenPulse/Application/AccountQuotaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* TokenPulse/Application/AccountQuotaClient.swift */; };
+		B00000000000000000000034 /* TokenPulse/Application/AppRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* TokenPulse/Application/AppRuntime.swift */; };
+		B00000000000000000000035 /* TokenPulse/Application/NotificationRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* TokenPulse/Application/NotificationRuntime.swift */; };
+		B00000000000000000000036 /* TokenPulse/Application/QuotaMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000004 /* TokenPulse/Application/QuotaMonitor.swift */; };
+		B00000000000000000000037 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* TokenPulse/Domain/AccountConfiguration.swift */; };
+		B00000000000000000000038 /* TokenPulse/Domain/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* TokenPulse/Domain/Models.swift */; };
+		B00000000000000000000039 /* TokenPulse/Domain/Ports.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* TokenPulse/Domain/Ports.swift */; };
+		B0000000000000000000003A /* TokenPulse/Infrastructure/KeychainCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* TokenPulse/Infrastructure/KeychainCredentialStore.swift */; };
+		B0000000000000000000003B /* TokenPulse/Infrastructure/LocalAccountStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* TokenPulse/Infrastructure/LocalAccountStateStore.swift */; };
+		B0000000000000000000003C /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000A /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift */; };
+		B0000000000000000000003D /* TokenPulse/Notifications/NotificationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000B /* TokenPulse/Notifications/NotificationPlanner.swift */; };
+		B0000000000000000000003E /* TokenPulse/Notifications/ReminderModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* TokenPulse/Notifications/ReminderModels.swift */; };
+		B0000000000000000000003F /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000D /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift */; };
+		B00000000000000000000040 /* TokenPulse/Platform/BackgroundRefreshAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000E /* TokenPulse/Platform/BackgroundRefreshAdapter.swift */; };
+		B00000000000000000000041 /* TokenPulse/Platform/CloudAccountSyncStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000F /* TokenPulse/Platform/CloudAccountSyncStore.swift */; };
+		B00000000000000000000042 /* TokenPulse/Platform/PlatformConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* TokenPulse/Platform/PlatformConstants.swift */; };
+		B00000000000000000000043 /* TokenPulse/Platform/SynchronizableCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* TokenPulse/Platform/SynchronizableCredentialStore.swift */; };
+		B00000000000000000000044 /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */; };
+		B00000000000000000000045 /* TokenPulse/Providers/ClaudeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000016 /* TokenPulse/Providers/ClaudeProvider.swift */; };
+		B00000000000000000000046 /* TokenPulse/Providers/CodexProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* TokenPulse/Providers/CodexProvider.swift */; };
+		B00000000000000000000047 /* TokenPulse/Providers/ProviderHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000018 /* TokenPulse/Providers/ProviderHTTP.swift */; };
+		B00000000000000000000048 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */; };
+		B00000000000000000000049 /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */; };
+		B0000000000000000000004A /* TokenPulse/Providers/ZaiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */; };
+		B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */; };
+		B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */; };
+		B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */; };
+		B0000000000000000000004E /* TokenPulse/UI/ProviderSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001F /* TokenPulse/UI/ProviderSignInView.swift */; };
+		B0000000000000000000004F /* TokenPulse/UI/QuotaFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020 /* TokenPulse/UI/QuotaFormatting.swift */; };
+		B00000000000000000000057 /* TokenPulseTests/AccountConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000021 /* TokenPulseTests/AccountConfigurationTests.swift */; };
+		B00000000000000000000058 /* TokenPulseTests/KeychainCredentialStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000022 /* TokenPulseTests/KeychainCredentialStoreTests.swift */; };
+		B00000000000000000000059 /* TokenPulseTests/MiniMaxQuotaClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000023 /* TokenPulseTests/MiniMaxQuotaClientTests.swift */; };
+		B0000000000000000000005A /* TokenPulseTests/NotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000024 /* TokenPulseTests/NotificationTests.swift */; };
+		B0000000000000000000005B /* TokenPulseTests/QuotaMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000025 /* TokenPulseTests/QuotaMonitorTests.swift */; };
+		B00000000000000000000064 /* TokenPulse/Application/AccountQuotaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* TokenPulse/Application/AccountQuotaClient.swift */; };
+		B00000000000000000000065 /* TokenPulse/Application/AppRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* TokenPulse/Application/AppRuntime.swift */; };
+		B00000000000000000000066 /* TokenPulse/Application/NotificationRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* TokenPulse/Application/NotificationRuntime.swift */; };
+		B00000000000000000000067 /* TokenPulse/Application/QuotaMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000004 /* TokenPulse/Application/QuotaMonitor.swift */; };
+		B00000000000000000000068 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* TokenPulse/Domain/AccountConfiguration.swift */; };
+		B00000000000000000000069 /* TokenPulse/Domain/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* TokenPulse/Domain/Models.swift */; };
+		B0000000000000000000006A /* TokenPulse/Domain/Ports.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* TokenPulse/Domain/Ports.swift */; };
+		B0000000000000000000006B /* TokenPulse/Infrastructure/KeychainCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* TokenPulse/Infrastructure/KeychainCredentialStore.swift */; };
+		B0000000000000000000006C /* TokenPulse/Infrastructure/LocalAccountStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000009 /* TokenPulse/Infrastructure/LocalAccountStateStore.swift */; };
+		B0000000000000000000006D /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000A /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift */; };
+		B0000000000000000000006E /* TokenPulse/Notifications/NotificationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000B /* TokenPulse/Notifications/NotificationPlanner.swift */; };
+		B0000000000000000000006F /* TokenPulse/Notifications/ReminderModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* TokenPulse/Notifications/ReminderModels.swift */; };
+		B00000000000000000000070 /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000D /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift */; };
+		B00000000000000000000071 /* TokenPulse/Platform/BackgroundRefreshAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000E /* TokenPulse/Platform/BackgroundRefreshAdapter.swift */; };
+		B00000000000000000000072 /* TokenPulse/Platform/CloudAccountSyncStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000F /* TokenPulse/Platform/CloudAccountSyncStore.swift */; };
+		B00000000000000000000073 /* TokenPulse/Platform/PlatformConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* TokenPulse/Platform/PlatformConstants.swift */; };
+		B00000000000000000000074 /* TokenPulse/Platform/SynchronizableCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* TokenPulse/Platform/SynchronizableCredentialStore.swift */; };
+		B00000000000000000000075 /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */; };
+		B00000000000000000000076 /* TokenPulse/Providers/ClaudeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000016 /* TokenPulse/Providers/ClaudeProvider.swift */; };
+		B00000000000000000000077 /* TokenPulse/Providers/CodexProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* TokenPulse/Providers/CodexProvider.swift */; };
+		B00000000000000000000078 /* TokenPulse/Providers/ProviderHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000018 /* TokenPulse/Providers/ProviderHTTP.swift */; };
+		B00000000000000000000079 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */; };
+		B0000000000000000000007A /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */; };
+		B0000000000000000000007B /* TokenPulse/Providers/ZaiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */; };
+		B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000028 /* TokenPulseWatch/TokenPulseWatchApp.swift */; };
+		B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000029 /* TokenPulseWatch/WatchAccountPagesView.swift */; };
+		B00000000000000000000086 /* TokenPulse/Domain/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* TokenPulse/Domain/Models.swift */; };
+		B00000000000000000000087 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* TokenPulse/Domain/AccountConfiguration.swift */; };
+		B00000000000000000000088 /* TokenPulse/Notifications/ReminderModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* TokenPulse/Notifications/ReminderModels.swift */; };
+		B00000000000000000000089 /* TokenPulse/Platform/PlatformConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* TokenPulse/Platform/PlatformConstants.swift */; };
+		B0000000000000000000008A /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */; };
+		B0000000000000000000008B /* TokenPulseWidgets/QuotaWidgetIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002E /* TokenPulseWidgets/QuotaWidgetIntent.swift */; };
+		B0000000000000000000008C /* TokenPulseWidgets/QuotaWidgetContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002D /* TokenPulseWidgets/QuotaWidgetContent.swift */; };
+		B0000000000000000000008D /* TokenPulseWidgets/TokenPulseWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002F /* TokenPulseWidgets/TokenPulseWidgetsBundle.swift */; };
+		B00000000000000000000096 /* TokenPulse/Domain/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* TokenPulse/Domain/Models.swift */; };
+		B00000000000000000000097 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* TokenPulse/Domain/AccountConfiguration.swift */; };
+		B00000000000000000000098 /* TokenPulse/Notifications/ReminderModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* TokenPulse/Notifications/ReminderModels.swift */; };
+		B00000000000000000000099 /* TokenPulse/Platform/PlatformConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000010 /* TokenPulse/Platform/PlatformConstants.swift */; };
+		B0000000000000000000009A /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */; };
+		B0000000000000000000009B /* TokenPulseWidgets/QuotaWidgetIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002E /* TokenPulseWidgets/QuotaWidgetIntent.swift */; };
+		B0000000000000000000009C /* TokenPulseWidgets/QuotaWidgetContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002D /* TokenPulseWidgets/QuotaWidgetContent.swift */; };
+		B0000000000000000000009D /* TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002B /* TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift */; };
+		B000000000000000000000A8 /* TokenPulseWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B00000000000000000000085 /* TokenPulseWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B000000000000000000000AC /* TokenPulseWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B00000000000000000000063 /* TokenPulseWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B000000000000000000000B0 /* TokenPulseWatchWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B00000000000000000000095 /* TokenPulseWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C00000000000000000000002 /* TokenPulseTests/ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */; };
+		C00000000000000000000004 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B000000000000000000000A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000401 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000501;
+			remoteInfo = TokenPulse;
+		};
+		B000000000000000000000A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000401 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B00000000000000000000084;
+			remoteInfo = TokenPulseWidgets;
+		};
+		B000000000000000000000AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000401 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B00000000000000000000062;
+			remoteInfo = TokenPulseWatch;
+		};
+		B000000000000000000000AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000401 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B00000000000000000000094;
+			remoteInfo = TokenPulseWatchWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B000000000000000000000A9 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B000000000000000000000A8 /* TokenPulseWidgets.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B000000000000000000000AD /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				B000000000000000000000AC /* TokenPulseWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B000000000000000000000B1 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B000000000000000000000B0 /* TokenPulseWatchWidgets.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		D00000000000000000000001 /* ProviderIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ProviderIcon.swift; sourceTree = SOURCE_ROOT; };
+		D00000000000000000000002 /* ProviderIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TokenPulse/Resources/ProviderIcons.xcassets; sourceTree = SOURCE_ROOT; };
+		D00000000000000000000003 /* ProviderIconNotices.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TokenPulse/Resources/ProviderIconNotices.txt; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000001 /* TokenPulse/Application/AccountQuotaClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/AccountQuotaClient.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000002 /* TokenPulse/Application/AppRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/AppRuntime.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000003 /* TokenPulse/Application/NotificationRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/NotificationRuntime.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000004 /* TokenPulse/Application/QuotaMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/QuotaMonitor.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000005 /* TokenPulse/Domain/AccountConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Domain/AccountConfiguration.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000006 /* TokenPulse/Domain/Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Domain/Models.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000007 /* TokenPulse/Domain/Ports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Domain/Ports.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000008 /* TokenPulse/Infrastructure/KeychainCredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Infrastructure/KeychainCredentialStore.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000009 /* TokenPulse/Infrastructure/LocalAccountStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Infrastructure/LocalAccountStateStore.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000000A /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Infrastructure/MiniMaxQuotaClient.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000000B /* TokenPulse/Notifications/NotificationPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Notifications/NotificationPlanner.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000000C /* TokenPulse/Notifications/ReminderModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Notifications/ReminderModels.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000000D /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Notifications/UserNotificationCenterAdapter.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000000E /* TokenPulse/Platform/BackgroundRefreshAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/BackgroundRefreshAdapter.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000000F /* TokenPulse/Platform/CloudAccountSyncStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/CloudAccountSyncStore.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000010 /* TokenPulse/Platform/PlatformConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/PlatformConstants.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000011 /* TokenPulse/Platform/SynchronizableCredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/SynchronizableCredentialStore.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000012 /* TokenPulse/Platform/TokenPulse-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TokenPulse/Platform/TokenPulse-Info.plist"; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000013 /* TokenPulse/Platform/TokenPulse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TokenPulse/Platform/TokenPulse.entitlements; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000014 /* TokenPulse/Platform/Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TokenPulse/Platform/Widget.entitlements; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/WidgetSnapshotStore.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000016 /* TokenPulse/Providers/ClaudeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClaudeProvider.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000017 /* TokenPulse/Providers/CodexProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CodexProvider.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000018 /* TokenPulse/Providers/ProviderHTTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ProviderHTTP.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ProviderIntegration.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SuperGrokProvider.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZaiProvider.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/TokenPulseApp.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/AccountSettingsView.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ContentView.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000001F /* TokenPulse/UI/ProviderSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ProviderSignInView.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000020 /* TokenPulse/UI/QuotaFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/QuotaFormatting.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000021 /* TokenPulseTests/AccountConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AccountConfigurationTests.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000022 /* TokenPulseTests/KeychainCredentialStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KeychainCredentialStoreTests.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000023 /* TokenPulseTests/MiniMaxQuotaClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/MiniMaxQuotaClientTests.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000024 /* TokenPulseTests/NotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NotificationTests.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000025 /* TokenPulseTests/QuotaMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QuotaMonitorTests.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000026 /* TokenPulseWatch/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TokenPulseWatch/Info.plist; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000027 /* TokenPulseWatch/TokenPulseWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TokenPulseWatch/TokenPulseWatch.entitlements; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000028 /* TokenPulseWatch/TokenPulseWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWatch/TokenPulseWatchApp.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000029 /* TokenPulseWatch/WatchAccountPagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWatch/WatchAccountPagesView.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000002A /* TokenPulseWatchWidgets/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TokenPulseWatchWidgets/Info.plist; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000002B /* TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000002C /* TokenPulseWidgets/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TokenPulseWidgets/Info.plist; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000002D /* TokenPulseWidgets/QuotaWidgetContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWidgets/QuotaWidgetContent.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000002E /* TokenPulseWidgets/QuotaWidgetIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWidgets/QuotaWidgetIntent.swift; sourceTree = SOURCE_ROOT; };
+		B0000000000000000000002F /* TokenPulseWidgets/TokenPulseWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWidgets/TokenPulseWidgetsBundle.swift; sourceTree = SOURCE_ROOT; };
+		B00000000000000000000032 /* TokenPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00000000000000000000056 /* TokenPulseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TokenPulseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00000000000000000000063 /* TokenPulseWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TokenPulseWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00000000000000000000085 /* TokenPulseWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenPulseWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B00000000000000000000095 /* TokenPulseWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenPulseWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B00000000000000000000051 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000005D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000007F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000008F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000009F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		84740925304F9CF80006C2D7 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */,
+				C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		B00000000000000000000030 = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000001 /* TokenPulse/Application/AccountQuotaClient.swift */,
+				B00000000000000000000002 /* TokenPulse/Application/AppRuntime.swift */,
+				B00000000000000000000003 /* TokenPulse/Application/NotificationRuntime.swift */,
+				B00000000000000000000004 /* TokenPulse/Application/QuotaMonitor.swift */,
+				B00000000000000000000005 /* TokenPulse/Domain/AccountConfiguration.swift */,
+				B00000000000000000000006 /* TokenPulse/Domain/Models.swift */,
+				B00000000000000000000007 /* TokenPulse/Domain/Ports.swift */,
+				B00000000000000000000008 /* TokenPulse/Infrastructure/KeychainCredentialStore.swift */,
+				B00000000000000000000009 /* TokenPulse/Infrastructure/LocalAccountStateStore.swift */,
+				B0000000000000000000000A /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift */,
+				B0000000000000000000000B /* TokenPulse/Notifications/NotificationPlanner.swift */,
+				B0000000000000000000000C /* TokenPulse/Notifications/ReminderModels.swift */,
+				B0000000000000000000000D /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift */,
+				B0000000000000000000000E /* TokenPulse/Platform/BackgroundRefreshAdapter.swift */,
+				B0000000000000000000000F /* TokenPulse/Platform/CloudAccountSyncStore.swift */,
+				B00000000000000000000010 /* TokenPulse/Platform/PlatformConstants.swift */,
+				B00000000000000000000011 /* TokenPulse/Platform/SynchronizableCredentialStore.swift */,
+				B00000000000000000000012 /* TokenPulse/Platform/TokenPulse-Info.plist */,
+				B00000000000000000000013 /* TokenPulse/Platform/TokenPulse.entitlements */,
+				B00000000000000000000014 /* TokenPulse/Platform/Widget.entitlements */,
+				B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */,
+				B00000000000000000000016 /* TokenPulse/Providers/ClaudeProvider.swift */,
+				B00000000000000000000017 /* TokenPulse/Providers/CodexProvider.swift */,
+				B00000000000000000000018 /* TokenPulse/Providers/ProviderHTTP.swift */,
+				B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */,
+				B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */,
+				B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */,
+				B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */,
+				B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */,
+				B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */,
+				B0000000000000000000001F /* TokenPulse/UI/ProviderSignInView.swift */,
+				B00000000000000000000020 /* TokenPulse/UI/QuotaFormatting.swift */,
+				B00000000000000000000021 /* TokenPulseTests/AccountConfigurationTests.swift */,
+				B00000000000000000000022 /* TokenPulseTests/KeychainCredentialStoreTests.swift */,
+				B00000000000000000000023 /* TokenPulseTests/MiniMaxQuotaClientTests.swift */,
+				B00000000000000000000024 /* TokenPulseTests/NotificationTests.swift */,
+				B00000000000000000000025 /* TokenPulseTests/QuotaMonitorTests.swift */,
+				B00000000000000000000026 /* TokenPulseWatch/Info.plist */,
+				B00000000000000000000027 /* TokenPulseWatch/TokenPulseWatch.entitlements */,
+				B00000000000000000000028 /* TokenPulseWatch/TokenPulseWatchApp.swift */,
+				B00000000000000000000029 /* TokenPulseWatch/WatchAccountPagesView.swift */,
+				B0000000000000000000002A /* TokenPulseWatchWidgets/Info.plist */,
+				B0000000000000000000002B /* TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift */,
+				B0000000000000000000002C /* TokenPulseWidgets/Info.plist */,
+				B0000000000000000000002D /* TokenPulseWidgets/QuotaWidgetContent.swift */,
+				B0000000000000000000002E /* TokenPulseWidgets/QuotaWidgetIntent.swift */,
+				B0000000000000000000002F /* TokenPulseWidgets/TokenPulseWidgetsBundle.swift */,
+				B00000000000000000000031 /* Products */,
+				84740925304F9CF80006C2D7 /* Recovered References */,
+				D00000000000000000000001,
+				D00000000000000000000002,
+				D00000000000000000000003,
+			);
+			sourceTree = "<group>";
+		};
+		B00000000000000000000031 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000032 /* TokenPulse.app */,
+				B00000000000000000000056 /* TokenPulseTests.xctest */,
+				B00000000000000000000063 /* TokenPulseWatch.app */,
+				B00000000000000000000085 /* TokenPulseWidgets.appex */,
+				B00000000000000000000095 /* TokenPulseWatchWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00000000000000000000501 /* TokenPulse */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B00000000000000000000055 /* Build configuration list for PBXNativeTarget "TokenPulse" */;
+			buildPhases = (
+				B00000000000000000000050 /* Sources */,
+				B00000000000000000000051 /* Frameworks */,
+				B00000000000000000000052 /* Resources */,
+				B000000000000000000000A9 /* Embed App Extensions */,
+				B000000000000000000000AD /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B000000000000000000000A7 /* PBXTargetDependency */,
+				B000000000000000000000AB /* PBXTargetDependency */,
+			);
+			name = TokenPulse;
+			productName = TokenPulse;
+			productReference = B00000000000000000000032 /* TokenPulse.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00000000000000000000502 /* TokenPulseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B00000000000000000000061 /* Build configuration list for PBXNativeTarget "TokenPulseTests" */;
+			buildPhases = (
+				B0000000000000000000005C /* Sources */,
+				B0000000000000000000005D /* Frameworks */,
+				B0000000000000000000005E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B000000000000000000000A5 /* PBXTargetDependency */,
+			);
+			name = TokenPulseTests;
+			productName = TokenPulseTests;
+			productReference = B00000000000000000000056 /* TokenPulseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B00000000000000000000062 /* TokenPulseWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B00000000000000000000083 /* Build configuration list for PBXNativeTarget "TokenPulseWatch" */;
+			buildPhases = (
+				B0000000000000000000007E /* Sources */,
+				B0000000000000000000007F /* Frameworks */,
+				B00000000000000000000080 /* Resources */,
+				B000000000000000000000B1 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B000000000000000000000AF /* PBXTargetDependency */,
+			);
+			name = TokenPulseWatch;
+			productName = TokenPulseWatch;
+			productReference = B00000000000000000000063 /* TokenPulseWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B00000000000000000000084 /* TokenPulseWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B00000000000000000000093 /* Build configuration list for PBXNativeTarget "TokenPulseWidgets" */;
+			buildPhases = (
+				B0000000000000000000008E /* Sources */,
+				B0000000000000000000008F /* Frameworks */,
+				B00000000000000000000090 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TokenPulseWidgets;
+			productName = TokenPulseWidgets;
+			productReference = B00000000000000000000085 /* TokenPulseWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B00000000000000000000094 /* TokenPulseWatchWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B000000000000000000000A3 /* Build configuration list for PBXNativeTarget "TokenPulseWatchWidgets" */;
+			buildPhases = (
+				B0000000000000000000009E /* Sources */,
+				B0000000000000000000009F /* Frameworks */,
+				B000000000000000000000A0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TokenPulseWatchWidgets;
+			productName = TokenPulseWatchWidgets;
+			productReference = B00000000000000000000095 /* TokenPulseWatchWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000401 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					A00000000000000000000502 = {
+						TestTargetID = A00000000000000000000501;
+					};
+				};
+			};
+			buildConfigurationList = B000000000000000000000B4 /* Build configuration list for PBXProject "TokenPulse" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = B00000000000000000000030;
+			productRefGroup = B00000000000000000000031 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A00000000000000000000501 /* TokenPulse */,
+				A00000000000000000000502 /* TokenPulseTests */,
+				B00000000000000000000062 /* TokenPulseWatch */,
+				B00000000000000000000084 /* TokenPulseWidgets */,
+				B00000000000000000000094 /* TokenPulseWatchWidgets */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B00000000000000000000052 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D00000000000000000000015,
+				D00000000000000000000016,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000005E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B00000000000000000000080 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0000000000000000000000F,
+				D00000000000000000000010,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B00000000000000000000090 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0000000000000000000000C,
+				D0000000000000000000000D,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B000000000000000000000A0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D00000000000000000000012,
+				D00000000000000000000013,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B00000000000000000000050 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000033 /* TokenPulse/Application/AccountQuotaClient.swift in Sources */,
+				B00000000000000000000034 /* TokenPulse/Application/AppRuntime.swift in Sources */,
+				B00000000000000000000035 /* TokenPulse/Application/NotificationRuntime.swift in Sources */,
+				B00000000000000000000036 /* TokenPulse/Application/QuotaMonitor.swift in Sources */,
+				B00000000000000000000037 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */,
+				B00000000000000000000038 /* TokenPulse/Domain/Models.swift in Sources */,
+				B00000000000000000000039 /* TokenPulse/Domain/Ports.swift in Sources */,
+				B0000000000000000000003A /* TokenPulse/Infrastructure/KeychainCredentialStore.swift in Sources */,
+				B0000000000000000000003B /* TokenPulse/Infrastructure/LocalAccountStateStore.swift in Sources */,
+				B0000000000000000000003C /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift in Sources */,
+				B0000000000000000000003D /* TokenPulse/Notifications/NotificationPlanner.swift in Sources */,
+				B0000000000000000000003E /* TokenPulse/Notifications/ReminderModels.swift in Sources */,
+				B0000000000000000000003F /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift in Sources */,
+				B00000000000000000000040 /* TokenPulse/Platform/BackgroundRefreshAdapter.swift in Sources */,
+				B00000000000000000000041 /* TokenPulse/Platform/CloudAccountSyncStore.swift in Sources */,
+				B00000000000000000000042 /* TokenPulse/Platform/PlatformConstants.swift in Sources */,
+				B00000000000000000000043 /* TokenPulse/Platform/SynchronizableCredentialStore.swift in Sources */,
+				B00000000000000000000044 /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */,
+				B00000000000000000000045 /* TokenPulse/Providers/ClaudeProvider.swift in Sources */,
+				B00000000000000000000046 /* TokenPulse/Providers/CodexProvider.swift in Sources */,
+				B00000000000000000000047 /* TokenPulse/Providers/ProviderHTTP.swift in Sources */,
+				B00000000000000000000048 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */,
+				B00000000000000000000049 /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */,
+				B0000000000000000000004A /* TokenPulse/Providers/ZaiProvider.swift in Sources */,
+				B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */,
+				B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */,
+				B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */,
+				B0000000000000000000004E /* TokenPulse/UI/ProviderSignInView.swift in Sources */,
+				B0000000000000000000004F /* TokenPulse/UI/QuotaFormatting.swift in Sources */,
+				D00000000000000000000014,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000005C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000057 /* TokenPulseTests/AccountConfigurationTests.swift in Sources */,
+				B00000000000000000000058 /* TokenPulseTests/KeychainCredentialStoreTests.swift in Sources */,
+				B00000000000000000000059 /* TokenPulseTests/MiniMaxQuotaClientTests.swift in Sources */,
+				B0000000000000000000005A /* TokenPulseTests/NotificationTests.swift in Sources */,
+				B0000000000000000000005B /* TokenPulseTests/QuotaMonitorTests.swift in Sources */,
+				C00000000000000000000002 /* TokenPulseTests/ProviderTests.swift in Sources */,
+				C00000000000000000000004 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000007E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000064 /* TokenPulse/Application/AccountQuotaClient.swift in Sources */,
+				B00000000000000000000065 /* TokenPulse/Application/AppRuntime.swift in Sources */,
+				B00000000000000000000066 /* TokenPulse/Application/NotificationRuntime.swift in Sources */,
+				B00000000000000000000067 /* TokenPulse/Application/QuotaMonitor.swift in Sources */,
+				B00000000000000000000068 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */,
+				B00000000000000000000069 /* TokenPulse/Domain/Models.swift in Sources */,
+				B0000000000000000000006A /* TokenPulse/Domain/Ports.swift in Sources */,
+				B0000000000000000000006B /* TokenPulse/Infrastructure/KeychainCredentialStore.swift in Sources */,
+				B0000000000000000000006C /* TokenPulse/Infrastructure/LocalAccountStateStore.swift in Sources */,
+				B0000000000000000000006D /* TokenPulse/Infrastructure/MiniMaxQuotaClient.swift in Sources */,
+				B0000000000000000000006E /* TokenPulse/Notifications/NotificationPlanner.swift in Sources */,
+				B0000000000000000000006F /* TokenPulse/Notifications/ReminderModels.swift in Sources */,
+				B00000000000000000000070 /* TokenPulse/Notifications/UserNotificationCenterAdapter.swift in Sources */,
+				B00000000000000000000071 /* TokenPulse/Platform/BackgroundRefreshAdapter.swift in Sources */,
+				B00000000000000000000072 /* TokenPulse/Platform/CloudAccountSyncStore.swift in Sources */,
+				B00000000000000000000073 /* TokenPulse/Platform/PlatformConstants.swift in Sources */,
+				B00000000000000000000074 /* TokenPulse/Platform/SynchronizableCredentialStore.swift in Sources */,
+				B00000000000000000000075 /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */,
+				B00000000000000000000076 /* TokenPulse/Providers/ClaudeProvider.swift in Sources */,
+				B00000000000000000000077 /* TokenPulse/Providers/CodexProvider.swift in Sources */,
+				B00000000000000000000078 /* TokenPulse/Providers/ProviderHTTP.swift in Sources */,
+				B00000000000000000000079 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */,
+				B0000000000000000000007A /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */,
+				B0000000000000000000007B /* TokenPulse/Providers/ZaiProvider.swift in Sources */,
+				B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */,
+				B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */,
+				D0000000000000000000000E,
+				E00000000000000000000002,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000008E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000086 /* TokenPulse/Domain/Models.swift in Sources */,
+				B00000000000000000000087 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */,
+				B00000000000000000000088 /* TokenPulse/Notifications/ReminderModels.swift in Sources */,
+				B00000000000000000000089 /* TokenPulse/Platform/PlatformConstants.swift in Sources */,
+				B0000000000000000000008A /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */,
+				B0000000000000000000008B /* TokenPulseWidgets/QuotaWidgetIntent.swift in Sources */,
+				B0000000000000000000008C /* TokenPulseWidgets/QuotaWidgetContent.swift in Sources */,
+				B0000000000000000000008D /* TokenPulseWidgets/TokenPulseWidgetsBundle.swift in Sources */,
+				D0000000000000000000000B,
+				E00000000000000000000001,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000000000000000000009E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B00000000000000000000096 /* TokenPulse/Domain/Models.swift in Sources */,
+				B00000000000000000000097 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */,
+				B00000000000000000000098 /* TokenPulse/Notifications/ReminderModels.swift in Sources */,
+				B00000000000000000000099 /* TokenPulse/Platform/PlatformConstants.swift in Sources */,
+				B0000000000000000000009A /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */,
+				B0000000000000000000009B /* TokenPulseWidgets/QuotaWidgetIntent.swift in Sources */,
+				B0000000000000000000009C /* TokenPulseWidgets/QuotaWidgetContent.swift in Sources */,
+				B0000000000000000000009D /* TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift in Sources */,
+				D00000000000000000000011,
+				E00000000000000000000003,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B000000000000000000000A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00000000000000000000501 /* TokenPulse */;
+			targetProxy = B000000000000000000000A4 /* PBXContainerItemProxy */;
+		};
+		B000000000000000000000A7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B00000000000000000000084 /* TokenPulseWidgets */;
+			targetProxy = B000000000000000000000A6 /* PBXContainerItemProxy */;
+		};
+		B000000000000000000000AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B00000000000000000000062 /* TokenPulseWatch */;
+			targetProxy = B000000000000000000000AA /* PBXContainerItemProxy */;
+		};
+		B000000000000000000000AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B00000000000000000000094 /* TokenPulseWatchWidgets */;
+			targetProxy = B000000000000000000000AE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B00000000000000000000053 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/TokenPulse.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 58M23C5WLR;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "TokenPulse/Platform/TokenPulse-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B00000000000000000000054 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/TokenPulse.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 58M23C5WLR;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "TokenPulse/Platform/TokenPulse-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B0000000000000000000005F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TokenPulse.app/TokenPulse";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B00000000000000000000060 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TokenPulse.app/TokenPulse";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B00000000000000000000081 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TokenPulseWatch/TokenPulseWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TokenPulseWatch/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B00000000000000000000082 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TokenPulseWatch/TokenPulseWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TokenPulseWatch/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B00000000000000000000091 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TokenPulseWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B00000000000000000000092 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TokenPulseWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B000000000000000000000A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TokenPulseWatchWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B000000000000000000000A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TokenPulseWatchWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.app.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B000000000000000000000B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 58M23C5WLR;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		B000000000000000000000B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 58M23C5WLR;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B00000000000000000000055 /* Build configuration list for PBXNativeTarget "TokenPulse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B00000000000000000000053 /* Debug */,
+				B00000000000000000000054 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B00000000000000000000061 /* Build configuration list for PBXNativeTarget "TokenPulseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0000000000000000000005F /* Debug */,
+				B00000000000000000000060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B00000000000000000000083 /* Build configuration list for PBXNativeTarget "TokenPulseWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B00000000000000000000081 /* Debug */,
+				B00000000000000000000082 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B00000000000000000000093 /* Build configuration list for PBXNativeTarget "TokenPulseWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B00000000000000000000091 /* Debug */,
+				B00000000000000000000092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B000000000000000000000A3 /* Build configuration list for PBXNativeTarget "TokenPulseWatchWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B000000000000000000000A1 /* Debug */,
+				B000000000000000000000A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B000000000000000000000B4 /* Build configuration list for PBXProject "TokenPulse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B000000000000000000000B2 /* Debug */,
+				B000000000000000000000B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00000000000000000000401 /* Project object */;
+}

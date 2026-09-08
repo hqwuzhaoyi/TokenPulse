@@ -1,0 +1,76 @@
+# Provider integration status (Tickets 03–06)
+
+This file records implemented contracts and the verification boundary. All response examples in tests are synthetic and contain no real credential or account data. No provider below has been validated with a real subscription or physical device yet.
+
+## Shared integration API
+
+- `ProviderQuotaClient(provider:)` implements `QuotaQuerying` and also exposes `quotaResult(for:credential:)` so a coordinator can persist a rotated credential when one is returned.
+- `ProviderAuthenticationController` exposes direct Key creation, `beginLogin`, `continueLogin`, and `refreshCredentialIfNeeded`.
+- Credentials are encoded as `ProviderCredentialEnvelope` JSON. OAuth refresh tokens, web session cookies and account identifiers remain inside that string so the existing credential store can protect them. They are never logged.
+- The application coordinator refreshes and persists a rotated credential before querying. This avoids losing a newly rotated refresh token if the subsequent quota request fails.
+- Every quota `GET` explicitly uses `reloadIgnoringLocalCacheData`; a cached reply must not receive a new collection time and trigger fresh-data behavior.
+
+## Claude
+
+Implemented:
+
+- `ClaudeSessionLoginView(onCredential:)` starts only after the user taps “登录 Claude”.
+- It uses an app-owned, non-persistent `WKWebView`; it does not read Safari, Claude Desktop or another application's cookies.
+- After the login completes, only `sessionKey` and/or `sessionKeyV3` for the exact `claude.ai` domain are read from that WebView's `WKHTTPCookieStore`; they are combined into a restricted Cookie header and no other cookie is retained.
+- `GET https://claude.ai/api/bootstrap` obtains the account's organization memberships. The user explicitly selects an organization.
+- `GET https://claude.ai/api/organizations/{organizationID}/usage` returns the selected organization's quota windows. Both `limits[]` and the older top-level `five_hour`/`seven_day` response shapes are parsed without inventing missing metrics.
+
+Evidence: these are web-client endpoints documented by the pinned Pulse reference, not public Anthropic APIs: [Claude provider notes](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Docs/providers/claude-code.md), [Claude web-session implementation](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Sources/Pulse/ClaudeDesktopSession.swift), and [shared usage parser](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Sources/Pulse/ClaudeCodeUsageService.swift).
+
+Not yet verified: CAPTCHA/passkey behavior inside iOS WKWebView, session-cookie lifetime or rotation, multiple-organization membership on a real account, and whether Claude changes these private web routes. There is no separate refresh endpoint for this session credential; renewal currently requires the web session to remain valid or the user to sign in again.
+
+## Codex
+
+Remaining manual reset uses come from the same `GET /backend-api/wham/usage` response at `rate_limit_reset_credits.available_count`. TokenPulse displays this authoritative count (including zero); absent or invalid fields remain unknown. It does not derive the count from the potentially capped `credits` array or `total_earned_count`, and never calls a reset/consume operation. Evidence: [official backend client](https://github.com/openai/codex/blob/main/codex-rs/backend-client/src/client/rate_limit_resets.rs) and [reset-credit summary type](https://github.com/openai/codex/blob/main/codex-rs/app-server-protocol/src/protocol/v2/account.rs).
+
+Implemented:
+
+- OpenAI's Codex device authorization flow:
+  1. `POST https://auth.openai.com/api/accounts/deviceauth/usercode`.
+  2. User opens `https://auth.openai.com/codex/device`.
+  3. Poll `POST .../deviceauth/token`; HTTP 403/404 mean pending.
+  4. Exchange the returned authorization code and provider-issued verifier at `https://auth.openai.com/oauth/token`.
+- Refresh-token grant with rotation preservation.
+- `GET https://chatgpt.com/backend-api/wham/usage`, including `ChatGPT-Account-Id` when present in the access-token claims.
+- Account-wide and additional per-model `primary_window`/`secondary_window` limits.
+
+Primary sources: [OpenAI Codex device-code implementation](https://github.com/openai/codex/blob/main/codex-rs/login/src/device_code_auth.rs) and [Codex login server/scopes](https://github.com/openai/codex/blob/main/codex-rs/login/src/server.rs). The usage route itself is not a public OpenAI API; response mapping follows the pinned [Pulse Codex implementation](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Sources/Pulse/CodexUsageService.swift).
+
+Not yet verified: real device authorization, token exchange, refresh-token rotation across iPhone and Watch, account header behavior, and current private usage response compatibility.
+
+## Z.ai
+
+Implemented:
+
+- Direct international Coding Plan Key entry; no OAuth or invented refresh flow.
+- `GET https://api.z.ai/api/monitor/usage/quota/limit` with bearer authentication.
+- The HTTP status and the response's `success`/`code` envelope are both checked.
+- `TOKENS_LIMIT`, `CREDIT_LIMIT` and `TIME_LIMIT` windows are mapped from the provider's unit/count, usage, remaining, percentage and reset fields. Missing values remain missing.
+
+The quota route is not publicly documented. Mapping follows the pinned [Pulse Z.ai implementation](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Sources/Pulse/ZaiUsageService.swift), which in turn tracks CodexBar's Z.ai provider. The public [Z.ai documentation](https://docs.z.ai/) establishes the international service but does not currently specify this quota response.
+
+Not yet verified: a real international Coding Plan Key, rejection behavior, multiple accounts, response field casing, and continued availability of the private quota route.
+
+## SuperGrok
+
+When the CLI billing proxy omits `creditUsagePercent`, TokenPulse now tries the read-only `https://grok.com/grok_api_v2.GrokBuildBilling/GetGrokCreditsConfig` gRPC-web endpoint with the same OAuth Bearer token. It accepts an explicitly published percentage and validates framing/status; missing or malformed usage stays unknown. The bounded decoder reads the credits message fields only and does not infer usage from unrelated on-demand balances or an absent percentage. This additional contract follows the [CodexBar billing implementation](https://github.com/steipete/CodexBar/blob/main/Sources/CodexBarCore/Providers/Grok/GrokWebBillingFetcher.swift). A real device/account result remains to be verified.
+
+Implemented:
+
+- xAI RFC 8628 device authorization using the CLI public client and the discovery endpoints:
+  - `https://auth.x.ai/oauth2/device/code`
+  - `https://auth.x.ai/oauth2/token`
+  - scopes `openid email offline_access grok-cli:access`
+- `authorization_pending` and `slow_down` polling behavior.
+- Refresh-token grant with refresh-token rotation preservation.
+- `GET https://cli-chat-proxy.grok.com/v1/billing?format=credits` with the CLI-required `x-xai-token-auth: xai-grok-cli` header.
+- The billing `config` is represented as one account-level SuperGrok quota window. `creditUsagePercent` is used only when explicitly present; missing percentage or period timestamps remain missing and never become zero.
+
+Authentication endpoints are published by [xAI OpenID discovery](https://auth.x.ai/.well-known/openid-configuration). The billing route is not public documentation; its interpretation follows the pinned [Pulse Grok provider notes](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Docs/providers/grok.md) and [implementation](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Sources/Pulse/GrokUsageService.swift). That reference identifies the response as the account-wide shared weekly pool used across Grok products and obtains the plan label from the same CLI proxy. It is not the Cursor Grok Bot endpoint and is not an ordinary pay-as-you-go API balance.
+
+Not yet verified: a real SuperGrok subscription, whether the billing response still corresponds to that plan for the current account, real device login and refresh, multi-account separation, and cross-device refresh-token rotation. Until that validation occurs, the source evidence is a contract candidate rather than proof of a working SuperGrok integration.
