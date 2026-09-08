@@ -22,6 +22,8 @@
 		D00000000000000000000014 /* ProviderIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000001; };
 		D00000000000000000000015 /* ProviderIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000002; };
 		D00000000000000000000016 /* ProviderIconNotices.txt in Resources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000003; };
+		F00000000000000000000001 /* AppIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000003; };
+		F00000000000000000000002 /* AppIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000003; };
 		B00000000000000000000033 /* TokenPulse/Application/AccountQuotaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* TokenPulse/Application/AccountQuotaClient.swift */; };
 		B00000000000000000000034 /* TokenPulse/Application/AppRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* TokenPulse/Application/AppRuntime.swift */; };
 		B00000000000000000000035 /* TokenPulse/Application/NotificationRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* TokenPulse/Application/NotificationRuntime.swift */; };
@@ -176,6 +178,7 @@
 		D00000000000000000000001 /* ProviderIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ProviderIcon.swift; sourceTree = SOURCE_ROOT; };
 		D00000000000000000000002 /* ProviderIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TokenPulse/Resources/ProviderIcons.xcassets; sourceTree = SOURCE_ROOT; };
 		D00000000000000000000003 /* ProviderIconNotices.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TokenPulse/Resources/ProviderIconNotices.txt; sourceTree = SOURCE_ROOT; };
+		F00000000000000000000003 /* AppIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TokenPulse/Resources/AppIcons.xcassets; sourceTree = SOURCE_ROOT; };
 		B00000000000000000000001 /* TokenPulse/Application/AccountQuotaClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/AccountQuotaClient.swift; sourceTree = SOURCE_ROOT; };
 		B00000000000000000000002 /* TokenPulse/Application/AppRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/AppRuntime.swift; sourceTree = SOURCE_ROOT; };
 		B00000000000000000000003 /* TokenPulse/Application/NotificationRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/NotificationRuntime.swift; sourceTree = SOURCE_ROOT; };
@@ -335,6 +338,7 @@
 				D00000000000000000000001,
 				D00000000000000000000002,
 				D00000000000000000000003,
+				F00000000000000000000003 /* AppIcons.xcassets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -487,6 +491,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F00000000000000000000001 /* AppIcons.xcassets in Resources */,
 				D00000000000000000000015,
 				D00000000000000000000016,
 			);
@@ -503,6 +508,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F00000000000000000000002 /* AppIcons.xcassets in Resources */,
 				D0000000000000000000000F,
 				D00000000000000000000010,
 			);
@@ -678,6 +684,7 @@
 		B00000000000000000000053 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/TokenPulse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -709,6 +716,7 @@
 		B00000000000000000000054 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/TokenPulse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -792,6 +800,7 @@
 		B00000000000000000000081 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulseWatch/TokenPulseWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -822,6 +831,7 @@
 		B00000000000000000000082 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulseWatch/TokenPulseWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
