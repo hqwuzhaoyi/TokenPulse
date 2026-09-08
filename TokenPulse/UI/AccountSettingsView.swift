@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct AccountSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     @ObservedObject var monitor: QuotaMonitor
     let runtime: AppRuntime
     var initialAccountID: UUID?
@@ -11,28 +10,9 @@ struct AccountSettingsView: View {
         NavigationStack(path: $path) {
             List {
                 CloudSyncSettingsSection(settings: runtime.cloudSync, runtime: runtime)
-                Section("系统通知") {
-                    Button("允许 TokenPulse 提醒") {
-                        Task {
-                            do {
-                                let allowed = try await UserNotificationCenterAdapter().requestAuthorization()
-                                monitor.setSynchronizationMessage(allowed ? "系统通知已开启" : "通知未开启，可前往系统设置修改。")
-                                if allowed { await monitor.onChange?() }
-                            } catch { monitor.setSynchronizationMessage("无法申请通知权限") }
-                        }
-                    }
-                }
+                NotificationSettingsSection(notifications: runtime.notifications, monitor: monitor)
                 if let message = monitor.synchronizationMessage {
-                    Label(message, systemImage: "icloud").font(.caption)
-                }
-                Section("Watch 关注顺序") {
-                    ForEach(monitor.followedAccounts) { configuration in
-                        HStack(spacing: 10) {
-                            ProviderIcon(provider: configuration.account.provider)
-                            Text(configuration.account.name)
-                        }
-                    }
-                    .onMove { from, to in Task { await monitor.reorderFollowed(from: from, to: to) } }
+                    Label(message, systemImage: "info.circle").font(.caption)
                 }
                 Section("全部账号") {
                     ForEach(monitor.configurations) { configuration in
@@ -48,13 +28,45 @@ struct AccountSettingsView: View {
                     }
                 }
             }
-            .navigationTitle("账号设置")
+            .navigationTitle("设置")
             .navigationDestination(for: UUID.self) { id in AccountPreferencesView(monitor: monitor, accountID: id) }
             .onAppear { if let initialAccountID, path.isEmpty { path = [initialAccountID] } }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) { EditButton() }
-                ToolbarItem(placement: .topBarTrailing) { Button("完成") { dismiss() } }
+            .onChange(of: initialAccountID) { _, accountID in
+                if let accountID { path = [accountID] }
             }
+        }
+    }
+}
+
+private struct NotificationSettingsSection: View {
+    @ObservedObject var notifications: NotificationRuntime
+    @ObservedObject var monitor: QuotaMonitor
+    @State private var isUpdating = false
+
+    var body: some View {
+        Section {
+            Toggle("通知", isOn: Binding(
+                get: { notifications.isEnabled },
+                set: { enabled in update(enabled) }
+            ))
+            .disabled(isUpdating)
+        } header: {
+            Text("通知")
+        } footer: {
+            Text("关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。")
+        }
+    }
+
+    private func update(_ enabled: Bool) {
+        isUpdating = true
+        Task {
+            let feedback = await notifications.setEnabled(
+                enabled,
+                configurations: monitor.configurations,
+                states: monitor.states
+            )
+            monitor.setSynchronizationMessage(feedback.message)
+            isUpdating = false
         }
     }
 }
@@ -74,32 +86,35 @@ private struct CloudSyncSettingsSection: View {
             } label: {
                 HStack {
                     Label(settings.isSyncing ? "正在同步…" : "立即同步", systemImage: "arrow.triangle.2.circlepath")
-                    if settings.isSyncing { Spacer(); ProgressView() }
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 2) {
+                        timestamp("请求", settings.lastRequestedAt)
+                        timestamp("云端", settings.lastReceivedAt)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    if settings.isSyncing { ProgressView() }
                 }
             }
             .disabled(!settings.isEnabled || settings.isSyncing)
-            LabeledContent("上次同步请求") { timestamp(settings.lastRequestedAt) }
-            LabeledContent("上次收到云端更新") { timestamp(settings.lastReceivedAt) }
             if let error = settings.errorMessage {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .font(.caption).foregroundStyle(.orange)
             } else if !settings.isEnabled {
                 Text("同步已关闭").font(.caption).foregroundStyle(.secondary)
-            } else if settings.lastRequestedAt != nil {
-                Text("同步请求已提交，跨设备传送由 iCloud 安排。")
-                    .font(.caption).foregroundStyle(.secondary)
             }
         } header: {
             Text("同步")
-        } footer: {
-            Text("同步账号、额度、提醒设置及凭证。关闭后保留本机与已同步的数据；请求时间不代表 Watch 已收到。")
         }
     }
 
     @ViewBuilder
-    private func timestamp(_ date: Date?) -> some View {
-        if let date { Text(date, format: .dateTime.month().day().hour().minute().second()) }
-        else { Text("暂无记录").foregroundStyle(.secondary) }
+    private func timestamp(_ label: String, _ date: Date?) -> some View {
+        if let date {
+            Text("\(label) \(date, format: .dateTime.month().day().hour().minute())")
+        } else {
+            Text("\(label) 暂无")
+        }
     }
 }
 
@@ -133,12 +148,6 @@ private struct AccountPreferencesView: View {
                         if let failure = state.lastFailure { Text(failure.displayName).foregroundStyle(.orange) }
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
                     }
-                }
-                Section("显示") {
-                    Toggle("在 Watch 上关注", isOn: Binding(
-                        get: { configuration.followOrder != nil },
-                        set: { value in Task { await monitor.setFollowed(value, accountID: accountID) } }
-                    ))
                 }
                 Section("提醒") {
                     Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in

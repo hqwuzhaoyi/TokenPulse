@@ -9,7 +9,7 @@ final class PlatformTests: XCTestCase {
         let store = WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite), key: "reset-count")
         let account = SubscriptionAccount(name: "测试", provider: .codex)
         let snapshot = QuotaSnapshot(accountID: account.id, windows: [], collectedAt: Date(), remainingResetCount: 3)
-        try await store.save(states: [AccountQuotaState(account: account, snapshot: snapshot)], configurations: [])
+        try await store.save(states: [AccountQuotaState(account: account, snapshot: snapshot)])
         let loaded = await store.load()
         XCTAssertEqual(loaded.first?.remainingResetCount, 3)
         XCTAssertEqual(QuotaFormatting.remainingResets(0), "0 次")
@@ -23,7 +23,7 @@ final class PlatformTests: XCTestCase {
                                 usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil)
         for (provider, expected) in [(Provider.zai, [70.0, 20.0]), (.codex, [70.0]), (.miniMaxChina, [70.0])] {
             let snapshot = WidgetAccountSnapshot(account: SubscriptionAccount(name: "测试", provider: provider),
-                                                 followOrder: 0, windows: [short, weekly], collectedAt: Date(), lastFailure: nil)
+                                                 windows: [short, weekly], collectedAt: Date(), lastFailure: nil)
             XCTAssertEqual(snapshot.displayMetrics.compactMap { $0.window?.usedPercentage }, expected)
             if provider == .miniMaxChina {
                 XCTAssertFalse(snapshot.displayMetrics[0].showsReset)
@@ -38,14 +38,14 @@ final class PlatformTests: XCTestCase {
         let short = QuotaWindow(id: "general.interval", name: "5 小时额度", scope: nil,
                                 usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil)
         let snapshot = WidgetAccountSnapshot(account: SubscriptionAccount(name: "测试", provider: .miniMaxChina),
-                                             followOrder: 0, windows: [short], collectedAt: Date(), lastFailure: nil)
+                                             windows: [short], collectedAt: Date(), lastFailure: nil)
         XCTAssertEqual(snapshot.displayMetrics.count, 1)
         XCTAssertEqual(snapshot.displayMetrics[0].title, "每周已用")
         XCTAssertNil(snapshot.displayMetrics[0].window)
         XCTAssertEqual(snapshot.homeScreenMetrics.first?.window?.usedPercentage, 20)
         let weekly = QuotaWindow(id: "general.weekly", name: "每周额度", scope: nil,
                                  usedPercentage: 70, remainingCount: nil, totalCount: nil, resetsAt: nil)
-        let weeklyOnly = WidgetAccountSnapshot(account: snapshot.account, followOrder: 0,
+        let weeklyOnly = WidgetAccountSnapshot(account: snapshot.account,
                                               windows: [weekly], collectedAt: Date(), lastFailure: nil)
         XCTAssertNil(weeklyOnly.homeScreenMetrics[0].window)
     }
@@ -171,12 +171,10 @@ final class PlatformTests: XCTestCase {
         let account = SubscriptionAccount(name: "A", provider: .miniMaxChina)
         let oldConfiguration = AccountConfiguration(
             account: account,
-            followOrder: nil,
             modifiedAt: Date(timeIntervalSince1970: 10)
         )
         let newConfiguration = AccountConfiguration(
             account: account,
-            followOrder: 0,
             modifiedAt: Date(timeIntervalSince1970: 20)
         )
         let oldState = AccountQuotaState(

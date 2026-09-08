@@ -25,10 +25,6 @@ struct WidgetAccountQuery: EntityQuery {
 
     func suggestedEntities() async throws -> [WidgetAccountEntity] {
         await WidgetSnapshotStore().load()
-            .sorted {
-                (($0.followOrder ?? .max), $0.id.uuidString)
-                    < (($1.followOrder ?? .max), $1.id.uuidString)
-            }
             .map(WidgetAccountEntity.init)
     }
 }

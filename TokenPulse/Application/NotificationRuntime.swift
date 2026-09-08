@@ -1,31 +1,42 @@
+import Combine
 import Foundation
 
 enum NotificationPermissionFeedback: Equatable {
     case enabled
+    case disabled
     case denied
     case failed
 
     var message: String {
         switch self {
         case .enabled: "通知权限已开启。达到账号设置的阈值或重置时间时会提醒。"
-        case .denied: "通知权限未开启。请在 iPhone 的 Watch App → 通知中检查 TokenPulse 的设置。"
+        case .disabled: "TokenPulse 通知已关闭，账号内的提醒设置会保留。"
+        case .denied:
+            #if os(watchOS)
+            "通知权限未开启。请在 iPhone 的 Watch App → 通知中检查 TokenPulse 的设置。"
+            #else
+            "通知权限未开启。请在系统设置 → 通知中检查 TokenPulse 的权限。"
+            #endif
         case .failed: "暂时无法申请通知权限，请稍后重试。"
         }
     }
 }
 
 @MainActor
-final class NotificationRuntime {
+final class NotificationRuntime: ObservableObject {
+    @Published private(set) var isEnabled: Bool
     private(set) var ledger: ReminderLedger
     private let defaults: UserDefaults
     private let adapter: any NotificationApplying
     private let planner = NotificationPlanner()
+    private let enabledKey = "notificationsEnabled"
     private var busy = false
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
     init(defaults: UserDefaults = .standard, adapter: any NotificationApplying = UserNotificationCenterAdapter()) {
         self.defaults = defaults
         self.adapter = adapter
+        isEnabled = defaults.bool(forKey: enabledKey)
         adapter.configure()
         if let data = defaults.data(forKey: "reminderLedger"),
            let saved = try? JSONDecoder().decode(ReminderLedger.self, from: data) {
@@ -34,12 +45,34 @@ final class NotificationRuntime {
     }
 
     func requestAuthorization() async -> NotificationPermissionFeedback {
+        let feedback: NotificationPermissionFeedback
         switch await adapter.authorizationStatus() {
-        case .authorized: return .enabled
-        case .denied: return .denied
+        case .authorized: feedback = .enabled
+        case .denied: feedback = .denied
         case .notDetermined:
-            do { return try await adapter.requestAuthorization() ? .enabled : .denied }
-            catch { return .failed }
+            do { feedback = try await adapter.requestAuthorization() ? .enabled : .denied }
+            catch { feedback = .failed }
+        }
+        isEnabled = feedback == .enabled
+        defaults.set(isEnabled, forKey: enabledKey)
+        return feedback
+    }
+
+    func setEnabled(_ enabled: Bool,
+                    configurations: [AccountConfiguration],
+                    states: [AccountQuotaState]) async -> NotificationPermissionFeedback {
+        if enabled {
+            let feedback = await requestAuthorization()
+            guard feedback == .enabled else { return feedback }
+        } else {
+            isEnabled = false
+            defaults.set(false, forKey: enabledKey)
+        }
+        do {
+            try await settingsChanged(configurations: configurations, states: states)
+            return enabled ? .enabled : .disabled
+        } catch {
+            return .failed
         }
     }
 
@@ -56,7 +89,7 @@ final class NotificationRuntime {
         guard let snapshot = state.snapshot else { return }
         let result = planner.planSuccessfulRefresh(
             accountID: state.id, accountName: state.account.name, previousSnapshot: previous?.snapshot,
-            newSnapshot: snapshot, settings: settings, ledger: ledger, now: Date()
+            newSnapshot: snapshot, settings: effective(settings), ledger: ledger, now: Date()
         )
         try await adapter.apply(result.operations)
         ledger = result.ledger
@@ -70,7 +103,7 @@ final class NotificationRuntime {
             let result = planner.planSettingsChange(
                 accountID: configuration.id, accountName: configuration.account.name,
                 latestSnapshot: states.first(where: { $0.id == configuration.id })?.snapshot,
-                settings: configuration.reminders, ledger: ledger, now: Date()
+                settings: effective(configuration.reminders), ledger: ledger, now: Date()
             )
             try await adapter.apply(result.operations)
             ledger = result.ledger
@@ -80,6 +113,15 @@ final class NotificationRuntime {
 
     private func persist() throws {
         defaults.set(try JSONEncoder().encode(ledger), forKey: "reminderLedger")
+    }
+
+    private func effective(_ settings: AccountReminderSettings) -> AccountReminderSettings {
+        guard !isEnabled else { return settings }
+        return AccountReminderSettings(
+            quotaAlertsEnabled: false,
+            resetRemindersEnabled: false,
+            thresholds: settings.thresholds
+        )
     }
 
     private func acquire() async {

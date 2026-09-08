@@ -3,7 +3,7 @@ import XCTest
 
 @MainActor
 final class AccountConfigurationTests: XCTestCase {
-    func testFollowOrderAndSettingsSurviveReconstruction() async throws {
+    func testAccountSettingsSurviveReconstruction() async throws {
         let states = ConfigurationStateStore()
         let configurations = ConfigurationStore()
         let credentials = ConfigurationCredentials()
@@ -12,20 +12,21 @@ final class AccountConfigurationTests: XCTestCase {
         await monitor.start()
         await monitor.addAccount(name: "MiniMax", credential: "fixture")
         await monitor.addAccount(name: "Z.ai", credential: "fixture", provider: .zai)
-        await monitor.reorderFollowed(from: IndexSet(integer: 1), to: 0)
-        let first = try XCTUnwrap(monitor.followedAccounts.first)
-        var settings = first.reminders
+        monitor.reorderAccounts(from: IndexSet(integer: 1), to: 0)
+        await monitor.persistAccountOrder()
+        let account = try XCTUnwrap(monitor.configurations.last)
+        var settings = account.reminders
         settings.quotaAlertsEnabled = false
-        await monitor.updateReminders(settings, accountID: first.id)
-        await monitor.setFollowed(false, accountID: first.id)
+        await monitor.updateReminders(settings, accountID: account.id)
 
         let restored = QuotaMonitor(accountStore: states, credentialStore: credentials,
                                     quotaClient: OfflineClient(), configurationStore: configurations)
         await restored.start()
         XCTAssertEqual(restored.states.count, 2)
-        XCTAssertEqual(restored.followedAccounts.map(\.account.name), ["MiniMax"])
-        XCTAssertEqual(restored.configuration(for: first.id)?.reminders.quotaAlertsEnabled, false)
-        XCTAssertEqual(restored.configuration(for: first.id)?.reminders.resetRemindersEnabled, true)
+        XCTAssertEqual(restored.states.map(\.account.name), ["Z.ai", "MiniMax"])
+        XCTAssertEqual(restored.configurations.map(\.account.name), ["Z.ai", "MiniMax"])
+        XCTAssertEqual(restored.configuration(for: account.id)?.reminders.quotaAlertsEnabled, false)
+        XCTAssertEqual(restored.configuration(for: account.id)?.reminders.resetRemindersEnabled, true)
     }
 
     func testSyncKeepsCollectionTimeAndDoesNotRunFreshResultHandler() async throws {

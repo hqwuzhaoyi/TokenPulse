@@ -178,10 +178,7 @@ actor ICloudSyncRuntime {
         for candidate in rhs where candidate.modifiedAt > (byID[candidate.id]?.modifiedAt ?? .distantPast) {
             byID[candidate.id] = candidate
         }
-        return byID.values.sorted {
-            (($0.followOrder ?? .max), $0.id.uuidString)
-                < (($1.followOrder ?? .max), $1.id.uuidString)
-        }
+        return byID.values.sorted { $0.id.uuidString < $1.id.uuidString }
     }
 
     nonisolated private static func mergeStates(

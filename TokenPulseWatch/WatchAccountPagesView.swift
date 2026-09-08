@@ -5,7 +5,6 @@ struct WatchAccountPagesView: View {
     let runtime: AppRuntime
     @ObservedObject var monitor: QuotaMonitor
     @State private var selection: UUID?
-    @State private var deepLinkedAccountID: UUID?
     @State private var requestingNotificationPermission = false
     @State private var notificationFeedback: NotificationPermissionFeedback?
 
@@ -14,11 +13,9 @@ struct WatchAccountPagesView: View {
             Group {
                 if displayedStates.isEmpty {
                     ContentUnavailableView(
-                        "没有关注账号",
+                        "没有账号",
                         systemImage: "applewatch",
-                        description: Text(monitor.configurations.isEmpty
-                            ? "等待 iCloud 同步账号配置"
-                            : "请在 iPhone 上选择关注账号")
+                        description: Text("等待 iCloud 同步账号配置")
                     )
                 } else {
                     TabView(selection: $selection) {
@@ -49,7 +46,6 @@ struct WatchAccountPagesView: View {
                       let id = UUID(uuidString: url.lastPathComponent),
                       monitor.states.contains(where: { $0.id == id })
                 else { return }
-                deepLinkedAccountID = id
                 selection = id
             }
             .toolbar {
@@ -84,18 +80,8 @@ struct WatchAccountPagesView: View {
         }
     }
 
-    private var followedStates: [AccountQuotaState] {
-        monitor.followedAccounts.compactMap { configuration in
-            monitor.states.first { $0.id == configuration.id }
-        }
-    }
-
     private var displayedStates: [AccountQuotaState] {
-        guard let deepLinkedAccountID,
-              !followedStates.contains(where: { $0.id == deepLinkedAccountID }),
-              let deepLinkedState = monitor.states.first(where: { $0.id == deepLinkedAccountID })
-        else { return followedStates }
-        return followedStates + [deepLinkedState]
+        monitor.states
     }
 }
 

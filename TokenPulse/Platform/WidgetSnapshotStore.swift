@@ -3,7 +3,6 @@ import WidgetKit
 
 struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     let account: SubscriptionAccount
-    let followOrder: Int?
     let windows: [QuotaWindow]
     let collectedAt: Date?
     let lastFailure: RefreshFailure?
@@ -76,12 +75,10 @@ actor WidgetSnapshotStore {
         return (try? JSONDecoder().decode([WidgetAccountSnapshot].self, from: data)) ?? []
     }
 
-    func save(states: [AccountQuotaState], configurations: [AccountConfiguration]) throws {
-        let configurationByID = Dictionary(uniqueKeysWithValues: configurations.map { ($0.id, $0) })
+    func save(states: [AccountQuotaState]) throws {
         let snapshots = states.map { state in
             WidgetAccountSnapshot(
                 account: state.account,
-                followOrder: configurationByID[state.id]?.followOrder,
                 windows: state.snapshot?.windows ?? [],
                 collectedAt: state.snapshot?.collectedAt,
                 lastFailure: state.lastFailure,

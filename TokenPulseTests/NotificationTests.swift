@@ -29,6 +29,59 @@ final class NotificationTests: XCTestCase {
         let feedback = await runtime.requestAuthorization()
         XCTAssertEqual(feedback, .failed)
     }
+
+    @MainActor
+    func testGlobalNotificationSwitchSchedulesAndCancelsWithoutDiscardingAccountSettings() async throws {
+        let suite = "com.tokenpulse.tests.notification-switch.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "测试账号")
+        let window = QuotaWindow(
+            id: "short",
+            name: "短周期",
+            scope: nil,
+            usedPercentage: 20,
+            remainingCount: nil,
+            totalCount: nil,
+            resetsAt: Date().addingTimeInterval(3_600)
+        )
+        let state = AccountQuotaState(
+            account: account,
+            snapshot: QuotaSnapshot(accountID: account.id, windows: [window], collectedAt: Date())
+        )
+        let configuration = AccountConfiguration(account: account)
+
+        XCTAssertFalse(runtime.isEnabled)
+        let enabledFeedback = await runtime.setEnabled(
+            true,
+            configurations: [configuration],
+            states: [state]
+        )
+        XCTAssertEqual(enabledFeedback, .enabled)
+        XCTAssertTrue(runtime.isEnabled)
+        let enabledOperations = await adapter.operations()
+        XCTAssertTrue(enabledOperations.contains { operation in
+            if case .schedule = operation { return true }
+            return false
+        })
+
+        let disabledFeedback = await runtime.setEnabled(
+            false,
+            configurations: [configuration],
+            states: [state]
+        )
+        XCTAssertEqual(disabledFeedback, .disabled)
+        XCTAssertFalse(runtime.isEnabled)
+        XCTAssertTrue(configuration.reminders.quotaAlertsEnabled)
+        XCTAssertTrue(configuration.reminders.resetRemindersEnabled)
+        let disabledOperations = await adapter.operations()
+        XCTAssertTrue(disabledOperations.contains { operation in
+            if case .cancel = operation { return true }
+            return false
+        })
+    }
     private let planner = NotificationPlanner()
     private let accountID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
     private let now = Date(timeIntervalSince1970: 1_000)
@@ -551,4 +604,16 @@ private struct PermissionTestAdapter: NotificationApplying {
         return grant
     }
     func apply(_ operations: [NotificationOperation]) async throws {}
+}
+
+private actor RecordingNotificationAdapter: NotificationApplying {
+    private var recordedOperations: [NotificationOperation] = []
+
+    @MainActor func configure() {}
+    func authorizationStatus() async -> NotificationAuthorizationStatus { .authorized }
+    func requestAuthorization() async throws -> Bool { true }
+    func apply(_ operations: [NotificationOperation]) async throws {
+        recordedOperations.append(contentsOf: operations)
+    }
+    func operations() -> [NotificationOperation] { recordedOperations }
 }

@@ -17,4 +17,4 @@
 
 ## Blocked by
 
-- [07 — iPhone 完整账号列表、关注配置与同步恢复](07-iphone-account-list-sync.md)
+- [07 — iPhone 完整账号列表、提醒配置与同步恢复](07-iphone-account-list-sync.md)

@@ -12,7 +12,7 @@
 | 04 | CodexProvider、ProviderSignInView | 设备码授权、订阅额度、令牌续期及双端轮换 |
 | 05 | ZaiProvider | 国际 Coding Plan 凭证、双账号、多窗口和失效状态 |
 | 06 | SuperGrokProvider、ProviderSignInView | 真实 SuperGrok 套餐归属、授权、续期和双端查询 |
-| 07 | AccountConfiguration、AccountSettingsView、AppRuntime | 配置恢复、关注排序、无 iCloud 本地使用 |
+| 07 | AccountConfiguration、AccountSettingsView、AppRuntime | 配置恢复、全局通知开关、无 iCloud 本地使用 |
 | 08 | WatchAccountPagesView | 目标 Watch 的分页、多窗口可读性、后台与独立刷新 |
 | 09 | NotificationPlanner、NotificationRuntime | 系统通知权限、两端告警和跨设备记录同步 |
 | 10 | NotificationPlanner、UserNotificationCenterAdapter | 应用未运行时预计重置提醒、取消及重排 |

@@ -20,12 +20,6 @@ final class QuotaMonitor: ObservableObject {
     var onChange: (@MainActor () async -> Void)?
     var onFreshSnapshot: (@MainActor (AccountQuotaState, AccountQuotaState?) async -> Void)?
 
-    var followedAccounts: [AccountConfiguration] {
-        configurations.filter { $0.followOrder != nil }.sorted {
-            ($0.followOrder ?? 0, $0.id.uuidString) < ($1.followOrder ?? 0, $1.id.uuidString)
-        }
-    }
-
     var hasPendingCredentialCleanup: Bool {
         !pendingCredentialCleanupAccountIDs.isEmpty
     }
@@ -93,7 +87,7 @@ final class QuotaMonitor: ObservableObject {
             storageMessage = "无法安全保存账号"
             return
         }
-        configurations.append(AccountConfiguration(account: account, followOrder: followedAccounts.count))
+        configurations.append(AccountConfiguration(account: account))
         await persistConfigurations()
         await refresh(accountID: account.id)
     }
@@ -146,31 +140,35 @@ final class QuotaMonitor: ObservableObject {
         configurations.first { $0.id == id }
     }
 
-    func setFollowed(_ followed: Bool, accountID: UUID) async {
-        guard let index = configurations.firstIndex(where: { $0.id == accountID }) else { return }
-        configurations[index].followOrder = followed ? followedAccounts.count : nil
-        configurations[index].modifiedAt = Date()
-        await persistConfigurations()
-    }
-
-    func reorderFollowed(from offsets: IndexSet, to destination: Int) async {
-        var ordered = followedAccounts.map(\.id)
-        let moved = offsets.sorted().map { ordered[$0] }
-        for index in offsets.sorted().reversed() { ordered.remove(at: index) }
-        ordered.insert(contentsOf: moved, at: destination - offsets.filter { $0 < destination }.count)
-        for (position, id) in ordered.enumerated() {
-            guard let index = configurations.firstIndex(where: { $0.id == id }) else { continue }
-            configurations[index].followOrder = position
-            configurations[index].modifiedAt = Date()
-        }
-        await persistConfigurations()
-    }
-
     func updateReminders(_ settings: AccountReminderSettings, accountID: UUID) async {
         guard let index = configurations.firstIndex(where: { $0.id == accountID }) else { return }
         configurations[index].reminders = settings
         configurations[index].modifiedAt = Date()
         await persistConfigurations()
+    }
+
+    func reorderAccounts(from offsets: IndexSet, to destination: Int) {
+        let moved = offsets.sorted().map { states[$0] }
+        for index in offsets.sorted().reversed() { states.remove(at: index) }
+        let insertionIndex = destination - offsets.filter { $0 < destination }.count
+        states.insert(contentsOf: moved, at: insertionIndex)
+
+        let positionByID = Dictionary(uniqueKeysWithValues: states.enumerated().map { ($1.id, $0) })
+        configurations.sort {
+            (positionByID[$0.id] ?? .max) < (positionByID[$1.id] ?? .max)
+        }
+        let modifiedAt = Date()
+        for index in configurations.indices { configurations[index].modifiedAt = modifiedAt }
+    }
+
+    func persistAccountOrder() async {
+        do {
+            try await accountStore.save(states)
+            try await configurationStore?.save(configurations)
+        } catch {
+            storageMessage = "无法保存账号顺序"
+        }
+        await onChange?()
     }
 
     func replaceCredential(_ credential: String, accountID: UUID) async {
