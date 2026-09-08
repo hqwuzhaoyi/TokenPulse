@@ -95,6 +95,12 @@ Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_S
 
 部分提供商使用非公开客户端接口，接口变化可能影响登录和额度查询。预计重置时间到达只会让旧数据进入“待更新”，不会据此宣称额度已经恢复。
 
+## 许可证
+
+除单独标注许可的第三方资源外，TokenPulse 的代码采用 **[Apache License 2.0](LICENSE)**。
+
+版权及来源说明见 [NOTICE](NOTICE)。渠道图标保留 Lobe Icons 的 MIT 许可，完整条款见 [ProviderIconNotices.txt](TokenPulse/Resources/ProviderIconNotices.txt)。
+
 ## 致谢与参考
 
 - **[Pulse 原仓库](https://github.com/qunqin24/Pulse)**：产品体验、提供商接入研究与渠道图标的参考来源。
