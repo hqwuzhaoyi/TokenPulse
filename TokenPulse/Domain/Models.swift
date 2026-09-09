@@ -126,6 +126,10 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     func needsUpdate(at date: Date) -> Bool {
         resetsAt.map { $0 <= date } ?? false
     }
+
+    var displayName: String {
+        scope.map { "\($0) \(name)" } ?? name
+    }
 }
 
 struct QuotaSnapshot: Codable, Equatable, Sendable {

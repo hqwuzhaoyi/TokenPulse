@@ -8,6 +8,8 @@
 
 单周期账号显示一个主环；双周期账号分别显示两个环。百分比位于环内或紧邻环，额度名称与该窗口自己的重置时间绑定。账号级可手动重置次数只显示一次，不复制到各个额度窗口。
 
+Apple Watch complication 不提供账号配置参数，统一读取 TokenPulse Watch App“表盘设置”保存的账号；不得复用 iPhone 多账号数组或产生“添加新项目”二级交互。
+
 ## Acceptance criteria
 
 - [x] MiniMax 单环以及 GLM/Codex 双环均能显示正确百分比、窗口名称和各自重置时间；验证：使用固定快照运行 SwiftUI Preview 或截图检查，并运行展示测试。

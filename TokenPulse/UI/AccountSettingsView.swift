@@ -145,7 +145,7 @@ private struct AccountPreferencesView: View {
                                     }
                                 } else {
                                     LabeledContent(
-                                        window.scope ?? window.name,
+                                        window.displayName,
                                         value: QuotaFormatting.usage(window)
                                     )
                                 }

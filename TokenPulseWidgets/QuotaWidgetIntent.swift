@@ -51,6 +51,11 @@ struct QuotaWidgetIntent: WidgetConfigurationIntent {
 
 }
 
+struct WatchQuotaWidgetIntent: WidgetConfigurationIntent {
+    static let title: LocalizedStringResource = "TokenPulse 表盘额度"
+    static let description = IntentDescription("显示在 TokenPulse Watch App 设置中选择的账号。")
+}
+
 private extension WidgetAccountEntity {
     init(_ snapshot: WidgetAccountSnapshot) {
         id = snapshot.id.uuidString

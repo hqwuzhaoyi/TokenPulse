@@ -31,10 +31,11 @@ Approved: yes
 
 ## Completion evidence
 
-- Watch 四角支持修正后 82/82 XCTest 通过；结果包：`/tmp/tokenpulse-corner-final/Logs/Test/Test-TokenPulse-2026.09.09_20-37-02-+0800.xcresult`。
-- iOS/watchOS 全部生产 targets 无签名设备构建通过；日志：`/tmp/tokenpulse-corner-build.log`，产物：`/tmp/tokenpulse-corner-products/Debug-iphoneos/TokenPulse.app`。
+- Watch App 表盘账号设置修正后 87/87 XCTest 通过；结果包：`/tmp/tokenpulse-watch-setting-final/Logs/Test/Test-TokenPulse-2026.09.09_22-13-21-+0800.xcresult`。
+- iOS/watchOS 全部生产 targets 无签名设备构建通过；日志：`/tmp/tokenpulse-watch-setting-build.log`，产物：`/tmp/tokenpulse-watch-setting-products/Debug-iphoneos/TokenPulse.app`。
 - iPhone 17 Pro / iOS 26.3.1 模拟器已检查系统 Widget Gallery 的小、中、大三种尺寸；大组件配置页能从主屏幕账号列表逐项添加账号，两个选定账号区域分别深链到各自详情。
 - SuperGrok 当前公开账单结构没有可信的手动重置次数字段，保持“未提供”且不推算；证据已写入提供商接入文档。
 - 完整原型保存在非 master 分支 `prototype/ios-quota-ring-widgets`，提交 `dda276a25d9ccf2cc6b6ab045670061615a1f605`；当前实现分支已移除原型文件。
 - 实体 iPhone 当前不可用；实体 Watch 虽可见但未完成本轮添加/显示验证，按 Ticket 06 的 `[~]` 条目保留为实机差距。
 - Watch 四角槽位已新增 `accessoryCorner`、专用 Gauge/标签及单账号配置；实体 Watch 签名构建和覆盖安装通过，表盘最终选择与显示待用户确认。
+- Watch complication 不包含账号配置参数，统一读取 Watch App“表盘设置”保存到 App Group 的账号 ID；未设置时回退首个账号，选择后立即刷新。Watch App 首次启动自动请求通知权限，不保留手动通知配置按钮。新版已在实体 Watch 覆盖安装并启动。

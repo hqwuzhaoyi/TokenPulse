@@ -5,8 +5,6 @@ struct WatchAccountPagesView: View {
     let runtime: AppRuntime
     @ObservedObject var monitor: QuotaMonitor
     @State private var selection: UUID?
-    @State private var requestingNotificationPermission = false
-    @State private var notificationFeedback: NotificationPermissionFeedback?
 
     var body: some View {
         NavigationStack {
@@ -50,38 +48,65 @@ struct WatchAccountPagesView: View {
             }
             .toolbar {
                 ToolbarItem {
-                    Button {
-                        requestingNotificationPermission = true
-                        Task {
-                            let feedback = await runtime.notifications.requestAuthorization()
-                            notificationFeedback = feedback
-                            requestingNotificationPermission = false
-                            if feedback == .enabled { await runtime.publish() }
-                        }
+                    NavigationLink {
+                        WatchWidgetSettingsView(accounts: displayedStates.map(\.account))
                     } label: {
-                        if requestingNotificationPermission {
-                            ProgressView("处理中")
-                        } else {
-                            Label("开启通知", systemImage: "bell.badge")
-                        }
+                        Label("表盘设置", systemImage: "gearshape")
                     }
-                    .disabled(requestingNotificationPermission)
-                    .accessibilityLabel("开启额度通知")
+                    .accessibilityLabel("表盘设置")
                 }
-            }
-            .alert("通知设置", isPresented: Binding(
-                get: { notificationFeedback != nil },
-                set: { if !$0 { notificationFeedback = nil } }
-            )) {
-                Button("好") { notificationFeedback = nil }
-            } message: {
-                Text(notificationFeedback?.message ?? "")
             }
         }
     }
 
     private var displayedStates: [AccountQuotaState] {
         monitor.states
+    }
+}
+
+private struct WatchWidgetSettingsView: View {
+    let accounts: [SubscriptionAccount]
+    @State private var selectedAccountID: UUID?
+    private let store = WatchWidgetSelectionStore()
+
+    var body: some View {
+        Group {
+            if accounts.isEmpty {
+                ContentUnavailableView(
+                    "没有账号",
+                    systemImage: "applewatch",
+                    description: Text("等待 iCloud 同步账号配置")
+                )
+            } else {
+                Form {
+                    Picker("表盘显示账号", selection: $selectedAccountID) {
+                        ForEach(accounts) { account in
+                            HStack(spacing: 6) {
+                                ProviderIcon(provider: account.provider, size: 14)
+                                VStack(alignment: .leading) {
+                                    Text(account.name)
+                                    Text(account.provider.displayName)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .tag(Optional(account.id))
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("表盘设置")
+        .task {
+            let saved = await store.load()
+            selectedAccountID = saved.flatMap { id in accounts.contains { $0.id == id } ? id : nil }
+                ?? accounts.first?.id
+        }
+        .onChange(of: selectedAccountID) { _, accountID in
+            Task {
+                await store.save(accountID)
+            }
+        }
     }
 }
 
@@ -127,7 +152,7 @@ private struct WatchAccountPage: View {
                             }
                         } else {
                             LabeledContent(
-                                window.scope ?? window.name,
+                                window.displayName,
                                 value: QuotaFormatting.usage(window)
                             )
                             .font(.caption2)

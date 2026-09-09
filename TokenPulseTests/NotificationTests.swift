@@ -258,6 +258,34 @@ final class NotificationTests: XCTestCase {
         XCTAssertEqual(delivered(result.operations, kind: .quotaAlert).map(\.body), ["5 小时额度达到100%"])
     }
 
+    func testScopedQuotaNotificationIncludesProviderDisplayName() {
+        let fable = QuotaWindow(
+            id: "claude.weekly_scoped.Fable",
+            name: "每周额度",
+            scope: "Fable",
+            period: .weekly,
+            usedPercentage: 82,
+            remainingCount: nil,
+            totalCount: nil,
+            resetsAt: nil,
+            cycleID: "fable-week"
+        )
+        let result = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "Claude",
+            previousSnapshot: nil,
+            newSnapshot: snapshot(windows: [fable]),
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: ReminderLedger(),
+            now: now
+        )
+
+        XCTAssertEqual(
+            delivered(result.operations, kind: .quotaAlert).map(\.body),
+            ["Fable 每周额度达到80%"]
+        )
+    }
+
     func testMultipleWindowsAreCombinedPerAccountRefresh() {
         let result = planner.planSuccessfulRefresh(
             accountID: accountID,

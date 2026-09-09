@@ -29,7 +29,7 @@ struct NotificationPlanner: Sendable {
                 let alreadyConfirmed = ledger.hasConfirmedReset(occurrence)
                 ledger.recordConfirmedReset(occurrence)
                 if settings.resetRemindersEnabled && !alreadyExpected && !alreadyConfirmed {
-                    confirmedResetWindows.append(window.name)
+                    confirmedResetWindows.append(window.displayName)
                 }
             }
 
@@ -66,7 +66,7 @@ struct NotificationPlanner: Sendable {
                     threshold: threshold
                 )
             }
-            quotaMessages.append("\(window.name)达到\(format(highest))%")
+            quotaMessages.append("\(window.displayName)达到\(format(highest))%")
         }
 
         if !quotaMessages.isEmpty {
@@ -200,7 +200,7 @@ struct NotificationPlanner: Sendable {
         if let snapshot {
             let windowsByID = Dictionary(uniqueKeysWithValues: snapshot.windows.map { ($0.id, $0) })
             for schedule in desired.sorted(by: { $0.resetAt < $1.resetAt }) {
-                let names = schedule.windowIDs.compactMap { windowsByID[$0]?.name }.sorted()
+                let names = schedule.windowIDs.compactMap { windowsByID[$0]?.displayName }.sorted()
                 let notification = ReminderNotification(
                     identifier: schedule.notificationID,
                     title: "\(accountName)额度预计已重置",

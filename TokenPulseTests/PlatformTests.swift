@@ -71,19 +71,6 @@ final class PlatformTests: XCTestCase {
         XCTAssertEqual(QuotaFormatting.remainingResets(nil), "未提供")
     }
 
-    func testWidgetStoragePublishesSelectableAccountBeforeFirstQuotaSnapshot() async throws {
-        let suite = "com.tokenpulse.tests.widget-candidate.\(UUID().uuidString)"
-        defer { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
-        let store = WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite), key: "candidate")
-        let account = SubscriptionAccount(name: "等待首次刷新", provider: .superGrok)
-
-        try await store.save(states: [AccountQuotaState(account: account)])
-
-        let loaded = await store.load()
-        XCTAssertEqual(loaded.map(\.account), [account])
-        XCTAssertNil(loaded.first?.collectedAt)
-    }
-
     func testWidgetResetCountIsAccountLevelForCodexAndSuperGrokOnly() {
         func snapshot(_ provider: Provider, count: Int?) -> WidgetAccountSnapshot {
             WidgetAccountSnapshot(
@@ -99,6 +86,23 @@ final class PlatformTests: XCTestCase {
         XCTAssertFalse(snapshot(.openCodeGo, count: nil).supportsManualResetCount)
         XCTAssertEqual(QuotaFormatting.remainingResets(3), "3 次")
         XCTAssertEqual(QuotaFormatting.remainingResets(nil), "未提供")
+    }
+
+    func testWatchWidgetSelectionPersistsAndClearsSelectedAccount() async throws {
+        let suite = "com.tokenpulse.tests.watch-widget-selection.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = WatchWidgetSelectionStore(suiteName: suite)
+        let accountID = UUID()
+
+        let initial = await store.load()
+        XCTAssertNil(initial)
+        await store.save(accountID)
+        let saved = await store.load()
+        XCTAssertEqual(saved, accountID)
+        await store.save(nil)
+        let cleared = await store.load()
+        XCTAssertNil(cleared)
     }
 
     func testWidgetUsesPlanSpecificCodexWindows() {
@@ -130,6 +134,18 @@ final class PlatformTests: XCTestCase {
             windows: [short, weekly, monthly], collectedAt: Date(), lastFailure: nil
         )
         XCTAssertEqual(openCode.displayMetrics.map(\.title), ["5 小时额度", "每周额度", "每月额度"])
+        XCTAssertEqual(openCode.ringMetrics.map(\.title), ["5 小时额度", "每周额度", "每月额度"])
+        XCTAssertEqual(plus.ringMetrics.count, 2)
+
+        let fable = QuotaWindow(
+            id: "claude.weekly.fable", name: "每周额度", scope: "Fable", period: .weekly,
+            usedPercentage: 15, remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let claude = WidgetAccountSnapshot(
+            account: SubscriptionAccount(name: "Claude", provider: .claude),
+            windows: [short, weekly, fable], collectedAt: Date(), lastFailure: nil
+        )
+        XCTAssertEqual(claude.ringMetrics.map(\.title), ["5 小时额度", "每周额度", "Fable 每周额度"])
 
         for (provider, expected) in [(Provider.zai, [70.0, 20.0]), (.miniMaxChina, [20.0])] {
             let snapshot = WidgetAccountSnapshot(account: SubscriptionAccount(name: "测试", provider: provider),

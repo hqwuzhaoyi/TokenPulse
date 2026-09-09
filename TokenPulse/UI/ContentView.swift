@@ -144,7 +144,7 @@ private struct AccountQuotaView: View {
                             QuotaWindowView(window: window)
                         } else {
                             LabeledContent(
-                                window.scope ?? window.name,
+                                window.displayName,
                                 value: QuotaFormatting.usage(window)
                             )
                         }
@@ -248,7 +248,7 @@ private struct CompactQuotaWindowView: View {
                     .bold()
                     .monospacedDigit()
             } label: {
-                Text(window.name)
+                Text(window.displayName)
                     .font(.subheadline)
             }
             LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt))

@@ -48,11 +48,12 @@
 - 小、中、大组件都从主屏幕已配置账号列表中选择，分别最多选择 1、2、4 个具体账号，选择顺序就是展示顺序；重复选择会按首次出现去重，每个可见账号区域拥有独立深链。
 - MiniMax 统一显示 5 小时单环；GLM 与 Codex Plus 分别显示 5 小时、周额度双环；Codex Pro 按套餐策略只显示账号级周额度；SuperGrok 显示共享额度环。
 - SuperGrok 的公开账单结构只核实到使用率、周期、按需字段和预付余额，没有可信的剩余手动重置次数字段，因此 Widget 显示“未提供”，不使用原型示意值或推算值。
-- Watch 四角支持修正后 82/82 全量测试通过；结果包 `/tmp/tokenpulse-corner-final/Logs/Test/Test-TokenPulse-2026.09.09_20-37-02-+0800.xcresult`，日志 `/tmp/tokenpulse-corner-tests.log`。
-- iOS/watchOS 全部生产 targets 无签名设备构建通过；日志 `/tmp/tokenpulse-corner-build.log`，iPhone 产物 `/tmp/tokenpulse-corner-products/Debug-iphoneos/TokenPulse.app`，包含 iPhone Widget、Watch App 与 Watch Widget。
+- Watch App 表盘账号设置修正后 87/87 全量测试通过；结果包 `/tmp/tokenpulse-watch-setting-final/Logs/Test/Test-TokenPulse-2026.09.09_22-13-21-+0800.xcresult`，日志 `/tmp/tokenpulse-watch-setting-tests.log`。
+- iOS/watchOS 全部生产 targets 无签名设备构建通过；日志 `/tmp/tokenpulse-watch-setting-build.log`，iPhone 产物 `/tmp/tokenpulse-watch-setting-products/Debug-iphoneos/TokenPulse.app`，包含 iPhone Widget、Watch App 与 Watch Widget。
 - iPhone 17 Pro / iOS 26.3.1 模拟器已在系统 Widget Gallery 检查小、中、大尺寸；大组件实际添加到主屏幕，两个账号时自动撑满，左右账号区域分别进入“工作账号”和“个人账号”。
 - 后续在同一模拟器验证大组件编辑页：系统从主屏幕账号列表提供“工作账号 / Codex”“个人账号 / Claude”，可通过“添加新项目”组成账号集合；未配置的旧组件明确提示“请选择展示账号”。
 - 用户反馈表盘四角无法展示后，确认缺少 `accessoryCorner` family。现已加入四角专用渠道图标与沿表盘边缘的额度 Gauge/重置标签；watchOS 26.2 模拟器和实体 Apple Watch Series 8 destination 均签名构建通过，新版 Watch App 已成功覆盖安装到实体手表。四角槽位最终显示仍待用户在表盘编辑界面确认。
+- 用户进一步确认 Watch 不适合在 complication 配置中选择账号。Watch complication 现为无参数插件，统一读取 TokenPulse Watch App →“表盘设置”中的“表盘显示账号”；未设置或原账号删除时默认首个账号，修改后立即刷新全部 complication。iPhone 继续保留 1/2/4 个账号集合配置。Watch App 移除手动通知按钮，首次启动自动请求系统通知权限，允许后按默认开启的账号提醒规则运行。新版已覆盖安装并启动，实体 Watch 主 App 与 Widget extension 进程均确认运行。
 - 完整 HTML 原型已保存到非 master 分支 `prototype/ios-quota-ring-widgets`，提交 `dda276a25d9ccf2cc6b6ab045670061615a1f605`；当前实现分支不保留原型代码。
 - 实体 iPhone 当前不可用；实体 Watch 可见但没有完成本轮 Widget 添加和显示验证，继续作为实机验收差距，不影响已完成的自动与模拟器验收。
 
@@ -73,12 +74,20 @@
 - OpenCode 图标取自固定参考提交的 Pulse 资源并保留 MIT 来源说明。
 - 85/85 全量测试通过，日志 `/tmp/tokenpulse-opencode-full-tests.log`。尚未使用真实 OpenCode Go Key 在 iPhone 与 Watch 验证。
 
-### Watch 通知按钮反馈修复
+### OpenCode 月额度与 Claude Fable 展示
 
-- Watch 入口“开启通知”原先丢弃系统返回值并吞掉错误，导致已授权、拒绝、失败均无可见反馈。
-- 现已增加处理进度、重复点击禁用和授权结果弹窗；已开启时重新应用提醒安排，被拒绝时提示到 iPhone Watch App 检查通知设置。
-- 修复前反馈测试失败，日志 `/tmp/tokenpulse-permission-red.log`；修复后 60/60 测试通过，日志 `/tmp/tokenpulse-watch-notification-tests.log`。
-- 完整签名构建通过，日志 `/tmp/tokenpulse-watch-notification-build.log`。当前 Watch 连接握手超时、iPhone 离线，尚未将本次修复安装到真机。
+- OpenCode Go 的 5 小时、每周、每月指标全部进入主屏幕小/中/大组件和 Inline；三个环时自适应缩小间距与直径。角落、圆形和矩形附件保留主窗口，避免不可读布局。
+- Claude `weekly_scoped` 使用服务端 `scope.model.display_name`，Fable 显示为“Fable 每周额度”；主屏幕组件最多显示 5 小时、账号每周、Fable 每周三个环。
+- scoped 额度的概览、详情、辅助功能和通知统一保留模型名称；Fable 缺少 `resets_at` 时仍显示用量，但不安排重置提醒。
+- 研究证据见 `docs/claude-fable-research.md`；真实 Claude 账号与各尺寸组件仍待实机验收。
+- 87/87 全量测试通过，日志 `/tmp/tokenpulse-opencode-monthly-fable-tests.log`。
+
+### Watch 通知默认开启
+
+- Watch 不再提供单独的“开启通知”按钮或重复配置入口；首次启动自动请求系统通知权限，用户允许后默认启用额度告警和重置提醒。
+- 系统拒绝状态仍由 watchOS 控制，应用不会重复弹窗或绕过权限；需要恢复时由用户在 iPhone Watch App 的通知设置中处理。
+- 通知授权行为和表盘账号共享选择均有自动测试覆盖；最终全量结果为 87/87。
+- 实体 Watch 签名构建、覆盖安装和启动通过，主 App 与 Widget extension 进程均确认运行。
 
 ### iOS 同步控制
 

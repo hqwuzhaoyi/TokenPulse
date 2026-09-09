@@ -70,6 +70,54 @@ struct QuotaTimelineProvider: AppIntentTimelineProvider {
     }
 }
 
+struct WatchQuotaTimelineProvider: AppIntentTimelineProvider {
+    func recommendations() -> [AppIntentRecommendation<WatchQuotaWidgetIntent>] {
+        [AppIntentRecommendation(intent: WatchQuotaWidgetIntent(), description: "选择 TokenPulse 账号")]
+    }
+
+    func placeholder(in context: Context) -> QuotaWidgetEntry {
+        WidgetPlaceholder.entry(family: .single)
+    }
+
+    func snapshot(for configuration: WatchQuotaWidgetIntent, in context: Context) async -> QuotaWidgetEntry {
+        await entry(for: configuration)
+    }
+
+    func timeline(for configuration: WatchQuotaWidgetIntent, in context: Context) async -> Timeline<QuotaWidgetEntry> {
+        let entry = await entry(for: configuration)
+        let dates = Set(entry.accounts.flatMap(\.windows).compactMap(\.resetsAt))
+            .filter { $0 > entry.date }.sorted()
+        return Timeline(
+            entries: [entry] + dates.map {
+                QuotaWidgetEntry(
+                    date: $0,
+                    accounts: entry.accounts,
+                    selectionRequired: entry.selectionRequired,
+                    accountSelectionMissing: entry.accountSelectionMissing,
+                    hasAvailableAccounts: entry.hasAvailableAccounts
+                )
+            },
+            policy: .after(Date().addingTimeInterval(30 * 60))
+        )
+    }
+
+    private func entry(for configuration: WatchQuotaWidgetIntent) async -> QuotaWidgetEntry {
+        let snapshots = await WidgetSnapshotStore().load()
+        let configuredID = await WatchWidgetSelectionStore().load()
+        let selectedID = configuredID.flatMap { id in snapshots.contains { $0.id == id } ? id : nil }
+            ?? snapshots.first?.id
+        let selectedIDs = selectedID.map { [$0] } ?? []
+        let selection = WidgetPresentation.select(snapshots, selectedIDs: selectedIDs, family: .single)
+        return QuotaWidgetEntry(
+            date: Date(),
+            accounts: selection.accounts,
+            selectionRequired: selection.selectionRequired,
+            accountSelectionMissing: selection.accountSelectionMissing,
+            hasAvailableAccounts: selection.hasAvailableAccounts
+        )
+    }
+}
+
 private enum WidgetPlaceholder {
     static func entry(family: WidgetPresentationFamily, date: Date = Date()) -> QuotaWidgetEntry {
         let accounts = snapshots(at: date)
@@ -238,7 +286,7 @@ struct QuotaWidgetView: View {
     #endif
 
     private func inline(_ account: WidgetAccountSnapshot) -> some View {
-        let metrics = account.displayMetrics.prefix(2)
+        let metrics = account.ringMetrics
         return Text(
             "\(account.account.name) "
                 + metrics.map { "\($0.title) \($0.valueText)" }.joined(separator: " · ")
@@ -290,12 +338,13 @@ struct QuotaWidgetView: View {
     }
 
     private func small(_ account: WidgetAccountSnapshot) -> some View {
-        VStack(spacing: 7) {
+        let metrics = account.ringMetrics
+        return VStack(spacing: 7) {
             AccountHeader(account: account, date: entry.date)
             Spacer(minLength: 0)
             HStack(spacing: 12) {
-                ForEach(account.homeScreenMetrics.prefix(2)) { metric in
-                    RingMetric(metric: metric, diameter: account.homeScreenMetrics.count == 1 ? 76 : 55)
+                ForEach(metrics) { metric in
+                    RingMetric(metric: metric, diameter: metrics.count == 1 ? 76 : metrics.count == 3 ? 38 : 55)
                 }
             }
             Spacer(minLength: 0)
@@ -416,12 +465,13 @@ private struct AccountTile: View {
     let ringDiameter: CGFloat
 
     var body: some View {
+        let metrics = account.ringMetrics
         VStack(spacing: 7) {
             AccountHeader(account: account, date: date)
             Spacer(minLength: 0)
-            HStack(spacing: 9) {
-                ForEach(account.homeScreenMetrics.prefix(2)) { metric in
-                    RingMetric(metric: metric, diameter: ringDiameter)
+            HStack(spacing: metrics.count == 3 ? 5 : 9) {
+                ForEach(metrics) { metric in
+                    RingMetric(metric: metric, diameter: metrics.count == 3 ? min(ringDiameter, 44) : ringDiameter)
                 }
             }
             Spacer(minLength: 0)
@@ -453,6 +503,7 @@ private struct RingMetric: View {
             Text(metric.title.replacingOccurrences(of: "已用", with: ""))
                 .font(.system(size: 8, weight: .semibold))
                 .lineLimit(1)
+                .minimumScaleFactor(0.6)
             Text("重置 \(QuotaFormatting.resetDate(metric.window?.resetsAt))")
                 .font(.system(size: 7))
                 .foregroundStyle(.secondary)
@@ -465,7 +516,9 @@ private struct RingMetric: View {
 
     private var percentage: String {
         if metric.window?.isUnlimited == true { return "∞" }
-        guard let value = metric.window?.usedPercentage, value.isFinite else { return "—" }
+        guard let window = metric.window,
+              let value = QuotaFormatting.effectiveUsedPercentage(window),
+              value.isFinite else { return "—" }
         return value.formatted(.number.precision(.fractionLength(0))) + "%"
     }
 }

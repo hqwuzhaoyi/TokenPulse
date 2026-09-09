@@ -24,6 +24,11 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
         displayMetrics
     }
 
+    var ringMetrics: [WidgetQuotaMetric] {
+        let limit = account.provider == .openCodeGo || account.provider == .claude ? 3 : 2
+        return Array(displayMetrics.prefix(limit))
+    }
+
     var displayMetrics: [WidgetQuotaMetric] {
         let visible = QuotaPolicy.windows(windows, provider: account.provider, plan: subscriptionPlan, surface: .widget)
         let weekly = visible.filter { $0.period == .weekly }
@@ -60,7 +65,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 ? [WidgetQuotaMetric(id: "fiveHour", title: "5 小时已用", window: nil)]
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
-            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.name, window: $0) }
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         }
     }
 }
@@ -126,6 +131,29 @@ enum WidgetPresentation {
             accountSelectionMissing: accounts.count != requestedIDs.count,
             hasAvailableAccounts: !snapshots.isEmpty
         )
+    }
+}
+
+actor WatchWidgetSelectionStore {
+    private let defaults: UserDefaults
+    private let key: String
+
+    init(
+        suiteName: String = PlatformConstants.appGroupIdentifier,
+        key: String = "watch.widget.selectedAccountID"
+    ) {
+        self.defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        self.key = key
+    }
+
+    func load() -> UUID? {
+        defaults.string(forKey: key).flatMap(UUID.init(uuidString:))
+    }
+
+    func save(_ accountID: UUID?) {
+        if let accountID { defaults.set(accountID.uuidString, forKey: key) }
+        else { defaults.removeObject(forKey: key) }
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

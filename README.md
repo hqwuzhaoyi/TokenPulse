@@ -37,8 +37,10 @@ Codex 套餐根据额度响应中的 `plan_type` 识别为 Plus 或 Pro；缺失
 1. 打开 iPhone 上的 TokenPulse，点击右上角 **＋**，选择提供商并完成登录或输入 Key。
 2. 需要调整顺序时，点击首页左上角 **Edit** 并拖动账号卡片；在 **设置** 中打开通知，并按账号配置提醒类型和阈值。
 3. 在 **账号设置 → 同步** 中开启 iCloud 同步，或点击“立即同步”。
-4. 安装并打开 Watch 端，等待配置到达后刷新额度。
+4. 安装并打开 Watch 端，等待配置到达后刷新额度；在右上角 **表盘设置** 中选择表盘要显示的账号。
 5. 添加 iPhone 小组件；手表上可长按表盘，进入 **编辑 → 复杂功能 → TokenPulse 额度**。
+
+Apple Watch 首次启动会自动请求系统通知权限；允许后额度告警和重置提醒默认开启，不需要在 Watch App 内单独配置。
 
 同步开关控制本机主动同步，关闭后保留本机及已同步数据。“上次同步请求”表示本机提交成功，不代表 Watch 已收到；“上次收到云端更新”单独记录数据到达。
 
@@ -81,7 +83,7 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 已有 **85 项自动测试**，覆盖账号隔离、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
+- 已有 **87 项自动测试**，覆盖账号隔离、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
 - 完整 iOS/watchOS 签名构建、iPhone 真机安装与启动已通过。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - 其余提供商真实接入、双端凭证续期、iCloud 到达、后台通知及各类小组件仍需完整实机验收。
@@ -115,6 +117,7 @@ Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_S
 - [功能规格](docs/spec.md)
 - [各提供商额度展示与通知设计](docs/quota-source-design.md)
 - [OpenCode Go Provider 接入研究](docs/opencode-provider-research.md)
+- [Claude Fable 额度研究](docs/claude-fable-research.md)
 - [领域术语](CONTEXT.md)
 - [设备独立刷新设计](docs/adr/0001-device-side-refresh.md)
 - [任务清单](openspec/changes/ios-watch-quota-monitor/tasks.md)

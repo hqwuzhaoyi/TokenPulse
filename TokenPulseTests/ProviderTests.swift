@@ -167,9 +167,15 @@ final class ProviderTests: XCTestCase {
         }
     }
 
-    func testClaudeSessionQueriesSelectedOrganizationAndParsesWindows() async throws {
+    func testClaudeSessionQueriesSelectedOrganizationAndParsesFableWindow() async throws {
         let transport = ProviderTransportStub([
-            .response(200, #"{"limits":[{"kind":"session","percent":25,"resets_at":"2026-09-08T12:00:00Z"},{"kind":"weekly_scoped","percent":50,"scope":{"model":{"display_name":"Sonnet"}}}]}"#),
+            .response(200, #"""
+            {"limits":[
+              {"kind":"session","percent":25,"resets_at":"2026-09-08T12:00:00Z"},
+              {"kind":"weekly_all","percent":40,"resets_at":"2026-09-14T00:00:00Z"},
+              {"kind":"weekly_scoped","percent":50,"resets_at":null,"scope":{"model":{"display_name":"Fable"}}}
+            ]}
+            """#),
         ])
         let credential = try ProviderCredentialEnvelope(
             provider: .claude,
@@ -181,9 +187,11 @@ final class ProviderTests: XCTestCase {
         let result = try await ProviderQuotaClient(provider: .claude, transport: transport)
             .quotaResult(for: UUID(), credential: credential)
 
-        XCTAssertEqual(result.snapshot.windows.count, 2)
+        XCTAssertEqual(result.snapshot.windows.count, 3)
         XCTAssertEqual(result.snapshot.windows[0].usedPercentage, 25)
-        XCTAssertEqual(result.snapshot.windows[1].scope, "Sonnet")
+        XCTAssertEqual(result.snapshot.windows.map(\.period), [.fiveHour, .weekly, .weekly])
+        XCTAssertEqual(result.snapshot.windows.map(\.displayName), ["5 小时额度", "每周额度", "Fable 每周额度"])
+        XCTAssertNil(result.snapshot.windows[2].resetsAt)
         let requests = await transport.requests()
         let request = try XCTUnwrap(requests.first)
         XCTAssertEqual(request.url?.absoluteString, "https://claude.ai/api/organizations/org-test/usage")

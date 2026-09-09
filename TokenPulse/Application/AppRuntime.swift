@@ -56,9 +56,6 @@ final class AppRuntime: ObservableObject {
             do { try await sync.start() }
             catch { cloudSync.report(error) }
         }
-        await publishWidgetSnapshots(
-            failureMessage: "小组件账号暂未更新，本机账号与查询仍可使用。"
-        )
         await monitor.refreshAll()
         await publish()
         await scheduleBackgroundRefresh()
@@ -73,9 +70,9 @@ final class AppRuntime: ObservableObject {
         do {
             try await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
         } catch { monitor.setSynchronizationMessage("提醒未启用或投递失败，可在账号设置中检查通知权限。") }
-        await publishWidgetSnapshots(
-            failureMessage: "小组件更新失败，本机账号与查询仍可使用。"
-        )
+        do {
+            try await widgetStore.save(states: monitor.states)
+        } catch { monitor.setSynchronizationMessage("小组件更新失败，本机账号与查询仍可使用。") }
         await synchronizeNow()
     }
 
@@ -116,14 +113,9 @@ final class AppRuntime: ObservableObject {
         do {
             try await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
         } catch { monitor.setSynchronizationMessage("提醒尚不可用，可检查通知权限。") }
-        await publishWidgetSnapshots(
-            failureMessage: "同步数据已到达，显示或提醒更新失败。"
-        )
-    }
-
-    private func publishWidgetSnapshots(failureMessage: String) async {
-        do { try await widgetStore.save(states: monitor.states) }
-        catch { monitor.setSynchronizationMessage(failureMessage) }
+        do {
+            try await widgetStore.save(states: monitor.states)
+        } catch { monitor.setSynchronizationMessage("同步数据已到达，显示或提醒更新失败。") }
     }
 
     func scheduleBackgroundRefresh() async {
