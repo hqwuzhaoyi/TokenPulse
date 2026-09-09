@@ -86,9 +86,10 @@ final class NotificationRuntime: ObservableObject {
     func fresh(state: AccountQuotaState, previous: AccountQuotaState?, settings: AccountReminderSettings) async throws {
         await acquire()
         defer { release() }
-        guard let snapshot = state.snapshot else { return }
+        guard let snapshot = reminderSnapshot(state.snapshot, provider: state.account.provider) else { return }
         let result = planner.planSuccessfulRefresh(
-            accountID: state.id, accountName: state.account.name, previousSnapshot: previous?.snapshot,
+            accountID: state.id, accountName: state.account.name,
+            previousSnapshot: reminderSnapshot(previous?.snapshot, provider: state.account.provider),
             newSnapshot: snapshot, settings: effective(settings), ledger: ledger, now: Date()
         )
         try await adapter.apply(result.operations)
@@ -102,7 +103,10 @@ final class NotificationRuntime: ObservableObject {
         for configuration in configurations {
             let result = planner.planSettingsChange(
                 accountID: configuration.id, accountName: configuration.account.name,
-                latestSnapshot: states.first(where: { $0.id == configuration.id })?.snapshot,
+                latestSnapshot: reminderSnapshot(
+                    states.first(where: { $0.id == configuration.id })?.snapshot,
+                    provider: configuration.account.provider
+                ),
                 settings: effective(configuration.reminders), ledger: ledger, now: Date()
             )
             try await adapter.apply(result.operations)
@@ -121,6 +125,17 @@ final class NotificationRuntime: ObservableObject {
             quotaAlertsEnabled: false,
             resetRemindersEnabled: false,
             thresholds: settings.thresholds
+        )
+    }
+
+    private func reminderSnapshot(_ snapshot: QuotaSnapshot?, provider: Provider) -> QuotaSnapshot? {
+        guard let snapshot else { return nil }
+        return QuotaSnapshot(
+            accountID: snapshot.accountID,
+            windows: snapshot.windows(for: provider, surface: .notification),
+            collectedAt: snapshot.collectedAt,
+            subscriptionPlan: snapshot.subscriptionPlan,
+            remainingResetCount: snapshot.remainingResetCount
         )
     }
 

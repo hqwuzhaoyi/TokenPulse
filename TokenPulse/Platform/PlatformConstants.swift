@@ -6,6 +6,12 @@ enum PlatformConstants {
     static let backgroundRefreshIdentifier = "com.tokenpulse.app.refresh"
     static let accountDeepLinkScheme = "tokenpulse"
 
+    static let accountsDeepLink = URL(string: "\(accountDeepLinkScheme)://accounts")!
+
+    static func accountDeepLink(for id: UUID) -> URL {
+        URL(string: "\(accountDeepLinkScheme)://account/\(id.uuidString)")!
+    }
+
     static var resolvedKeychainAccessGroup: String? {
         Bundle.main.object(forInfoDictionaryKey: "TokenPulseKeychainAccessGroup") as? String
     }

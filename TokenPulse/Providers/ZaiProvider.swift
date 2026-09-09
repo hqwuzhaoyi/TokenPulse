@@ -58,6 +58,7 @@ struct ZaiProviderClient: Sendable {
                 id: id,
                 name: ProviderHTTP.windowName(seconds: seconds),
                 scope: type == "TIME_LIMIT" ? "MCP" : nil,
+                period: QuotaPeriod(seconds: seconds),
                 usedPercentage: usedPercentage,
                 remainingCount: remaining,
                 totalCount: total,

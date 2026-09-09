@@ -151,6 +151,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .codex:
             return try await CodexProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .openCodeGo:
+            return try await OpenCodeGoProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .zai:
             return try await ZaiProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -177,6 +180,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Coding Plan Key")
         case .zai:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Z.ai Coding Plan Key")
+        case .openCodeGo:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
         case .codex:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
         case .claude:
@@ -187,7 +192,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -215,7 +220,7 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
-        case .miniMaxChina, .zai:
+        case .miniMaxChina, .openCodeGo, .zai:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -226,7 +231,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await CodexProviderAuthenticator(transport: transport, now: now).poll(session)
         case .superGrok:
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .zai:
+        case .claude, .miniMaxChina, .openCodeGo, .zai:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -238,7 +243,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await CodexProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .superGrok:
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .zai:
+        case .claude, .miniMaxChina, .openCodeGo, .zai:
             return .init(credential: credential, changed: false)
         }
     }

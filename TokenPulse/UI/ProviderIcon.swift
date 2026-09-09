@@ -19,6 +19,7 @@ extension Provider {
         switch self {
         case .claude: "ProviderClaude"
         case .codex: "ProviderCodex"
+        case .openCodeGo: "ProviderOpenCode"
         case .zai: "ProviderZai"
         case .miniMaxChina: "ProviderMiniMax"
         case .superGrok: "ProviderSuperGrok"

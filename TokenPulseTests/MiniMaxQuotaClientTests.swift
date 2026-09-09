@@ -33,6 +33,7 @@ final class MiniMaxQuotaClientTests: XCTestCase {
         XCTAssertEqual(result.accountID, accountID)
         XCTAssertEqual(result.collectedAt, collectedAt)
         XCTAssertEqual(result.windows.map(\.name), ["5 小时额度", "每周额度"])
+        XCTAssertEqual(result.windows.map(\.period), [.fiveHour, .weekly])
         XCTAssertEqual(result.windows[0].usedPercentage, 4)
         XCTAssertEqual(result.windows[0].remainingCount, 960)
         XCTAssertEqual(result.windows[1].usedPercentage, 25)

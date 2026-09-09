@@ -48,6 +48,7 @@
 		B00000000000000000000048 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */; };
 		B00000000000000000000049 /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */; };
 		B0000000000000000000004A /* TokenPulse/Providers/ZaiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */; };
+		F10000000000000000000002 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */; };
 		B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */; };
 		B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */; };
 		B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */; };
@@ -82,6 +83,7 @@
 		B00000000000000000000079 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */; };
 		B0000000000000000000007A /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */; };
 		B0000000000000000000007B /* TokenPulse/Providers/ZaiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */; };
+		F10000000000000000000003 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */; };
 		B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000028 /* TokenPulseWatch/TokenPulseWatchApp.swift */; };
 		B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000029 /* TokenPulseWatch/WatchAccountPagesView.swift */; };
 		B00000000000000000000086 /* TokenPulse/Domain/Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* TokenPulse/Domain/Models.swift */; };
@@ -206,6 +208,7 @@
 		B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ProviderIntegration.swift; sourceTree = SOURCE_ROOT; };
 		B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SuperGrokProvider.swift; sourceTree = SOURCE_ROOT; };
 		B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZaiProvider.swift; sourceTree = SOURCE_ROOT; };
+		F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/OpenCodeGoProvider.swift; sourceTree = SOURCE_ROOT; };
 		B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/TokenPulseApp.swift; sourceTree = SOURCE_ROOT; };
 		B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/AccountSettingsView.swift; sourceTree = SOURCE_ROOT; };
 		B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ContentView.swift; sourceTree = SOURCE_ROOT; };
@@ -313,6 +316,7 @@
 				B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */,
 				B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */,
 				B0000000000000000000001B /* TokenPulse/Providers/ZaiProvider.swift */,
+				F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */,
 				B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */,
 				B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */,
 				B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */,
@@ -563,6 +567,7 @@
 				B00000000000000000000048 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */,
 				B00000000000000000000049 /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */,
 				B0000000000000000000004A /* TokenPulse/Providers/ZaiProvider.swift in Sources */,
+				F10000000000000000000002 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */,
 				B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */,
 				B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */,
@@ -614,6 +619,7 @@
 				B00000000000000000000079 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */,
 				B0000000000000000000007A /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */,
 				B0000000000000000000007B /* TokenPulse/Providers/ZaiProvider.swift in Sources */,
+				F10000000000000000000003 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */,
 				B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */,
 				D0000000000000000000000E,

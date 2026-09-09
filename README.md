@@ -8,13 +8,13 @@
 
 ## 功能
 
-- **多提供商、多账号**：Claude、ChatGPT/Codex、Z.ai 国际 Coding Plan（GLM）、MiniMax 国内版与 SuperGrok。
+- **多提供商、多账号**：Claude、ChatGPT/Codex、OpenCode Go、Z.ai 国际 Coding Plan（GLM）、MiniMax 国内版与 SuperGrok。
 - **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 获取配置及凭证后，无需手机代查额度。
 - **账号顺序**：首页通过 Edit 拖动账号卡片排序；Watch 同步全部账号，每个账号保留独立额度窗口。
 - **同步控制**：iCloud 同步开关、手动同步、上次提交与接收时间、失败提示。
-- **额度告警**：提供应用级通知开关；默认阈值为 80%、95%、100%，按账号配置，多个窗口同时触发时合并提醒。
-- **重置提醒**：显示预计重置时间，支持预排系统通知；到时后旧数据标记“待更新”。
-- **小组件与表盘入口**：iPhone 主屏幕、锁屏，以及 Watch 表盘复杂功能和智能叠放。
+- **额度告警**：提供应用级通知开关；默认阈值为 80%、95%、100%，按提供商和套餐的可通知窗口判断，多个窗口同时触发时合并提醒。
+- **重置提醒**：仅为已有实际用量的可通知窗口预排系统通知；到时后旧数据标记“待更新”。
+- **环形小组件与表盘入口**：iPhone 主屏幕、锁屏，以及 Watch 表盘四角、圆形、矩形、行内复杂功能和智能叠放；保留现有渠道图标，额度窗口分别成环。
 - **数据状态**：保留上次成功数据、采集时间和查询失败提示，重置时间按设备地区与时区显示。
 
 ## 提供商与登录方式
@@ -22,14 +22,15 @@
 | 提供商 | 登录方式 | 桌面小组件主要内容 |
 | --- | --- | --- |
 | Claude | 应用内网页登录，选择组织 | 服务返回的额度窗口 |
-| ChatGPT / Codex | 设备码授权 | 每周已用、重置时间、剩余手动重置次数 |
+| ChatGPT / Codex | 设备码授权 | Plus 显示 5 小时与每周已用；Pro 显示每周已用，详情附 Spark 额度 |
+| OpenCode Go | API Key | 5 小时、每周与每月已用 |
 | Z.ai / GLM | 国际 Coding Plan Key | 每周已用与 5 小时已用 |
 | MiniMax 国内版 | Coding Plan Key | **5 小时已用额度** |
 | SuperGrok | 设备码授权 | 每周已用与重置时间 |
 
-小组件只需选择账号，所需周期在同一个组件内展示，各周期用量不会相加。小尺寸表盘入口显示精简摘要。
+小、中、大组件都从主屏幕已配置账号列表中选择，分别最多选择 1、2、4 个具体账号，选择顺序就是展示顺序。每个账号的额度周期分别成环并显示自己的重置时间，各周期用量不会相加。Codex 与 SuperGrok 的可手动重置次数属于账号级信息，只显示一次；没有可信字段时显示“未提供”。
 
-Codex 的手动重置次数读取接口的 `rate_limit_reset_credits.available_count`，仅展示，不消耗重置次数。提供商没有返回的指标显示“未提供”，不会默认为 0；SuperGrok 的手动重置次数目前没有核实的对应字段。
+Codex 套餐根据额度响应中的 `plan_type` 识别为 Plus 或 Pro；缺失或未知值显示为未提供，不自行猜测。Codex 的手动重置次数读取接口的 `rate_limit_reset_credits.available_count`，仅展示，不消耗重置次数。提供商没有返回的指标显示“未提供”，不会默认为 0；SuperGrok 的手动重置次数目前没有核实的对应字段。
 
 ## 开始使用
 
@@ -80,7 +81,7 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 已有 **69 项自动测试**，覆盖账号隔离、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
+- 已有 **85 项自动测试**，覆盖账号隔离、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
 - 完整 iOS/watchOS 签名构建、iPhone 真机安装与启动已通过。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - 其余提供商真实接入、双端凭证续期、iCloud 到达、后台通知及各类小组件仍需完整实机验收。
@@ -112,6 +113,8 @@ Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_S
 ## 项目文档
 
 - [功能规格](docs/spec.md)
+- [各提供商额度展示与通知设计](docs/quota-source-design.md)
+- [OpenCode Go Provider 接入研究](docs/opencode-provider-research.md)
 - [领域术语](CONTEXT.md)
 - [设备独立刷新设计](docs/adr/0001-device-side-refresh.md)
 - [任务清单](openspec/changes/ios-watch-quota-monitor/tasks.md)

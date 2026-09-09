@@ -3,6 +3,61 @@ import XCTest
 @testable import TokenPulse
 
 final class PlatformTests: XCTestCase {
+    func testExhaustedWindowHasConsistentAppAndWidgetPresentation() {
+        let window = QuotaWindow(
+            id: "opencode-go.weekly", name: "每周额度", scope: nil,
+            period: .weekly, isExhausted: true, usedPercentage: 60,
+            remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let metric = WidgetQuotaMetric(id: window.id, title: window.name, window: window)
+
+        XCTAssertEqual(QuotaFormatting.usage(window), "已用尽")
+        XCTAssertEqual(QuotaFormatting.effectiveUsedPercentage(window), 100)
+        XCTAssertEqual(metric.valueText, "已用尽")
+        XCTAssertEqual(metric.ringFraction, 1)
+    }
+
+    func testQuotaPolicyRoutesAccountAndAuxiliaryWindowsBySurface() {
+        let fiveHour = QuotaWindow(
+            id: "account.five-hour", name: "5 小时额度", scope: nil, period: .fiveHour,
+            usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let weekly = QuotaWindow(
+            id: "account.weekly", name: "每周额度", scope: nil, period: .weekly,
+            usedPercentage: 70, remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let spark = QuotaWindow(
+            id: "spark.five-hour", name: "5 小时额度", scope: "GPT-5.3-Codex-Spark", period: .fiveHour,
+            usedPercentage: 10, remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let windows = [fiveHour, weekly, spark]
+
+        XCTAssertEqual(
+            QuotaPolicy.windows(windows, provider: .codex, plan: .plus, surface: .summary).map(\.id),
+            ["account.five-hour", "account.weekly"]
+        )
+        XCTAssertEqual(
+            QuotaPolicy.windows(windows, provider: .codex, plan: .pro, surface: .summary).map(\.id),
+            ["account.weekly"]
+        )
+        XCTAssertEqual(
+            QuotaPolicy.windows(windows, provider: .codex, plan: .pro, surface: .detail).map(\.id),
+            ["account.weekly", "spark.five-hour"]
+        )
+        XCTAssertEqual(
+            QuotaPolicy.windows(windows, provider: .codex, plan: .pro, surface: .notification).map(\.id),
+            ["account.weekly"]
+        )
+        XCTAssertEqual(
+            QuotaPolicy.windows(windows, provider: .codex, plan: .plus, surface: .notification).map(\.id),
+            ["account.five-hour", "account.weekly"]
+        )
+        XCTAssertEqual(
+            QuotaPolicy.windows(windows, provider: .claude, plan: nil, surface: .notification).map(\.id),
+            windows.map(\.id)
+        )
+    }
+
     func testAvailableResetCountReachesWidgetStorage() async throws {
         let suite = "com.tokenpulse.tests.reset-count.\(UUID().uuidString)"
         defer { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
@@ -16,38 +71,173 @@ final class PlatformTests: XCTestCase {
         XCTAssertEqual(QuotaFormatting.remainingResets(nil), "未提供")
     }
 
-    func testWidgetCombinesGLMPeriodsAndUsesWeeklyOnlyForCodexAndMiniMax() {
+    func testWidgetStoragePublishesSelectableAccountBeforeFirstQuotaSnapshot() async throws {
+        let suite = "com.tokenpulse.tests.widget-candidate.\(UUID().uuidString)"
+        defer { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
+        let store = WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite), key: "candidate")
+        let account = SubscriptionAccount(name: "等待首次刷新", provider: .superGrok)
+
+        try await store.save(states: [AccountQuotaState(account: account)])
+
+        let loaded = await store.load()
+        XCTAssertEqual(loaded.map(\.account), [account])
+        XCTAssertNil(loaded.first?.collectedAt)
+    }
+
+    func testWidgetResetCountIsAccountLevelForCodexAndSuperGrokOnly() {
+        func snapshot(_ provider: Provider, count: Int?) -> WidgetAccountSnapshot {
+            WidgetAccountSnapshot(
+                account: SubscriptionAccount(name: "测试", provider: provider),
+                windows: [], collectedAt: nil, lastFailure: nil,
+                remainingResetCount: count
+            )
+        }
+
+        XCTAssertTrue(snapshot(.codex, count: 3).supportsManualResetCount)
+        XCTAssertTrue(snapshot(.superGrok, count: nil).supportsManualResetCount)
+        XCTAssertFalse(snapshot(.zai, count: 3).supportsManualResetCount)
+        XCTAssertFalse(snapshot(.openCodeGo, count: nil).supportsManualResetCount)
+        XCTAssertEqual(QuotaFormatting.remainingResets(3), "3 次")
+        XCTAssertEqual(QuotaFormatting.remainingResets(nil), "未提供")
+    }
+
+    func testWidgetUsesPlanSpecificCodexWindows() {
+        let shortReset = Date(timeIntervalSince1970: 100)
+        let weeklyReset = Date(timeIntervalSince1970: 200)
         let weekly = QuotaWindow(id: "general.weekly", name: "每周额度", scope: nil,
-                                 usedPercentage: 70, remainingCount: nil, totalCount: nil, resetsAt: nil)
+                                 period: .weekly,
+                                 usedPercentage: 70, remainingCount: nil, totalCount: nil, resetsAt: weeklyReset)
         let short = QuotaWindow(id: "general.interval", name: "5 小时额度", scope: nil,
-                                usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil)
-        for (provider, expected) in [(Provider.zai, [70.0, 20.0]), (.codex, [70.0]), (.miniMaxChina, [70.0])] {
+                                period: .fiveHour,
+                                usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: shortReset)
+        let account = SubscriptionAccount(name: "测试", provider: .codex)
+        let plus = WidgetAccountSnapshot(account: account, windows: [short, weekly], collectedAt: Date(),
+                                         lastFailure: nil, subscriptionPlan: .plus)
+        let pro = WidgetAccountSnapshot(account: account, windows: [short, weekly], collectedAt: Date(),
+                                        lastFailure: nil, subscriptionPlan: .pro)
+
+        XCTAssertEqual(plus.displayMetrics.compactMap { $0.window?.usedPercentage }, [20, 70])
+        XCTAssertEqual(plus.displayMetrics.compactMap { $0.window?.resetsAt }, [shortReset, weeklyReset])
+        XCTAssertEqual(pro.displayMetrics.compactMap { $0.window?.usedPercentage }, [70])
+        XCTAssertEqual(pro.displayMetrics.compactMap { $0.window?.resetsAt }, [weeklyReset])
+
+        let monthly = QuotaWindow(
+            id: "opencode-go.monthly", name: "每月额度", scope: nil, period: .monthly,
+            usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let openCode = WidgetAccountSnapshot(
+            account: SubscriptionAccount(name: "OpenCode", provider: .openCodeGo),
+            windows: [short, weekly, monthly], collectedAt: Date(), lastFailure: nil
+        )
+        XCTAssertEqual(openCode.displayMetrics.map(\.title), ["5 小时额度", "每周额度", "每月额度"])
+
+        for (provider, expected) in [(Provider.zai, [70.0, 20.0]), (.miniMaxChina, [20.0])] {
             let snapshot = WidgetAccountSnapshot(account: SubscriptionAccount(name: "测试", provider: provider),
                                                  windows: [short, weekly], collectedAt: Date(), lastFailure: nil)
             XCTAssertEqual(snapshot.displayMetrics.compactMap { $0.window?.usedPercentage }, expected)
             if provider == .miniMaxChina {
-                XCTAssertFalse(snapshot.displayMetrics[0].showsReset)
+                XCTAssertEqual(snapshot.displayMetrics.map(\.title), ["5 小时已用"])
                 XCTAssertEqual(snapshot.homeScreenMetrics.map(\.title), ["5 小时已用"])
                 XCTAssertEqual(snapshot.homeScreenMetrics.first?.window?.usedPercentage, 20)
-                XCTAssertFalse(snapshot.homeScreenMetrics[0].showsReset)
+                XCTAssertEqual(snapshot.homeScreenMetrics.first?.window?.resetsAt, shortReset)
+            } else {
+                XCTAssertEqual(snapshot.displayMetrics.compactMap { $0.window?.resetsAt }, [weeklyReset, shortReset])
             }
         }
     }
 
     func testWidgetDoesNotRelabelFiveHourUsageAsMissingWeeklyQuota() {
         let short = QuotaWindow(id: "general.interval", name: "5 小时额度", scope: nil,
+                                period: .fiveHour,
                                 usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil)
         let snapshot = WidgetAccountSnapshot(account: SubscriptionAccount(name: "测试", provider: .miniMaxChina),
                                              windows: [short], collectedAt: Date(), lastFailure: nil)
         XCTAssertEqual(snapshot.displayMetrics.count, 1)
-        XCTAssertEqual(snapshot.displayMetrics[0].title, "每周已用")
-        XCTAssertNil(snapshot.displayMetrics[0].window)
+        XCTAssertEqual(snapshot.displayMetrics[0].title, "5 小时已用")
+        XCTAssertEqual(snapshot.displayMetrics[0].window?.usedPercentage, 20)
         XCTAssertEqual(snapshot.homeScreenMetrics.first?.window?.usedPercentage, 20)
         let weekly = QuotaWindow(id: "general.weekly", name: "每周额度", scope: nil,
+                                 period: .weekly,
                                  usedPercentage: 70, remainingCount: nil, totalCount: nil, resetsAt: nil)
         let weeklyOnly = WidgetAccountSnapshot(account: snapshot.account,
                                               windows: [weekly], collectedAt: Date(), lastFailure: nil)
         XCTAssertNil(weeklyOnly.homeScreenMetrics[0].window)
+    }
+
+    func testWidgetPresentationUsesConfiguredAccountsInConfiguredOrder() {
+        let snapshots = (0..<5).map { index in
+            WidgetAccountSnapshot(
+                account: SubscriptionAccount(name: "账号 \(index)", provider: .zai),
+                windows: [], collectedAt: nil, lastFailure: nil
+            )
+        }
+
+        XCTAssertEqual(
+            WidgetPresentation.select(
+                snapshots,
+                selectedIDs: [snapshots[3].id, snapshots[1].id],
+                family: .single
+            ).accounts.map(\.id),
+            [snapshots[3].id]
+        )
+        XCTAssertEqual(
+            WidgetPresentation.select(
+                snapshots,
+                selectedIDs: [snapshots[3].id, snapshots[1].id],
+                family: .medium
+            )
+                .accounts.map(\.id),
+            [snapshots[3].id, snapshots[1].id]
+        )
+        XCTAssertEqual(
+            WidgetPresentation.select(
+                snapshots,
+                selectedIDs: [snapshots[4].id, snapshots[0].id, snapshots[4].id, snapshots[2].id, snapshots[1].id],
+                family: .large
+            )
+                .accounts.map(\.id),
+            [snapshots[4].id, snapshots[0].id, snapshots[2].id, snapshots[1].id]
+        )
+    }
+
+    func testWidgetPresentationDistinguishesRequiredAndUnsynchronizedSelections() {
+        let snapshot = WidgetAccountSnapshot(
+            account: SubscriptionAccount(name: "现有账号", provider: .zai),
+            windows: [], collectedAt: nil, lastFailure: nil
+        )
+        let missingID = UUID()
+
+        let required = WidgetPresentation.select([snapshot], selectedIDs: [], family: .medium)
+        XCTAssertTrue(required.selectionRequired)
+        XCTAssertFalse(required.accountSelectionMissing)
+
+        let missing = WidgetPresentation.select(
+            [snapshot], selectedIDs: [snapshot.id, missingID], family: .medium
+        )
+        XCTAssertEqual(missing.accounts.map(\.id), [snapshot.id])
+        XCTAssertFalse(missing.selectionRequired)
+        XCTAssertTrue(missing.accountSelectionMissing)
+    }
+
+    func testWidgetRingStateDoesNotRenderUnknownOrUnlimitedAsZero() {
+        func metric(used: Double?, unlimited: Bool = false) -> WidgetQuotaMetric {
+            WidgetQuotaMetric(
+                id: "test",
+                title: "测试额度",
+                window: QuotaWindow(
+                    id: "test", name: "测试额度", scope: nil,
+                    isUnlimited: unlimited,
+                    usedPercentage: used, remainingCount: nil, totalCount: nil, resetsAt: nil
+                )
+            )
+        }
+
+        XCTAssertNil(metric(used: nil).ringFraction)
+        XCTAssertEqual(metric(used: nil).valueText, "未提供")
+        XCTAssertNil(metric(used: nil, unlimited: true).ringFraction)
+        XCTAssertEqual(metric(used: nil, unlimited: true).valueText, "无限")
+        XCTAssertEqual(metric(used: -5).ringFraction, 0)
+        XCTAssertEqual(metric(used: 125).ringFraction, 1)
     }
 
     func testResetDateUsesChosenLocaleAndLocalTimeZone() throws {
@@ -59,6 +249,15 @@ final class PlatformTests: XCTestCase {
         XCTAssertNotEqual(local, QuotaFormatting.resetDate(date, locale: Locale(identifier: "en_US"), timeZone: utc))
         XCTAssertNotEqual(local, QuotaFormatting.resetDate(date, locale: Locale(identifier: "zh_CN"), timeZone: taipei))
         XCTAssertEqual(QuotaFormatting.resetDate(nil), "未提供")
+    }
+
+    func testWidgetDeepLinksTargetTheAccountOrAccountList() {
+        let id = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
+        XCTAssertEqual(
+            PlatformConstants.accountDeepLink(for: id).absoluteString,
+            "tokenpulse://account/00000000-0000-0000-0000-000000000001"
+        )
+        XCTAssertEqual(PlatformConstants.accountsDeepLink.absoluteString, "tokenpulse://accounts")
     }
 
     @MainActor

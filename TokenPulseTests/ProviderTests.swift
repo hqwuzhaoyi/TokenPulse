@@ -155,14 +155,16 @@ final class ProviderTests: XCTestCase {
         XCTAssertEqual(requests.filter { $0.url?.path.hasSuffix("usercode") == true }.count, 1)
     }
 
-    func testDirectKeyEncodingPreservesMiniMaxAndWrapsZai() throws {
+    func testDirectKeyEncodingPreservesMiniMaxAndWrapsOtherKeyProviders() throws {
         let controller = ProviderAuthenticationController()
         XCTAssertEqual(try controller.credential(provider: .miniMaxChina, apiKey: "  minimax-test-key  "), "minimax-test-key")
-        let zai = try controller.credential(provider: .zai, apiKey: "  zai-test-key  ")
-        XCTAssertEqual(
-            try ProviderCredentialEnvelope.decode(zai, expectedProvider: .zai).accessToken,
-            "zai-test-key"
-        )
+        for (provider, key) in [(Provider.zai, "zai-test-key"), (.openCodeGo, "opencode-test-key")] {
+            let encoded = try controller.credential(provider: provider, apiKey: "  \(key)  ")
+            XCTAssertEqual(
+                try ProviderCredentialEnvelope.decode(encoded, expectedProvider: provider).accessToken,
+                key
+            )
+        }
     }
 
     func testClaudeSessionQueriesSelectedOrganizationAndParsesWindows() async throws {
@@ -194,7 +196,7 @@ final class ProviderTests: XCTestCase {
 
     func testCodexQueriesWhamWithAccountHeaderAndKeepsMissingMetricsNil() async throws {
         let transport = ProviderTransportStub([
-            .response(200, #"{"rate_limit":{"primary_window":{"used_percent":20,"limit_window_seconds":18000,"reset_at":1780000000},"secondary_window":{"limit_window_seconds":604800}}}"#),
+            .response(200, #"{"plan_type":"plus","rate_limit":{"primary_window":{"used_percent":20,"limit_window_seconds":18000,"reset_at":1780000000},"secondary_window":{"limit_window_seconds":604800}}}"#),
         ])
         let credential = try ProviderCredentialEnvelope(
             provider: .codex,
@@ -206,13 +208,38 @@ final class ProviderTests: XCTestCase {
         let result = try await ProviderQuotaClient(provider: .codex, transport: transport)
             .quotaResult(for: UUID(), credential: credential)
 
+        XCTAssertEqual(result.snapshot.subscriptionPlan, .plus)
         XCTAssertEqual(result.snapshot.windows.map(\.name), ["5 小时额度", "每周额度"])
+        XCTAssertEqual(result.snapshot.windows.map(\.period), [.fiveHour, .weekly])
         XCTAssertNil(result.snapshot.windows[1].usedPercentage)
         let requests = await transport.requests()
         let request = try XCTUnwrap(requests.first)
         XCTAssertEqual(request.url?.absoluteString, "https://chatgpt.com/backend-api/wham/usage")
         XCTAssertEqual(request.cachePolicy, .reloadIgnoringLocalCacheData)
         XCTAssertEqual(request.value(forHTTPHeaderField: "ChatGPT-Account-Id"), "account-test")
+    }
+
+    func testCodexProKeepsWeeklyAccountQuotaAndSeparateSparkQuota() async throws {
+        let transport = ProviderTransportStub([
+            .response(200, #"{"plan_type":"pro","rate_limit":{"primary_window":{"used_percent":77,"limit_window_seconds":604800,"reset_at":1780000000}},"additional_rate_limits":[{"limit_name":"GPT-5.3-Codex-Spark","metered_feature":"codex_bengalfox","rate_limit":{"primary_window":{"used_percent":12,"limit_window_seconds":18000,"reset_at":1779990000},"secondary_window":{"used_percent":1,"limit_window_seconds":604800,"reset_at":1780500000}}}]}"#),
+        ])
+        let credential = try ProviderCredentialEnvelope(
+            provider: .codex,
+            kind: .oauth,
+            accessToken: "test-access-token"
+        ).encoded()
+
+        let result = try await ProviderQuotaClient(provider: .codex, transport: transport)
+            .quotaResult(for: UUID(), credential: credential)
+
+        XCTAssertEqual(result.snapshot.subscriptionPlan, .pro)
+        XCTAssertEqual(result.snapshot.windows.map(\.period), [.weekly, .fiveHour, .weekly])
+        XCTAssertEqual(result.snapshot.windows(for: .codex, surface: .summary).map(\.name), ["每周额度"])
+        XCTAssertEqual(
+            result.snapshot.windows(for: .codex, surface: .detail).map(\.scope),
+            [nil, "GPT-5.3-Codex-Spark"]
+        )
+        XCTAssertEqual(result.snapshot.windows(for: .codex, surface: .detail).map(\.usedPercentage), [77, 12])
     }
 
     func testZaiQueriesInternationalCodingPlanAndParsesCounts() async throws {
@@ -230,6 +257,7 @@ final class ProviderTests: XCTestCase {
 
         let window = try XCTUnwrap(result.snapshot.windows.first)
         XCTAssertEqual(window.name, "5 小时额度")
+        XCTAssertEqual(window.period, .fiveHour)
         XCTAssertEqual(window.usedPercentage, 25)
         XCTAssertEqual(window.remainingCount, 750)
         XCTAssertEqual(window.totalCount, 1000)
@@ -237,6 +265,69 @@ final class ProviderTests: XCTestCase {
         let request = try XCTUnwrap(requests.first)
         XCTAssertEqual(request.url?.absoluteString, "https://api.z.ai/api/monitor/usage/quota/limit")
         XCTAssertEqual(request.cachePolicy, .reloadIgnoringLocalCacheData)
+    }
+
+    func testOpenCodeGoQueriesUsageAndParsesReportedWindows() async throws {
+        let transport = ProviderTransportStub([
+            .response(200, #"{"usage":{"rolling":{"status":"ok","percent":25,"resetsAt":"2026-09-09T10:00:00.000Z"},"weekly":{"status":"rate-limited","percent":60,"resetsAt":"2026-09-12T10:00:00Z"},"monthly":{"status":"ok","resetsAt":"2026-10-01T00:00:00Z"}}}"#),
+        ])
+        let credential = try ProviderCredentialEnvelope(
+            provider: .openCodeGo,
+            kind: .apiKey,
+            accessToken: "test-opencode-key"
+        ).encoded()
+
+        let result = try await ProviderQuotaClient(provider: .openCodeGo, transport: transport)
+            .quotaResult(for: UUID(), credential: credential)
+
+        XCTAssertEqual(result.snapshot.windows.map(\.period), [.fiveHour, .weekly])
+        XCTAssertEqual(result.snapshot.windows.map(\.usedPercentage), [25, 60])
+        XCTAssertEqual(result.snapshot.windows.map(\.isExhausted), [false, true])
+        let requests = await transport.requests()
+        let request = try XCTUnwrap(requests.first)
+        XCTAssertEqual(request.url?.absoluteString, "https://opencode.ai/zen/go/v1/usage")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-opencode-key")
+        XCTAssertEqual(request.cachePolicy, .reloadIgnoringLocalCacheData)
+    }
+
+    func testOpenCodeGoDistinguishesMissingSubscriptionFromInvalidKey() async throws {
+        let credential = try ProviderCredentialEnvelope(
+            provider: .openCodeGo,
+            kind: .apiKey,
+            accessToken: "test-opencode-key"
+        ).encoded()
+
+        for (status, expected) in [(401, RefreshFailure.invalidCredential), (403, .subscriptionRequired)] {
+            let transport = ProviderTransportStub([.response(status, "{}")])
+            do {
+                _ = try await ProviderQuotaClient(provider: .openCodeGo, transport: transport)
+                    .quotaResult(for: UUID(), credential: credential)
+                XCTFail("Expected HTTP \(status) failure")
+            } catch {
+                XCTAssertEqual(error as? RefreshFailure, expected)
+            }
+        }
+    }
+
+    func testOpenCodeGoReportsUnreadableAndEmptyUsageSeparately() async throws {
+        let credential = try ProviderCredentialEnvelope(
+            provider: .openCodeGo,
+            kind: .apiKey,
+            accessToken: "test-opencode-key"
+        ).encoded()
+        for (body, expected) in [
+            ("not-json", RefreshFailure.unreadableResponse),
+            (#"{"usage":{}}"#, .noQuotaWindows),
+        ] {
+            let transport = ProviderTransportStub([.response(200, body)])
+            do {
+                _ = try await ProviderQuotaClient(provider: .openCodeGo, transport: transport)
+                    .quotaResult(for: UUID(), credential: credential)
+                XCTFail("Expected \(expected)")
+            } catch {
+                XCTAssertEqual(error as? RefreshFailure, expected)
+            }
+        }
     }
 
     func testSuperGrokKeepsWindowWhenPercentageAndTimeAreMissing() async throws {

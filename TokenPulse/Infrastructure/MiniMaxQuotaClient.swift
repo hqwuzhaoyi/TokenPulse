@@ -123,17 +123,22 @@ struct MiniMaxQuotaClient: QuotaQuerying {
             let hasValidTiming = start.flatMap { start in end.map { $0 > start } } == true
             let resetsAt: Date?
             let name: String
+            let period: QuotaPeriod
             if let start, let end, hasValidTiming {
-                name = "\(max(Int(end.timeIntervalSince(start) / 3600), 1)) 小时额度"
+                let seconds = Int(end.timeIntervalSince(start).rounded())
+                name = "\(max(seconds / 3_600, 1)) 小时额度"
+                period = QuotaPeriod(seconds: seconds)
                 resetsAt = end
             } else {
                 name = "短周期额度"
+                period = .other
                 resetsAt = remainingTimeDate(model["remains_time"], collectedAt: collectedAt)
             }
             result.append(QuotaWindow(
                 id: "\(lane).interval",
                 name: name,
                 scope: scope,
+                period: period,
                 isUnlimited: intervalUnlimited,
                 usedPercentage: intervalUnlimited ? nil : usedPercentage(
                     remainingPercent: intervalRemainingPercent,
@@ -162,6 +167,7 @@ struct MiniMaxQuotaClient: QuotaQuerying {
                 id: "\(lane).weekly",
                 name: "每周额度",
                 scope: scope,
+                period: .weekly,
                 isUnlimited: weeklyUnlimited,
                 usedPercentage: weeklyUnlimited ? nil : usedPercentage(
                     remainingPercent: weeklyRemainingPercent,

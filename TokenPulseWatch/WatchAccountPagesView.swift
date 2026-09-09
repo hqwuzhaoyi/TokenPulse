@@ -96,34 +96,41 @@ private struct WatchAccountPage: View {
             VStack(spacing: 8) {
                 ProviderIcon(provider: state.account.provider, size: 24)
                 Text(state.account.name).font(.headline).lineLimit(1)
-                Text(state.account.provider.displayName)
+                Text(providerDescription)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
                 if let snapshot = state.snapshot {
-                    ForEach(snapshot.windows) { window in
-                        VStack(alignment: .leading, spacing: 3) {
-                            if let percentage = window.usedPercentage, !window.isUnlimited {
-                                Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
+                    ForEach(snapshot.windows(for: state.account.provider, surface: .detail)) { window in
+                        if window.scope == nil {
+                            VStack(alignment: .leading, spacing: 3) {
+                                if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
+                                    Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
                                     Text(window.name)
                                 } currentValueLabel: {
-                                    Text("\(percentage.formatted(.number.precision(.fractionLength(0...1))))%")
+                                    Text(window.isExhausted == true
+                                         ? "已用尽"
+                                         : "\(percentage.formatted(.number.precision(.fractionLength(0...1))))%")
                                 }
-                                .gaugeStyle(.accessoryCircular)
-                            } else {
-                                LabeledContent(window.name, value: window.isUnlimited ? "无限" : "未提供")
-                                    .font(.caption)
-                            }
-                            if let scope = window.scope {
-                                Text(scope).font(.caption2).foregroundStyle(.secondary)
-                            }
-                            LabeledContent("重置", value: QuotaFormatting.resetDate(window.resetsAt))
-                            .font(.caption2)
-                            if window.needsUpdate(at: date) {
-                                Label("待更新", systemImage: "clock.badge.exclamationmark")
+                                    .gaugeStyle(.accessoryCircular)
+                                } else {
+                                    LabeledContent(window.name, value: window.isUnlimited ? "无限" : "未提供")
+                                        .font(.caption)
+                                }
+                                LabeledContent("重置", value: QuotaFormatting.resetDate(window.resetsAt))
                                     .font(.caption2)
-                                    .foregroundStyle(.orange)
+                                if window.needsUpdate(at: date) {
+                                    Label("待更新", systemImage: "clock.badge.exclamationmark")
+                                        .font(.caption2)
+                                        .foregroundStyle(.orange)
+                                }
                             }
+                        } else {
+                            LabeledContent(
+                                window.scope ?? window.name,
+                                value: QuotaFormatting.usage(window)
+                            )
+                            .font(.caption2)
                         }
                     }
                     if state.account.provider == .codex {
@@ -160,4 +167,9 @@ private struct WatchAccountPage: View {
         }
     }
 
+    private var providerDescription: String {
+        guard state.account.provider == .codex,
+              let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
+        return "\(state.account.provider.displayName) · \(plan.displayName)"
+    }
 }

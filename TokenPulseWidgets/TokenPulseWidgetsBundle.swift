@@ -15,8 +15,8 @@ struct PhoneQuotaWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: QuotaWidgetIntent.self, provider: QuotaTimelineProvider()) {
             QuotaWidgetView(entry: $0)
         }
-        .configurationDisplayName("TokenPulse 额度")
-        .description("在同一个组件中显示账号所需的每周或 5 小时额度。")
+        .configurationDisplayName("TokenPulse 环形额度")
+        .description("从主屏幕账号列表选择要显示的账号；小/中/大组件最多选择 1/2/4 个。")
         .supportedFamilies([
             .systemSmall, .systemMedium, .systemLarge,
             .accessoryCircular, .accessoryRectangular, .accessoryInline,

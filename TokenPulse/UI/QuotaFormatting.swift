@@ -22,6 +22,17 @@ enum QuotaFormatting {
         return value.formatted(.number.precision(.fractionLength(0...1))) + "% 已用"
     }
 
+    static func usage(_ window: QuotaWindow) -> String {
+        if window.isUnlimited { return "无限" }
+        if window.isExhausted == true { return "已用尽" }
+        return percentage(window.usedPercentage)
+    }
+
+    static func effectiveUsedPercentage(_ window: QuotaWindow) -> Double? {
+        guard !window.isUnlimited else { return nil }
+        return window.isExhausted == true ? 100 : window.usedPercentage
+    }
+
     static func count(_ value: Double?) -> String {
         guard let value else { return "未提供" }
         return value.formatted(.number.precision(.fractionLength(0...2)))

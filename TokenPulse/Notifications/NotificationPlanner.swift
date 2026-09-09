@@ -43,7 +43,8 @@ struct NotificationPlanner: Sendable {
 
             guard settings.quotaAlertsEnabled,
                   !window.isUnlimited,
-                  let usedPercentage = window.usedPercentage else { continue }
+                  let reportedPercentage = window.usedPercentage else { continue }
+            let usedPercentage = window.isExhausted == true ? 100 : reportedPercentage
 
             let reachedThresholds = normalizedThresholds(settings.thresholds)
                 .filter { $0 <= usedPercentage }
@@ -230,7 +231,11 @@ struct NotificationPlanner: Sendable {
                                        now: Date) -> [PendingResetSchedule] {
         guard enabled, let snapshot else { return [] }
         let candidates = snapshot.windows.compactMap { window -> (Date, String)? in
-            guard !window.isUnlimited, let resetAt = window.resetsAt, resetAt > now else { return nil }
+            guard !window.isUnlimited,
+                  let usedPercentage = window.usedPercentage,
+                  usedPercentage > 0,
+                  let resetAt = window.resetsAt,
+                  resetAt > now else { return nil }
             return (resetAt, window.id)
         }
         let grouped = Dictionary(grouping: candidates, by: \.0)

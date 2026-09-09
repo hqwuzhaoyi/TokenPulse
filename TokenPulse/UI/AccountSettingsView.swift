@@ -131,15 +131,25 @@ private struct AccountPreferencesView: View {
             if let configuration = monitor.configuration(for: accountID) {
                 if let state = monitor.states.first(where: { $0.id == accountID }) {
                     Section("额度") {
-                        ForEach(state.snapshot?.windows ?? []) { window in
-                            VStack(alignment: .leading) {
-                                Text(window.name).font(.headline)
-                                Text(window.isUnlimited ? "无限" : QuotaFormatting.percentage(window.usedPercentage))
-                                Text("重置：\(QuotaFormatting.resetDate(window.resetsAt))")
-                                if window.needsUpdate(at: Date()) { Text("待更新").foregroundStyle(.orange) }
-                            }
-                        }
                         if let snapshot = state.snapshot {
+                            if let plan = snapshot.subscriptionPlan, configuration.account.provider == .codex {
+                                LabeledContent("套餐", value: plan.displayName)
+                            }
+                            ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
+                                if window.scope == nil {
+                                    VStack(alignment: .leading) {
+                                        Text(window.name).font(.headline)
+                                        Text(QuotaFormatting.usage(window))
+                                        Text("重置：\(QuotaFormatting.resetDate(window.resetsAt))")
+                                        if window.needsUpdate(at: Date()) { Text("待更新").foregroundStyle(.orange) }
+                                    }
+                                } else {
+                                    LabeledContent(
+                                        window.scope ?? window.name,
+                                        value: QuotaFormatting.usage(window)
+                                    )
+                                }
+                            }
                             if configuration.account.provider == .codex {
                                 LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
                             }
@@ -175,14 +185,17 @@ private struct AccountPreferencesView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Section("更新凭证") {
-                    if configuration.account.provider == .miniMaxChina || configuration.account.provider == .zai {
-                        SecureField("Coding Plan Key", text: $credential)
+                    if usesAPIKey(configuration.account.provider) {
+                        SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {
                             Task {
                                 do {
-                                    let encoded = configuration.account.provider == .zai
-                                        ? try ProviderAuthenticationController().credential(provider: .zai, apiKey: credential)
+                                    let encoded = usesAPIKey(configuration.account.provider)
+                                        ? try ProviderAuthenticationController().credential(
+                                            provider: configuration.account.provider,
+                                            apiKey: credential
+                                        )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
@@ -207,5 +220,14 @@ private struct AccountPreferencesView: View {
         .onAppear {
             thresholds = monitor.configuration(for: accountID)?.reminders.thresholds.map { String($0) }.joined(separator: ",") ?? "80,95,100"
         }
+    }
+
+    private func usesAPIKey(_ provider: Provider) -> Bool {
+        if case .apiKey = ProviderAuthenticationController().loginConfiguration(for: provider).method { return true }
+        return false
+    }
+
+    private func credentialLabel(_ provider: Provider) -> String {
+        ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
     }
 }

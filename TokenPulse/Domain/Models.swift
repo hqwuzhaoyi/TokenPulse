@@ -2,7 +2,7 @@ import Foundation
 
 enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
-    case claude, codex, zai, superGrok
+    case claude, codex, openCodeGo, zai, superGrok
 
     var id: String { rawValue }
     var displayName: String {
@@ -10,6 +10,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .miniMaxChina: "MiniMax 国内版"
         case .claude: "Claude"
         case .codex: "Codex"
+        case .openCodeGo: "OpenCode Go"
         case .zai: "Z.ai"
         case .superGrok: "SuperGrok"
         }
@@ -27,10 +28,70 @@ struct SubscriptionAccount: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+enum SubscriptionPlan: String, Codable, Equatable, Sendable {
+    case plus
+    case pro
+
+    var displayName: String {
+        switch self {
+        case .plus: "Plus"
+        case .pro: "Pro"
+        }
+    }
+}
+
+enum QuotaPeriod: String, Codable, Equatable, Sendable {
+    case fiveHour
+    case weekly
+    case monthly
+    case other
+
+    init(seconds: Int?) {
+        guard let seconds else { self = .other; return }
+        self = switch seconds {
+        case 5 * 3_600: .fiveHour
+        case 7 * 86_400: .weekly
+        case 28 * 86_400...31 * 86_400: .monthly
+        default: .other
+        }
+    }
+}
+
+enum QuotaSurface: Sendable {
+    case summary
+    case detail
+    case widget
+    case notification
+}
+
+struct QuotaPolicy {
+    static func windows(_ windows: [QuotaWindow],
+                        provider: Provider,
+                        plan: SubscriptionPlan?,
+                        surface: QuotaSurface) -> [QuotaWindow] {
+        guard provider == .codex else { return windows }
+
+        let accountWide = windows.filter { $0.scope == nil }
+        let primary = plan == .pro
+            ? accountWide.filter { $0.period != .fiveHour }
+            : accountWide
+        guard surface == .detail else { return primary }
+
+        var seenScopes: Set<String> = []
+        let auxiliary = windows.filter { window in
+            guard let scope = window.scope else { return false }
+            return seenScopes.insert(scope).inserted
+        }
+        return primary + auxiliary
+    }
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
     let scope: String?
+    let period: QuotaPeriod?
+    let isExhausted: Bool?
     let isUnlimited: Bool
     let usedPercentage: Double?
     let remainingCount: Double?
@@ -41,6 +102,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     init(id: String,
          name: String,
          scope: String?,
+         period: QuotaPeriod? = nil,
+         isExhausted: Bool? = nil,
          isUnlimited: Bool = false,
          usedPercentage: Double?,
          remainingCount: Double?,
@@ -50,6 +113,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.id = id
         self.name = name
         self.scope = scope
+        self.period = period
+        self.isExhausted = isExhausted
         self.isUnlimited = isUnlimited
         self.usedPercentage = usedPercentage
         self.remainingCount = remainingCount
@@ -67,7 +132,12 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     let accountID: UUID
     let windows: [QuotaWindow]
     let collectedAt: Date
+    var subscriptionPlan: SubscriptionPlan? = nil
     var remainingResetCount: Int? = nil
+
+    func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
+        QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)
+    }
 }
 
 enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
@@ -77,6 +147,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case server
     case unreadableResponse
     case noQuotaWindows
+    case subscriptionRequired
 
     var displayName: String {
         switch self {
@@ -86,6 +157,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
         case .server: "提供商服务异常"
         case .unreadableResponse: "无法读取额度响应"
         case .noQuotaWindows: "未返回套餐额度窗口"
+        case .subscriptionRequired: "当前凭证没有可用的订阅套餐"
         }
     }
 }

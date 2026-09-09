@@ -42,6 +42,20 @@
 
 ## 尚待验收
 
+### 环状额度小组件与多账号布局
+
+- 已采用 A — Pulse Rail：保留现有渠道 SVG 和模板渲染，额度窗口独立成环并显示自己的重置时间；账号级可手动重置次数每个账号只显示一次。
+- 小、中、大组件都从主屏幕已配置账号列表中选择，分别最多选择 1、2、4 个具体账号，选择顺序就是展示顺序；重复选择会按首次出现去重，每个可见账号区域拥有独立深链。
+- MiniMax 统一显示 5 小时单环；GLM 与 Codex Plus 分别显示 5 小时、周额度双环；Codex Pro 按套餐策略只显示账号级周额度；SuperGrok 显示共享额度环。
+- SuperGrok 的公开账单结构只核实到使用率、周期、按需字段和预付余额，没有可信的剩余手动重置次数字段，因此 Widget 显示“未提供”，不使用原型示意值或推算值。
+- Watch 四角支持修正后 82/82 全量测试通过；结果包 `/tmp/tokenpulse-corner-final/Logs/Test/Test-TokenPulse-2026.09.09_20-37-02-+0800.xcresult`，日志 `/tmp/tokenpulse-corner-tests.log`。
+- iOS/watchOS 全部生产 targets 无签名设备构建通过；日志 `/tmp/tokenpulse-corner-build.log`，iPhone 产物 `/tmp/tokenpulse-corner-products/Debug-iphoneos/TokenPulse.app`，包含 iPhone Widget、Watch App 与 Watch Widget。
+- iPhone 17 Pro / iOS 26.3.1 模拟器已在系统 Widget Gallery 检查小、中、大尺寸；大组件实际添加到主屏幕，两个账号时自动撑满，左右账号区域分别进入“工作账号”和“个人账号”。
+- 后续在同一模拟器验证大组件编辑页：系统从主屏幕账号列表提供“工作账号 / Codex”“个人账号 / Claude”，可通过“添加新项目”组成账号集合；未配置的旧组件明确提示“请选择展示账号”。
+- 用户反馈表盘四角无法展示后，确认缺少 `accessoryCorner` family。现已加入四角专用渠道图标与沿表盘边缘的额度 Gauge/重置标签；watchOS 26.2 模拟器和实体 Apple Watch Series 8 destination 均签名构建通过，新版 Watch App 已成功覆盖安装到实体手表。四角槽位最终显示仍待用户在表盘编辑界面确认。
+- 完整 HTML 原型已保存到非 master 分支 `prototype/ios-quota-ring-widgets`，提交 `dda276a25d9ccf2cc6b6ab045670061615a1f605`；当前实现分支不保留原型代码。
+- 实体 iPhone 当前不可用；实体 Watch 可见但没有完成本轮 Widget 添加和显示验证，继续作为实机验收差距，不影响已完成的自动与模拟器验收。
+
 ### 小组件账号汇总优化
 
 - 根据用户要求移除窗口选择：Codex/SuperGrok 显示每周额度与重置时间，GLM 同一组件显示每周及 5 小时额度。用户随后明确 MiniMax 桌面小组件应显示 5 小时额度，已按桌面尺寸调整；各周期不相加。
@@ -50,6 +64,14 @@
 - 66/66 全量测试通过（`/tmp/tokenpulse-widget-summary.Cqe40d/tests.log`），完整签名构建通过（`/tmp/tokenpulse-widget-summary-build.log`）。手机离线，尚未安装本轮更新。
 - 用户确认“重置次数”为剩余可手动重置额度的次数。Codex 已按官方 `rate_limit_reset_credits.available_count` 字段接入，随账号快照持久化、同步并传到小组件；SuperGrok 尚无核实的对应字段，保留“未提供”。
 - 接入次数后 69/69 全量测试通过（`/tmp/tokenpulse-reset-count-tests.log`），包括 0、缺失、非法值和明细列表长度不能替代可用次数的行为；没有执行重置操作。手机离线，待真机刷新确认实际返回值。
+
+### OpenCode Go 接入
+
+- 参考原 Pulse 与 OpenCode 第一方源码，接入 `GET https://opencode.ai/zen/go/v1/usage`；iPhone 手动录入 API Key，凭证沿用现有 Keychain 与双端同步，不读取 Mac 的 `auth.json`。
+- `rolling`、`weekly`、`monthly` 分别映射为 5 小时、每周、每月窗口，进入 App、Watch、小组件、额度告警及有实际用量时的重置提醒。
+- `status=rate-limited` 显示为“已用尽”并触发最高阈值告警；401 表示 Key 无效，403 单独表示没有 OpenCode Go 套餐；坏 JSON 与无有效窗口分别报错。
+- OpenCode 图标取自固定参考提交的 Pulse 资源并保留 MIT 来源说明。
+- 85/85 全量测试通过，日志 `/tmp/tokenpulse-opencode-full-tests.log`。尚未使用真实 OpenCode Go Key 在 iPhone 与 Watch 验证。
 
 ### Watch 通知按钮反馈修复
 

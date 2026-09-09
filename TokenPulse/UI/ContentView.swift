@@ -16,7 +16,7 @@ struct ContentView: View {
                         ContentUnavailableView {
                             Label("添加订阅账号", systemImage: "waveform.path.ecg")
                         } description: {
-                            Text("集中查看 Claude、Codex、Z.ai、MiniMax 和 SuperGrok 的套餐额度。")
+                            Text("集中查看 Claude、Codex、OpenCode Go、Z.ai、MiniMax 和 SuperGrok 的套餐额度。")
                         } actions: {
                             AddAccountButton { showingAddAccount = true }
                         }
@@ -90,9 +90,13 @@ struct ContentView: View {
                 .tag(AppTab.settings)
         }
         .onOpenURL { url in
-            if url.scheme == "tokenpulse", url.host == "account", let id = UUID(uuidString: url.lastPathComponent) {
+            guard url.scheme == PlatformConstants.accountDeepLinkScheme else { return }
+            if url.host == "account", let id = UUID(uuidString: url.lastPathComponent) {
                 linkedAccount = id
                 selectedTab = .settings
+            } else if url.host == "accounts" {
+                linkedAccount = nil
+                selectedTab = .home
             }
         }
         .onChange(of: scenePhase) { _, phase in
@@ -131,9 +135,20 @@ private struct AccountQuotaView: View {
         DisclosureGroup(isExpanded: $isExpanded) {
             VStack(alignment: .leading, spacing: 12) {
                 if let snapshot = state.snapshot {
-                    ForEach(snapshot.windows) { window in
-                        QuotaWindowView(window: window)
-                        if window.id != snapshot.windows.last?.id {
+                    if let plan = snapshot.subscriptionPlan, state.account.provider == .codex {
+                        LabeledContent("套餐", value: plan.displayName)
+                    }
+                    let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
+                    ForEach(detailWindows) { window in
+                        if window.scope == nil {
+                            QuotaWindowView(window: window)
+                        } else {
+                            LabeledContent(
+                                window.scope ?? window.name,
+                                value: QuotaFormatting.usage(window)
+                            )
+                        }
+                        if window.id != detailWindows.last?.id {
                             Divider()
                         }
                     }
@@ -188,7 +203,7 @@ private struct AccountSummaryView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(state.account.name)
                         .font(.headline)
-                    Text(state.account.provider.displayName)
+                    Text(providerDescription)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -202,7 +217,7 @@ private struct AccountSummaryView: View {
 
             if let snapshot = state.snapshot {
                 Divider()
-                ForEach(snapshot.windows) { window in
+                ForEach(snapshot.windows(for: state.account.provider, surface: .summary)) { window in
                     CompactQuotaWindowView(window: window)
                 }
             } else {
@@ -214,6 +229,12 @@ private struct AccountSummaryView: View {
         }
         .padding(.vertical, 6)
         .contentShape(.rect)
+    }
+
+    private var providerDescription: String {
+        guard state.account.provider == .codex,
+              let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
+        return "\(state.account.provider.displayName) · \(plan.displayName)"
     }
 }
 
@@ -237,7 +258,7 @@ private struct CompactQuotaWindowView: View {
     }
 
     private var usedValue: String {
-        window.isUnlimited ? "无限" : QuotaFormatting.percentage(window.usedPercentage)
+        QuotaFormatting.usage(window)
     }
 }
 
@@ -285,7 +306,7 @@ private struct QuotaWindowView: View {
                 LabeledContent("范围", value: scope)
             }
 
-            if let percentage = window.usedPercentage, !window.isUnlimited {
+            if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                 ProgressView(value: min(max(percentage, 0), 100), total: 100)
                     .accessibilityLabel("\(window.name)已用额度")
                     .accessibilityValue(QuotaFormatting.percentage(percentage))
@@ -350,8 +371,8 @@ private struct AddAccountView: View {
                 }
 
                 Section {
-                    if provider == .miniMaxChina || provider == .zai {
-                        SecureField("Coding Plan Key", text: $key)
+                    if usesAPIKey {
+                        SecureField(credentialLabel, text: $key)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .submitLabel(.done)
@@ -387,7 +408,7 @@ private struct AddAccountView: View {
                         saving = true
                         Task {
                             do {
-                                let credential = provider == .zai
+                                let credential = usesAPIKey
                                     ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key)
                                     : key
                                 guard await save(name, credential, provider) else {
@@ -419,5 +440,14 @@ private struct AddAccountView: View {
                 }
             }
         }
+    }
+
+    private var usesAPIKey: Bool {
+        if case .apiKey = ProviderAuthenticationController().loginConfiguration(for: provider).method { return true }
+        return false
+    }
+
+    private var credentialLabel: String {
+        ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
     }
 }

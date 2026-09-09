@@ -17,6 +17,6 @@ struct WatchQuotaWidget: Widget {
         }
         .configurationDisplayName("TokenPulse 额度")
         .description("在表盘或智能叠放显示指定账号额度。")
-        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline])
+        .supportedFamilies([.accessoryCorner, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }
