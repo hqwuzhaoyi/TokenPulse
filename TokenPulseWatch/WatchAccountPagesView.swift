@@ -79,19 +79,13 @@ private struct WatchWidgetSettingsView: View {
                 )
             } else {
                 Form {
-                    Picker("表盘显示账号", selection: $selectedAccountID) {
-                        ForEach(accounts) { account in
-                            HStack(spacing: 6) {
-                                ProviderIcon(provider: account.provider, size: 14)
-                                VStack(alignment: .leading) {
-                                    Text(account.name)
-                                    Text(account.provider.displayName)
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .tag(Optional(account.id))
-                        }
+                    NavigationLink {
+                        WatchWidgetAccountSelectionView(
+                            accounts: accounts,
+                            selectedAccountID: $selectedAccountID
+                        )
+                    } label: {
+                        LabeledContent("表盘显示账号", value: selectedAccount?.name ?? "未选择")
                     }
                 }
             }
@@ -102,11 +96,45 @@ private struct WatchWidgetSettingsView: View {
             selectedAccountID = saved.flatMap { id in accounts.contains { $0.id == id } ? id : nil }
                 ?? accounts.first?.id
         }
-        .onChange(of: selectedAccountID) { _, accountID in
-            Task {
-                await store.save(accountID)
+    }
+
+    private var selectedAccount: SubscriptionAccount? {
+        selectedAccountID.flatMap { id in accounts.first { $0.id == id } }
+    }
+}
+
+private struct WatchWidgetAccountSelectionView: View {
+    @Environment(\.dismiss) private var dismiss
+    let accounts: [SubscriptionAccount]
+    @Binding var selectedAccountID: UUID?
+    private let store = WatchWidgetSelectionStore()
+
+    var body: some View {
+        List(accounts) { account in
+            Button {
+                Task {
+                    await store.save(account.id)
+                    selectedAccountID = account.id
+                    dismiss()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    ProviderIcon(provider: account.provider, size: 14)
+                    VStack(alignment: .leading) {
+                        Text(account.name)
+                        Text(account.provider.displayName)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if selectedAccountID == account.id {
+                        Image(systemName: "checkmark")
+                    }
+                }
             }
+            .buttonStyle(.plain)
         }
+        .navigationTitle("选择账号")
     }
 }
 

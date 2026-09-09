@@ -153,7 +153,8 @@ actor WatchWidgetSelectionStore {
     func save(_ accountID: UUID?) {
         if let accountID { defaults.set(accountID.uuidString, forKey: key) }
         else { defaults.removeObject(forKey: key) }
-        WidgetCenter.shared.reloadAllTimelines()
+        defaults.synchronize()
+        WidgetCenter.shared.reloadTimelines(ofKind: PlatformConstants.watchWidgetKind)
     }
 }
 

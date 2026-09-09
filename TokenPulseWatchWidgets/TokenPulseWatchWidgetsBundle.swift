@@ -9,7 +9,7 @@ struct TokenPulseWatchWidgetsBundle: WidgetBundle {
 }
 
 struct WatchQuotaWidget: Widget {
-    let kind = "TokenPulseWatchQuota"
+    let kind = PlatformConstants.watchWidgetKind
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(

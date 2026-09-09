@@ -10,6 +10,8 @@
 
 Apple Watch complication 不提供账号配置参数，统一读取 TokenPulse Watch App“表盘设置”保存的账号；不得复用 iPhone 多账号数组或产生“添加新项目”二级交互。
 
+Watch App 必须在账号 ID 写入共享 App Group 并完成跨进程同步后定向刷新 complication，再退出账号选择页；不能依赖 Picker 的异步 `.onChange` 时机。
+
 ## Acceptance criteria
 
 - [x] MiniMax 单环以及 GLM/Codex 双环均能显示正确百分比、窗口名称和各自重置时间；验证：使用固定快照运行 SwiftUI Preview 或截图检查，并运行展示测试。

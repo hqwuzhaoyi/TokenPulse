@@ -93,12 +93,13 @@ final class PlatformTests: XCTestCase {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = WatchWidgetSelectionStore(suiteName: suite)
+        let reader = WatchWidgetSelectionStore(suiteName: suite)
         let accountID = UUID()
 
         let initial = await store.load()
         XCTAssertNil(initial)
         await store.save(accountID)
-        let saved = await store.load()
+        let saved = await reader.load()
         XCTAssertEqual(saved, accountID)
         await store.save(nil)
         let cleared = await store.load()
