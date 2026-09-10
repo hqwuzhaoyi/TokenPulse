@@ -147,8 +147,7 @@ struct MiniMaxQuotaClient: QuotaQuerying {
                 ),
                 remainingCount: remaining,
                 totalCount: intervalTotal,
-                resetsAt: resetsAt,
-                cycleID: start.map { "start:\($0.timeIntervalSince1970)" }
+                resetsAt: resetsAt
             ))
         }
 
@@ -177,8 +176,7 @@ struct MiniMaxQuotaClient: QuotaQuerying {
                 remainingCount: remaining,
                 totalCount: weeklyTotal,
                 resetsAt: millisecondsDate(model["weekly_end_time"])
-                    ?? remainingTimeDate(model["weekly_remains_time"], collectedAt: collectedAt),
-                cycleID: millisecondsDate(model["weekly_end_time"]).map { "end:\($0.timeIntervalSince1970)" }
+                    ?? remainingTimeDate(model["weekly_remains_time"], collectedAt: collectedAt)
             ))
         }
 

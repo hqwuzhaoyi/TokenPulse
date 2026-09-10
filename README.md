@@ -83,7 +83,7 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 已有 **87 项自动测试**，覆盖账号隔离、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
+- 已有 **89 项自动测试**，覆盖账号隔离、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
 - 完整 iOS/watchOS 签名构建、iPhone 真机安装与启动已通过。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - 其余提供商真实接入、双端凭证续期、iCloud 到达、后台通知及各类小组件仍需完整实机验收。

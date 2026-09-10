@@ -68,8 +68,7 @@ struct OpenCodeGoProviderClient: Sendable {
             usedPercentage: min(max(percent, 0), 100),
             remainingCount: nil,
             totalCount: nil,
-            resetsAt: resetsAt,
-            cycleID: ProviderHTTP.cycleID(prefix: id, resetsAt: resetsAt)
+            resetsAt: resetsAt
         )
     }
 }

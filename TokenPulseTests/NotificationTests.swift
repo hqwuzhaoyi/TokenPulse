@@ -239,6 +239,103 @@ final class NotificationTests: XCTestCase {
         XCTAssertTrue(scheduled(result.operations).isEmpty)
     }
 
+    func testMovingUnusedOpenCodeRollingResetDoesNotConfirmReset() throws {
+        let firstCollectedAt = Date(timeIntervalSince1970: 1_000)
+        let secondCollectedAt = firstCollectedAt.addingTimeInterval(60)
+        let firstWindows = try OpenCodeGoProviderClient.windows(Data(
+            #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:16:40Z"}}}"#.utf8
+        ))
+        let secondWindows = try OpenCodeGoProviderClient.windows(Data(
+            #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:17:40Z"}}}"#.utf8
+        ))
+        let firstSnapshot = QuotaSnapshot(
+            accountID: accountID,
+            windows: firstWindows,
+            collectedAt: firstCollectedAt
+        )
+        let first = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "OpenCode Go",
+            previousSnapshot: nil,
+            newSnapshot: firstSnapshot,
+            settings: AccountReminderSettings(quotaAlertsEnabled: false),
+            ledger: ReminderLedger(),
+            now: firstCollectedAt
+        )
+        let second = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "OpenCode Go",
+            previousSnapshot: firstSnapshot,
+            newSnapshot: QuotaSnapshot(
+                accountID: accountID,
+                windows: secondWindows,
+                collectedAt: secondCollectedAt
+            ),
+            settings: AccountReminderSettings(quotaAlertsEnabled: false),
+            ledger: first.ledger,
+            now: secondCollectedAt
+        )
+
+        XCTAssertTrue(scheduled(first.operations).isEmpty)
+        XCTAssertTrue(delivered(second.operations, kind: .confirmedReset).isEmpty)
+    }
+
+    func testMovingCodexResetTimeDoesNotRearmQuotaOrConfirmReset() {
+        let firstCollectedAt = Date(timeIntervalSince1970: 1_000)
+        let secondCollectedAt = firstCollectedAt.addingTimeInterval(60)
+        let firstWindows = CodexProviderClient.windows([
+            "rate_limit": [
+                "primary_window": [
+                    "used_percent": 90,
+                    "limit_window_seconds": 5 * 3_600,
+                    "reset_at": firstCollectedAt.addingTimeInterval(1_000).timeIntervalSince1970,
+                ],
+            ],
+        ])
+        let secondWindows = CodexProviderClient.windows([
+            "rate_limit": [
+                "primary_window": [
+                    "used_percent": 90,
+                    "limit_window_seconds": 5 * 3_600,
+                    "reset_at": secondCollectedAt.addingTimeInterval(1_000).timeIntervalSince1970,
+                ],
+            ],
+        ])
+        let firstSnapshot = QuotaSnapshot(
+            accountID: accountID,
+            windows: firstWindows,
+            collectedAt: firstCollectedAt,
+            subscriptionPlan: .plus
+        )
+        let first = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "Codex Plus",
+            previousSnapshot: nil,
+            newSnapshot: firstSnapshot,
+            settings: AccountReminderSettings(),
+            ledger: ReminderLedger(),
+            now: firstCollectedAt
+        )
+        let second = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "Codex Plus",
+            previousSnapshot: firstSnapshot,
+            newSnapshot: QuotaSnapshot(
+                accountID: accountID,
+                windows: secondWindows,
+                collectedAt: secondCollectedAt,
+                subscriptionPlan: .plus
+            ),
+            settings: AccountReminderSettings(),
+            ledger: first.ledger,
+            now: secondCollectedAt
+        )
+
+        XCTAssertEqual(delivered(first.operations, kind: .quotaAlert).count, 1)
+        XCTAssertTrue(delivered(second.operations, kind: .quotaAlert).isEmpty)
+        XCTAssertTrue(delivered(second.operations, kind: .confirmedReset).isEmpty)
+    }
+
     func testProviderExhaustedStatusTriggersHighestQuotaAlert() {
         let exhausted = QuotaWindow(
             id: "rolling", name: "5 小时额度", scope: nil, period: .fiveHour,

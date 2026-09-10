@@ -62,8 +62,7 @@ struct ZaiProviderClient: Sendable {
                 usedPercentage: usedPercentage,
                 remainingCount: remaining,
                 totalCount: total,
-                resetsAt: resetsAt,
-                cycleID: ProviderHTTP.cycleID(prefix: id, resetsAt: resetsAt)
+                resetsAt: resetsAt
             )
         }.sorted { lhs, rhs in
             (lhs.resetsAt ?? .distantFuture) < (rhs.resetsAt ?? .distantFuture)

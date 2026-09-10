@@ -84,8 +84,7 @@ struct CodexProviderClient: Sendable {
                 usedPercentage: ProviderHTTP.number(node["used_percent"]),
                 remainingCount: nil,
                 totalCount: nil,
-                resetsAt: resetsAt,
-                cycleID: ProviderHTTP.cycleID(prefix: id, resetsAt: resetsAt)
+                resetsAt: resetsAt
             )
         }
     }

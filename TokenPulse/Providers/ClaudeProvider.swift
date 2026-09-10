@@ -70,8 +70,7 @@ struct ClaudeProviderClient: Sendable {
                 usedPercentage: ProviderHTTP.number(limit["percent"]),
                 remainingCount: nil,
                 totalCount: nil,
-                resetsAt: resetsAt,
-                cycleID: ProviderHTTP.cycleID(prefix: "claude.\(kind).\(scope ?? "all")", resetsAt: resetsAt)
+                resetsAt: resetsAt
             )
         }
 
@@ -87,8 +86,7 @@ struct ClaudeProviderClient: Sendable {
                     usedPercentage: ProviderHTTP.number(node["utilization"]),
                     remainingCount: nil,
                     totalCount: nil,
-                    resetsAt: resetsAt,
-                    cycleID: ProviderHTTP.cycleID(prefix: "claude.\(key)", resetsAt: resetsAt)
+                    resetsAt: resetsAt
                 ))
             }
         }

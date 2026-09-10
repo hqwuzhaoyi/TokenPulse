@@ -26,8 +26,7 @@ struct SuperGrokProviderClient: Sendable {
                         window = QuotaWindow(id: window.id, name: window.name, scope: window.scope,
                                              period: window.period,
                                              usedPercentage: measured.percent, remainingCount: nil, totalCount: nil,
-                                             resetsAt: resetsAt,
-                                             cycleID: ProviderHTTP.cycleID(prefix: window.id, resetsAt: resetsAt))
+                                             resetsAt: resetsAt)
                     }
                 } catch is CancellationError {
                     throw CancellationError()
@@ -76,8 +75,7 @@ struct SuperGrokProviderClient: Sendable {
             usedPercentage: percent.map { min(max($0, 0), 100) },
             remainingCount: nil,
             totalCount: nil,
-            resetsAt: end,
-            cycleID: ProviderHTTP.cycleID(prefix: "superGrok.pool", resetsAt: end)
+            resetsAt: end
         )
     }
 }

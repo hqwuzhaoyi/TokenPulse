@@ -74,6 +74,7 @@
 - `status=rate-limited` 显示为“已用尽”并触发最高阈值告警；401 表示 Key 无效，403 单独表示没有 OpenCode Go 套餐；坏 JSON 与无有效窗口分别报错。
 - OpenCode 图标取自固定参考提交的 Pulse 资源并保留 MIT 来源说明。
 - 85/85 全量测试通过，日志 `/tmp/tokenpulse-opencode-full-tests.log`。尚未使用真实 OpenCode Go Key 在 iPhone 与 Watch 验证。
+- 修复重置时间漂移导致的重复通知：所有提供商返回的 `resetsAt` 仅用于倒计时、预计重置排程和跨越旧边界判定，不再被合成为周期 ID；因此时间漂移不会重新放开额度阈值，也不会反复发送“已确认重置”。OpenCode rolling 与 Codex Plus 模拟响应的回归测试均先稳定失败再通过。
 
 ### OpenCode 月额度与 Claude Fable 展示
 

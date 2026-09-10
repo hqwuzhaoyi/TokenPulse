@@ -70,10 +70,6 @@ enum ProviderHTTP {
         }
     }
 
-    static func cycleID(prefix: String, resetsAt: Date?) -> String? {
-        resetsAt.map { "\(prefix):\(Int($0.timeIntervalSince1970))" }
-    }
-
     static func formBody(_ values: [String: String]) -> Data {
         let allowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
         let body = values.sorted { $0.key < $1.key }.map { key, value in

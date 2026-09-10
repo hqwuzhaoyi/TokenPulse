@@ -97,6 +97,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let remainingCount: Double?
     let totalCount: Double?
     let resetsAt: Date?
+    /// Opaque stable identifier supplied by the provider. Never derive it from `resetsAt`.
     let cycleID: String?
 
     init(id: String,
