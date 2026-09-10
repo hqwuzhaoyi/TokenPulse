@@ -124,6 +124,10 @@ struct ReminderLedger: Codable, Equatable, Sendable {
         pendingResetSchedules.filter { $0.accountID == accountID }
     }
 
+    var scheduledAccountIDs: Set<UUID> {
+        Set(pendingResetSchedules.map(\.accountID))
+    }
+
     mutating func replacePendingSchedules(accountID: UUID,
                                           with schedules: [PendingResetSchedule]) {
         pendingResetSchedules.removeAll { $0.accountID == accountID }

@@ -6,7 +6,7 @@ final class QuotaMonitor: ObservableObject {
     @Published private(set) var states: [AccountQuotaState] = []
     @Published private(set) var refreshingAccountIDs: Set<UUID> = []
     @Published private(set) var storageMessage: String?
-    @Published private(set) var configurations: [AccountConfiguration] = []
+    @Published private(set) var synchronizedConfigurations: [AccountConfiguration] = []
     @Published private(set) var synchronizationMessage: String?
     @Published private var pendingCredentialCleanupAccountIDs: Set<UUID> = []
 
@@ -19,6 +19,10 @@ final class QuotaMonitor: ObservableObject {
 
     var onChange: (@MainActor () async -> Void)?
     var onFreshSnapshot: (@MainActor (AccountQuotaState, AccountQuotaState?) async -> Void)?
+
+    var configurations: [AccountConfiguration] {
+        synchronizedConfigurations.filter { $0.deletedAt == nil }
+    }
 
     var hasPendingCredentialCleanup: Bool {
         !pendingCredentialCleanupAccountIDs.isEmpty
@@ -41,13 +45,21 @@ final class QuotaMonitor: ObservableObject {
         started = true
         do {
             states = try await accountStore.load()
-            configurations = try await configurationStore?.load() ?? []
-            for state in states where !configurations.contains(where: { $0.id == state.id }) {
-                configurations.append(AccountConfiguration(account: state.account))
+            synchronizedConfigurations = try await configurationStore?.load() ?? []
+            for state in states where !synchronizedConfigurations.contains(where: { $0.id == state.id }) {
+                synchronizedConfigurations.append(AccountConfiguration(account: state.account))
+            }
+            let deletedIDs = Set(synchronizedConfigurations.filter { $0.deletedAt != nil }.map(\.id))
+            let storedCount = states.count
+            states.removeAll { deletedIDs.contains($0.id) }
+            if states.count != storedCount {
+                do { try await accountStore.save(states) }
+                catch { storageMessage = "账号已删除，本地额度缓存清理失败。" }
             }
             for configuration in configurations where !states.contains(where: { $0.id == configuration.id }) {
                 states.append(AccountQuotaState(account: configuration.account))
             }
+            for accountID in deletedIDs { await cleanupCredential(for: accountID) }
             if refresh { await refreshAll() }
         } catch is CancellationError {
             return
@@ -87,7 +99,7 @@ final class QuotaMonitor: ObservableObject {
             storageMessage = "无法安全保存账号"
             return
         }
-        configurations.append(AccountConfiguration(account: account))
+        synchronizedConfigurations.append(AccountConfiguration(account: account))
         await persistConfigurations()
         await refresh(accountID: account.id)
     }
@@ -113,18 +125,29 @@ final class QuotaMonitor: ObservableObject {
             }
             let client = providerClient?(previous.account.provider) ?? quotaClient
             let snapshot = try await client.quota(for: accountID, credential: credential)
-            guard !Task.isCancelled, let index = states.firstIndex(where: { $0.id == accountID }) else { return }
+            guard let index = states.firstIndex(where: { $0.id == accountID }) else {
+                await cleanupCredential(for: accountID)
+                return
+            }
+            guard !Task.isCancelled else { return }
             guard snapshot.accountID == accountID else { throw RefreshFailure.unreadableResponse }
             states[index].snapshot = snapshot
             states[index].lastFailure = nil
             await onFreshSnapshot?(states[index], previous)
         } catch is CancellationError {
+            if !states.contains(where: { $0.id == accountID }) { await cleanupCredential(for: accountID) }
             return
         } catch let failure as RefreshFailure {
-            guard let index = states.firstIndex(where: { $0.id == accountID }) else { return }
+            guard let index = states.firstIndex(where: { $0.id == accountID }) else {
+                await cleanupCredential(for: accountID)
+                return
+            }
             states[index].lastFailure = failure
         } catch {
-            guard let index = states.firstIndex(where: { $0.id == accountID }) else { return }
+            guard let index = states.firstIndex(where: { $0.id == accountID }) else {
+                await cleanupCredential(for: accountID)
+                return
+            }
             states[index].lastFailure = .server
         }
 
@@ -141,50 +164,105 @@ final class QuotaMonitor: ObservableObject {
     }
 
     func updateReminders(_ settings: AccountReminderSettings, accountID: UUID) async {
-        guard let index = configurations.firstIndex(where: { $0.id == accountID }) else { return }
-        configurations[index].reminders = settings
-        configurations[index].modifiedAt = Date()
+        guard let index = synchronizedConfigurations.firstIndex(where: { $0.id == accountID && $0.deletedAt == nil }) else { return }
+        synchronizedConfigurations[index].reminders = settings
+        synchronizedConfigurations[index].modifiedAt = Date()
         await persistConfigurations()
     }
 
     func reorderAccounts(from offsets: IndexSet, to destination: Int) {
-        let moved = offsets.sorted().map { states[$0] }
-        for index in offsets.sorted().reversed() { states.remove(at: index) }
+        var reordered = states
+        let moved = offsets.sorted().map { reordered[$0] }
+        for index in offsets.sorted().reversed() { reordered.remove(at: index) }
         let insertionIndex = destination - offsets.filter { $0 < destination }.count
-        states.insert(contentsOf: moved, at: insertionIndex)
+        reordered.insert(contentsOf: moved, at: insertionIndex)
+        states = reordered
 
         let positionByID = Dictionary(uniqueKeysWithValues: states.enumerated().map { ($1.id, $0) })
-        configurations.sort {
+        synchronizedConfigurations.sort {
             (positionByID[$0.id] ?? .max) < (positionByID[$1.id] ?? .max)
         }
         let modifiedAt = Date()
-        for index in configurations.indices { configurations[index].modifiedAt = modifiedAt }
+        for index in synchronizedConfigurations.indices where synchronizedConfigurations[index].deletedAt == nil {
+            synchronizedConfigurations[index].modifiedAt = modifiedAt
+        }
     }
 
     func persistAccountOrder() async {
         do {
             try await accountStore.save(states)
-            try await configurationStore?.save(configurations)
+            try await configurationStore?.save(synchronizedConfigurations)
         } catch {
             storageMessage = "无法保存账号顺序"
         }
         await onChange?()
     }
 
+    @discardableResult
+    func deleteAccount(accountID: UUID) async -> Bool {
+        guard states.contains(where: { $0.id == accountID }),
+              let configurationIndex = synchronizedConfigurations.firstIndex(where: { $0.id == accountID }) else { return false }
+        var deleted = synchronizedConfigurations[configurationIndex]
+        deleted.deletedAt = Date()
+        var savedConfigurations = synchronizedConfigurations
+        savedConfigurations[configurationIndex] = deleted
+        do {
+            // Persist the deletion before removing snapshots or credentials so stale sync cannot restore it.
+            if let configurationStore {
+                try await configurationStore.save(savedConfigurations)
+            } else {
+                try await accountStore.save(states.filter { $0.id != accountID })
+            }
+        } catch {
+            storageMessage = "无法删除账号，请重试。"
+            return false
+        }
+        if let index = synchronizedConfigurations.firstIndex(where: { $0.id == accountID }) {
+            synchronizedConfigurations[index] = deleted
+        }
+        states.removeAll { $0.id == accountID }
+        if configurationStore != nil {
+            do { try await accountStore.save(states) }
+            catch { storageMessage = "账号已删除，本地额度缓存清理失败。" }
+        }
+        await cleanupCredential(for: accountID)
+        await onChange?()
+        return true
+    }
+
+    private func cleanupCredential(for accountID: UUID) async {
+        do {
+            try await credentialStore.deleteCredential(for: accountID)
+            pendingCredentialCleanupAccountIDs.remove(accountID)
+        } catch {
+            pendingCredentialCleanupAccountIDs.insert(accountID)
+            storageMessage = "账号已删除，凭证清理失败，请重试。"
+        }
+    }
+
     func replaceCredential(_ credential: String, accountID: UUID) async {
         guard states.contains(where: { $0.id == accountID }), !credential.isEmpty else { return }
         do {
             try await credentialStore.save(credential, for: accountID)
+            guard states.contains(where: { $0.id == accountID }) else {
+                await cleanupCredential(for: accountID)
+                return
+            }
             await refresh(accountID: accountID)
         } catch { storageMessage = "无法安全保存凭证" }
     }
 
     func mergeSynchronized(configurations incoming: [AccountConfiguration], states incomingStates: [AccountQuotaState]) async {
         for configuration in incoming {
-            if let index = configurations.firstIndex(where: { $0.id == configuration.id }) {
-                if configuration.modifiedAt > configurations[index].modifiedAt { configurations[index] = configuration }
-            } else { configurations.append(configuration) }
+            if let index = synchronizedConfigurations.firstIndex(where: { $0.id == configuration.id }) {
+                if configuration.deletedAt != nil || (synchronizedConfigurations[index].deletedAt == nil
+                    && configuration.modifiedAt > synchronizedConfigurations[index].modifiedAt) {
+                    synchronizedConfigurations[index] = configuration
+                }
+            } else { synchronizedConfigurations.append(configuration) }
         }
+        let deletedIDs = Set(synchronizedConfigurations.filter { $0.deletedAt != nil }.map(\.id))
+        states.removeAll { deletedIDs.contains($0.id) }
         for configuration in configurations {
             if let index = states.firstIndex(where: { $0.id == configuration.id }) {
                 states[index].account = configuration.account
@@ -198,15 +276,16 @@ final class QuotaMonitor: ObservableObject {
             }
         }
         do {
+            try await configurationStore?.save(synchronizedConfigurations)
             try await accountStore.save(states)
-            try await configurationStore?.save(configurations)
         } catch { storageMessage = "无法保存同步数据" }
+        for accountID in deletedIDs { await cleanupCredential(for: accountID) }
     }
 
     func setSynchronizationMessage(_ message: String?) { synchronizationMessage = message }
 
     private func persistConfigurations() async {
-        do { try await configurationStore?.save(configurations) }
+        do { try await configurationStore?.save(synchronizedConfigurations) }
         catch { storageMessage = "无法保存账号设置" }
         await onChange?()
     }

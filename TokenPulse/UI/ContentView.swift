@@ -5,6 +5,7 @@ struct ContentView: View {
     @ObservedObject var monitor: QuotaMonitor
     let runtime: AppRuntime
     @State private var showingAddAccount = false
+    @State private var accountsToDelete: [SubscriptionAccount] = []
     @State private var linkedAccount: UUID?
     @State private var selectedTab = AppTab.home
 
@@ -19,6 +20,9 @@ struct ContentView: View {
                             Text("集中查看 Claude、Codex、OpenCode Go、Z.ai、MiniMax 和 SuperGrok 的套餐额度。")
                         } actions: {
                             AddAccountButton { showingAddAccount = true }
+                            if monitor.hasPendingCredentialCleanup {
+                                Button("重试凭证清理") { Task { await monitor.retryPendingCredentialCleanup() } }
+                            }
                         }
                     } else {
                         List {
@@ -28,7 +32,7 @@ struct ContentView: View {
                                         Task { await monitor.retryPendingCredentialCleanup() }
                                     }
                                 } footer: {
-                                    Text("上次移除未保存账号时，安全存储中的凭证未能清理。")
+                                    Text("已移除账号的凭证未能清理，请重试。")
                                 }
                             }
                             Section {
@@ -39,6 +43,12 @@ struct ContentView: View {
                                         refresh: { await monitor.refresh(accountID: state.id) }
                                     )
                                     .listRowSeparator(.hidden)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        Button("删除", systemImage: "trash") {
+                                            accountsToDelete = [state.account]
+                                        }
+                                        .tint(.red)
+                                    }
                                 }
                                 .onMove { from, to in
                                     monitor.reorderAccounts(from: from, to: to)
@@ -69,14 +79,6 @@ struct ContentView: View {
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
                 }
-                .alert("本地存储错误", isPresented: Binding(
-                    get: { monitor.storageMessage != nil },
-                    set: { if !$0 { monitor.dismissStorageMessage() } }
-                )) {
-                    Button("好") { monitor.dismissStorageMessage() }
-                } message: {
-                    Text(monitor.storageMessage ?? "")
-                }
             }
             .tabItem {
                 Label("主屏幕", systemImage: "house")
@@ -88,6 +90,27 @@ struct ContentView: View {
                     Label("设置", systemImage: "gearshape")
                 }
                 .tag(AppTab.settings)
+        }
+        .confirmationDialog("删除账号？", isPresented: Binding(
+            get: { !accountsToDelete.isEmpty },
+            set: { if !$0 { accountsToDelete = [] } }
+        ), titleVisibility: .visible) {
+            Button("删除账号", role: .destructive) {
+                let accountIDs = accountsToDelete.map(\.id)
+                accountsToDelete = []
+                Task { for id in accountIDs { await monitor.deleteAccount(accountID: id) } }
+            }
+            Button("取消", role: .cancel) { accountsToDelete = [] }
+        } message: {
+            Text("将移除“\(accountsToDelete.map(\.name).joined(separator: "、"))”的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+        }
+        .alert("本地存储错误", isPresented: Binding(
+            get: { monitor.storageMessage != nil },
+            set: { if !$0 { monitor.dismissStorageMessage() } }
+        )) {
+            Button("好") { monitor.dismissStorageMessage() }
+        } message: {
+            Text(monitor.storageMessage ?? "")
         }
         .onOpenURL { url in
             guard url.scheme == PlatformConstants.accountDeepLinkScheme else { return }
@@ -126,67 +149,130 @@ private struct AddAccountButton: View {
 }
 
 private struct AccountQuotaView: View {
+    @Environment(\.editMode) private var editMode
     let state: AccountQuotaState
     let isRefreshing: Bool
     let refresh: () async -> Void
     @State private var isExpanded = false
 
     var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded) {
-            VStack(alignment: .leading, spacing: 12) {
-                if let snapshot = state.snapshot {
-                    if let plan = snapshot.subscriptionPlan, state.account.provider == .codex {
-                        LabeledContent("套餐", value: plan.displayName)
-                    }
-                    let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
-                    ForEach(detailWindows) { window in
-                        if window.scope == nil {
-                            QuotaWindowView(window: window)
-                        } else {
-                            LabeledContent(
-                                window.displayName,
-                                value: QuotaFormatting.usage(window)
+        // Keep the disclosure content inside one List row, including during drag and delete.
+        VStack {
+            if editMode?.wrappedValue.isEditing == true {
+                AccountSummaryView(state: state)
+            } else {
+                DisclosureGroup(isExpanded: $isExpanded) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if let snapshot = state.snapshot {
+                            if let plan = snapshot.subscriptionPlan, state.account.provider == .codex {
+                                LabeledContent("套餐", value: plan.displayName)
+                            }
+                            let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
+                            ForEach(detailWindows) { window in
+                                if window.scope == nil {
+                                    QuotaWindowView(window: window)
+                                } else {
+                                    LabeledContent(
+                                        window.displayName,
+                                        value: QuotaFormatting.usage(window)
+                                    )
+                                }
+                                if window.id != detailWindows.last?.id {
+                                    Divider()
+                                }
+                            }
+                            if state.account.provider == .codex {
+                                LabeledContent(
+                                    "可手动重置",
+                                    value: QuotaFormatting.remainingResets(snapshot.remainingResetCount)
+                                )
+                            }
+                            Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        if let failure = state.lastFailure {
+                            Label(
+                                QuotaFormatting.refreshFailure(failure, hasSnapshot: state.snapshot != nil),
+                                systemImage: "exclamationmark.triangle"
+                            )
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                        }
+
+                        HStack {
+                            Text(isRefreshing ? "正在获取最新额度" : "刷新这个账号")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            AccountRefreshButton(
+                                accountName: state.account.name,
+                                isRefreshing: isRefreshing,
+                                refresh: refresh
                             )
                         }
-                        if window.id != detailWindows.last?.id {
-                            Divider()
-                        }
                     }
-                    if state.account.provider == .codex {
-                        LabeledContent(
-                            "可手动重置",
-                            value: QuotaFormatting.remainingResets(snapshot.remainingResetCount)
-                        )
-                    }
-                    Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    .padding(.top, 8)
+                } label: {
+                    AccountSummaryView(state: state)
                 }
-                if let failure = state.lastFailure {
-                    Label(
-                        QuotaFormatting.refreshFailure(failure, hasSnapshot: state.snapshot != nil),
-                        systemImage: "exclamationmark.triangle"
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                }
-
-                HStack {
-                    Text(isRefreshing ? "正在获取最新额度" : "刷新这个账号")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    AccountRefreshButton(
-                        accountName: state.account.name,
-                        isRefreshing: isRefreshing,
-                        refresh: refresh
-                    )
-                }
+                .disclosureGroupStyle(AccountDisclosureStyle())
             }
-            .padding(.top, 8)
-        } label: {
-            AccountSummaryView(state: state)
         }
+    }
+}
+
+private struct AccountDisclosureStyle: DisclosureGroupStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) {
+                    configuration.isExpanded.toggle()
+                }
+            } label: {
+                HStack {
+                    configuration.label
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(configuration.isExpanded ? 90 : 0))
+                        .accessibilityHidden(true)
+                }
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityValue(configuration.isExpanded ? "已展开" : "已收起")
+
+            QuotaDetailsLayout(expansion: configuration.isExpanded ? 1 : 0) {
+                configuration.content
+            }
+            .clipped()
+            .opacity(configuration.isExpanded ? 1 : 0)
+            .allowsHitTesting(configuration.isExpanded)
+            .accessibilityHidden(!configuration.isExpanded)
+        }
+    }
+}
+
+// Report the visible height on each animation frame so List moves the following rows with it.
+struct QuotaDetailsLayout: Layout {
+    var expansion: CGFloat
+
+    var animatableData: CGFloat {
+        get { expansion }
+        set { expansion = newValue }
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let size = subviews[0].sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
+        return CGSize(width: size.width, height: size.height * expansion)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews[0].place(at: bounds.origin, anchor: .topLeading,
+                          proposal: ProposedViewSize(width: bounds.width, height: nil))
     }
 }
 

@@ -1,8 +1,42 @@
 import Security
+import SwiftUI
 import XCTest
 @testable import TokenPulse
 
 final class PlatformTests: XCTestCase {
+    @MainActor
+    func testDetailRevealReportsIntermediateRowHeightsWithoutCompressingContent() {
+        for expansion in [0.0, 0.25, 0.5, 0.75, 1.0, 0.5, 0.0] {
+            let host = UIHostingController(rootView: VStack(spacing: 0) {
+                Color.clear.frame(height: 40)
+                QuotaDetailsLayout(expansion: expansion) {
+                    Color.clear.frame(height: 120)
+                }
+            })
+
+            let size = host.sizeThatFits(in: CGSize(width: 240, height: 500))
+
+            XCTAssertEqual(size.width, 240, accuracy: 0.5)
+            XCTAssertEqual(size.height, 40 + 120 * expansion, accuracy: 0.5)
+        }
+    }
+
+    func testCloudDeletionWinsOverStaleAccountInEitherMergeDirection() {
+        let account = SubscriptionAccount(name: "Deleted")
+        var deleted = AccountConfiguration(account: account)
+        deleted.deletedAt = Date()
+        let tombstone = PlatformAccountPayload(configurations: [deleted], states: [], ledger: ReminderLedger())
+        let stale = PlatformAccountPayload(
+            configurations: [AccountConfiguration(account: account, modifiedAt: .distantFuture)],
+            states: [AccountQuotaState(account: account)], ledger: ReminderLedger()
+        )
+
+        for merged in [ICloudSyncRuntime.merge(tombstone, stale), ICloudSyncRuntime.merge(stale, tombstone)] {
+            XCTAssertEqual(merged.configurations, [deleted])
+            XCTAssertTrue(merged.states.isEmpty)
+        }
+    }
+
     func testExhaustedWindowHasConsistentAppAndWidgetPresentation() {
         let window = QuotaWindow(
             id: "opencode-go.weekly", name: "每周额度", scope: nil,

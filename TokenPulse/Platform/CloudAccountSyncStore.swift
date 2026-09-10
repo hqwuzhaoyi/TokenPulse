@@ -155,9 +155,11 @@ actor ICloudSyncRuntime {
         _ local: PlatformAccountPayload,
         _ cloud: PlatformAccountPayload
     ) -> PlatformAccountPayload {
-        PlatformAccountPayload(
-            configurations: mergeConfigurations(local.configurations, cloud.configurations),
-            states: mergeStates(local.states, cloud.states),
+        let configurations = mergeConfigurations(local.configurations, cloud.configurations)
+        let deletedIDs = Set(configurations.filter { $0.deletedAt != nil }.map(\.id))
+        return PlatformAccountPayload(
+            configurations: configurations,
+            states: mergeStates(local.states, cloud.states).filter { !deletedIDs.contains($0.id) },
             ledger: local.ledger.merging(cloud.ledger)
         )
     }
@@ -175,8 +177,12 @@ actor ICloudSyncRuntime {
         _ rhs: [AccountConfiguration]
     ) -> [AccountConfiguration] {
         var byID = Dictionary(uniqueKeysWithValues: lhs.map { ($0.id, $0) })
-        for candidate in rhs where candidate.modifiedAt > (byID[candidate.id]?.modifiedAt ?? .distantPast) {
-            byID[candidate.id] = candidate
+        for candidate in rhs {
+            if byID[candidate.id] == nil || candidate.deletedAt != nil
+                || (byID[candidate.id]?.deletedAt == nil
+                    && candidate.modifiedAt > (byID[candidate.id]?.modifiedAt ?? .distantPast)) {
+                byID[candidate.id] = candidate
+            }
         }
         return byID.values.sorted { $0.id.uuidString < $1.id.uuidString }
     }

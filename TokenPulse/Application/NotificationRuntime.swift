@@ -100,6 +100,13 @@ final class NotificationRuntime: ObservableObject {
     func settingsChanged(configurations: [AccountConfiguration], states: [AccountQuotaState]) async throws {
         await acquire()
         defer { release() }
+        let removedIDs = ledger.scheduledAccountIDs.subtracting(configurations.map(\.id))
+        for accountID in removedIDs {
+            let identifiers = ledger.pendingSchedules(accountID: accountID).map(\.notificationID)
+            try await adapter.apply([.cancel(identifiers: identifiers)])
+            ledger.replacePendingSchedules(accountID: accountID, with: [])
+            try persist()
+        }
         for configuration in configurations {
             let result = planner.planSettingsChange(
                 accountID: configuration.id, accountName: configuration.account.name,

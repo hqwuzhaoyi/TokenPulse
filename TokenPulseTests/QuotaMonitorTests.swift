@@ -3,6 +3,23 @@ import XCTest
 
 @MainActor
 final class QuotaMonitorTests: XCTestCase {
+    func testDeletedAccountCredentialCleanupCanBeRetried() async throws {
+        let account = SubscriptionAccount(name: "Delete")
+        let store = MemoryAccountStore(initial: [AccountQuotaState(account: account)])
+        let credentials = MemoryCredentialStore(values: [account.id: "fixture"], deleteFailuresRemaining: 1)
+        let monitor = QuotaMonitor(accountStore: store, credentialStore: credentials, quotaClient: StubQuotaClient())
+        await monitor.start(refresh: false)
+
+        await monitor.deleteAccount(accountID: account.id)
+
+        XCTAssertTrue(monitor.states.isEmpty)
+        XCTAssertTrue(monitor.hasPendingCredentialCleanup)
+        await monitor.retryPendingCredentialCleanup()
+        XCTAssertFalse(monitor.hasPendingCredentialCleanup)
+        let credential = await credentials.credential(for: account.id)
+        XCTAssertNil(credential)
+    }
+
     func testRefreshKeepsTwoAccountsIsolatedAndPersistsSuccessfulSnapshots() async throws {
         let first = SubscriptionAccount(name: "工作账号")
         let second = SubscriptionAccount(name: "个人账号")

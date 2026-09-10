@@ -4,6 +4,7 @@ struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var account: SubscriptionAccount
     var reminders: AccountReminderSettings
     var modifiedAt: Date
+    var deletedAt: Date?
 
     var id: UUID { account.id }
 

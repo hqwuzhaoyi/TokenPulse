@@ -72,8 +72,10 @@ private struct NotificationSettingsSection: View {
 }
 
 private struct CloudSyncSettingsSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var settings: CloudSyncSettings
     let runtime: AppRuntime
+    @State private var syncRotation = 0.0
 
     var body: some View {
         Section {
@@ -82,21 +84,27 @@ private struct CloudSyncSettingsSection: View {
                 set: { enabled in Task { await runtime.setCloudSyncEnabled(enabled) } }
             ))
             Button {
+                withAnimation(reduceMotion ? nil : .linear(duration: 0.6)) {
+                    syncRotation += 360
+                }
                 Task { await runtime.synchronizeNow() }
             } label: {
-                HStack {
-                    Label(settings.isSyncing ? "正在同步…" : "立即同步", systemImage: "arrow.triangle.2.circlepath")
+                HStack(spacing: 12) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .rotationEffect(.degrees(syncRotation))
+                        .frame(width: 24)
+                        .accessibilityHidden(true)
+                    Text("立即同步")
                     Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        timestamp("请求", settings.lastRequestedAt)
-                        timestamp("云端", settings.lastReceivedAt)
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    if settings.isSyncing { ProgressView() }
+                    latestSyncTime
+                        .font(.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
                 }
             }
-            .disabled(!settings.isEnabled || settings.isSyncing)
+            .disabled(!settings.isEnabled)
+            .allowsHitTesting(!settings.isSyncing)
+            .accessibilityValue(settings.isSyncing ? "正在同步" : "")
             if let error = settings.errorMessage {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .font(.caption).foregroundStyle(.orange)
@@ -109,22 +117,24 @@ private struct CloudSyncSettingsSection: View {
     }
 
     @ViewBuilder
-    private func timestamp(_ label: String, _ date: Date?) -> some View {
-        if let date {
-            Text("\(label) \(date, format: .dateTime.month().day().hour().minute())")
+    private var latestSyncTime: some View {
+        if let date = [settings.lastRequestedAt, settings.lastReceivedAt].compactMap({ $0 }).max() {
+            Text(date, format: .dateTime.month().day().hour().minute())
         } else {
-            Text("\(label) 暂无")
+            Text("暂无")
         }
     }
 }
 
 private struct AccountPreferencesView: View {
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject var monitor: QuotaMonitor
     let accountID: UUID
     @State private var thresholds = ""
     @State private var error: String?
     @State private var credential = ""
     @State private var showingLogin = false
+    @State private var showingDeleteConfirmation = false
 
     var body: some View {
         Form {
@@ -206,9 +216,20 @@ private struct AccountPreferencesView: View {
                         Button("重新登录 \(configuration.account.provider.displayName)") { showingLogin = true }
                     }
                 }
+                Section {
+                    Button("删除账号", role: .destructive) { showingDeleteConfirmation = true }
+                }
             } else { Text("账号配置尚未同步") }
         }
         .navigationTitle(monitor.configuration(for: accountID)?.account.name ?? "账号")
+        .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+            Button("删除账号", role: .destructive) {
+                Task { if await monitor.deleteAccount(accountID: accountID) { dismiss() } }
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+        }
         .sheet(isPresented: $showingLogin) {
             if let provider = monitor.configuration(for: accountID)?.account.provider {
                 ProviderSignInView(provider: provider) { value in

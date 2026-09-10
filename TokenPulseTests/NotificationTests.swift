@@ -3,6 +3,35 @@ import XCTest
 
 final class NotificationTests: XCTestCase {
     @MainActor
+    func testRemovingAccountCancelsItsScheduledNotifications() async throws {
+        let suite = "com.tokenpulse.tests.delete-notifications.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "Deleted")
+        let kept = SubscriptionAccount(name: "Kept")
+        let window = QuotaWindow(id: "weekly", name: "每周", scope: nil, usedPercentage: 20,
+                                 remainingCount: nil, totalCount: nil, resetsAt: Date().addingTimeInterval(3_600))
+        let states = [account, kept].map {
+            AccountQuotaState(account: $0, snapshot: QuotaSnapshot(accountID: $0.id, windows: [window], collectedAt: Date()))
+        }
+        try await runtime.settingsChanged(configurations: [account, kept].map { AccountConfiguration(account: $0) }, states: states)
+        let deletedSchedules = runtime.ledger.pendingSchedules(accountID: account.id).map(\.notificationID)
+        XCTAssertFalse(deletedSchedules.isEmpty)
+
+        try await runtime.settingsChanged(configurations: [AccountConfiguration(account: kept)], states: [states[1]])
+
+        let operations = await adapter.operations()
+        XCTAssertTrue(operations.contains(.cancel(identifiers: deletedSchedules)))
+        XCTAssertTrue(runtime.ledger.pendingSchedules(accountID: account.id).isEmpty)
+        XCTAssertFalse(runtime.ledger.pendingSchedules(accountID: kept.id).isEmpty)
+        let restored = NotificationRuntime(defaults: defaults, adapter: adapter)
+        XCTAssertTrue(restored.ledger.pendingSchedules(accountID: account.id).isEmpty)
+    }
+
+    @MainActor
     func testNotificationPermissionAlwaysReturnsVisibleFeedback() async throws {
         let suite = "com.tokenpulse.tests.permission.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

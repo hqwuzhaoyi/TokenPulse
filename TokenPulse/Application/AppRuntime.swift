@@ -94,7 +94,7 @@ final class AppRuntime: ObservableObject {
                 if await credentials.credentialSyncIssue != nil { credentialSyncFailed = true }
             }
             guard cloudSync.isEnabled else { return }
-            try await sync.push(configurations: monitor.configurations, states: monitor.states, ledger: notifications.ledger)
+            try await sync.push(configurations: monitor.synchronizedConfigurations, states: monitor.states, ledger: notifications.ledger)
             if credentialSyncFailed { throw CloudSyncError.unavailable }
         }
     }
