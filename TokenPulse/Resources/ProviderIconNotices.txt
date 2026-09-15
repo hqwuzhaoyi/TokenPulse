@@ -2,6 +2,8 @@ Provider icons
 
 Claude, OpenAI, OpenCode, Z.ai, MiniMax and Grok SVG marks are derived from Lobe Icons (https://github.com/lobehub/lobe-icons), via qunqin24/Pulse commit 8d7fd60454ce383dd0a136a30790c1e277f8069b, Sources/Pulse/Resources.
 
+Qoder and DeepSeek SVG marks are derived from Lobe Icons commit a94750e3f5f8fc33757b839d85030e742284e43a. Their shapes were checked against the official Qoder and DeepSeek site favicons.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

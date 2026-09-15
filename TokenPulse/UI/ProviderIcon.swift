@@ -32,16 +32,13 @@ extension Provider {
         case .zai: "ProviderZai"
         case .miniMaxChina: "ProviderMiniMax"
         case .superGrok: "ProviderSuperGrok"
-        case .qoderInternational, .deepSeek: nil
+        case .qoderInternational: "ProviderQoder"
+        case .deepSeek: "ProviderDeepSeek"
         }
     }
 
     var systemIconName: String? {
-        switch self {
-        case .qoderInternational: "terminal"
-        case .deepSeek: "wallet.pass"
-        default: nil
-        }
+        nil
     }
 }
 
