@@ -3,11 +3,14 @@ import WidgetKit
 
 struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     let account: SubscriptionAccount
-    let windows: [QuotaWindow]
+    var windows: [QuotaWindow]
     let collectedAt: Date?
     let lastFailure: RefreshFailure?
     var remainingResetCount: Int? = nil
     var subscriptionPlan: SubscriptionPlan? = nil
+    var walletCurrency: String? = nil
+    var walletAvailable: Bool? = nil
+    var quotaExceeded: Bool? = nil
 
     var id: UUID { account.id }
 
@@ -66,7 +69,31 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
+        case .qoderInternational:
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
+        case .deepSeek:
+            let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
+            return currency.map { currency in
+                [WidgetQuotaMetric(
+                    id: "wallet.\(currency)", title: currency,
+                    window: visible.first { $0.wallet?.currency == currency }
+                )]
+            } ?? []
         }
+    }
+
+    func selectingQoderItem(_ item: String?) -> WidgetAccountSnapshot {
+        guard account.provider == .qoderInternational, let item else { return self }
+        var result = self
+        // QoderProvider emits both buckets with a nil scope; the window id is the stable identity.
+        let personal = item != "organization"
+        result.windows = windows.filter { personal ? Self.isQoderPersonal($0) : !Self.isQoderPersonal($0) }
+        return result
+    }
+
+    /// True for the personal quota bucket produced by `QoderProviderClient`.
+    static func isQoderPersonal(_ window: QuotaWindow) -> Bool {
+        window.id == "qoder.userQuota"
     }
 }
 
@@ -77,8 +104,17 @@ struct WidgetQuotaMetric: Identifiable {
 
     var valueText: String {
         guard let window else { return "未提供" }
+        if let wallet = window.wallet {
+            return QuotaFormatting.money(wallet.total, currency: wallet.currency)
+        }
         if window.isExhausted == true { return "已用尽" }
         if window.isUnlimited { return "无限" }
+        if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
+            let remaining = QuotaFormatting.count(window.remainingCount)
+            let total = QuotaFormatting.count(window.totalCount)
+            let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
+            return window.unit.map { "\(values) \($0)" } ?? values
+        }
         guard let value = window.usedPercentage, value.isFinite else { return "未提供" }
         return value.formatted(.number.precision(.fractionLength(0...1))) + "%"
     }
@@ -146,13 +182,17 @@ actor WatchWidgetSelectionStore {
         self.key = key
     }
 
+    private var activeKey: String {
+        defaults.bool(forKey: "demoModeEnabled") ? key + ".demo" : key
+    }
+
     func load() -> UUID? {
-        defaults.string(forKey: key).flatMap(UUID.init(uuidString:))
+        defaults.string(forKey: activeKey).flatMap(UUID.init(uuidString:))
     }
 
     func save(_ accountID: UUID?) {
-        if let accountID { defaults.set(accountID.uuidString, forKey: key) }
-        else { defaults.removeObject(forKey: key) }
+        if let accountID { defaults.set(accountID.uuidString, forKey: activeKey) }
+        else { defaults.removeObject(forKey: activeKey) }
         defaults.synchronize()
         WidgetCenter.shared.reloadTimelines(ofKind: PlatformConstants.watchWidgetKind)
     }
@@ -171,11 +211,13 @@ actor WidgetSnapshotStore {
     }
 
     func load() -> [WidgetAccountSnapshot] {
-        guard let data = defaults.data(forKey: key) else { return [] }
+        let activeKey = defaults.bool(forKey: "demoModeEnabled") ? key + ".demo" : key
+        guard let data = defaults.data(forKey: activeKey) else { return [] }
         return (try? JSONDecoder().decode([WidgetAccountSnapshot].self, from: data)) ?? []
     }
 
-    func save(states: [AccountQuotaState]) throws {
+    func save(states: [AccountQuotaState], configurations: [AccountConfiguration] = [], isDemoMode: Bool = false) throws {
+        let settingsByID = Dictionary(uniqueKeysWithValues: configurations.map { ($0.id, $0.reminders) })
         let snapshots = states.map { state in
             WidgetAccountSnapshot(
                 account: state.account,
@@ -183,14 +225,23 @@ actor WidgetSnapshotStore {
                 collectedAt: state.snapshot?.collectedAt,
                 lastFailure: state.lastFailure,
                 remainingResetCount: state.snapshot?.remainingResetCount,
-                subscriptionPlan: state.snapshot?.subscriptionPlan
+                subscriptionPlan: state.snapshot?.subscriptionPlan,
+                walletCurrency: settingsByID[state.id]?.walletCurrency,
+                walletAvailable: state.snapshot?.walletAvailable,
+                quotaExceeded: state.snapshot?.quotaExceeded
             )
         }
-        try save(snapshots)
+        try save(snapshots, isDemoMode: isDemoMode)
     }
 
-    func save(_ snapshots: [WidgetAccountSnapshot]) throws {
-        defaults.set(try JSONEncoder().encode(snapshots), forKey: key)
+    func setDemoMode(_ enabled: Bool) {
+        defaults.set(enabled, forKey: "demoModeEnabled")
+        defaults.synchronize()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    func save(_ snapshots: [WidgetAccountSnapshot], isDemoMode: Bool = false) throws {
+        defaults.set(try JSONEncoder().encode(snapshots), forKey: isDemoMode ? key + ".demo" : key)
         WidgetCenter.shared.reloadAllTimelines()
     }
 }

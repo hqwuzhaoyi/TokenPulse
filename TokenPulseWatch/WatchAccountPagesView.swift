@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WatchAccountPagesView: View {
     @Environment(\.scenePhase) private var scenePhase
-    let runtime: AppRuntime
+    @ObservedObject var runtime: AppRuntime
     @ObservedObject var monitor: QuotaMonitor
     @State private var selection: UUID?
 
@@ -10,11 +10,14 @@ struct WatchAccountPagesView: View {
         NavigationStack {
             Group {
                 if displayedStates.isEmpty {
-                    ContentUnavailableView(
-                        "没有账号",
-                        systemImage: "applewatch",
-                        description: Text("等待 iCloud 同步账号配置")
-                    )
+                    ContentUnavailableView {
+                        Label("没有账号", systemImage: "applewatch")
+                    } description: {
+                        Text("等待 iCloud 同步账号配置，或体验示例数据。")
+                    } actions: {
+                        Button("体验演示 / Try Demo") { Task { await runtime.setDemoMode(true) } }
+                            .disabled(runtime.isSwitchingMode)
+                    }
                 } else {
                     TabView(selection: $selection) {
                         ForEach(displayedStates) { state in
@@ -33,7 +36,7 @@ struct WatchAccountPagesView: View {
                     .tabViewStyle(.page)
                 }
             }
-            .navigationTitle("TokenPulse")
+            .navigationTitle(runtime.isDemoMode ? "演示 · TokenPulse" : "TokenPulse")
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .active else { return }
                 Task { await runtime.refresh() }
@@ -49,7 +52,7 @@ struct WatchAccountPagesView: View {
             .toolbar {
                 ToolbarItem {
                     NavigationLink {
-                        WatchWidgetSettingsView(accounts: displayedStates.map(\.account))
+                        WatchWidgetSettingsView(accounts: displayedStates.map(\.account), runtime: runtime)
                     } label: {
                         Label("表盘设置", systemImage: "gearshape")
                     }
@@ -57,36 +60,43 @@ struct WatchAccountPagesView: View {
                 }
             }
         }
+        .disabled(runtime.isSwitchingMode)
+        .overlay {
+            if runtime.isSwitchingMode { ProgressView() }
+        }
     }
 
     private var displayedStates: [AccountQuotaState] {
-        monitor.states
+        monitor.states.filter { monitor.configuration(for: $0.id)?.isWatchFavorite != false }
     }
 }
 
 private struct WatchWidgetSettingsView: View {
     let accounts: [SubscriptionAccount]
+    @ObservedObject var runtime: AppRuntime
     @State private var selectedAccountID: UUID?
     private let store = WatchWidgetSelectionStore()
 
     var body: some View {
-        Group {
-            if accounts.isEmpty {
-                ContentUnavailableView(
-                    "没有账号",
-                    systemImage: "applewatch",
-                    description: Text("等待 iCloud 同步账号配置")
-                )
-            } else {
-                Form {
-                    NavigationLink {
-                        WatchWidgetAccountSelectionView(
-                            accounts: accounts,
-                            selectedAccountID: $selectedAccountID
-                        )
-                    } label: {
-                        LabeledContent("表盘显示账号", value: selectedAccount?.name ?? "未选择")
-                    }
+        Form {
+            Section {
+                Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                    Task { await runtime.setDemoMode(!runtime.isDemoMode) }
+                }
+                .disabled(runtime.isSwitchingMode)
+                if runtime.isDemoMode {
+                    Text("当前为本机示例数据，退出后恢复真实账号。")
+                        .font(.footnote)
+                }
+            }
+            if !accounts.isEmpty {
+                NavigationLink {
+                    WatchWidgetAccountSelectionView(
+                        accounts: accounts,
+                        selectedAccountID: $selectedAccountID
+                    )
+                } label: {
+                    LabeledContent("表盘显示账号", value: selectedAccount?.name ?? "未选择")
                 }
             }
         }
@@ -155,7 +165,15 @@ private struct WatchAccountPage: View {
 
                 if let snapshot = state.snapshot {
                     ForEach(snapshot.windows(for: state.account.provider, surface: .detail)) { window in
-                        if window.scope == nil {
+                        if let wallet = window.wallet {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(wallet.currency).font(.caption.bold())
+                                LabeledContent("总可用", value: QuotaFormatting.money(wallet.total, currency: wallet.currency))
+                                LabeledContent("赠送", value: QuotaFormatting.money(wallet.granted, currency: wallet.currency))
+                                LabeledContent("充值", value: QuotaFormatting.money(wallet.toppedUp, currency: wallet.currency))
+                            }
+                            .font(.caption2)
+                        } else if window.scope == nil || state.account.provider == .qoderInternational {
                             VStack(alignment: .leading, spacing: 3) {
                                 if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                                     Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
@@ -167,12 +185,19 @@ private struct WatchAccountPage: View {
                                 }
                                     .gaugeStyle(.accessoryCircular)
                                 } else {
-                                    LabeledContent(window.name, value: window.isUnlimited ? "无限" : "未提供")
+                                    LabeledContent(window.displayName, value: QuotaFormatting.usage(window))
                                         .font(.caption)
                                 }
-                                LabeledContent("重置", value: QuotaFormatting.resetDate(window.resetsAt))
+                                if let remaining = window.remainingCount {
+                                    LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
+                                        .font(.caption2)
+                                }
+                                LabeledContent(
+                                    window.expiresAt == nil ? "重置" : "到期",
+                                    value: QuotaFormatting.resetDate(window.expiresAt ?? window.resetsAt)
+                                )
                                     .font(.caption2)
-                                if window.needsUpdate(at: date) {
+                                if window.expiresAt == nil, window.needsUpdate(at: date) {
                                     Label("待更新", systemImage: "clock.badge.exclamationmark")
                                         .font(.caption2)
                                         .foregroundStyle(.orange)
@@ -189,6 +214,14 @@ private struct WatchAccountPage: View {
                     if state.account.provider == .codex {
                         LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
                             .font(.caption2)
+                    }
+                    if snapshot.walletAvailable == false {
+                        Label("API 不可用", systemImage: "exclamationmark.circle.fill")
+                            .font(.caption2).foregroundStyle(.orange)
+                    }
+                    if snapshot.quotaExceeded == true {
+                        Label("额度已用尽", systemImage: "exclamationmark.circle.fill")
+                            .font(.caption2).foregroundStyle(.orange)
                     }
                     Text("采集于 \(snapshot.collectedAt.formatted(date: .omitted, time: .shortened))")
                         .font(.caption2)

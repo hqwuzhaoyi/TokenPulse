@@ -4,13 +4,26 @@ struct AccountReminderSettings: Codable, Equatable, Sendable {
     var quotaAlertsEnabled: Bool
     var resetRemindersEnabled: Bool
     var thresholds: [Double]
+    var walletCurrency: String?
+    var walletThresholds: [String: Decimal]?
 
     init(quotaAlertsEnabled: Bool = true,
          resetRemindersEnabled: Bool = true,
-         thresholds: [Double] = [80, 95, 100]) {
+         thresholds: [Double] = [80, 95, 100],
+         walletCurrency: String? = nil,
+         walletThresholds: [String: Decimal]? = nil) {
         self.quotaAlertsEnabled = quotaAlertsEnabled
         self.resetRemindersEnabled = resetRemindersEnabled
         self.thresholds = thresholds
+        self.walletCurrency = walletCurrency
+        self.walletThresholds = walletThresholds
+    }
+
+    func walletThreshold(for currency: String) -> Decimal {
+        if let threshold = walletThresholds?[currency], !threshold.isNaN, threshold >= 0 {
+            return threshold
+        }
+        return currency == "CNY" ? 10 : 2
     }
 }
 
@@ -18,6 +31,7 @@ enum ReminderNotificationKind: String, Codable, Equatable, Sendable {
     case quotaAlert
     case expectedReset
     case confirmedReset
+    case walletAlert
 }
 
 struct ReminderNotification: Codable, Equatable, Sendable {
@@ -44,6 +58,7 @@ struct ReminderLedger: Codable, Equatable, Sendable {
     private var confirmedResets: Set<ResetOccurrenceRecord> = []
     private var windowCycles: [WindowCycleState] = []
     private var pendingResetSchedules: [PendingResetSchedule] = []
+    private var walletAlerts: [WalletAlertState]?
 
     init() {}
 
@@ -63,6 +78,14 @@ struct ReminderLedger: Codable, Equatable, Sendable {
             }
         }
 
+        for state in remote.walletAlerts ?? [] {
+            let local = result.walletAlertState(accountID: state.accountID, currency: state.currency)
+            if local == nil || state.observedAt > local!.observedAt
+                || (state.observedAt == local!.observedAt && state.isActive) {
+                result.setWalletAlertState(state)
+            }
+        }
+
         // Pending requests belong to the local device. Only delivered/planned records merge.
         return result
     }
@@ -77,6 +100,17 @@ struct ReminderLedger: Codable, Equatable, Sendable {
             cycle: cycle,
             threshold: threshold
         ))
+    }
+
+    func walletAlertState(accountID: UUID, currency: String?) -> WalletAlertState? {
+        walletAlerts?.first { $0.accountID == accountID && $0.currency == currency }
+    }
+
+    mutating func setWalletAlertState(_ state: WalletAlertState) {
+        var states = walletAlerts ?? []
+        states.removeAll { $0.accountID == state.accountID && $0.currency == state.currency }
+        states.append(state)
+        walletAlerts = states
     }
 
     mutating func recordQuotaAlert(accountID: UUID,
@@ -133,6 +167,14 @@ struct ReminderLedger: Codable, Equatable, Sendable {
         pendingResetSchedules.removeAll { $0.accountID == accountID }
         pendingResetSchedules.append(contentsOf: schedules)
     }
+}
+
+/// A nil currency tracks API availability independently of any selected wallet currency.
+struct WalletAlertState: Codable, Equatable, Sendable {
+    let accountID: UUID
+    let currency: String?
+    let isActive: Bool
+    let observedAt: Date
 }
 
 enum ReminderCycleIdentity: Codable, Hashable, Sendable {

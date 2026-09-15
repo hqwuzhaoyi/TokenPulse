@@ -3,6 +3,7 @@ import Foundation
 enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
     case claude, codex, openCodeGo, zai, superGrok
+    case qoderInternational, deepSeek
 
     var id: String { rawValue }
     var displayName: String {
@@ -13,6 +14,8 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .openCodeGo: "OpenCode Go"
         case .zai: "Z.ai"
         case .superGrok: "SuperGrok"
+        case .qoderInternational: "Qoder 国际版"
+        case .deepSeek: "DeepSeek"
         }
     }
 }
@@ -86,6 +89,13 @@ struct QuotaPolicy {
     }
 }
 
+struct WalletBalance: Codable, Equatable, Sendable {
+    let currency: String
+    let total: Decimal
+    let granted: Decimal
+    let toppedUp: Decimal
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -99,6 +109,9 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let resetsAt: Date?
     /// Opaque stable identifier supplied by the provider. Never derive it from `resetsAt`.
     let cycleID: String?
+    let unit: String?
+    let expiresAt: Date?
+    let wallet: WalletBalance?
 
     init(id: String,
          name: String,
@@ -110,7 +123,10 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          remainingCount: Double?,
          totalCount: Double?,
          resetsAt: Date?,
-         cycleID: String? = nil) {
+         cycleID: String? = nil,
+         unit: String? = nil,
+         expiresAt: Date? = nil,
+         wallet: WalletBalance? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -122,6 +138,9 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.totalCount = totalCount
         self.resetsAt = resetsAt
         self.cycleID = cycleID
+        self.unit = unit
+        self.expiresAt = expiresAt
+        self.wallet = wallet
     }
 
     func needsUpdate(at date: Date) -> Bool {
@@ -139,6 +158,8 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     let collectedAt: Date
     var subscriptionPlan: SubscriptionPlan? = nil
     var remainingResetCount: Int? = nil
+    var walletAvailable: Bool? = nil
+    var quotaExceeded: Bool? = nil
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)

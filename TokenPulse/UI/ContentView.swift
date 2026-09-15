@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject var monitor: QuotaMonitor
-    let runtime: AppRuntime
+    @ObservedObject var runtime: AppRuntime
     @State private var showingAddAccount = false
     @State private var accountsToDelete: [SubscriptionAccount] = []
     @State private var linkedAccount: UUID?
@@ -15,11 +15,17 @@ struct ContentView: View {
                 Group {
                     if monitor.states.isEmpty {
                         ContentUnavailableView {
-                            Label("添加订阅账号", systemImage: "waveform.path.ecg")
+                            Label("添加服务账号", systemImage: "waveform.path.ecg")
                         } description: {
-                            Text("集中查看 Claude、Codex、OpenCode Go、Z.ai、MiniMax 和 SuperGrok 的套餐额度。")
+                            Text("集中查看 AI 服务的套餐额度与 API 钱包余额。")
                         } actions: {
                             AddAccountButton { showingAddAccount = true }
+                            if !runtime.isDemoMode {
+                                Button("体验演示 / Try Demo") {
+                                    Task { await runtime.setDemoMode(true) }
+                                }
+                                .disabled(runtime.isSwitchingMode)
+                            }
                             if monitor.hasPendingCredentialCleanup {
                                 Button("重试凭证清理") { Task { await monitor.retryPendingCredentialCleanup() } }
                             }
@@ -39,6 +45,7 @@ struct ContentView: View {
                                 ForEach(monitor.states) { state in
                                     AccountQuotaView(
                                         state: state,
+                                        walletCurrency: monitor.configuration(for: state.id)?.reminders.walletCurrency,
                                         isRefreshing: monitor.refreshingAccountIDs.contains(state.id),
                                         refresh: { await monitor.refresh(accountID: state.id) }
                                     )
@@ -62,6 +69,21 @@ struct ContentView: View {
                         .refreshable { await monitor.refreshAll() }
                     }
                 }
+                .safeAreaInset(edge: .top) {
+                    if runtime.isDemoMode {
+                        HStack {
+                            Label("演示模式 · 示例数据", systemImage: "play.circle")
+                                .font(.caption)
+                            Spacer()
+                            Button("退出演示") { Task { await runtime.setDemoMode(false) } }
+                                .font(.caption.bold())
+                                .disabled(runtime.isSwitchingMode)
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background(.regularMaterial)
+                    }
+                }
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         EditButton()
@@ -71,7 +93,7 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $showingAddAccount) {
-                    AddAccountView { name, key, provider in
+                    AddAccountView(isDemoMode: runtime.isDemoMode) { name, key, provider in
                         let previousCount = monitor.states.count
                         await monitor.addAccount(name: name, credential: key, provider: provider)
                         return monitor.states.count > previousCount
@@ -91,6 +113,10 @@ struct ContentView: View {
                 }
                 .tag(AppTab.settings)
         }
+        .disabled(runtime.isSwitchingMode)
+        .overlay {
+            if runtime.isSwitchingMode { ProgressView("正在切换模式") }
+        }
         .confirmationDialog("删除账号？", isPresented: Binding(
             get: { !accountsToDelete.isEmpty },
             set: { if !$0 { accountsToDelete = [] } }
@@ -102,7 +128,9 @@ struct ContentView: View {
             }
             Button("取消", role: .cancel) { accountsToDelete = [] }
         } message: {
-            Text("将移除“\(accountsToDelete.map(\.name).joined(separator: "、"))”的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+            Text(runtime.isDemoMode
+                 ? "将移除选中的演示账号及其示例数据。真实账号不受影响。"
+                 : "将移除“\(accountsToDelete.map(\.name).joined(separator: "、"))”的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
         }
         .alert("本地存储错误", isPresented: Binding(
             get: { monitor.storageMessage != nil },
@@ -151,6 +179,7 @@ private struct AddAccountButton: View {
 private struct AccountQuotaView: View {
     @Environment(\.editMode) private var editMode
     let state: AccountQuotaState
+    let walletCurrency: String?
     let isRefreshing: Bool
     let refresh: () async -> Void
     @State private var isExpanded = false
@@ -159,7 +188,7 @@ private struct AccountQuotaView: View {
         // Keep the disclosure content inside one List row, including during drag and delete.
         VStack {
             if editMode?.wrappedValue.isEditing == true {
-                AccountSummaryView(state: state)
+                AccountSummaryView(state: state, walletCurrency: walletCurrency)
             } else {
                 DisclosureGroup(isExpanded: $isExpanded) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -169,7 +198,7 @@ private struct AccountQuotaView: View {
                             }
                             let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
                             ForEach(detailWindows) { window in
-                                if window.scope == nil {
+                                if window.scope == nil || state.account.provider == .qoderInternational {
                                     QuotaWindowView(window: window)
                                 } else {
                                     LabeledContent(
@@ -186,6 +215,10 @@ private struct AccountQuotaView: View {
                                     "可手动重置",
                                     value: QuotaFormatting.remainingResets(snapshot.remainingResetCount)
                                 )
+                            }
+                            if snapshot.walletAvailable == false {
+                                Label("余额不足，暂时无法调用 API", systemImage: "exclamationmark.circle.fill")
+                                    .foregroundStyle(.orange)
                             }
                             Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption)
@@ -214,7 +247,7 @@ private struct AccountQuotaView: View {
                     }
                     .padding(.top, 8)
                 } label: {
-                    AccountSummaryView(state: state)
+                    AccountSummaryView(state: state, walletCurrency: walletCurrency)
                 }
                 .disclosureGroupStyle(AccountDisclosureStyle())
             }
@@ -278,6 +311,7 @@ struct QuotaDetailsLayout: Layout {
 
 private struct AccountSummaryView: View {
     let state: AccountQuotaState
+    let walletCurrency: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -303,8 +337,29 @@ private struct AccountSummaryView: View {
 
             if let snapshot = state.snapshot {
                 Divider()
-                ForEach(snapshot.windows(for: state.account.provider, surface: .summary)) { window in
-                    CompactQuotaWindowView(window: window)
+                let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
+                if state.account.provider == .deepSeek {
+                    if let currency = selectedWalletCurrency(in: summaryWindows),
+                       let window = summaryWindows.first(where: { $0.wallet?.currency == currency }) {
+                        CompactQuotaWindowView(window: window)
+                    } else if let currency = walletCurrency {
+                        Text("所选币种 \(currency) 未提供")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("未返回钱包余额")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    if snapshot.walletAvailable == false {
+                        Label("API 不可用", systemImage: "exclamationmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                } else {
+                    ForEach(summaryWindows) { window in
+                        CompactQuotaWindowView(window: window)
+                    }
                 }
             } else {
                 Label("尚无额度数据", systemImage: "chart.bar.xaxis")
@@ -322,6 +377,10 @@ private struct AccountSummaryView: View {
               let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
         return "\(state.account.provider.displayName) · \(plan.displayName)"
     }
+
+    private func selectedWalletCurrency(in windows: [QuotaWindow]) -> String? {
+        walletCurrency ?? windows.compactMap(\.wallet?.currency).first
+    }
 }
 
 private struct CompactQuotaWindowView: View {
@@ -337,14 +396,22 @@ private struct CompactQuotaWindowView: View {
                 Text(window.displayName)
                     .font(.subheadline)
             }
-            LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt))
+            if window.wallet == nil {
+                LabeledContent(
+                    window.expiresAt == nil ? "下次重置" : "到期时间",
+                    value: QuotaFormatting.resetDate(window.expiresAt ?? window.resetsAt)
+                )
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            }
         }
     }
 
     private var usedValue: String {
-        QuotaFormatting.usage(window)
+        if let wallet = window.wallet {
+            return QuotaFormatting.money(wallet.total, currency: wallet.currency)
+        }
+        return QuotaFormatting.usage(window)
     }
 }
 
@@ -379,7 +446,7 @@ private struct AccountRefreshButton: View {
     }
 }
 
-private struct QuotaWindowView: View {
+struct QuotaWindowView: View {
     let window: QuotaWindow
 
     var body: some View {
@@ -392,7 +459,9 @@ private struct QuotaWindowView: View {
                 LabeledContent("范围", value: scope)
             }
 
-            if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
+            if let wallet = window.wallet {
+                WalletBalanceView(balance: wallet)
+            } else if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                 ProgressView(value: min(max(percentage, 0), 100), total: 100)
                     .accessibilityLabel("\(window.name)已用额度")
                     .accessibilityValue(QuotaFormatting.percentage(percentage))
@@ -401,14 +470,18 @@ private struct QuotaWindowView: View {
             if let remaining = window.remainingCount {
                 LabeledContent("剩余", value: remainingValue(remaining))
             } else if let total = window.totalCount {
-                LabeledContent("总量", value: QuotaFormatting.count(total))
+                LabeledContent("总量", value: QuotaFormatting.count(total, unit: window.unit))
             }
 
-            TimelineView(.periodic(from: .now, by: 60)) { context in
-                if window.needsUpdate(at: context.date) {
-                    Label("已到预计重置时间，等待刷新确认", systemImage: "clock.badge.exclamationmark")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+            if let expiresAt = window.expiresAt {
+                LabeledContent("到期时间", value: QuotaFormatting.resetDate(expiresAt))
+            } else {
+                TimelineView(.periodic(from: .now, by: 60)) { context in
+                    if window.needsUpdate(at: context.date) {
+                        Label("已到预计重置时间，等待刷新确认", systemImage: "clock.badge.exclamationmark")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                 }
             }
         }
@@ -416,8 +489,20 @@ private struct QuotaWindowView: View {
     }
 
     private func remainingValue(_ remaining: Double) -> String {
-        guard let total = window.totalCount else { return QuotaFormatting.count(remaining) }
-        return "\(QuotaFormatting.count(remaining)) / \(QuotaFormatting.count(total))"
+        guard let total = window.totalCount else { return QuotaFormatting.count(remaining, unit: window.unit) }
+        let values = "\(QuotaFormatting.count(remaining)) / \(QuotaFormatting.count(total))"
+        guard let unit = window.unit, !unit.isEmpty else { return values }
+        return "\(values) \(unit)"
+    }
+}
+
+struct WalletBalanceView: View {
+    let balance: WalletBalance
+
+    var body: some View {
+        LabeledContent("总可用余额", value: QuotaFormatting.money(balance.total, currency: balance.currency))
+        LabeledContent("赠送余额", value: QuotaFormatting.money(balance.granted, currency: balance.currency))
+        LabeledContent("充值余额", value: QuotaFormatting.money(balance.toppedUp, currency: balance.currency))
     }
 }
 
@@ -429,6 +514,7 @@ private struct AddAccountView: View {
     @State private var saving = false
     @State private var showingLogin = false
     @State private var loginMessage: String?
+    let isDemoMode: Bool
     let save: (String, String, Provider) async -> Bool
 
     var body: some View {
@@ -453,11 +539,13 @@ private struct AddAccountView: View {
                 } header: {
                     Text("账号名称")
                 } footer: {
-                    Text("名称只用于区分你自己的多个订阅账号。")
+                    Text("名称只用于区分你自己的多个服务账号。")
                 }
 
                 Section {
-                    if usesAPIKey {
+                    if isDemoMode {
+                        Label("使用示例数据，无需登录或 API Key。", systemImage: "play.circle")
+                    } else if usesAPIKey {
                         SecureField(credentialLabel, text: $key)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -476,9 +564,9 @@ private struct AddAccountView: View {
                             .foregroundStyle(.red)
                     }
                 } header: {
-                    Text("登录凭证")
+                    Text(isDemoMode ? "演示账号" : "登录凭证")
                 } footer: {
-                    Text("凭证保存在系统安全存储中，不会写入额度数据或日志。")
+                    Text(isDemoMode ? "新账号仅在演示模式中使用。" : "凭证保存在系统安全存储中，不会写入额度数据或日志。")
                 }
             }
             .navigationTitle("添加账号")
@@ -494,10 +582,10 @@ private struct AddAccountView: View {
                         saving = true
                         Task {
                             do {
-                                let credential = usesAPIKey
+                                let credential = isDemoMode ? "demo" : usesAPIKey
                                     ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key)
                                     : key
-                                guard await save(name, credential, provider) else {
+                                guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider) else {
                                     loginMessage = "账号未保存，请重试。"
                                     saving = false
                                     return
@@ -512,7 +600,7 @@ private struct AddAccountView: View {
                         }
                     }
                     .disabled(saving || name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                              || key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                              || (!isDemoMode && key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
                 }
                 if saving {
                     ToolbarItem(placement: .status) { ProgressView() }

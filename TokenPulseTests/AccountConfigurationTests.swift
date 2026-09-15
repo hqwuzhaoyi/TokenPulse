@@ -4,6 +4,24 @@ import XCTest
 
 @MainActor
 final class AccountConfigurationTests: XCTestCase {
+    func testWatchSelectionPersistsWithWalletSettings() async throws {
+        let states = ConfigurationStateStore()
+        let configurations = ConfigurationStore()
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
+                                   quotaClient: OfflineClient(), configurationStore: configurations)
+        await monitor.start(refresh: false)
+        await monitor.addAccount(name: "DeepSeek", credential: "fixture", provider: .deepSeek)
+        let account = try XCTUnwrap(monitor.states.first)
+        let settings = AccountReminderSettings(walletCurrency: "USD", walletThresholds: ["USD": 3])
+        await monitor.updateReminders(settings, accountID: account.id)
+        await monitor.updateWatchFavorite(false, accountID: account.id)
+        let restored = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
+                                    quotaClient: OfflineClient(), configurationStore: configurations)
+        await restored.start(refresh: false)
+        XCTAssertEqual(restored.configuration(for: account.id)?.isWatchFavorite, false)
+        XCTAssertEqual(restored.configuration(for: account.id)?.reminders, settings)
+    }
+
     func testStartupFinishesInterruptedDeletion() async throws {
         let states = ConfigurationStateStore()
         let configurations = ConfigurationStore()

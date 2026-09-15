@@ -30,6 +30,7 @@ final class NotificationRuntime: ObservableObject {
     private let adapter: any NotificationApplying
     private let planner = NotificationPlanner()
     private let enabledKey = "notificationsEnabled"
+    private var active = true
     private var busy = false
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
@@ -44,7 +45,13 @@ final class NotificationRuntime: ObservableObject {
         } else { ledger = ReminderLedger() }
     }
 
+    func activate() {
+        active = true
+        adapter.configure()
+    }
+
     func requestAuthorization() async -> NotificationPermissionFeedback {
+        guard active else { return .disabled }
         let feedback: NotificationPermissionFeedback
         switch await adapter.authorizationStatus() {
         case .authorized: feedback = .enabled
@@ -53,6 +60,7 @@ final class NotificationRuntime: ObservableObject {
             do { feedback = try await adapter.requestAuthorization() ? .enabled : .denied }
             catch { feedback = .failed }
         }
+        guard active else { return .disabled }
         isEnabled = feedback == .enabled
         defaults.set(isEnabled, forKey: enabledKey)
         return feedback
@@ -86,6 +94,7 @@ final class NotificationRuntime: ObservableObject {
     func fresh(state: AccountQuotaState, previous: AccountQuotaState?, settings: AccountReminderSettings) async throws {
         await acquire()
         defer { release() }
+        guard active else { return }
         guard let snapshot = reminderSnapshot(state.snapshot, provider: state.account.provider) else { return }
         let result = planner.planSuccessfulRefresh(
             accountID: state.id, accountName: state.account.name,
@@ -100,6 +109,7 @@ final class NotificationRuntime: ObservableObject {
     func settingsChanged(configurations: [AccountConfiguration], states: [AccountQuotaState]) async throws {
         await acquire()
         defer { release() }
+        guard active else { return }
         let removedIDs = ledger.scheduledAccountIDs.subtracting(configurations.map(\.id))
         for accountID in removedIDs {
             let identifiers = ledger.pendingSchedules(accountID: accountID).map(\.notificationID)
@@ -122,17 +132,45 @@ final class NotificationRuntime: ObservableObject {
         }
     }
 
+    /// Only the schedules recorded by this runtime are cancelled; other accounts are untouched.
+    func deactivate() async throws {
+        await acquire()
+        defer { release() }
+        active = false
+        for accountID in ledger.scheduledAccountIDs {
+            let identifiers = ledger.pendingSchedules(accountID: accountID).map(\.notificationID)
+            try await adapter.apply([.cancel(identifiers: identifiers)])
+            ledger.replacePendingSchedules(accountID: accountID, with: [])
+        }
+        try persist()
+    }
+
+    func sendDemoNotification() async -> NotificationPermissionFeedback {
+        let feedback = await requestAuthorization()
+        guard feedback == .enabled else { return feedback }
+        await acquire()
+        defer { release() }
+        guard active else { return .disabled }
+        do {
+            try await adapter.apply([.deliver(ReminderNotification(
+                identifier: "tokenpulse.demo.preview", title: "TokenPulse 演示提醒",
+                body: "这是示例通知。你可以在演示账号设置中调整额度阈值和重置提醒。",
+                kind: .quotaAlert
+            ))])
+            return .enabled
+        } catch { return .failed }
+    }
+
     private func persist() throws {
         defaults.set(try JSONEncoder().encode(ledger), forKey: "reminderLedger")
     }
 
     private func effective(_ settings: AccountReminderSettings) -> AccountReminderSettings {
         guard !isEnabled else { return settings }
-        return AccountReminderSettings(
-            quotaAlertsEnabled: false,
-            resetRemindersEnabled: false,
-            thresholds: settings.thresholds
-        )
+        var disabled = settings
+        disabled.quotaAlertsEnabled = false
+        disabled.resetRemindersEnabled = false
+        return disabled
     }
 
     private func reminderSnapshot(_ snapshot: QuotaSnapshot?, provider: Provider) -> QuotaSnapshot? {
@@ -142,7 +180,9 @@ final class NotificationRuntime: ObservableObject {
             windows: snapshot.windows(for: provider, surface: .notification),
             collectedAt: snapshot.collectedAt,
             subscriptionPlan: snapshot.subscriptionPlan,
-            remainingResetCount: snapshot.remainingResetCount
+            remainingResetCount: snapshot.remainingResetCount,
+            walletAvailable: snapshot.walletAvailable,
+            quotaExceeded: snapshot.quotaExceeded
         )
     }
 

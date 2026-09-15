@@ -25,6 +25,12 @@ enum QuotaFormatting {
     static func usage(_ window: QuotaWindow) -> String {
         if window.isUnlimited { return "无限" }
         if window.isExhausted == true { return "已用尽" }
+        if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
+            let remaining = count(window.remainingCount)
+            let total = count(window.totalCount)
+            let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
+            return window.unit.map { "\(values) \($0)" } ?? values
+        }
         return percentage(window.usedPercentage)
     }
 
@@ -36,6 +42,16 @@ enum QuotaFormatting {
     static func count(_ value: Double?) -> String {
         guard let value else { return "未提供" }
         return value.formatted(.number.precision(.fractionLength(0...2)))
+    }
+
+    static func count(_ value: Double?, unit: String?) -> String {
+        let value = count(value)
+        guard value != "未提供", let unit, !unit.isEmpty else { return value }
+        return "\(value) \(unit)"
+    }
+
+    static func money(_ value: Decimal, currency: String) -> String {
+        "\(value.formatted(.number.precision(.fractionLength(0...8)))) \(currency)"
     }
 
     static func limitDescription(_ window: QuotaWindow) -> String? {

@@ -14,6 +14,7 @@ struct TokenPulseApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(monitor: runtime.monitor, runtime: runtime)
+                .id(runtime.isDemoMode)
                 .task { await runtime.start() }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .background { Task { await runtime.scheduleBackgroundRefresh() } }

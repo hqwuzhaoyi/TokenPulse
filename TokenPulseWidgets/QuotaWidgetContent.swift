@@ -48,9 +48,10 @@ struct QuotaTimelineProvider: AppIntentTimelineProvider {
         let snapshots = await WidgetSnapshotStore().load()
         let selectedIDs = (configuration.accounts ?? []).compactMap { UUID(uuidString: $0.id) }
         let selection = WidgetPresentation.select(snapshots, selectedIDs: selectedIDs, family: family)
+        let accounts = selection.accounts.map { $0.selectingQoderItem(configuration.qoderQuotaItem.rawValue) }
         return QuotaWidgetEntry(
             date: Date(),
-            accounts: selection.accounts,
+            accounts: accounts,
             selectionRequired: selection.selectionRequired,
             accountSelectionMissing: selection.accountSelectionMissing,
             hasAvailableAccounts: selection.hasAvailableAccounts
@@ -108,9 +109,10 @@ struct WatchQuotaTimelineProvider: AppIntentTimelineProvider {
             ?? snapshots.first?.id
         let selectedIDs = selectedID.map { [$0] } ?? []
         let selection = WidgetPresentation.select(snapshots, selectedIDs: selectedIDs, family: .single)
+        let accounts = selection.accounts.map { $0.selectingQoderItem(configuration.qoderQuotaItem.rawValue) }
         return QuotaWidgetEntry(
             date: Date(),
-            accounts: selection.accounts,
+            accounts: accounts,
             selectionRequired: selection.selectionRequired,
             accountSelectionMissing: selection.accountSelectionMissing,
             hasAvailableAccounts: selection.hasAvailableAccounts
@@ -291,36 +293,53 @@ struct QuotaWidgetView: View {
             "\(account.account.name) "
                 + metrics.map { "\($0.title) \($0.valueText)" }.joined(separator: " · ")
                 + resetCountSuffix(account)
+                + availabilitySuffix(account)
         )
     }
 
+    @ViewBuilder
     private func accessoryCircular(_ account: WidgetAccountSnapshot) -> some View {
-        ZStack {
-            if let metric = account.displayMetrics.first {
-                QuotaRing(metric: metric, diameter: 58, lineWidth: 5)
-            }
+        if let metric = account.displayMetrics.first, metric.window?.wallet != nil || metric.window == nil {
             VStack(spacing: 1) {
                 ProviderIcon(provider: account.account.provider, size: 11)
+                Text(metric.valueText)
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .minimumScaleFactor(0.55)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilitySummary(account))
+        } else {
+            ZStack {
                 if let metric = account.displayMetrics.first {
-                    Text(metric.valueText)
-                        .font(.system(size: 9, weight: .bold, design: .rounded))
-                        .minimumScaleFactor(0.7)
+                    QuotaRing(metric: metric, diameter: 58, lineWidth: 5)
+                }
+                VStack(spacing: 1) {
+                    ProviderIcon(provider: account.account.provider, size: 11)
+                    if let metric = account.displayMetrics.first {
+                        Text(metric.valueText)
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .minimumScaleFactor(0.7)
+                    }
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilitySummary(account))
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilitySummary(account))
     }
 
     private func accessoryRectangular(_ account: WidgetAccountSnapshot) -> some View {
         HStack(spacing: 8) {
             if let metric = account.displayMetrics.first {
-                QuotaRing(metric: metric, diameter: 48, lineWidth: 5)
-                    .overlay {
+                if metric.window?.wallet != nil || metric.window == nil {
+                    ProviderIcon(provider: account.account.provider, size: 22)
+                } else {
+                    QuotaRing(metric: metric, diameter: 48, lineWidth: 5)
+                        .overlay {
                         Text(metric.valueText)
                             .font(.system(size: 9, weight: .bold, design: .rounded))
                             .minimumScaleFactor(0.65)
                     }
+                }
             }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
@@ -348,6 +367,7 @@ struct QuotaWidgetView: View {
                 }
             }
             Spacer(minLength: 0)
+            AccountStatus(account: account)
         }
     }
 
@@ -422,14 +442,23 @@ struct QuotaWidgetView: View {
     }
 
     private func resetText(_ metric: WidgetQuotaMetric) -> String {
-        "重置 \(QuotaFormatting.resetDate(metric.window?.resetsAt))"
+        guard let window = metric.window else { return "时间未提供" }
+        if window.wallet != nil { return "钱包余额" }
+        if let expiresAt = window.expiresAt { return "到期 \(QuotaFormatting.resetDate(expiresAt))" }
+        return "重置 \(QuotaFormatting.resetDate(window.resetsAt))"
     }
 
     private func accessibilitySummary(_ account: WidgetAccountSnapshot) -> String {
         let metrics = account.displayMetrics.map {
             "\($0.title) \($0.valueText)，\(resetText($0))"
         }.joined(separator: "；")
-        return "\(account.account.name)，\(metrics)\(resetCountSuffix(account))"
+        return "\(account.account.name)，\(metrics)\(resetCountSuffix(account))\(availabilitySuffix(account))"
+    }
+
+    private func availabilitySuffix(_ account: WidgetAccountSnapshot) -> String {
+        if account.walletAvailable == false { return " · API 不可用" }
+        if account.quotaExceeded == true { return " · 额度已用尽" }
+        return ""
     }
 }
 
@@ -449,6 +478,12 @@ private struct AccountHeader: View {
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
                     .background(.white.opacity(0.1), in: Capsule())
+            }
+            if account.walletAvailable == false || account.quotaExceeded == true {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+                    .accessibilityLabel(account.walletAvailable == false ? "API 不可用" : "额度已用尽")
             }
             if account.needsUpdate(at: date) {
                 Image(systemName: "clock.badge.exclamationmark")
@@ -475,11 +510,7 @@ private struct AccountTile: View {
                 }
             }
             Spacer(minLength: 0)
-            if account.lastFailure != nil {
-                Label("最近刷新失败", systemImage: "exclamationmark.triangle.fill")
-                    .font(.system(size: 8))
-                    .foregroundStyle(.orange)
-            }
+            AccountStatus(account: account)
         }
         .padding(9)
         .background(.white.opacity(0.065), in: RoundedRectangle(cornerRadius: 18))
@@ -492,26 +523,40 @@ private struct RingMetric: View {
     let diameter: CGFloat
 
     var body: some View {
-        VStack(spacing: 3) {
-            QuotaRing(metric: metric, diameter: diameter, lineWidth: max(5, diameter * 0.09))
-                .overlay {
-                    Text(percentage)
-                        .font(.system(size: diameter * 0.22, weight: .bold, design: .rounded))
+        Group {
+            if metric.window?.wallet != nil || metric.window == nil {
+                VStack(spacing: 4) {
+                    Text(metric.valueText)
+                        .font(.system(size: diameter * 0.2, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .minimumScaleFactor(0.6)
+                        .minimumScaleFactor(0.55)
+                    Text(metric.title)
+                        .font(.system(size: 8, weight: .semibold))
                 }
-            Text(metric.title.replacingOccurrences(of: "已用", with: ""))
-                .font(.system(size: 8, weight: .semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Text("重置 \(QuotaFormatting.resetDate(metric.window?.resetsAt))")
-                .font(.system(size: 7))
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.65)
+                .frame(minHeight: diameter)
+            } else {
+                VStack(spacing: 3) {
+                    QuotaRing(metric: metric, diameter: diameter, lineWidth: max(5, diameter * 0.09))
+                        .overlay {
+                            Text(percentage)
+                                .font(.system(size: diameter * 0.22, weight: .bold, design: .rounded))
+                                .monospacedDigit()
+                                .minimumScaleFactor(0.6)
+                        }
+                    Text(metric.title.replacingOccurrences(of: "已用", with: ""))
+                        .font(.system(size: 8, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    Text(timingText)
+                        .font(.system(size: 7))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                }
+            }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(metric.title) \(percentage)，重置 \(QuotaFormatting.resetDate(metric.window?.resetsAt))")
+        .accessibilityLabel("\(metric.title) \(metric.valueText)，\(timingText)")
     }
 
     private var percentage: String {
@@ -520,6 +565,36 @@ private struct RingMetric: View {
               let value = QuotaFormatting.effectiveUsedPercentage(window),
               value.isFinite else { return "—" }
         return value.formatted(.number.precision(.fractionLength(0))) + "%"
+    }
+
+    private var timingText: String {
+        guard let window = metric.window else { return "时间未提供" }
+        if let expiresAt = window.expiresAt { return "到期 \(QuotaFormatting.resetDate(expiresAt))" }
+        return "重置 \(QuotaFormatting.resetDate(window.resetsAt))"
+    }
+}
+
+private struct AccountStatus: View {
+    let account: WidgetAccountSnapshot
+
+    var body: some View {
+        if account.lastFailure != nil {
+            Text("刷新失败 · 保留旧数据")
+                .font(.system(size: 7))
+                .foregroundStyle(.orange)
+        } else if account.walletAvailable == false {
+            Text("API 不可用")
+                .font(.system(size: 7))
+                .foregroundStyle(.orange)
+        } else if account.quotaExceeded == true {
+            Text("额度已用尽")
+                .font(.system(size: 7))
+                .foregroundStyle(.orange)
+        } else if let collectedAt = account.collectedAt {
+            Text("更新于 \(collectedAt.formatted(date: .omitted, time: .shortened))")
+                .font(.system(size: 7))
+                .foregroundStyle(.secondary)
+        }
     }
 }
 

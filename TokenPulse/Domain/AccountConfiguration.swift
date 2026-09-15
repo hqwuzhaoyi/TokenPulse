@@ -5,6 +5,7 @@ struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var reminders: AccountReminderSettings
     var modifiedAt: Date
     var deletedAt: Date?
+    var isWatchFavorite: Bool?
 
     var id: UUID { account.id }
 
@@ -25,6 +26,10 @@ actor LocalAccountConfigurationStore: AccountConfigurationStoring {
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) { self.defaults = defaults }
+
+    init(suiteName: String?) {
+        self.defaults = suiteName.flatMap(UserDefaults.init(suiteName:)) ?? .standard
+    }
 
     func load() throws -> [AccountConfiguration] {
         guard let data = defaults.data(forKey: "accountConfigurations") else { return [] }

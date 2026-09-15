@@ -170,6 +170,13 @@ final class QuotaMonitor: ObservableObject {
         await persistConfigurations()
     }
 
+    func updateWatchFavorite(_ enabled: Bool, accountID: UUID) async {
+        guard let index = synchronizedConfigurations.firstIndex(where: { $0.id == accountID && $0.deletedAt == nil }) else { return }
+        synchronizedConfigurations[index].isWatchFavorite = enabled
+        synchronizedConfigurations[index].modifiedAt = Date()
+        await persistConfigurations()
+    }
+
     func reorderAccounts(from offsets: IndexSet, to destination: Int) {
         var reordered = states
         let moved = offsets.sorted().map { reordered[$0] }

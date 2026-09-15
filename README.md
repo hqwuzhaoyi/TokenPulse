@@ -1,6 +1,6 @@
 # TokenPulse
 
-在 iPhone 和 Apple Watch 上查看多个 AI 订阅账号的套餐额度，支持设备独立刷新、额度提醒与桌面小组件。
+在 iPhone 和 Apple Watch 上查看多个 AI 服务账号的套餐额度与 API 钱包余额，支持设备独立刷新、额度与低余额提醒、桌面小组件。
 
 > **原参考仓库：[qunqin24/Pulse](https://github.com/qunqin24/Pulse)**
 >
@@ -8,7 +8,7 @@
 
 ## 功能
 
-- **多提供商、多账号**：Claude、ChatGPT/Codex、OpenCode Go、Z.ai 国际 Coding Plan（GLM）、MiniMax 国内版与 SuperGrok。
+- **多提供商、多账号**：Claude、ChatGPT/Codex、OpenCode Go、Z.ai 国际 Coding Plan（GLM）、MiniMax 国内版、SuperGrok、Qoder 国际版与 DeepSeek。
 - **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 获取配置及凭证后，无需手机代查额度。
 - **账号管理**：首页通过 Edit 拖动账号卡片排序；左滑卡片或进入账号设置可删除账号，清理凭证、额度和提醒，并通过 iCloud 同步删除结果。Watch 同步全部账号，每个账号保留独立额度窗口。
 - **同步控制**：iCloud 同步开关、手动同步、最近同步时间、失败提示；点击同步时图标旋转反馈。
@@ -27,12 +27,20 @@
 | Z.ai / GLM | 国际 Coding Plan Key | 每周已用与 5 小时已用 |
 | MiniMax 国内版 | Coding Plan Key | **5 小时已用额度** |
 | SuperGrok | 设备码授权 | 每周已用与重置时间 |
+| Qoder 国际版 | 浏览器设备授权 | 个人额度与组织资源包，分别展示 |
+| DeepSeek | API Key | 所选币种的 API 钱包余额 |
+
+DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情包含总可用、赠送和充值余额。账号设置可选择概览及提醒币种，低余额默认阈值为 CNY 10 元或 USD 2 美元，可修改。持续低余额只提醒一次，余额恢复后再次降低才重新提醒；余额不足以调用 API 时也会提醒，并合并同次通知。钱包不显示已用百分比或周期重置时间。
+
+Qoder 采用参考项目的非公开接口。设备凭证的自动续期不可用，源码核验与真实账号验证边界见 [提供商接入说明](docs/provider-integration.md)。到期时间只表示到期，不推断额度已重置。
 
 小、中、大组件都从主屏幕已配置账号列表中选择，分别最多选择 1、2、4 个具体账号，选择顺序就是展示顺序。每个账号的额度周期分别成环并显示自己的重置时间，各周期用量不会相加。Codex 与 SuperGrok 的可手动重置次数属于账号级信息，只显示一次；没有可信字段时显示“未提供”。
 
 Codex 套餐根据额度响应中的 `plan_type` 识别为 Plus 或 Pro；缺失或未知值显示为未提供，不自行猜测。Codex 的手动重置次数读取接口的 `rate_limit_reset_credits.available_count`，仅展示，不消耗重置次数。提供商没有返回的指标显示“未提供”，不会默认为 0；SuperGrok 的手动重置次数目前没有核实的对应字段。
 
 ## 开始使用
+
+无需服务账号即可在首次启动页点击 **体验演示 / Try Demo**，也可从 **设置** 进入。演示模式提供各家服务及 Codex Plus / Pro 示例，支持刷新、添加、排序、删除、提醒设置和小组件。示例数据与真实账号隔离，不连接第三方服务或同步到 iCloud；点击 **退出演示** 恢复真实账号。Watch 可在空白页或 **表盘设置** 中独立进入演示。
 
 1. 打开 iPhone 上的 TokenPulse，点击右上角 **＋**，选择提供商并完成登录或输入 Key。
 2. 需要调整顺序时，点击首页左上角 **Edit** 并拖动账号卡片，编辑期间收起详情并关闭点击展开。删除时左滑卡片露出 **删除** 按钮，点击并确认后移除；也可进入 **设置 → 具体账号 → 删除账号**。在 **设置** 中打开通知，并按账号配置提醒类型和阈值。
@@ -83,7 +91,7 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 已有 **99 项自动测试**，覆盖账号隔离、删除与排序、展开布局、持久化、提供商契约、授权恢复、同步控制、提醒规则和小组件数据选择。
+- 已有 **103 项自动测试**，覆盖账号隔离、删除与排序、展开布局、持久化、提供商契约、授权恢复、同步控制、提醒规则、小组件数据选择，以及演示模式的数据与通知隔离。
 - 完整 iOS/watchOS 签名构建、iPhone 真机安装与启动已通过。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - 其余提供商真实接入、双端凭证续期、iCloud 到达、后台通知及各类小组件仍需完整实机验收。
@@ -120,4 +128,5 @@ Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_S
 - [Claude Fable 额度研究](docs/claude-fable-research.md)
 - [领域术语](CONTEXT.md)
 - [设备独立刷新设计](docs/adr/0001-device-side-refresh.md)
+- [TestFlight 演示模式审核说明](docs/beta-review-demo.md)
 - [任务清单](openspec/changes/ios-watch-quota-monitor/tasks.md)

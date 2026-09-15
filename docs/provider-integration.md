@@ -2,6 +2,16 @@
 
 This file records implemented contracts and the verification boundary. All response examples in tests are synthetic and contain no real credential or account data. No provider below has been validated with a real subscription or physical device yet.
 
+## Qoder 国际版与 DeepSeek（本次接入）
+
+Qoder 的参考版本为 [CLIProxyAPIPlus 7b9a231](https://github.com/kaitranntt/CLIProxyAPIPlus/commit/7b9a231e189d6a2e150cc6135de3209fa51f531d)。该提交暴露的是管理接口快照，TokenPulse 使用同版本源码中的直连流程：浏览器 PKCE 设备授权、轮询取得凭证、`GET https://openapi.qoder.sh/api/v2/quota/usage` 查询。个人额度与组织资源包分别表示，`expiresAt` 不当成重置时间。
+
+认证限制：虽然 [认证辅助类](https://github.com/kaitranntt/CLIProxyAPIPlus/blob/7b9a231e189d6a2e150cc6135de3209fa51f531d/internal/auth/qoder/qoder_auth.go) 存在 refresh 方法，[实际执行器](https://github.com/kaitranntt/CLIProxyAPIPlus/blob/7b9a231e189d6a2e150cc6135de3209fa51f531d/internal/runtime/executor/qoder_executor.go#L691-L709) 明确说明设备 `dt-` token 调用该接口会返回 403，并禁用了自动续期。访谈初期关于支持续期的判断已据此更正。
+
+DeepSeek 使用 [官方余额接口](https://api-docs.deepseek.com/api/get-user-balance)：`GET https://api.deepseek.com/user/balance`，API Key 作为 Bearer 凭证。金额使用 Decimal，保留币种、总可用余额、赠送余额、充值余额和账户级 `is_available`；不根据金额猜测可用状态，不生成使用百分比或重置时间。
+
+待实测：Qoder iPhone 浏览器授权、真实额度响应和凭证有效期；DeepSeek 真实 API Key 查询；两者的 iCloud 凭证到达、手机离线时 Watch 独立刷新、真实通知和小组件。源码与模拟响应测试不等于真实账号验收。
+
 ## Shared integration API
 
 - `ProviderQuotaClient(provider:)` implements `QuotaQuerying` and also exposes `quotaResult(for:credential:)` so a coordinator can persist a rotated credential when one is returned.

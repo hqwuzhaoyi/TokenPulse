@@ -2,19 +2,37 @@ import SwiftUI
 
 struct AccountSettingsView: View {
     @ObservedObject var monitor: QuotaMonitor
-    let runtime: AppRuntime
+    @ObservedObject var runtime: AppRuntime
     var initialAccountID: UUID?
     @State private var path: [UUID] = []
 
     var body: some View {
         NavigationStack(path: $path) {
             List {
-                CloudSyncSettingsSection(settings: runtime.cloudSync, runtime: runtime)
-                NotificationSettingsSection(notifications: runtime.notifications, monitor: monitor)
+                Section {
+                    Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                        Task { await runtime.setDemoMode(!runtime.isDemoMode) }
+                    }
+                    .disabled(runtime.isSwitchingMode)
+                } footer: {
+                    Text(runtime.isDemoMode
+                         ? "当前显示示例数据，可刷新、添加或删除演示账号。退出后恢复真实账号。"
+                         : "无需第三方账号即可体验额度、账号管理、提醒和小组件。")
+                }
+                if runtime.isDemoMode {
+                    Section("同步") {
+                        Text("示例数据仅保存在本机。iPhone 和 Watch 可分别进入演示；退出演示后可使用 iCloud 同步真实账号。")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                } else {
+                    CloudSyncSettingsSection(settings: runtime.cloudSync, runtime: runtime)
+                }
+                NotificationSettingsSection(notifications: runtime.notifications, monitor: monitor,
+                                            isDemoMode: runtime.isDemoMode)
                 if let message = monitor.synchronizationMessage {
                     Label(message, systemImage: "info.circle").font(.caption)
                 }
-                Section("全部账号") {
+                Section("全部服务账号") {
                     ForEach(monitor.configurations) { configuration in
                         NavigationLink(value: configuration.id) {
                             HStack(spacing: 10) {
@@ -29,7 +47,9 @@ struct AccountSettingsView: View {
                 }
             }
             .navigationTitle("设置")
-            .navigationDestination(for: UUID.self) { id in AccountPreferencesView(monitor: monitor, accountID: id) }
+            .navigationDestination(for: UUID.self) { id in
+                AccountPreferencesView(monitor: monitor, accountID: id, isDemoMode: runtime.isDemoMode)
+            }
             .onAppear { if let initialAccountID, path.isEmpty { path = [initialAccountID] } }
             .onChange(of: initialAccountID) { _, accountID in
                 if let accountID { path = [accountID] }
@@ -41,6 +61,7 @@ struct AccountSettingsView: View {
 private struct NotificationSettingsSection: View {
     @ObservedObject var notifications: NotificationRuntime
     @ObservedObject var monitor: QuotaMonitor
+    let isDemoMode: Bool
     @State private var isUpdating = false
 
     var body: some View {
@@ -50,10 +71,25 @@ private struct NotificationSettingsSection: View {
                 set: { enabled in update(enabled) }
             ))
             .disabled(isUpdating)
+            if isDemoMode {
+                Button("发送演示通知") {
+                    isUpdating = true
+                    Task {
+                        let feedback = await notifications.sendDemoNotification()
+                        monitor.setSynchronizationMessage(feedback == .enabled
+                            ? "演示通知已提交，可在通知中心查看。"
+                            : feedback.message)
+                        isUpdating = false
+                    }
+                }
+                .disabled(isUpdating)
+            }
         } header: {
             Text("通知")
         } footer: {
-            Text("关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。")
+            Text(isDemoMode
+                 ? "演示提醒使用系统通知权限，仅用于示例账号。退出演示会取消未触发的演示提醒。"
+                 : "关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。")
         }
     }
 
@@ -130,7 +166,9 @@ private struct AccountPreferencesView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var monitor: QuotaMonitor
     let accountID: UUID
+    let isDemoMode: Bool
     @State private var thresholds = ""
+    @State private var walletThreshold = ""
     @State private var error: String?
     @State private var credential = ""
     @State private var showingLogin = false
@@ -146,13 +184,8 @@ private struct AccountPreferencesView: View {
                                 LabeledContent("套餐", value: plan.displayName)
                             }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
-                                if window.scope == nil {
-                                    VStack(alignment: .leading) {
-                                        Text(window.name).font(.headline)
-                                        Text(QuotaFormatting.usage(window))
-                                        Text("重置：\(QuotaFormatting.resetDate(window.resetsAt))")
-                                        if window.needsUpdate(at: Date()) { Text("待更新").foregroundStyle(.orange) }
-                                    }
+                                if window.scope == nil || configuration.account.provider == .qoderInternational {
+                                    QuotaWindowView(window: window)
                                 } else {
                                     LabeledContent(
                                         window.displayName,
@@ -163,6 +196,10 @@ private struct AccountPreferencesView: View {
                             if configuration.account.provider == .codex {
                                 LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
                             }
+                            if snapshot.walletAvailable == false {
+                                Label("余额不足，暂时无法调用 API", systemImage: "exclamationmark.circle.fill")
+                                    .foregroundStyle(.orange)
+                            }
                             Text("采集于 \(snapshot.collectedAt.formatted())").font(.caption)
                         } else { Text("尚无成功采集数据") }
                         if let failure = state.lastFailure { Text(failure.displayName).foregroundStyle(.orange) }
@@ -170,32 +207,41 @@ private struct AccountPreferencesView: View {
                     }
                 }
                 Section("提醒") {
-                    Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
+                    Toggle(configuration.account.provider == .deepSeek ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
                         var settings = configuration.reminders; settings.quotaAlertsEnabled = value
                         Task { await monitor.updateReminders(settings, accountID: accountID) }
                     }))
-                    Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
-                        var settings = configuration.reminders; settings.resetRemindersEnabled = value
-                        Task { await monitor.updateReminders(settings, accountID: accountID) }
-                    }))
-                    TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
-                    Button("保存阈值") {
-                        let pieces = thresholds.split(separator: ",", omittingEmptySubsequences: false)
-                        let values = pieces.compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
-                        guard values.count == pieces.count, !values.isEmpty,
-                              values.allSatisfy({ $0.isFinite && $0 > 0 && $0 <= 100 }) else {
-                            error = "请输入 0 到 100 之间的比例，使用英文逗号分隔。"; return
+                    if configuration.account.provider == .deepSeek {
+                        walletReminderControls(configuration: configuration)
+                    } else {
+                        if configuration.account.provider != .qoderInternational {
+                            Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
+                                var settings = configuration.reminders; settings.resetRemindersEnabled = value
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
                         }
-                        error = nil
-                        var settings = configuration.reminders; settings.thresholds = Array(Set(values)).sorted()
-                        Task { await monitor.updateReminders(settings, accountID: accountID) }
+                        TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
+                        Button("保存阈值") { saveQuotaThresholds(configuration) }
                     }
                     if let error { Text(error).foregroundStyle(.red) }
                     Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                Section("Apple Watch") {
+                    Toggle("在 Watch 显示", isOn: Binding(
+                        get: { configuration.isWatchFavorite != false },
+                        set: { enabled in
+                            Task { await monitor.updateWatchFavorite(enabled, accountID: accountID) }
+                        }
+                    ))
+                }
                 Section("更新凭证") {
-                    if usesAPIKey(configuration.account.provider) {
+                    if isDemoMode {
+                        Text("演示账号无需真实凭证。")
+                        Button("重新连接演示账号") {
+                            Task { await monitor.replaceCredential("demo", accountID: accountID) }
+                        }
+                    } else if usesAPIKey(configuration.account.provider) {
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {
@@ -228,7 +274,9 @@ private struct AccountPreferencesView: View {
             }
             Button("取消", role: .cancel) {}
         } message: {
-            Text("将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+            Text(isDemoMode
+                 ? "将移除此演示账号及其示例数据。真实账号不受影响。"
+                 : "将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
         }
         .sheet(isPresented: $showingLogin) {
             if let provider = monitor.configuration(for: accountID)?.account.provider {
@@ -240,7 +288,69 @@ private struct AccountPreferencesView: View {
         }
         .onAppear {
             thresholds = monitor.configuration(for: accountID)?.reminders.thresholds.map { String($0) }.joined(separator: ",") ?? "80,95,100"
+            loadWalletThreshold()
         }
+    }
+
+    @ViewBuilder
+    private func walletReminderControls(configuration: AccountConfiguration) -> some View {
+        let currencies = monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows
+            .compactMap(\.wallet?.currency).uniqued() ?? []
+        if currencies.isEmpty {
+            Text("成功刷新后可选择提醒币种。")
+                .font(.caption).foregroundStyle(.secondary)
+        } else {
+            Picker("币种", selection: Binding(
+                get: { configuration.reminders.walletCurrency ?? currencies[0] },
+                set: { currency in
+                    var settings = configuration.reminders
+                    settings.walletCurrency = currency
+                    walletThreshold = String(describing: settings.walletThreshold(for: currency))
+                    Task { await monitor.updateReminders(settings, accountID: accountID) }
+                }
+            )) {
+                ForEach(currencies, id: \.self) { Text($0).tag($0) }
+            }
+            TextField("低余额阈值", text: $walletThreshold)
+                .keyboardType(.decimalPad)
+            Button("保存低余额阈值") {
+                let currency = configuration.reminders.walletCurrency ?? currencies[0]
+                let input = walletThreshold.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard let value = Decimal(string: input, locale: .autoupdatingCurrent), !value.isNaN, value >= 0 else {
+                    error = "请输入大于或等于 0 的金额。"
+                    return
+                }
+                error = nil
+                var settings = configuration.reminders
+                settings.walletCurrency = currency
+                var values = settings.walletThresholds ?? [:]
+                values[currency] = value
+                settings.walletThresholds = values
+                Task { await monitor.updateReminders(settings, accountID: accountID) }
+            }
+        }
+    }
+
+    private func saveQuotaThresholds(_ configuration: AccountConfiguration) {
+        let pieces = thresholds.split(separator: ",", omittingEmptySubsequences: false)
+        let values = pieces.compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+        guard values.count == pieces.count, !values.isEmpty,
+              values.allSatisfy({ $0.isFinite && $0 > 0 && $0 <= 100 }) else {
+            error = "请输入 0 到 100 之间的比例，使用英文逗号分隔。"
+            return
+        }
+        error = nil
+        var settings = configuration.reminders
+        settings.thresholds = Array(Set(values)).sorted()
+        Task { await monitor.updateReminders(settings, accountID: accountID) }
+    }
+
+    private func loadWalletThreshold() {
+        guard let configuration = monitor.configuration(for: accountID),
+              let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot,
+              let currency = configuration.reminders.walletCurrency
+                ?? snapshot.windows.compactMap(\.wallet?.currency).first else { return }
+        walletThreshold = String(describing: configuration.reminders.walletThreshold(for: currency))
     }
 
     private func usesAPIKey(_ provider: Provider) -> Bool {
@@ -250,5 +360,12 @@ private struct AccountPreferencesView: View {
 
     private func credentialLabel(_ provider: Provider) -> String {
         ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
+    }
+}
+
+private extension Sequence where Element: Hashable {
+    func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
     }
 }
