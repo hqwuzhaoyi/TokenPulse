@@ -270,6 +270,19 @@ final class PlatformTests: XCTestCase {
         XCTAssertTrue(missing.accountSelectionMissing)
     }
 
+    func testWidgetEntityResolutionRestoresSelectedAccountAfterIdentifierNormalization() {
+        let snapshot = WidgetAccountSnapshot(
+            account: SubscriptionAccount(name: "现有账号", provider: .zai),
+            windows: [], collectedAt: nil, lastFailure: nil
+        )
+
+        let resolved = WidgetAccountEntityResolution.snapshots(
+            [snapshot], matching: [snapshot.id.uuidString.lowercased()]
+        )
+
+        XCTAssertEqual(resolved.map(\.id), [snapshot.id])
+    }
+
     func testWidgetRingStateDoesNotRenderUnknownOrUnlimitedAsZero() {
         func metric(used: Double?, unlimited: Bool = false) -> WidgetQuotaMetric {
             WidgetQuotaMetric(

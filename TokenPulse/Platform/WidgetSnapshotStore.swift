@@ -82,19 +82,6 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
         }
     }
 
-    func selectingQoderItem(_ item: String?) -> WidgetAccountSnapshot {
-        guard account.provider == .qoderInternational, let item else { return self }
-        var result = self
-        // QoderProvider emits both buckets with a nil scope; the window id is the stable identity.
-        let personal = item != "organization"
-        result.windows = windows.filter { personal ? Self.isQoderPersonal($0) : !Self.isQoderPersonal($0) }
-        return result
-    }
-
-    /// True for the personal quota bucket produced by `QoderProviderClient`.
-    static func isQoderPersonal(_ window: QuotaWindow) -> Bool {
-        window.id == "qoder.userQuota"
-    }
 }
 
 struct WidgetQuotaMetric: Identifiable {
@@ -167,6 +154,13 @@ enum WidgetPresentation {
             accountSelectionMissing: accounts.count != requestedIDs.count,
             hasAvailableAccounts: !snapshots.isEmpty
         )
+    }
+}
+
+enum WidgetAccountEntityResolution {
+    static func snapshots(_ snapshots: [WidgetAccountSnapshot], matching identifiers: [String]) -> [WidgetAccountSnapshot] {
+        let byID = Dictionary(uniqueKeysWithValues: snapshots.map { ($0.id, $0) })
+        return identifiers.compactMap(UUID.init(uuidString:)).compactMap { byID[$0] }
     }
 }
 

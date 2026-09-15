@@ -48,10 +48,9 @@ struct QuotaTimelineProvider: AppIntentTimelineProvider {
         let snapshots = await WidgetSnapshotStore().load()
         let selectedIDs = (configuration.accounts ?? []).compactMap { UUID(uuidString: $0.id) }
         let selection = WidgetPresentation.select(snapshots, selectedIDs: selectedIDs, family: family)
-        let accounts = selection.accounts.map { $0.selectingQoderItem(configuration.qoderQuotaItem.rawValue) }
         return QuotaWidgetEntry(
             date: Date(),
-            accounts: accounts,
+            accounts: selection.accounts,
             selectionRequired: selection.selectionRequired,
             accountSelectionMissing: selection.accountSelectionMissing,
             hasAvailableAccounts: selection.hasAvailableAccounts
@@ -109,10 +108,9 @@ struct WatchQuotaTimelineProvider: AppIntentTimelineProvider {
             ?? snapshots.first?.id
         let selectedIDs = selectedID.map { [$0] } ?? []
         let selection = WidgetPresentation.select(snapshots, selectedIDs: selectedIDs, family: .single)
-        let accounts = selection.accounts.map { $0.selectingQoderItem(configuration.qoderQuotaItem.rawValue) }
         return QuotaWidgetEntry(
             date: Date(),
-            accounts: accounts,
+            accounts: selection.accounts,
             selectionRequired: selection.selectionRequired,
             accountSelectionMissing: selection.accountSelectionMissing,
             hasAvailableAccounts: selection.hasAvailableAccounts

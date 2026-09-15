@@ -120,7 +120,7 @@ final class WalletPresentationTests: XCTestCase {
         XCTAssertEqual(healthySnapshot.displayMetrics.first?.valueText, "20 CNY")
     }
 
-    func testQoderWidgetItemSelectionKeepsBudgetsSeparate() {
+    func testQoderWidgetShowsPersonalAndOrganizationWithoutGlobalOption() {
         let account = SubscriptionAccount(name: "Qoder", provider: .qoderInternational)
         let personal = QuotaWindow(id: "qoder.userQuota", name: "个人额度", scope: nil,
                                    usedPercentage: 25, remainingCount: 750, totalCount: 1_000, resetsAt: nil)
@@ -129,12 +129,7 @@ final class WalletPresentationTests: XCTestCase {
         let snapshot = WidgetAccountSnapshot(account: account, windows: [personal, organization],
                                              collectedAt: Date(), lastFailure: nil)
 
-        XCTAssertEqual(snapshot.selectingQoderItem("personal").windows.map(\.id), ["qoder.userQuota"])
-        XCTAssertEqual(snapshot.selectingQoderItem("organization").windows.map(\.id),
-                       ["qoder.orgResourcePackage"])
-        XCTAssertEqual(snapshot.selectingQoderItem(nil).windows.map(\.id),
+        XCTAssertEqual(snapshot.displayMetrics.map { $0.window?.id },
                        ["qoder.userQuota", "qoder.orgResourcePackage"])
-        XCTAssertEqual(snapshot.selectingQoderItem("organization").displayMetrics.map { $0.window?.id },
-                       ["qoder.orgResourcePackage"])
     }
 }

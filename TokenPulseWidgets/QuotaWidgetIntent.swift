@@ -2,17 +2,6 @@ import AppIntents
 import Foundation
 import WidgetKit
 
-enum QoderQuotaItem: String, AppEnum {
-    case personal
-    case organization
-
-    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Qoder 额度")
-    static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
-        .personal: "个人额度",
-        .organization: "组织资源包",
-    ]
-}
-
 struct WidgetAccountEntity: AppEntity {
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "服务账号")
     static let defaultQuery = WidgetAccountQuery()
@@ -28,9 +17,8 @@ struct WidgetAccountEntity: AppEntity {
 
 struct WidgetAccountQuery: EntityQuery {
     func entities(for identifiers: [String]) async throws -> [WidgetAccountEntity] {
-        let wanted = Set(identifiers)
-        return await WidgetSnapshotStore().load()
-            .filter { wanted.contains($0.id.uuidString) }
+        let snapshots = await WidgetSnapshotStore().load()
+        return WidgetAccountEntityResolution.snapshots(snapshots, matching: identifiers)
             .map(WidgetAccountEntity.init)
     }
 
@@ -60,16 +48,12 @@ struct QuotaWidgetIntent: WidgetConfigurationIntent {
     )
     var accounts: [WidgetAccountEntity]?
 
-    @Parameter(title: "Qoder 展示项", default: .personal)
-    var qoderQuotaItem: QoderQuotaItem
 }
 
 struct WatchQuotaWidgetIntent: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "TokenPulse 表盘额度"
     static let description = IntentDescription("显示在 TokenPulse Watch App 设置中选择的账号。")
 
-    @Parameter(title: "Qoder 展示项", default: .personal)
-    var qoderQuotaItem: QoderQuotaItem
 }
 
 private extension WidgetAccountEntity {
