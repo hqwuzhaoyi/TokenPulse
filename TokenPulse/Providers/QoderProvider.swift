@@ -40,16 +40,17 @@ struct QoderProviderClient: Sendable {
             let remaining = qoderNumber(bucket["remaining"]) ?? total.flatMap { total in
                 used.map { max(total - $0, 0) }
             }
-            // Counts only. Per-bucket `percentage` and root `totalUsagePercentage` are 0–1
-            // in the pinned fixture; never treat 0.25 as 25% or copy the combined value.
             guard total != nil || remaining != nil else { return nil }
-            let percentage = total.flatMap { total -> Double? in
+            let computedPercentage = total.flatMap { total -> Double? in
                 guard total > 0 else { return nil }
                 return (used ?? remaining.map { max(total - $0, 0) }).map { $0 / total * 100 }
             }
+            let reportedPercentage = qoderNumber(bucket["percentage"])
+                .flatMap { 0...1 ~= $0 ? $0 * 100 : nil }
             return QuotaWindow(id: "qoder.\(key)", name: name, scope: nil, period: .other,
                                isExhausted: remaining.map { $0 == 0 },
-                               usedPercentage: percentage, remainingCount: remaining,
+                               usedPercentage: computedPercentage ?? reportedPercentage,
+                               remainingCount: remaining,
                                totalCount: total, resetsAt: nil,
                                unit: bucket["unit"] as? String,
                                expiresAt: key == "userQuota" ? expiresAt : nil)

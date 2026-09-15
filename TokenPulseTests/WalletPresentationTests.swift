@@ -132,4 +132,23 @@ final class WalletPresentationTests: XCTestCase {
         XCTAssertEqual(snapshot.displayMetrics.map { $0.window?.id },
                        ["qoder.userQuota", "qoder.orgResourcePackage"])
     }
+
+    func testQoderOrganizationProviderPercentageDrivesWidgetProgressWhenOnlyRemainingIsKnown() throws {
+        let root = try ProviderHTTP.json(Data("""
+        {
+          "orgResourcePackage": {"remaining": 3000, "percentage": 0.25, "unit": "credits"}
+        }
+        """.utf8))
+        let organization = try XCTUnwrap(QoderProviderClient.windows(root).first)
+        let account = SubscriptionAccount(name: "Qoder", provider: .qoderInternational)
+        let snapshot = WidgetAccountSnapshot(
+            account: account, windows: [organization], collectedAt: Date(), lastFailure: nil
+        )
+        let metric = try XCTUnwrap(snapshot.displayMetrics.first)
+
+        XCTAssertEqual(organization.remainingCount, 3000)
+        XCTAssertEqual(organization.usedPercentage, 25)
+        XCTAssertEqual(metric.valueText, "3,000 credits")
+        XCTAssertEqual(metric.ringFraction, 0.25)
+    }
 }
