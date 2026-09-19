@@ -2,16 +2,16 @@ import Foundation
 
 struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var account: SubscriptionAccount
-    var followOrder: Int?
     var reminders: AccountReminderSettings
     var modifiedAt: Date
+    var deletedAt: Date?
+    var isWatchFavorite: Bool?
 
     var id: UUID { account.id }
 
-    init(account: SubscriptionAccount, followOrder: Int? = nil,
+    init(account: SubscriptionAccount,
          reminders: AccountReminderSettings = AccountReminderSettings(), modifiedAt: Date = Date()) {
         self.account = account
-        self.followOrder = followOrder
         self.reminders = reminders
         self.modifiedAt = modifiedAt
     }
@@ -26,6 +26,10 @@ actor LocalAccountConfigurationStore: AccountConfigurationStoring {
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) { self.defaults = defaults }
+
+    init(suiteName: String?) {
+        self.defaults = suiteName.flatMap(UserDefaults.init(suiteName:)) ?? .standard
+    }
 
     func load() throws -> [AccountConfiguration] {
         guard let data = defaults.data(forKey: "accountConfigurations") else { return [] }

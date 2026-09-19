@@ -24,9 +24,9 @@ struct SuperGrokProviderClient: Sendable {
                     if let measured = try await creditsMeasurement(token: credential.accessToken) {
                         let resetsAt = measured.resetsAt ?? window.resetsAt
                         window = QuotaWindow(id: window.id, name: window.name, scope: window.scope,
+                                             period: window.period,
                                              usedPercentage: measured.percent, remainingCount: nil, totalCount: nil,
-                                             resetsAt: resetsAt,
-                                             cycleID: ProviderHTTP.cycleID(prefix: window.id, resetsAt: resetsAt))
+                                             resetsAt: resetsAt)
                     }
                 } catch is CancellationError {
                     throw CancellationError()
@@ -71,11 +71,11 @@ struct SuperGrokProviderClient: Sendable {
             id: "superGrok.pool",
             name: seconds.map { ProviderHTTP.windowName(seconds: $0) } ?? "SuperGrok 套餐额度",
             scope: nil,
+            period: QuotaPeriod(seconds: seconds),
             usedPercentage: percent.map { min(max($0, 0), 100) },
             remainingCount: nil,
             totalCount: nil,
-            resetsAt: end,
-            cycleID: ProviderHTTP.cycleID(prefix: "superGrok.pool", resetsAt: end)
+            resetsAt: end
         )
     }
 }

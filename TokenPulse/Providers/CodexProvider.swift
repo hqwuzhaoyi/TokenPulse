@@ -22,12 +22,23 @@ struct CodexProviderClient: Sendable {
             guard !windows.isEmpty else { throw RefreshFailure.noQuotaWindows }
             return .init(
                 snapshot: QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: now(),
+                                        subscriptionPlan: Self.subscriptionPlan(data),
                                         remainingResetCount: Self.remainingResetCount(data)),
                 updatedCredential: nil
             )
         } catch {
             throw ProviderHTTP.refreshFailure(error)
         }
+    }
+
+    private static func subscriptionPlan(_ data: Data) -> SubscriptionPlan? {
+        struct Envelope: Decodable { let planType: String? }
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        guard let rawValue = (try? decoder.decode(Envelope.self, from: data))?.planType?.lowercased() else {
+            return nil
+        }
+        return SubscriptionPlan(rawValue: rawValue)
     }
 
     private static func remainingResetCount(_ data: Data) -> Int? {
@@ -63,16 +74,17 @@ struct CodexProviderClient: Sendable {
             guard let node = group[slot] as? [String: Any] else { return nil }
             let seconds = ProviderHTTP.number(node["limit_window_seconds"]).map(Int.init)
             let resetsAt = ProviderHTTP.number(node["reset_at"]).map(Date.init(timeIntervalSince1970:))
-            let id = "\(prefix).\(slot)"
+            let period = QuotaPeriod(seconds: seconds)
+            let id = "\(prefix).\(slot).\(period.rawValue)"
             return QuotaWindow(
                 id: id,
                 name: ProviderHTTP.windowName(seconds: seconds),
                 scope: scope,
+                period: period,
                 usedPercentage: ProviderHTTP.number(node["used_percent"]),
                 remainingCount: nil,
                 totalCount: nil,
-                resetsAt: resetsAt,
-                cycleID: ProviderHTTP.cycleID(prefix: id, resetsAt: resetsAt)
+                resetsAt: resetsAt
             )
         }
     }

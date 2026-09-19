@@ -2,24 +2,22 @@ import SwiftUI
 
 struct WatchAccountPagesView: View {
     @Environment(\.scenePhase) private var scenePhase
-    let runtime: AppRuntime
+    @ObservedObject var runtime: AppRuntime
     @ObservedObject var monitor: QuotaMonitor
     @State private var selection: UUID?
-    @State private var deepLinkedAccountID: UUID?
-    @State private var requestingNotificationPermission = false
-    @State private var notificationFeedback: NotificationPermissionFeedback?
 
     var body: some View {
         NavigationStack {
             Group {
                 if displayedStates.isEmpty {
-                    ContentUnavailableView(
-                        "没有关注账号",
-                        systemImage: "applewatch",
-                        description: Text(monitor.configurations.isEmpty
-                            ? "等待 iCloud 同步账号配置"
-                            : "请在 iPhone 上选择关注账号")
-                    )
+                    ContentUnavailableView {
+                        Label("没有账号", systemImage: "applewatch")
+                    } description: {
+                        Text("等待 iCloud 同步账号配置，或体验示例数据。")
+                    } actions: {
+                        Button("体验演示 / Try Demo") { Task { await runtime.setDemoMode(true) } }
+                            .disabled(runtime.isSwitchingMode)
+                    }
                 } else {
                     TabView(selection: $selection) {
                         ForEach(displayedStates) { state in
@@ -38,7 +36,7 @@ struct WatchAccountPagesView: View {
                     .tabViewStyle(.page)
                 }
             }
-            .navigationTitle("TokenPulse")
+            .navigationTitle(runtime.isDemoMode ? "演示 · TokenPulse" : "TokenPulse")
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .active else { return }
                 Task { await runtime.refresh() }
@@ -49,53 +47,104 @@ struct WatchAccountPagesView: View {
                       let id = UUID(uuidString: url.lastPathComponent),
                       monitor.states.contains(where: { $0.id == id })
                 else { return }
-                deepLinkedAccountID = id
                 selection = id
             }
             .toolbar {
                 ToolbarItem {
-                    Button {
-                        requestingNotificationPermission = true
-                        Task {
-                            let feedback = await runtime.notifications.requestAuthorization()
-                            notificationFeedback = feedback
-                            requestingNotificationPermission = false
-                            if feedback == .enabled { await runtime.publish() }
-                        }
+                    NavigationLink {
+                        WatchWidgetSettingsView(accounts: displayedStates.map(\.account), runtime: runtime)
                     } label: {
-                        if requestingNotificationPermission {
-                            ProgressView("处理中")
-                        } else {
-                            Label("开启通知", systemImage: "bell.badge")
-                        }
+                        Label("表盘设置", systemImage: "gearshape")
                     }
-                    .disabled(requestingNotificationPermission)
-                    .accessibilityLabel("开启额度通知")
+                    .accessibilityLabel("表盘设置")
                 }
             }
-            .alert("通知设置", isPresented: Binding(
-                get: { notificationFeedback != nil },
-                set: { if !$0 { notificationFeedback = nil } }
-            )) {
-                Button("好") { notificationFeedback = nil }
-            } message: {
-                Text(notificationFeedback?.message ?? "")
-            }
         }
-    }
-
-    private var followedStates: [AccountQuotaState] {
-        monitor.followedAccounts.compactMap { configuration in
-            monitor.states.first { $0.id == configuration.id }
+        .disabled(runtime.isSwitchingMode)
+        .overlay {
+            if runtime.isSwitchingMode { ProgressView() }
         }
     }
 
     private var displayedStates: [AccountQuotaState] {
-        guard let deepLinkedAccountID,
-              !followedStates.contains(where: { $0.id == deepLinkedAccountID }),
-              let deepLinkedState = monitor.states.first(where: { $0.id == deepLinkedAccountID })
-        else { return followedStates }
-        return followedStates + [deepLinkedState]
+        monitor.states.filter { monitor.configuration(for: $0.id)?.isWatchFavorite != false }
+    }
+}
+
+private struct WatchWidgetSettingsView: View {
+    let accounts: [SubscriptionAccount]
+    @ObservedObject var runtime: AppRuntime
+    @State private var selectedAccountID: UUID?
+    private let store = WatchWidgetSelectionStore()
+
+    var body: some View {
+        Form {
+            Section {
+                Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                    Task { await runtime.setDemoMode(!runtime.isDemoMode) }
+                }
+                .disabled(runtime.isSwitchingMode)
+                if runtime.isDemoMode {
+                    Text("当前为本机示例数据，退出后恢复真实账号。")
+                        .font(.footnote)
+                }
+            }
+            if !accounts.isEmpty {
+                NavigationLink {
+                    WatchWidgetAccountSelectionView(
+                        accounts: accounts,
+                        selectedAccountID: $selectedAccountID
+                    )
+                } label: {
+                    LabeledContent("表盘显示账号", value: selectedAccount?.name ?? "未选择")
+                }
+            }
+        }
+        .navigationTitle("表盘设置")
+        .task {
+            let saved = await store.load()
+            selectedAccountID = saved.flatMap { id in accounts.contains { $0.id == id } ? id : nil }
+                ?? accounts.first?.id
+        }
+    }
+
+    private var selectedAccount: SubscriptionAccount? {
+        selectedAccountID.flatMap { id in accounts.first { $0.id == id } }
+    }
+}
+
+private struct WatchWidgetAccountSelectionView: View {
+    @Environment(\.dismiss) private var dismiss
+    let accounts: [SubscriptionAccount]
+    @Binding var selectedAccountID: UUID?
+    private let store = WatchWidgetSelectionStore()
+
+    var body: some View {
+        List(accounts) { account in
+            Button {
+                Task {
+                    await store.save(account.id)
+                    selectedAccountID = account.id
+                    dismiss()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    ProviderIcon(provider: account.provider, size: 14)
+                    VStack(alignment: .leading) {
+                        Text(account.name)
+                        Text(account.provider.displayName)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if selectedAccountID == account.id {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
+        .navigationTitle("选择账号")
     }
 }
 
@@ -110,39 +159,69 @@ private struct WatchAccountPage: View {
             VStack(spacing: 8) {
                 ProviderIcon(provider: state.account.provider, size: 24)
                 Text(state.account.name).font(.headline).lineLimit(1)
-                Text(state.account.provider.displayName)
+                Text(providerDescription)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
                 if let snapshot = state.snapshot {
-                    ForEach(snapshot.windows) { window in
-                        VStack(alignment: .leading, spacing: 3) {
-                            if let percentage = window.usedPercentage, !window.isUnlimited {
-                                Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
+                    ForEach(snapshot.windows(for: state.account.provider, surface: .detail)) { window in
+                        if let wallet = window.wallet {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(wallet.currency).font(.caption.bold())
+                                LabeledContent("总可用", value: QuotaFormatting.money(wallet.total, currency: wallet.currency))
+                                LabeledContent("赠送", value: QuotaFormatting.money(wallet.granted, currency: wallet.currency))
+                                LabeledContent("充值", value: QuotaFormatting.money(wallet.toppedUp, currency: wallet.currency))
+                            }
+                            .font(.caption2)
+                        } else if window.scope == nil || state.account.provider == .qoderInternational {
+                            VStack(alignment: .leading, spacing: 3) {
+                                if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
+                                    Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
                                     Text(window.name)
                                 } currentValueLabel: {
-                                    Text("\(percentage.formatted(.number.precision(.fractionLength(0...1))))%")
+                                    Text(window.isExhausted == true
+                                         ? "已用尽"
+                                         : "\(percentage.formatted(.number.precision(.fractionLength(0...1))))%")
                                 }
-                                .gaugeStyle(.accessoryCircular)
-                            } else {
-                                LabeledContent(window.name, value: window.isUnlimited ? "无限" : "未提供")
-                                    .font(.caption)
-                            }
-                            if let scope = window.scope {
-                                Text(scope).font(.caption2).foregroundStyle(.secondary)
-                            }
-                            LabeledContent("重置", value: QuotaFormatting.resetDate(window.resetsAt))
-                            .font(.caption2)
-                            if window.needsUpdate(at: date) {
-                                Label("待更新", systemImage: "clock.badge.exclamationmark")
+                                    .gaugeStyle(.accessoryCircular)
+                                } else {
+                                    LabeledContent(window.displayName, value: QuotaFormatting.usage(window))
+                                        .font(.caption)
+                                }
+                                if let remaining = window.remainingCount {
+                                    LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
+                                        .font(.caption2)
+                                }
+                                LabeledContent(
+                                    window.expiresAt == nil ? "重置" : "到期",
+                                    value: QuotaFormatting.resetDate(window.expiresAt ?? window.resetsAt)
+                                )
                                     .font(.caption2)
-                                    .foregroundStyle(.orange)
+                                if window.expiresAt == nil, window.needsUpdate(at: date) {
+                                    Label("待更新", systemImage: "clock.badge.exclamationmark")
+                                        .font(.caption2)
+                                        .foregroundStyle(.orange)
+                                }
                             }
+                        } else {
+                            LabeledContent(
+                                window.displayName,
+                                value: QuotaFormatting.usage(window)
+                            )
+                            .font(.caption2)
                         }
                     }
                     if state.account.provider == .codex {
                         LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
                             .font(.caption2)
+                    }
+                    if snapshot.walletAvailable == false {
+                        Label(QuotaFormatting.walletUnavailableBadge, systemImage: "exclamationmark.circle.fill")
+                            .font(.caption2).foregroundStyle(.orange)
+                    }
+                    if snapshot.quotaExceeded == true {
+                        Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
+                            .font(.caption2).foregroundStyle(.orange)
                     }
                     Text("采集于 \(snapshot.collectedAt.formatted(date: .omitted, time: .shortened))")
                         .font(.caption2)
@@ -174,4 +253,9 @@ private struct WatchAccountPage: View {
         }
     }
 
+    private var providerDescription: String {
+        guard state.account.provider == .codex,
+              let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
+        return "\(state.account.provider.displayName) · \(plan.displayName)"
+    }
 }

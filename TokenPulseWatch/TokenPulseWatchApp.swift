@@ -30,8 +30,20 @@ struct TokenPulseWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WatchAccountPagesView(runtime: delegate.runtime, monitor: delegate.runtime.monitor)
-                .task { await delegate.runtime.start() }
+            WatchRootView(runtime: delegate.runtime)
         }
+    }
+}
+
+private struct WatchRootView: View {
+    @ObservedObject var runtime: AppRuntime
+
+    var body: some View {
+        WatchAccountPagesView(runtime: runtime, monitor: runtime.monitor)
+            .id(runtime.isDemoMode)
+            .task {
+                _ = await runtime.notifications.requestAuthorization()
+                await runtime.start()
+            }
     }
 }

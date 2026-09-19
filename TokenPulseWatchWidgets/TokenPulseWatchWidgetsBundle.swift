@@ -9,14 +9,18 @@ struct TokenPulseWatchWidgetsBundle: WidgetBundle {
 }
 
 struct WatchQuotaWidget: Widget {
-    let kind = "TokenPulseWatchQuota"
+    let kind = PlatformConstants.watchWidgetKind
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: QuotaWidgetIntent.self, provider: QuotaTimelineProvider()) {
+        AppIntentConfiguration(
+            kind: kind,
+            intent: WatchQuotaWidgetIntent.self,
+            provider: WatchQuotaTimelineProvider()
+        ) {
             QuotaWidgetView(entry: $0)
         }
         .configurationDisplayName("TokenPulse 额度")
-        .description("在表盘或智能叠放显示指定账号额度。")
-        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline])
+        .description("显示在 TokenPulse Watch App 设置中选择的账号额度。")
+        .supportedFamilies([.accessoryCorner, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

@@ -14,7 +14,7 @@ struct NotificationPlanner: Sendable {
         var confirmedResetWindows: [String] = []
         let previousWindows = Dictionary(uniqueKeysWithValues: (previousSnapshot?.windows ?? []).map { ($0.id, $0) })
 
-        for window in newSnapshot.windows {
+        for window in newSnapshot.windows where window.wallet == nil {
             let previousWindow = previousWindows[window.id]
             let cycle = resolveCycle(
                 accountID: accountID,
@@ -29,7 +29,7 @@ struct NotificationPlanner: Sendable {
                 let alreadyConfirmed = ledger.hasConfirmedReset(occurrence)
                 ledger.recordConfirmedReset(occurrence)
                 if settings.resetRemindersEnabled && !alreadyExpected && !alreadyConfirmed {
-                    confirmedResetWindows.append(window.name)
+                    confirmedResetWindows.append(window.displayName)
                 }
             }
 
@@ -43,7 +43,8 @@ struct NotificationPlanner: Sendable {
 
             guard settings.quotaAlertsEnabled,
                   !window.isUnlimited,
-                  let usedPercentage = window.usedPercentage else { continue }
+                  let reportedPercentage = window.usedPercentage else { continue }
+            let usedPercentage = window.isExhausted == true ? 100 : reportedPercentage
 
             let reachedThresholds = normalizedThresholds(settings.thresholds)
                 .filter { $0 <= usedPercentage }
@@ -65,7 +66,7 @@ struct NotificationPlanner: Sendable {
                     threshold: threshold
                 )
             }
-            quotaMessages.append("\(window.name)达到\(format(highest))%")
+            quotaMessages.append("\(window.displayName)达到\(format(highest))%")
         }
 
         if !quotaMessages.isEmpty {
@@ -74,6 +75,18 @@ struct NotificationPlanner: Sendable {
                 title: "\(accountName)额度告警",
                 body: quotaMessages.joined(separator: "；"),
                 kind: .quotaAlert
+            )))
+        }
+
+        let walletMessages = walletMessages(
+            accountID: accountID, snapshot: newSnapshot, settings: settings, ledger: &ledger
+        )
+        if !walletMessages.isEmpty {
+            operations.append(.deliver(ReminderNotification(
+                identifier: "wallet.\(accountID.uuidString).\(milliseconds(newSnapshot.collectedAt))",
+                title: "\(accountName)钱包余额提醒",
+                body: walletMessages.joined(separator: "；"),
+                kind: .walletAlert
             )))
         }
 
@@ -114,6 +127,47 @@ struct NotificationPlanner: Sendable {
             now: now
         )
         return NotificationPlanningResult(operations: operations, ledger: ledger)
+    }
+
+    private func walletMessages(accountID: UUID,
+                                 snapshot: QuotaSnapshot,
+                                 settings: AccountReminderSettings,
+                                 ledger: inout ReminderLedger) -> [String] {
+        var messages: [String] = []
+        let wallets = snapshot.windows.compactMap(\.wallet)
+        let currency = settings.walletCurrency ?? wallets.first?.currency
+        if let wallet = wallets.first(where: { $0.currency == currency }),
+           observeWalletAlert(accountID: accountID, currency: wallet.currency,
+                              active: wallet.total <= settings.walletThreshold(for: wallet.currency),
+                              enabled: settings.quotaAlertsEnabled, observedAt: snapshot.collectedAt,
+                              ledger: &ledger) {
+            messages.append("\(wallet.currency) 可用余额 \(wallet.total)，已达到低余额阈值")
+        }
+        if let available = snapshot.walletAvailable,
+           observeWalletAlert(accountID: accountID, currency: nil, active: !available,
+                              enabled: settings.quotaAlertsEnabled, observedAt: snapshot.collectedAt,
+                              ledger: &ledger) {
+            messages.append("余额不足，无法调用 API")
+        }
+        return messages
+    }
+
+    private func observeWalletAlert(accountID: UUID,
+                                    currency: String?,
+                                    active: Bool,
+                                    enabled: Bool,
+                                    observedAt: Date,
+                                    ledger: inout ReminderLedger) -> Bool {
+        let previous = ledger.walletAlertState(accountID: accountID, currency: currency)
+        if let previous, observedAt <= previous.observedAt { return false }
+        let shouldAlert = enabled && active && previous?.isActive != true
+        ledger.setWalletAlertState(WalletAlertState(
+            accountID: accountID,
+            currency: currency,
+            isActive: active && (shouldAlert || previous?.isActive == true),
+            observedAt: observedAt
+        ))
+        return shouldAlert
     }
 
     private func resolveCycle(accountID: UUID,
@@ -199,7 +253,7 @@ struct NotificationPlanner: Sendable {
         if let snapshot {
             let windowsByID = Dictionary(uniqueKeysWithValues: snapshot.windows.map { ($0.id, $0) })
             for schedule in desired.sorted(by: { $0.resetAt < $1.resetAt }) {
-                let names = schedule.windowIDs.compactMap { windowsByID[$0]?.name }.sorted()
+                let names = schedule.windowIDs.compactMap { windowsByID[$0]?.displayName }.sorted()
                 let notification = ReminderNotification(
                     identifier: schedule.notificationID,
                     title: "\(accountName)额度预计已重置",
@@ -230,7 +284,12 @@ struct NotificationPlanner: Sendable {
                                        now: Date) -> [PendingResetSchedule] {
         guard enabled, let snapshot else { return [] }
         let candidates = snapshot.windows.compactMap { window -> (Date, String)? in
-            guard !window.isUnlimited, let resetAt = window.resetsAt, resetAt > now else { return nil }
+            guard window.wallet == nil,
+                  !window.isUnlimited,
+                  let usedPercentage = window.usedPercentage,
+                  usedPercentage > 0,
+                  let resetAt = window.resetsAt,
+                  resetAt > now else { return nil }
             return (resetAt, window.id)
         }
         let grouped = Dictionary(grouping: candidates, by: \.0)

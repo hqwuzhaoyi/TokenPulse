@@ -5,24 +5,40 @@ struct ProviderIcon: View {
     var size: CGFloat = 20
 
     var body: some View {
-        Image(provider.iconAssetName)
-            .renderingMode(.template)
+        image
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
             .accessibilityHidden(true)
     }
+
+    private var image: Image {
+        if let systemName = provider.systemIconName {
+            return Image(systemName: systemName)
+        }
+        if let assetName = provider.iconAssetName {
+            return Image(assetName).renderingMode(.template)
+        }
+        return Image(systemName: "questionmark.circle")
+    }
 }
 
 extension Provider {
-    var iconAssetName: String {
+    var iconAssetName: String? {
         switch self {
         case .claude: "ProviderClaude"
         case .codex: "ProviderCodex"
+        case .openCodeGo: "ProviderOpenCode"
         case .zai: "ProviderZai"
         case .miniMaxChina: "ProviderMiniMax"
         case .superGrok: "ProviderSuperGrok"
+        case .qoderInternational: "ProviderQoder"
+        case .deepSeek: "ProviderDeepSeek"
         }
+    }
+
+    var systemIconName: String? {
+        nil
     }
 }
 

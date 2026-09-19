@@ -3,6 +3,35 @@ import XCTest
 
 final class NotificationTests: XCTestCase {
     @MainActor
+    func testRemovingAccountCancelsItsScheduledNotifications() async throws {
+        let suite = "com.tokenpulse.tests.delete-notifications.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "Deleted")
+        let kept = SubscriptionAccount(name: "Kept")
+        let window = QuotaWindow(id: "weekly", name: "每周", scope: nil, usedPercentage: 20,
+                                 remainingCount: nil, totalCount: nil, resetsAt: Date().addingTimeInterval(3_600))
+        let states = [account, kept].map {
+            AccountQuotaState(account: $0, snapshot: QuotaSnapshot(accountID: $0.id, windows: [window], collectedAt: Date()))
+        }
+        try await runtime.settingsChanged(configurations: [account, kept].map { AccountConfiguration(account: $0) }, states: states)
+        let deletedSchedules = runtime.ledger.pendingSchedules(accountID: account.id).map(\.notificationID)
+        XCTAssertFalse(deletedSchedules.isEmpty)
+
+        try await runtime.settingsChanged(configurations: [AccountConfiguration(account: kept)], states: [states[1]])
+
+        let operations = await adapter.operations()
+        XCTAssertTrue(operations.contains(.cancel(identifiers: deletedSchedules)))
+        XCTAssertTrue(runtime.ledger.pendingSchedules(accountID: account.id).isEmpty)
+        XCTAssertFalse(runtime.ledger.pendingSchedules(accountID: kept.id).isEmpty)
+        let restored = NotificationRuntime(defaults: defaults, adapter: adapter)
+        XCTAssertTrue(restored.ledger.pendingSchedules(accountID: account.id).isEmpty)
+    }
+
+    @MainActor
     func testNotificationPermissionAlwaysReturnsVisibleFeedback() async throws {
         let suite = "com.tokenpulse.tests.permission.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
@@ -28,6 +57,151 @@ final class NotificationTests: XCTestCase {
         let runtime = NotificationRuntime(defaults: defaults, adapter: PermissionTestAdapter(status: .notDetermined, grant: nil))
         let feedback = await runtime.requestAuthorization()
         XCTAssertEqual(feedback, .failed)
+    }
+
+    @MainActor
+    func testCodexAuxiliaryModelQuotaDoesNotTriggerAccountReminders() async throws {
+        let suite = "com.tokenpulse.tests.codex-auxiliary.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "Pro 账号", provider: .codex)
+        let weekly = QuotaWindow(
+            id: "codex.primary_window", name: "每周额度", scope: nil,
+            usedPercentage: 20, remainingCount: nil, totalCount: nil,
+            resetsAt: Date().addingTimeInterval(3_600)
+        )
+        let spark = QuotaWindow(
+            id: "codex_bengalfox.primary_window", name: "5 小时额度",
+            scope: "GPT-5.3-Codex-Spark", usedPercentage: 90,
+            remainingCount: nil, totalCount: nil,
+            resetsAt: Date().addingTimeInterval(1_800)
+        )
+        let snapshot = QuotaSnapshot(
+            accountID: account.id, windows: [weekly, spark], collectedAt: Date(),
+            subscriptionPlan: .pro
+        )
+
+        try await runtime.fresh(
+            state: AccountQuotaState(account: account, snapshot: snapshot),
+            previous: nil,
+            settings: AccountReminderSettings()
+        )
+
+        let operations = await adapter.operations()
+        XCTAssertFalse(operations.contains {
+            if case .deliver(let notification) = $0, notification.kind == .quotaAlert { return true }
+            return false
+        })
+        XCTAssertEqual(operations.compactMap {
+            if case .schedule(let notification, _) = $0 { return notification.body }
+            return nil
+        }, ["每周额度"])
+    }
+
+    @MainActor
+    func testCodexPlanChangeDoesNotReportAResetWhenPrimaryWindowChangesPeriod() async throws {
+        let suite = "com.tokenpulse.tests.codex-plan-change.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "Codex", provider: .codex)
+        let future = Date().addingTimeInterval(3_600).timeIntervalSince1970
+        let plusWindows = CodexProviderClient.windows([
+            "rate_limit": [
+                "primary_window": [
+                    "used_percent": 20,
+                    "limit_window_seconds": 5 * 3_600,
+                    "reset_at": future,
+                ],
+            ],
+        ])
+        let proWindows = CodexProviderClient.windows([
+            "rate_limit": [
+                "primary_window": [
+                    "used_percent": 20,
+                    "limit_window_seconds": 7 * 86_400,
+                    "reset_at": future + 3_600,
+                ],
+            ],
+        ])
+        let previous = AccountQuotaState(
+            account: account,
+            snapshot: QuotaSnapshot(accountID: account.id, windows: plusWindows, collectedAt: Date(), subscriptionPlan: .plus)
+        )
+        let current = AccountQuotaState(
+            account: account,
+            snapshot: QuotaSnapshot(accountID: account.id, windows: proWindows, collectedAt: Date(), subscriptionPlan: .pro)
+        )
+
+        try await runtime.fresh(
+            state: current,
+            previous: previous,
+            settings: AccountReminderSettings(quotaAlertsEnabled: false)
+        )
+
+        let operations = await adapter.operations()
+        XCTAssertFalse(operations.contains {
+            if case .deliver(let notification) = $0, notification.kind == .confirmedReset { return true }
+            return false
+        })
+    }
+
+    @MainActor
+    func testGlobalNotificationSwitchSchedulesAndCancelsWithoutDiscardingAccountSettings() async throws {
+        let suite = "com.tokenpulse.tests.notification-switch.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "测试账号")
+        let window = QuotaWindow(
+            id: "short",
+            name: "短周期",
+            scope: nil,
+            usedPercentage: 20,
+            remainingCount: nil,
+            totalCount: nil,
+            resetsAt: Date().addingTimeInterval(3_600)
+        )
+        let state = AccountQuotaState(
+            account: account,
+            snapshot: QuotaSnapshot(accountID: account.id, windows: [window], collectedAt: Date())
+        )
+        let configuration = AccountConfiguration(account: account)
+
+        XCTAssertFalse(runtime.isEnabled)
+        let enabledFeedback = await runtime.setEnabled(
+            true,
+            configurations: [configuration],
+            states: [state]
+        )
+        XCTAssertEqual(enabledFeedback, .enabled)
+        XCTAssertTrue(runtime.isEnabled)
+        let enabledOperations = await adapter.operations()
+        XCTAssertTrue(enabledOperations.contains { operation in
+            if case .schedule = operation { return true }
+            return false
+        })
+
+        let disabledFeedback = await runtime.setEnabled(
+            false,
+            configurations: [configuration],
+            states: [state]
+        )
+        XCTAssertEqual(disabledFeedback, .disabled)
+        XCTAssertFalse(runtime.isEnabled)
+        XCTAssertTrue(configuration.reminders.quotaAlertsEnabled)
+        XCTAssertTrue(configuration.reminders.resetRemindersEnabled)
+        let disabledOperations = await adapter.operations()
+        XCTAssertTrue(disabledOperations.contains { operation in
+            if case .cancel = operation { return true }
+            return false
+        })
     }
     private let planner = NotificationPlanner()
     private let accountID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
@@ -76,6 +250,166 @@ final class NotificationTests: XCTestCase {
             now: now
         )
         XCTAssertEqual(delivered(hundred.operations, kind: .quotaAlert).map(\.body), ["短周期达到100%"])
+    }
+
+    func testUnusedWindowDoesNotScheduleResetReminder() {
+        let result = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: nil,
+            newSnapshot: snapshot(windows: [
+                window(id: "short", name: "5 小时额度", used: 0, resetAt: now.addingTimeInterval(1_000)),
+            ]),
+            settings: AccountReminderSettings(quotaAlertsEnabled: false),
+            ledger: ReminderLedger(),
+            now: now
+        )
+
+        XCTAssertTrue(scheduled(result.operations).isEmpty)
+    }
+
+    func testMovingUnusedOpenCodeRollingResetDoesNotConfirmReset() throws {
+        let firstCollectedAt = Date(timeIntervalSince1970: 1_000)
+        let secondCollectedAt = firstCollectedAt.addingTimeInterval(60)
+        let firstWindows = try OpenCodeGoProviderClient.windows(Data(
+            #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:16:40Z"}}}"#.utf8
+        ))
+        let secondWindows = try OpenCodeGoProviderClient.windows(Data(
+            #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:17:40Z"}}}"#.utf8
+        ))
+        let firstSnapshot = QuotaSnapshot(
+            accountID: accountID,
+            windows: firstWindows,
+            collectedAt: firstCollectedAt
+        )
+        let first = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "OpenCode Go",
+            previousSnapshot: nil,
+            newSnapshot: firstSnapshot,
+            settings: AccountReminderSettings(quotaAlertsEnabled: false),
+            ledger: ReminderLedger(),
+            now: firstCollectedAt
+        )
+        let second = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "OpenCode Go",
+            previousSnapshot: firstSnapshot,
+            newSnapshot: QuotaSnapshot(
+                accountID: accountID,
+                windows: secondWindows,
+                collectedAt: secondCollectedAt
+            ),
+            settings: AccountReminderSettings(quotaAlertsEnabled: false),
+            ledger: first.ledger,
+            now: secondCollectedAt
+        )
+
+        XCTAssertTrue(scheduled(first.operations).isEmpty)
+        XCTAssertTrue(delivered(second.operations, kind: .confirmedReset).isEmpty)
+    }
+
+    func testMovingCodexResetTimeDoesNotRearmQuotaOrConfirmReset() {
+        let firstCollectedAt = Date(timeIntervalSince1970: 1_000)
+        let secondCollectedAt = firstCollectedAt.addingTimeInterval(60)
+        let firstWindows = CodexProviderClient.windows([
+            "rate_limit": [
+                "primary_window": [
+                    "used_percent": 90,
+                    "limit_window_seconds": 5 * 3_600,
+                    "reset_at": firstCollectedAt.addingTimeInterval(1_000).timeIntervalSince1970,
+                ],
+            ],
+        ])
+        let secondWindows = CodexProviderClient.windows([
+            "rate_limit": [
+                "primary_window": [
+                    "used_percent": 90,
+                    "limit_window_seconds": 5 * 3_600,
+                    "reset_at": secondCollectedAt.addingTimeInterval(1_000).timeIntervalSince1970,
+                ],
+            ],
+        ])
+        let firstSnapshot = QuotaSnapshot(
+            accountID: accountID,
+            windows: firstWindows,
+            collectedAt: firstCollectedAt,
+            subscriptionPlan: .plus
+        )
+        let first = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "Codex Plus",
+            previousSnapshot: nil,
+            newSnapshot: firstSnapshot,
+            settings: AccountReminderSettings(),
+            ledger: ReminderLedger(),
+            now: firstCollectedAt
+        )
+        let second = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "Codex Plus",
+            previousSnapshot: firstSnapshot,
+            newSnapshot: QuotaSnapshot(
+                accountID: accountID,
+                windows: secondWindows,
+                collectedAt: secondCollectedAt,
+                subscriptionPlan: .plus
+            ),
+            settings: AccountReminderSettings(),
+            ledger: first.ledger,
+            now: secondCollectedAt
+        )
+
+        XCTAssertEqual(delivered(first.operations, kind: .quotaAlert).count, 1)
+        XCTAssertTrue(delivered(second.operations, kind: .quotaAlert).isEmpty)
+        XCTAssertTrue(delivered(second.operations, kind: .confirmedReset).isEmpty)
+    }
+
+    func testProviderExhaustedStatusTriggersHighestQuotaAlert() {
+        let exhausted = QuotaWindow(
+            id: "rolling", name: "5 小时额度", scope: nil, period: .fiveHour,
+            isExhausted: true, usedPercentage: 60,
+            remainingCount: nil, totalCount: nil, resetsAt: nil
+        )
+        let result = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "OpenCode Go",
+            previousSnapshot: nil,
+            newSnapshot: snapshot(windows: [exhausted]),
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: ReminderLedger(),
+            now: now
+        )
+
+        XCTAssertEqual(delivered(result.operations, kind: .quotaAlert).map(\.body), ["5 小时额度达到100%"])
+    }
+
+    func testScopedQuotaNotificationIncludesProviderDisplayName() {
+        let fable = QuotaWindow(
+            id: "claude.weekly_scoped.Fable",
+            name: "每周额度",
+            scope: "Fable",
+            period: .weekly,
+            usedPercentage: 82,
+            remainingCount: nil,
+            totalCount: nil,
+            resetsAt: nil,
+            cycleID: "fable-week"
+        )
+        let result = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "Claude",
+            previousSnapshot: nil,
+            newSnapshot: snapshot(windows: [fable]),
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: ReminderLedger(),
+            now: now
+        )
+
+        XCTAssertEqual(
+            delivered(result.operations, kind: .quotaAlert).map(\.body),
+            ["Fable 每周额度达到80%"]
+        )
     }
 
     func testMultipleWindowsAreCombinedPerAccountRefresh() {
@@ -551,4 +885,16 @@ private struct PermissionTestAdapter: NotificationApplying {
         return grant
     }
     func apply(_ operations: [NotificationOperation]) async throws {}
+}
+
+private actor RecordingNotificationAdapter: NotificationApplying {
+    private var recordedOperations: [NotificationOperation] = []
+
+    @MainActor func configure() {}
+    func authorizationStatus() async -> NotificationAuthorizationStatus { .authorized }
+    func requestAuthorization() async throws -> Bool { true }
+    func apply(_ operations: [NotificationOperation]) async throws {
+        recordedOperations.append(contentsOf: operations)
+    }
+    func operations() -> [NotificationOperation] { recordedOperations }
 }

@@ -36,7 +36,7 @@ Approved: yes
 - [ ] [04 — Codex 多账号登录与双端独立刷新](tickets/04-codex-independent-refresh.md) — 阻塞：02。
 - [ ] [05 — Z.ai Coding Plan 多账号双端查询](tickets/05-zai-independent-refresh.md) — 阻塞：02。
 - [ ] [06 — SuperGrok 多账号登录与双端独立刷新](tickets/06-supergrok-independent-refresh.md) — 阻塞：02。
-- [ ] [07 — iPhone 完整账号列表、关注配置与同步恢复](tickets/07-iphone-account-list-sync.md) — 阻塞：03、04、05、06。
+- [ ] [07 — iPhone 完整账号列表、提醒配置与同步恢复](tickets/07-iphone-account-list-sync.md) — 阻塞：03、04、05、06。
 - [ ] [08 — Watch 表盘式账号分页与独立刷新体验](tickets/08-watch-account-pages.md) — 阻塞：07。
 - [ ] [09 — 双端按窗口额度告警](tickets/09-quota-alerts.md) — 阻塞：07。
 - [ ] [10 — 双端预计重置与确认重置提醒](tickets/10-quota-reset-reminders.md) — 阻塞：09。

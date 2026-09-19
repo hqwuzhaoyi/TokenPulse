@@ -11,6 +11,11 @@ actor LocalAccountStateStore: AccountStateStoring {
         self.key = key
     }
 
+    init(suiteName: String?) {
+        self.defaults = suiteName.flatMap(UserDefaults.init(suiteName:)) ?? .standard
+        self.key = "accountQuotaStates"
+    }
+
     func load() throws -> [AccountQuotaState] {
         guard let data = defaults.data(forKey: key) else { return [] }
         return try decoder.decode([AccountQuotaState].self, from: data)

@@ -1,9 +1,171 @@
+import Combine
 import XCTest
 @testable import TokenPulse
 
 @MainActor
 final class AccountConfigurationTests: XCTestCase {
-    func testFollowOrderAndSettingsSurviveReconstruction() async throws {
+    func testWatchSelectionPersistsWithWalletSettings() async throws {
+        let states = ConfigurationStateStore()
+        let configurations = ConfigurationStore()
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
+                                   quotaClient: OfflineClient(), configurationStore: configurations)
+        await monitor.start(refresh: false)
+        await monitor.addAccount(name: "DeepSeek", credential: "fixture", provider: .deepSeek)
+        let account = try XCTUnwrap(monitor.states.first)
+        let settings = AccountReminderSettings(walletCurrency: "USD", walletThresholds: ["USD": 3])
+        await monitor.updateReminders(settings, accountID: account.id)
+        await monitor.updateWatchFavorite(false, accountID: account.id)
+        let restored = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
+                                    quotaClient: OfflineClient(), configurationStore: configurations)
+        await restored.start(refresh: false)
+        XCTAssertEqual(restored.configuration(for: account.id)?.isWatchFavorite, false)
+        XCTAssertEqual(restored.configuration(for: account.id)?.reminders, settings)
+    }
+
+    func testStartupFinishesInterruptedDeletion() async throws {
+        let states = ConfigurationStateStore()
+        let configurations = ConfigurationStore()
+        let credentials = ConfigurationCredentials()
+        let account = SubscriptionAccount(name: "Deleted before exit")
+        var deleted = AccountConfiguration(account: account)
+        deleted.deletedAt = Date()
+        try await configurations.save([deleted])
+        await states.save([AccountQuotaState(account: account)])
+        await credentials.save("fixture", for: account.id)
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                   quotaClient: OfflineClient(), configurationStore: configurations)
+
+        await monitor.start(refresh: false)
+
+        XCTAssertTrue(monitor.states.isEmpty)
+        XCTAssertTrue(monitor.configurations.isEmpty)
+        let saved = await states.load()
+        XCTAssertTrue(saved.isEmpty)
+        let credential = await credentials.credential(for: account.id)
+        XCTAssertNil(credential)
+    }
+
+    func testDeletionPersistsAndStaleSyncCannotRestoreAccount() async throws {
+        let states = ConfigurationStateStore()
+        let configurations = ConfigurationStore()
+        let credentials = ConfigurationCredentials()
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                   quotaClient: OfflineClient(), configurationStore: configurations)
+        await monitor.start(refresh: false)
+        await monitor.addAccount(name: "MiniMax A", credential: "first")
+        await monitor.addAccount(name: "MiniMax B", credential: "second")
+        let deleted = try XCTUnwrap(monitor.states.first)
+        let kept = try XCTUnwrap(monitor.states.last)
+        var staleConfigurations = monitor.configurations
+        staleConfigurations[0].modifiedAt = .distantFuture
+        var publishedIDs: [UUID] = []
+        monitor.onChange = { publishedIDs = monitor.states.map(\.id) }
+
+        let succeeded = await monitor.deleteAccount(accountID: deleted.id)
+
+        XCTAssertTrue(succeeded)
+        XCTAssertEqual(publishedIDs, [kept.id])
+        XCTAssertEqual(monitor.configurations.map(\.id), [kept.id])
+        let removedCredential = await credentials.credential(for: deleted.id)
+        let keptCredential = await credentials.credential(for: kept.id)
+        XCTAssertNil(removedCredential)
+        XCTAssertEqual(keptCredential, "second")
+        await monitor.mergeSynchronized(configurations: staleConfigurations, states: [deleted, kept])
+        let restored = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                    quotaClient: OfflineClient(), configurationStore: configurations)
+        await restored.start(refresh: false)
+        XCTAssertEqual(restored.states.map(\.id), [kept.id])
+        XCTAssertEqual(restored.configurations.map(\.id), [kept.id])
+        XCTAssertNotNil(restored.synchronizedConfigurations.first { $0.id == deleted.id }?.deletedAt)
+    }
+
+    func testRemoteDeletionRemovesLocalAccountAndCredential() async throws {
+        let states = ConfigurationStateStore()
+        let configurations = ConfigurationStore()
+        let credentials = ConfigurationCredentials()
+        let account = SubscriptionAccount(name: "Remote")
+        await credentials.save("fixture", for: account.id)
+        await states.save([AccountQuotaState(account: account)])
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                   quotaClient: OfflineClient(), configurationStore: configurations)
+        await monitor.start(refresh: false)
+        var deleted = AccountConfiguration(account: account)
+        deleted.deletedAt = Date()
+
+        await monitor.mergeSynchronized(configurations: [deleted], states: [AccountQuotaState(account: account)])
+
+        XCTAssertTrue(monitor.states.isEmpty)
+        XCTAssertTrue(monitor.configurations.isEmpty)
+        let credential = await credentials.credential(for: account.id)
+        XCTAssertNil(credential)
+        let saved = await states.load()
+        XCTAssertTrue(saved.isEmpty)
+    }
+
+    func testDeletionSaveFailureKeepsAccountAndCredential() async throws {
+        let states = ConfigurationStateStore()
+        let configurations = ConfigurationStore()
+        let credentials = ConfigurationCredentials()
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                   quotaClient: OfflineClient(), configurationStore: configurations)
+        await monitor.start(refresh: false)
+        await monitor.addAccount(name: "Keep", credential: "fixture")
+        let account = try XCTUnwrap(monitor.states.first)
+        await configurations.failSaves()
+
+        let succeeded = await monitor.deleteAccount(accountID: account.id)
+
+        XCTAssertFalse(succeeded)
+        XCTAssertEqual(monitor.states, [account])
+        XCTAssertNotNil(monitor.configuration(for: account.id))
+        let credential = await credentials.credential(for: account.id)
+        XCTAssertEqual(credential, "fixture")
+        XCTAssertNotNil(monitor.storageMessage)
+    }
+
+    func testRefreshFinishingAfterDeletionCannotRestoreDataOrCredential() async throws {
+        let states = ConfigurationStateStore()
+        let credentials = ConfigurationCredentials()
+        let account = SubscriptionAccount(name: "Refreshing")
+        await states.save([AccountQuotaState(account: account)])
+        await credentials.save("fixture", for: account.id)
+        let client = SuspendedClient(credentials: credentials)
+        let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                   quotaClient: client, configurationStore: ConfigurationStore())
+        await monitor.start(refresh: false)
+        let refresh = Task { await monitor.refresh(accountID: account.id) }
+        await client.waitUntilRequested()
+
+        await monitor.deleteAccount(accountID: account.id)
+        await client.finish()
+        await refresh.value
+
+        XCTAssertTrue(monitor.states.isEmpty)
+        let credential = await credentials.credential(for: account.id)
+        XCTAssertNil(credential)
+        let saved = await states.load()
+        XCTAssertTrue(saved.isEmpty)
+    }
+
+    func testReorderPublishesOnlyCompleteAccountLists() async {
+        let store = ConfigurationStateStore()
+        let accounts = (0..<4).map { SubscriptionAccount(name: "Account \($0)") }
+        await store.save(accounts.map { AccountQuotaState(account: $0) })
+        let monitor = QuotaMonitor(accountStore: store, credentialStore: ConfigurationCredentials(),
+                                   quotaClient: OfflineClient())
+        await monitor.start(refresh: false)
+        var publishedIDs: [[UUID]] = []
+        let subscription = monitor.$states.dropFirst().sink { publishedIDs.append($0.map(\.id)) }
+
+        monitor.reorderAccounts(from: IndexSet([0, 2]), to: 4)
+
+        XCTAssertEqual(monitor.states.map(\.id), [accounts[1].id, accounts[3].id, accounts[0].id, accounts[2].id])
+        XCTAssertEqual(publishedIDs.count, 1)
+        for ids in publishedIDs { XCTAssertEqual(Set(ids), Set(accounts.map(\.id))) }
+        withExtendedLifetime(subscription) {}
+    }
+
+    func testAccountSettingsSurviveReconstruction() async throws {
         let states = ConfigurationStateStore()
         let configurations = ConfigurationStore()
         let credentials = ConfigurationCredentials()
@@ -12,20 +174,21 @@ final class AccountConfigurationTests: XCTestCase {
         await monitor.start()
         await monitor.addAccount(name: "MiniMax", credential: "fixture")
         await monitor.addAccount(name: "Z.ai", credential: "fixture", provider: .zai)
-        await monitor.reorderFollowed(from: IndexSet(integer: 1), to: 0)
-        let first = try XCTUnwrap(monitor.followedAccounts.first)
-        var settings = first.reminders
+        monitor.reorderAccounts(from: IndexSet(integer: 1), to: 0)
+        await monitor.persistAccountOrder()
+        let account = try XCTUnwrap(monitor.configurations.last)
+        var settings = account.reminders
         settings.quotaAlertsEnabled = false
-        await monitor.updateReminders(settings, accountID: first.id)
-        await monitor.setFollowed(false, accountID: first.id)
+        await monitor.updateReminders(settings, accountID: account.id)
 
         let restored = QuotaMonitor(accountStore: states, credentialStore: credentials,
                                     quotaClient: OfflineClient(), configurationStore: configurations)
         await restored.start()
         XCTAssertEqual(restored.states.count, 2)
-        XCTAssertEqual(restored.followedAccounts.map(\.account.name), ["MiniMax"])
-        XCTAssertEqual(restored.configuration(for: first.id)?.reminders.quotaAlertsEnabled, false)
-        XCTAssertEqual(restored.configuration(for: first.id)?.reminders.resetRemindersEnabled, true)
+        XCTAssertEqual(restored.states.map(\.account.name), ["Z.ai", "MiniMax"])
+        XCTAssertEqual(restored.configurations.map(\.account.name), ["Z.ai", "MiniMax"])
+        XCTAssertEqual(restored.configuration(for: account.id)?.reminders.quotaAlertsEnabled, false)
+        XCTAssertEqual(restored.configuration(for: account.id)?.reminders.resetRemindersEnabled, true)
     }
 
     func testSyncKeepsCollectionTimeAndDoesNotRunFreshResultHandler() async throws {
@@ -59,8 +222,13 @@ final class AccountConfigurationTests: XCTestCase {
 
 private actor ConfigurationStore: AccountConfigurationStoring {
     private var items: [AccountConfiguration] = []
+    private var shouldFail = false
     func load() -> [AccountConfiguration] { items }
-    func save(_ configurations: [AccountConfiguration]) { items = configurations }
+    func failSaves() { shouldFail = true }
+    func save(_ configurations: [AccountConfiguration]) throws {
+        if shouldFail { throw CocoaError(.fileWriteUnknown) }
+        items = configurations
+    }
 }
 
 private actor ConfigurationStateStore: AccountStateStoring {
@@ -78,4 +246,28 @@ private actor ConfigurationCredentials: CredentialStoring {
 
 private struct OfflineClient: QuotaQuerying {
     func quota(for accountID: UUID, credential: String) async throws -> QuotaSnapshot { throw RefreshFailure.network }
+}
+
+private actor SuspendedClient: QuotaQuerying {
+    let credentials: ConfigurationCredentials
+    private var response: CheckedContinuation<Void, Never>?
+    private var request: CheckedContinuation<Void, Never>?
+
+    init(credentials: ConfigurationCredentials) { self.credentials = credentials }
+
+    func waitUntilRequested() async {
+        if response != nil { return }
+        await withCheckedContinuation { request = $0 }
+    }
+
+    func finish() { response?.resume() }
+
+    func quota(for accountID: UUID, credential: String) async -> QuotaSnapshot {
+        await withCheckedContinuation {
+            response = $0
+            request?.resume()
+        }
+        await credentials.save("renewed credential", for: accountID)
+        return QuotaSnapshot(accountID: accountID, windows: [], collectedAt: Date())
+    }
 }

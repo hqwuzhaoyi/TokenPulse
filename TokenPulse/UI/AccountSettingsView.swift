@@ -1,40 +1,38 @@
 import SwiftUI
 
 struct AccountSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     @ObservedObject var monitor: QuotaMonitor
-    let runtime: AppRuntime
+    @ObservedObject var runtime: AppRuntime
     var initialAccountID: UUID?
     @State private var path: [UUID] = []
 
     var body: some View {
         NavigationStack(path: $path) {
             List {
-                CloudSyncSettingsSection(settings: runtime.cloudSync, runtime: runtime)
-                Section("系统通知") {
-                    Button("允许 TokenPulse 提醒") {
-                        Task {
-                            do {
-                                let allowed = try await UserNotificationCenterAdapter().requestAuthorization()
-                                monitor.setSynchronizationMessage(allowed ? "系统通知已开启" : "通知未开启，可前往系统设置修改。")
-                                if allowed { await monitor.onChange?() }
-                            } catch { monitor.setSynchronizationMessage("无法申请通知权限") }
-                        }
+                Section {
+                    Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                        Task { await runtime.setDemoMode(!runtime.isDemoMode) }
                     }
+                    .disabled(runtime.isSwitchingMode)
+                } footer: {
+                    Text(runtime.isDemoMode
+                         ? "当前显示示例数据，可刷新、添加或删除演示账号。退出后恢复真实账号。"
+                         : "无需第三方账号即可体验额度、账号管理、提醒和小组件。")
                 }
+                if runtime.isDemoMode {
+                    Section("同步") {
+                        Text("示例数据仅保存在本机。iPhone 和 Watch 可分别进入演示；退出演示后可使用 iCloud 同步真实账号。")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                } else {
+                    CloudSyncSettingsSection(settings: runtime.cloudSync, runtime: runtime)
+                }
+                NotificationSettingsSection(notifications: runtime.notifications, monitor: monitor,
+                                            isDemoMode: runtime.isDemoMode)
                 if let message = monitor.synchronizationMessage {
-                    Label(message, systemImage: "icloud").font(.caption)
+                    Label(message, systemImage: "info.circle").font(.caption)
                 }
-                Section("Watch 关注顺序") {
-                    ForEach(monitor.followedAccounts) { configuration in
-                        HStack(spacing: 10) {
-                            ProviderIcon(provider: configuration.account.provider)
-                            Text(configuration.account.name)
-                        }
-                    }
-                    .onMove { from, to in Task { await monitor.reorderFollowed(from: from, to: to) } }
-                }
-                Section("全部账号") {
+                Section("全部服务账号") {
                     ForEach(monitor.configurations) { configuration in
                         NavigationLink(value: configuration.id) {
                             HStack(spacing: 10) {
@@ -48,20 +46,72 @@ struct AccountSettingsView: View {
                     }
                 }
             }
-            .navigationTitle("账号设置")
-            .navigationDestination(for: UUID.self) { id in AccountPreferencesView(monitor: monitor, accountID: id) }
+            .navigationTitle("设置")
+            .navigationDestination(for: UUID.self) { id in
+                AccountPreferencesView(monitor: monitor, accountID: id, isDemoMode: runtime.isDemoMode)
+            }
             .onAppear { if let initialAccountID, path.isEmpty { path = [initialAccountID] } }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) { EditButton() }
-                ToolbarItem(placement: .topBarTrailing) { Button("完成") { dismiss() } }
+            .onChange(of: initialAccountID) { _, accountID in
+                if let accountID { path = [accountID] }
             }
         }
     }
 }
 
+private struct NotificationSettingsSection: View {
+    @ObservedObject var notifications: NotificationRuntime
+    @ObservedObject var monitor: QuotaMonitor
+    let isDemoMode: Bool
+    @State private var isUpdating = false
+
+    var body: some View {
+        Section {
+            Toggle("通知", isOn: Binding(
+                get: { notifications.isEnabled },
+                set: { enabled in update(enabled) }
+            ))
+            .disabled(isUpdating)
+            if isDemoMode {
+                Button("发送演示通知") {
+                    isUpdating = true
+                    Task {
+                        let feedback = await notifications.sendDemoNotification()
+                        monitor.setSynchronizationMessage(feedback == .enabled
+                            ? "演示通知已提交，可在通知中心查看。"
+                            : feedback.message)
+                        isUpdating = false
+                    }
+                }
+                .disabled(isUpdating)
+            }
+        } header: {
+            Text("通知")
+        } footer: {
+            Text(isDemoMode
+                 ? "演示提醒使用系统通知权限，仅用于示例账号。退出演示会取消未触发的演示提醒。"
+                 : "关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。")
+        }
+    }
+
+    private func update(_ enabled: Bool) {
+        isUpdating = true
+        Task {
+            let feedback = await notifications.setEnabled(
+                enabled,
+                configurations: monitor.configurations,
+                states: monitor.states
+            )
+            monitor.setSynchronizationMessage(feedback.message)
+            isUpdating = false
+        }
+    }
+}
+
 private struct CloudSyncSettingsSection: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var settings: CloudSyncSettings
     let runtime: AppRuntime
+    @State private var syncRotation = 0.0
 
     var body: some View {
         Section {
@@ -70,63 +120,89 @@ private struct CloudSyncSettingsSection: View {
                 set: { enabled in Task { await runtime.setCloudSyncEnabled(enabled) } }
             ))
             Button {
+                withAnimation(reduceMotion ? nil : .linear(duration: 0.6)) {
+                    syncRotation += 360
+                }
                 Task { await runtime.synchronizeNow() }
             } label: {
-                HStack {
-                    Label(settings.isSyncing ? "正在同步…" : "立即同步", systemImage: "arrow.triangle.2.circlepath")
-                    if settings.isSyncing { Spacer(); ProgressView() }
+                HStack(spacing: 12) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .rotationEffect(.degrees(syncRotation))
+                        .frame(width: 24)
+                        .accessibilityHidden(true)
+                    Text("立即同步")
+                    Spacer()
+                    latestSyncTime
+                        .font(.caption)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
                 }
             }
-            .disabled(!settings.isEnabled || settings.isSyncing)
-            LabeledContent("上次同步请求") { timestamp(settings.lastRequestedAt) }
-            LabeledContent("上次收到云端更新") { timestamp(settings.lastReceivedAt) }
+            .disabled(!settings.isEnabled)
+            .allowsHitTesting(!settings.isSyncing)
+            .accessibilityValue(settings.isSyncing ? "正在同步" : "")
             if let error = settings.errorMessage {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .font(.caption).foregroundStyle(.orange)
             } else if !settings.isEnabled {
                 Text("同步已关闭").font(.caption).foregroundStyle(.secondary)
-            } else if settings.lastRequestedAt != nil {
-                Text("同步请求已提交，跨设备传送由 iCloud 安排。")
-                    .font(.caption).foregroundStyle(.secondary)
             }
         } header: {
             Text("同步")
-        } footer: {
-            Text("同步账号、额度、提醒设置及凭证。关闭后保留本机与已同步的数据；请求时间不代表 Watch 已收到。")
         }
     }
 
     @ViewBuilder
-    private func timestamp(_ date: Date?) -> some View {
-        if let date { Text(date, format: .dateTime.month().day().hour().minute().second()) }
-        else { Text("暂无记录").foregroundStyle(.secondary) }
+    private var latestSyncTime: some View {
+        if let date = [settings.lastRequestedAt, settings.lastReceivedAt].compactMap({ $0 }).max() {
+            Text(date, format: .dateTime.month().day().hour().minute())
+        } else {
+            Text("暂无")
+        }
     }
 }
 
 private struct AccountPreferencesView: View {
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject var monitor: QuotaMonitor
     let accountID: UUID
+    let isDemoMode: Bool
     @State private var thresholds = ""
+    @State private var walletThreshold = ""
     @State private var error: String?
     @State private var credential = ""
     @State private var showingLogin = false
+    @State private var showingDeleteConfirmation = false
 
     var body: some View {
         Form {
             if let configuration = monitor.configuration(for: accountID) {
                 if let state = monitor.states.first(where: { $0.id == accountID }) {
                     Section("额度") {
-                        ForEach(state.snapshot?.windows ?? []) { window in
-                            VStack(alignment: .leading) {
-                                Text(window.name).font(.headline)
-                                Text(window.isUnlimited ? "无限" : QuotaFormatting.percentage(window.usedPercentage))
-                                Text("重置：\(QuotaFormatting.resetDate(window.resetsAt))")
-                                if window.needsUpdate(at: Date()) { Text("待更新").foregroundStyle(.orange) }
-                            }
-                        }
                         if let snapshot = state.snapshot {
+                            if let plan = snapshot.subscriptionPlan, configuration.account.provider == .codex {
+                                LabeledContent("套餐", value: plan.displayName)
+                            }
+                            ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
+                                if window.scope == nil || configuration.account.provider == .qoderInternational {
+                                    QuotaWindowView(window: window)
+                                } else {
+                                    LabeledContent(
+                                        window.displayName,
+                                        value: QuotaFormatting.usage(window)
+                                    )
+                                }
+                            }
                             if configuration.account.provider == .codex {
                                 LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
+                            }
+                            if snapshot.walletAvailable == false {
+                                Label(QuotaFormatting.walletUnavailableDetail, systemImage: "exclamationmark.circle.fill")
+                                    .foregroundStyle(.orange)
+                            }
+                            if snapshot.quotaExceeded == true {
+                                Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
+                                    .foregroundStyle(.orange)
                             }
                             Text("采集于 \(snapshot.collectedAt.formatted())").font(.caption)
                         } else { Text("尚无成功采集数据") }
@@ -134,46 +210,52 @@ private struct AccountPreferencesView: View {
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
                     }
                 }
-                Section("显示") {
-                    Toggle("在 Watch 上关注", isOn: Binding(
-                        get: { configuration.followOrder != nil },
-                        set: { value in Task { await monitor.setFollowed(value, accountID: accountID) } }
-                    ))
-                }
                 Section("提醒") {
-                    Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
+                    Toggle(configuration.account.provider == .deepSeek ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
                         var settings = configuration.reminders; settings.quotaAlertsEnabled = value
                         Task { await monitor.updateReminders(settings, accountID: accountID) }
                     }))
-                    Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
-                        var settings = configuration.reminders; settings.resetRemindersEnabled = value
-                        Task { await monitor.updateReminders(settings, accountID: accountID) }
-                    }))
-                    TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
-                    Button("保存阈值") {
-                        let pieces = thresholds.split(separator: ",", omittingEmptySubsequences: false)
-                        let values = pieces.compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
-                        guard values.count == pieces.count, !values.isEmpty,
-                              values.allSatisfy({ $0.isFinite && $0 > 0 && $0 <= 100 }) else {
-                            error = "请输入 0 到 100 之间的比例，使用英文逗号分隔。"; return
+                    if configuration.account.provider == .deepSeek {
+                        walletReminderControls(configuration: configuration)
+                    } else {
+                        if configuration.account.provider != .qoderInternational {
+                            Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
+                                var settings = configuration.reminders; settings.resetRemindersEnabled = value
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
                         }
-                        error = nil
-                        var settings = configuration.reminders; settings.thresholds = Array(Set(values)).sorted()
-                        Task { await monitor.updateReminders(settings, accountID: accountID) }
+                        TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
+                        Button("保存阈值") { saveQuotaThresholds(configuration) }
                     }
                     if let error { Text(error).foregroundStyle(.red) }
                     Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
                         .font(.caption).foregroundStyle(.secondary)
                 }
+                Section("Apple Watch") {
+                    Toggle("在 Watch 显示", isOn: Binding(
+                        get: { configuration.isWatchFavorite != false },
+                        set: { enabled in
+                            Task { await monitor.updateWatchFavorite(enabled, accountID: accountID) }
+                        }
+                    ))
+                }
                 Section("更新凭证") {
-                    if configuration.account.provider == .miniMaxChina || configuration.account.provider == .zai {
-                        SecureField("Coding Plan Key", text: $credential)
+                    if isDemoMode {
+                        Text("演示账号无需真实凭证。")
+                        Button("重新连接演示账号") {
+                            Task { await monitor.replaceCredential("demo", accountID: accountID) }
+                        }
+                    } else if usesAPIKey(configuration.account.provider) {
+                        SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {
                             Task {
                                 do {
-                                    let encoded = configuration.account.provider == .zai
-                                        ? try ProviderAuthenticationController().credential(provider: .zai, apiKey: credential)
+                                    let encoded = usesAPIKey(configuration.account.provider)
+                                        ? try ProviderAuthenticationController().credential(
+                                            provider: configuration.account.provider,
+                                            apiKey: credential
+                                        )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
@@ -184,9 +266,22 @@ private struct AccountPreferencesView: View {
                         Button("重新登录 \(configuration.account.provider.displayName)") { showingLogin = true }
                     }
                 }
+                Section {
+                    Button("删除账号", role: .destructive) { showingDeleteConfirmation = true }
+                }
             } else { Text("账号配置尚未同步") }
         }
         .navigationTitle(monitor.configuration(for: accountID)?.account.name ?? "账号")
+        .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+            Button("删除账号", role: .destructive) {
+                Task { if await monitor.deleteAccount(accountID: accountID) { dismiss() } }
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text(isDemoMode
+                 ? "将移除此演示账号及其示例数据。真实账号不受影响。"
+                 : "将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+        }
         .sheet(isPresented: $showingLogin) {
             if let provider = monitor.configuration(for: accountID)?.account.provider {
                 ProviderSignInView(provider: provider) { value in
@@ -197,6 +292,84 @@ private struct AccountPreferencesView: View {
         }
         .onAppear {
             thresholds = monitor.configuration(for: accountID)?.reminders.thresholds.map { String($0) }.joined(separator: ",") ?? "80,95,100"
+            loadWalletThreshold()
         }
+    }
+
+    @ViewBuilder
+    private func walletReminderControls(configuration: AccountConfiguration) -> some View {
+        let currencies = monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows
+            .compactMap(\.wallet?.currency).uniqued() ?? []
+        if currencies.isEmpty {
+            Text("成功刷新后可选择提醒币种。")
+                .font(.caption).foregroundStyle(.secondary)
+        } else {
+            Picker("币种", selection: Binding(
+                get: { configuration.reminders.walletCurrency ?? currencies[0] },
+                set: { currency in
+                    var settings = configuration.reminders
+                    settings.walletCurrency = currency
+                    walletThreshold = String(describing: settings.walletThreshold(for: currency))
+                    Task { await monitor.updateReminders(settings, accountID: accountID) }
+                }
+            )) {
+                ForEach(currencies, id: \.self) { Text($0).tag($0) }
+            }
+            TextField("低余额阈值", text: $walletThreshold)
+                .keyboardType(.decimalPad)
+            Button("保存低余额阈值") {
+                let currency = configuration.reminders.walletCurrency ?? currencies[0]
+                let input = walletThreshold.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard let value = Decimal(string: input, locale: .autoupdatingCurrent), !value.isNaN, value >= 0 else {
+                    error = "请输入大于或等于 0 的金额。"
+                    return
+                }
+                error = nil
+                var settings = configuration.reminders
+                settings.walletCurrency = currency
+                var values = settings.walletThresholds ?? [:]
+                values[currency] = value
+                settings.walletThresholds = values
+                Task { await monitor.updateReminders(settings, accountID: accountID) }
+            }
+        }
+    }
+
+    private func saveQuotaThresholds(_ configuration: AccountConfiguration) {
+        let pieces = thresholds.split(separator: ",", omittingEmptySubsequences: false)
+        let values = pieces.compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+        guard values.count == pieces.count, !values.isEmpty,
+              values.allSatisfy({ $0.isFinite && $0 > 0 && $0 <= 100 }) else {
+            error = "请输入 0 到 100 之间的比例，使用英文逗号分隔。"
+            return
+        }
+        error = nil
+        var settings = configuration.reminders
+        settings.thresholds = Array(Set(values)).sorted()
+        Task { await monitor.updateReminders(settings, accountID: accountID) }
+    }
+
+    private func loadWalletThreshold() {
+        guard let configuration = monitor.configuration(for: accountID),
+              let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot,
+              let currency = configuration.reminders.walletCurrency
+                ?? snapshot.windows.compactMap(\.wallet?.currency).first else { return }
+        walletThreshold = String(describing: configuration.reminders.walletThreshold(for: currency))
+    }
+
+    private func usesAPIKey(_ provider: Provider) -> Bool {
+        if case .apiKey = ProviderAuthenticationController().loginConfiguration(for: provider).method { return true }
+        return false
+    }
+
+    private func credentialLabel(_ provider: Provider) -> String {
+        ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
+    }
+}
+
+private extension Sequence where Element: Hashable {
+    func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
     }
 }

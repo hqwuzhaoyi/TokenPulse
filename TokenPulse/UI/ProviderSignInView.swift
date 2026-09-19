@@ -16,20 +16,41 @@ struct ProviderSignInView: View {
                 } else {
                     Form {
                         if let session = login.session {
-                            if let code = session.userCode {
-                                Text("授权码").font(.caption)
-                                Text(code).font(.title.monospaced()).textSelection(.enabled)
+                            Section {
+                                if let code = session.userCode {
+                                    LabeledContent("授权码") {
+                                        Text(code)
+                                            .font(.title2.monospaced())
+                                            .bold()
+                                            .textSelection(.enabled)
+                                    }
+                                }
+                                Link(destination: session.authorizationURL) {
+                                    Label("前往 \(provider.displayName) 授权", systemImage: "safari")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                            } header: {
+                                Text("在浏览器中继续")
+                            } footer: {
+                                Text("完成网页授权后返回 TokenPulse，登录结果会自动同步。")
                             }
-                            Link("前往 \(provider.displayName) 完成授权", destination: session.authorizationURL)
-                            Text("完成网页授权后返回这里，应用会自动取得登录结果。")
-                                .font(.caption).foregroundStyle(.secondary)
                             if login.message == nil {
-                                ProgressView(login.reconnecting ? "连接恢复中，保留当前授权码" : "等待授权")
+                                Section {
+                                    ProgressView(login.reconnecting ? "正在恢复连接，授权码仍然有效" : "正在等待授权结果")
+                                }
                             }
-                        } else if login.message == nil { ProgressView("准备登录") }
+                        } else if login.message == nil {
+                            Section { ProgressView("正在准备安全登录") }
+                        }
                         if let message = login.message {
-                            Text(message).foregroundStyle(.red)
-                            Button(login.session == nil ? "重新授权" : "继续授权") { attempt += 1 }
+                            Section {
+                                Label(message, systemImage: "exclamationmark.triangle")
+                                    .foregroundStyle(.orange)
+                                Button(login.session == nil ? "重新授权" : "继续等待", systemImage: "arrow.clockwise") {
+                                    attempt += 1
+                                }
+                            }
                         }
                     }
                     .task(id: scenePhase == .active ? attempt : -1) {
@@ -39,7 +60,12 @@ struct ProviderSignInView: View {
                 }
             }
             .navigationTitle("登录 \(provider.displayName)")
-            .toolbar { Button("取消") { dismiss() } }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { dismiss() }
+                }
+            }
         }
     }
 

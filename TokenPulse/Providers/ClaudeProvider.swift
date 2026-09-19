@@ -66,11 +66,11 @@ struct ClaudeProviderClient: Sendable {
                 id: "claude.\(kind).\(scope ?? "all")",
                 name: ProviderHTTP.windowName(seconds: seconds),
                 scope: scope,
+                period: QuotaPeriod(seconds: seconds),
                 usedPercentage: ProviderHTTP.number(limit["percent"]),
                 remainingCount: nil,
                 totalCount: nil,
-                resetsAt: resetsAt,
-                cycleID: ProviderHTTP.cycleID(prefix: "claude.\(kind).\(scope ?? "all")", resetsAt: resetsAt)
+                resetsAt: resetsAt
             )
         }
 
@@ -82,11 +82,11 @@ struct ClaudeProviderClient: Sendable {
                     id: "claude.\(key)",
                     name: ProviderHTTP.windowName(seconds: seconds),
                     scope: nil,
+                    period: QuotaPeriod(seconds: seconds),
                     usedPercentage: ProviderHTTP.number(node["utilization"]),
                     remainingCount: nil,
                     totalCount: nil,
-                    resetsAt: resetsAt,
-                    cycleID: ProviderHTTP.cycleID(prefix: "claude.\(key)", resetsAt: resetsAt)
+                    resetsAt: resetsAt
                 ))
             }
         }

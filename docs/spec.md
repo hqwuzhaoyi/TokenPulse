@@ -10,7 +10,7 @@
 
 ## Solution
 
-构建个人自用的 iPhone 与 Apple Watch 应用。iPhone 负责配置多个订阅账号，以列表分别展示每个账号的多个额度窗口；Watch 用类似表盘的界面分页展示关注账号，每页一个账号，页内分别显示多个额度窗口。手机和手表均直接向提供商查询，Watch 在 iPhone 不在线时仍能刷新。
+构建个人自用的 iPhone 与 Apple Watch 应用。iPhone 负责配置多个订阅账号，以列表分别展示每个账号的多个额度窗口；Watch 用类似表盘的界面分页展示全部账号，每页一个账号，页内分别显示多个额度窗口。手机和手表均直接向提供商查询，Watch 在 iPhone 不在线时仍能刷新。
 
 iPhone 提供主屏幕和锁屏小组件，Watch 提供表盘复杂功能和智能叠放小组件。组件可指定账号，小尺寸选择一个额度窗口，大尺寸分别显示多个窗口。
 
@@ -38,9 +38,9 @@ iPhone 提供主屏幕和锁屏小组件，Watch 提供表盘复杂功能和智�
 18. As a device user, I want to see when quota was collected, so that I can judge how current it is.
 19. As an offline user, I want to retain the last successful data with a refresh failure indication, so that a connection failure does not erase useful information.
 20. As a subscriber, I want an old window to show that an update is needed after its expected reset time, so that I do not assume quota has recovered.
-21. As an iPhone user, I want to select and order followed accounts, so that the watch shows the accounts I care about in my preferred order.
-22. As a Watch user, I want one dial-style page per followed account, so that I can focus on one account while seeing its separate quota windows.
-23. As a Watch user, I want to swipe between account pages, so that I can inspect other followed accounts quickly.
+21. As an iPhone user, I want to reorder account cards on the home screen and have all accounts reach my watch automatically, so that one account order is enough to maintain.
+22. As a Watch user, I want one dial-style page per account, so that I can focus on one account while seeing its separate quota windows.
+23. As a Watch user, I want to swipe between account pages, so that I can inspect other accounts quickly.
 24. As an iPhone user, I want Home Screen widgets, so that I can check quota without opening the application.
 25. As an iPhone user, I want Lock Screen widgets, so that key quota information is available from the lock screen.
 26. As a Watch user, I want watch face complications, so that I can check a selected account from my watch face.
@@ -61,7 +61,7 @@ iPhone 提供主屏幕和锁屏小组件，Watch 提供表盘复杂功能和智�
 41. As a subscriber, I want an expected-reset reminder when a provided reset time arrives, so that I know when to check for recovered quota.
 42. As a subscriber, I want reset reminders without a known reset time only after a query confirms a reset, so that the application does not invent a reset schedule.
 43. As a subscriber, I want confirmed data after an expected-reset reminder to update the display without another reset notification, so that the same event is not announced twice on one device.
-44. As a subscriber, I want reminder settings to apply independently of the watch's followed-account list, so that accounts not shown on the watch can still alert me.
+44. As a subscriber, I want an application-level notification switch, so that I can pause all reminders without losing per-account settings.
 45. As a phone and watch user, I want either device to issue alerts independently and share reminder records when possible, so that independent use still works while avoidable duplicates are reduced.
 46. As the project owner, I want provider login, refresh and renewal verified before full interface development, so that an unavailable integration is discovered early.
 47. As the project owner, I want unsupported independent-refresh integrations reported before scope changes, so that I decide whether to defer a provider.
@@ -72,19 +72,19 @@ iPhone 提供主屏幕和锁屏小组件，Watch 提供表盘复杂功能和智�
 - **平台职责**：iPhone 管理账号配置；iPhone 与 Watch 均独立查询。Watch 的首次配置可由 iPhone 完成，独立刷新不扩展为必须脱离 iPhone 独立安装和登录。
 - **服务范围**：Claude、Codex、Z.ai 国际服务、MiniMax 国内版及 SuperGrok。允许参考 Pulse 的非官方接入方式，但不将候选 HTTP 或 OAuth 路线视为实机验证完成。
 - **接入前置验证**：逐家完成真实登录、额度查询、凭证续期和多账号隔离验证；Watch 需要在 iPhone 不在线时验证直接查询与续期。受阻时由用户决定是否暂缓该服务，不静默删减服务或改成 Mac 代查。
-- **领域区分**：提供商、订阅账号、关注账号、套餐额度、额度窗口、额度告警和重置提醒沿用领域词汇。一个提供商可有多个订阅账号，一个账号可有多个独立额度窗口，不合并短周期与每周额度。
+- **领域区分**：提供商、订阅账号、套餐额度、额度窗口、额度告警和重置提醒沿用领域词汇。一个提供商可有多个订阅账号，一个账号可有多个独立额度窗口，不合并短周期与每周额度。
 - **数据表达**：保存每个账号下各窗口的实际可用指标、重置信息和采集时间，能够区分缺失指标、上次成功数据、刷新失败及待更新状态。同步到达时间不得代替采集时间。具体持久化结构及提供商原始响应映射在验证阶段确定，不在本规格中锁定字段名。
 - **共享应用职责（拟议模块划分）**：账号额度监控负责协调刷新、窗口状态和提醒行为；提供商接入负责认证、查询及续期；平台存储、同步、通知与各显示入口负责对应系统能力。按实际实现保持职责分离，不为每个内部步骤引入公共抽象。
-- **列表与分页**：iPhone 列表显示账号和分别列出的窗口；Watch 按关注账号顺序分页，每页一个账号，页内分别显示多个窗口，左右滑动切换。
+- **列表与分页**：iPhone 列表显示账号和分别列出的窗口；Watch 展示全部同步账号，每页一个账号，页内分别显示多个窗口，左右滑动切换。
 - **小组件**：iPhone 主屏幕、锁屏以及 Watch 表盘复杂功能、智能叠放均在范围内。每个组件指定账号，小尺寸指定一个窗口，大尺寸分别展示多个窗口。主应用与组件应一致表达数据的新旧状态，不承诺组件持续实时刷新。
 - **刷新规则**：前台打开时刷新、支持手动刷新，后台按系统机会执行。成功获得新数据后检查额度告警；后台不保证固定间隔，不引入设备外采集及推送服务。
 - **失败与过期**：查询失败保留最后成功数据并显示状态；旧窗口跨过预计重置时间后显示“待更新”，不得直接清零用量或宣称额度恢复。提供商没有给出的指标显示“未提供”，不得伪造成真实数据。
-- **同步与凭证**：通过 iCloud 同步账号数据、配置、关注顺序、提醒设置和可安全迁移的凭证；已提醒记录用于减少跨设备重复。具体同步机制未锁定。原项目绑定 Mac 的加密凭证文件不能原样承担跨设备恢复；验证同步后的凭证访问及刷新令牌轮换，避免两端续期互相失效。
+- **同步与凭证**：通过 iCloud 同步账号数据、配置、提醒设置和可安全迁移的凭证；已提醒记录用于减少跨设备重复。具体同步机制未锁定。原项目绑定 Mac 的加密凭证文件不能原样承担跨设备恢复；验证同步后的凭证访问及刷新令牌轮换，避免两端续期互相失效。
 - **无 iCloud 使用**：iPhone 可本地配置与查询；开启同步后恢复跨设备能力。Watch 已取得可用凭证时继续独立查询，新增配置尚未到达时明确提示。同步不可用不等于提供商查询必须不可用。
 - **额度阈值**：每个账号默认已用 80%、95%、100%，可调整。各窗口独立判断，每个窗口周期内每档只提醒一次；新的周期应重新允许提醒。
 - **跨档告警**：首次查询已超限也触发；一次从 70% 到 98% 时只发 95% 档提醒，并将 80% 档标记为已提醒。同账号多个窗口在同次刷新中触发时合并为一条通知，并列明窗口。
 - **重置提醒**：有确定的预计重置时间时预排“预计已重置”提醒，查询确认后更新数据而不重复通知。提供商更新重置时间时重新安排。没有明确时间时仅在查询确认重置后提醒，不根据任意用量下降推断重置。
-- **提醒控制**：每个账号分别开关额度告警及重置提醒，默认均开启；关注列表只控制 Watch 展示。两端允许独立通知并同步提醒记录，不承诺断开同步时全局去重。
+- **提醒控制**：应用提供本机通知总开关，关闭时暂停并取消已安排提醒但保留账号设置；每个账号分别开关额度告警及重置提醒，默认均开启。两端允许独立通知并同步提醒记录，不承诺断开同步时全局去重。
 - **未锁定技术细节**：最低 iOS/watchOS 版本、签名、持久化和同步框架、各服务认证契约，以及跨端凭证续期策略需要结合实机和接入验证确定。不得把这些待验证项表述为已实现或已作出的具体技术选择。
 
 ## Testing Decisions
@@ -97,10 +97,10 @@ iPhone 提供主屏幕和锁屏小组件，Watch 提供表盘复杂功能和智�
 - **刷新与旧数据**：成功刷新更新采集时间；失败保留旧值并显示失败；同步到达不能伪装成新采集；跨过预计重置时间只进入待更新状态，不制造已恢复的数据或新的额度告警。
 - **阈值场景**：首次查询超限会提醒；70% 到 98% 只发 95% 档；同周期重复刷新不重发同档；到达 100% 可发新档；新窗口周期重新具备告警资格；同账号多窗口触发合并为一条。
 - **重置场景**：有明确时间时预排预计提醒，时间改变时更新安排，随后查询确认不重复通知；未知时间时不能预排猜测提醒，必须有查询确认的重置依据。
-- **控制场景**：两种提醒开关互不混用；调整阈值按账号隔离；取消关注不关闭提醒；关闭某类提醒后不再投递该类已安排的提醒。
+- **控制场景**：通知总开关关闭后取消已安排提醒且保留账号设置；两种账号提醒开关互不混用；调整阈值按账号隔离；关闭某类提醒后不再投递该类已安排的提醒。
 - **同步场景**：不开启 iCloud 仍可本地使用；开启后恢复账号、配置和可迁移凭证；提醒记录已同步时避免可避免的重复；两端离线各自提醒允许重复，不把这种行为当作失败。
 - **真实接入验证**：五个服务分别验证 iPhone 登录、查询及令牌续期；同一提供商验证多账号隔离；Watch 在手机不可用时查询和续期；验证同步凭证与两端令牌轮换不会互相使登录失效。不能用模拟响应替代这些验收。
-- **平台与显示验证**：实机检查 iPhone 列表、Watch 每页一账号及窗口可读性、关注排序，以及四类小组件入口的账号/窗口选择、显示内容和旧数据状态。后台不按承诺外的固定分钟间隔验收。
+- **平台与显示验证**：实机检查 iPhone 列表、Watch 每页一账号及窗口可读性，以及四类小组件入口的账号/窗口选择、显示内容和旧数据状态。后台不按承诺外的固定分钟间隔验收。
 - **既有测试先例**：当前项目无测试、应用代码或测试框架；不能宣称沿用了不存在的测试设施。选择能覆盖上述行为的最小测试设施，不移植与本项目行为无关的参考项目测试。
 - **测试数据**：使用脱敏响应及可控时间验证规则；真实凭证不进入规格、版本库、响应夹具或测试输出。
 
