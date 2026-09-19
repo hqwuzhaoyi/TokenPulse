@@ -454,8 +454,8 @@ struct QuotaWidgetView: View {
     }
 
     private func availabilitySuffix(_ account: WidgetAccountSnapshot) -> String {
-        if account.walletAvailable == false { return " · API 不可用" }
-        if account.quotaExceeded == true { return " · 额度已用尽" }
+        if account.walletAvailable == false { return " · \(QuotaFormatting.walletUnavailableBadge)" }
+        if account.quotaExceeded == true { return " · \(QuotaFormatting.quotaExceededBadge)" }
         return ""
     }
 }
@@ -481,7 +481,9 @@ private struct AccountHeader: View {
                 Image(systemName: "exclamationmark.circle.fill")
                     .font(.caption2)
                     .foregroundStyle(.orange)
-                    .accessibilityLabel(account.walletAvailable == false ? "API 不可用" : "额度已用尽")
+                    .accessibilityLabel(account.walletAvailable == false
+                        ? QuotaFormatting.walletUnavailableBadge
+                        : QuotaFormatting.quotaExceededBadge)
             }
             if account.needsUpdate(at: date) {
                 Image(systemName: "clock.badge.exclamationmark")
@@ -581,11 +583,11 @@ private struct AccountStatus: View {
                 .font(.system(size: 7))
                 .foregroundStyle(.orange)
         } else if account.walletAvailable == false {
-            Text("API 不可用")
+            Text(QuotaFormatting.walletUnavailableBadge)
                 .font(.system(size: 7))
                 .foregroundStyle(.orange)
         } else if account.quotaExceeded == true {
-            Text("额度已用尽")
+            Text(QuotaFormatting.quotaExceededBadge)
                 .font(.system(size: 7))
                 .foregroundStyle(.orange)
         } else if let collectedAt = account.collectedAt {

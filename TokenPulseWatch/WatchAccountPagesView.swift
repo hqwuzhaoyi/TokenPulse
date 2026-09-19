@@ -216,11 +216,11 @@ private struct WatchAccountPage: View {
                             .font(.caption2)
                     }
                     if snapshot.walletAvailable == false {
-                        Label("API 不可用", systemImage: "exclamationmark.circle.fill")
+                        Label(QuotaFormatting.walletUnavailableBadge, systemImage: "exclamationmark.circle.fill")
                             .font(.caption2).foregroundStyle(.orange)
                     }
                     if snapshot.quotaExceeded == true {
-                        Label("额度已用尽", systemImage: "exclamationmark.circle.fill")
+                        Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
                             .font(.caption2).foregroundStyle(.orange)
                     }
                     Text("采集于 \(snapshot.collectedAt.formatted(date: .omitted, time: .shortened))")

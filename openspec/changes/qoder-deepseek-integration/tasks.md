@@ -47,3 +47,4 @@ Approved: yes
 - 模拟器 smoke（iPhone 16e / iOS 26.3，演示模式）：首页账号卡片与 A 原型一致；DeepSeek 账号详情显示 CNY 110/10/100 与 USD 8/1/7 的总可用/赠送/充值余额，无百分比与重置时间；设置内含“低余额提醒”开关、币种与阈值。
 - Qoder 集成：`ProviderQuotaClient` / 登录控制器 / Watch / Widget / 图标均已接入；`QoderProviderTests` 全部通过（含 PKCE 授权、轮询恢复、到期不静默续期、双额度不合并）。真实 Qoder 浏览器授权未执行。
 - 真实凭证/设备缺口（未勾选、未声明完成）：DeepSeek 真实 API Key 查询；Qoder 真实浏览器授权与凭证有效期；iCloud 凭证到达后手机离线 + 实体 Watch 独立刷新；真机通知权限下实际投递；实体设备字号/深浅外观/辅助功能验收。
+- 展示口径修正（后续追加）：DeepSeek 余额不足状态三端统一为短句「余额不足」（收起卡片徽标、Watch、小组件）与完整句「余额不足，无法调用 API」（展开详情、设置），文案集中在 `QuotaFormatting.walletUnavailableBadge / walletUnavailableDetail`；A 原型徽标同步改为「可用 / 余额不足」。Qoder 账号级 `quotaExceeded` 补到 iPhone 收起卡片与展开详情/设置，显示「额度已用尽」，与 Watch/小组件一致。

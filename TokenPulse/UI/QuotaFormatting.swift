@@ -54,6 +54,12 @@ enum QuotaFormatting {
         "\(value.formatted(.number.precision(.fractionLength(0...8)))) \(currency)"
     }
 
+    /// Wallet status wording shared by the account card, Watch pages and widgets.
+    /// The badge form is the short inline label; the detail form is the full sentence.
+    static let walletUnavailableBadge = "余额不足"
+    static let walletUnavailableDetail = "余额不足，无法调用 API"
+    static let quotaExceededBadge = "额度已用尽"
+
     static func limitDescription(_ window: QuotaWindow) -> String? {
         window.isUnlimited ? "无限" : nil
     }

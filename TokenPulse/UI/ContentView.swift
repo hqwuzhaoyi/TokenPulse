@@ -216,10 +216,7 @@ private struct AccountQuotaView: View {
                                     value: QuotaFormatting.remainingResets(snapshot.remainingResetCount)
                                 )
                             }
-                            if snapshot.walletAvailable == false {
-                                Label("余额不足，暂时无法调用 API", systemImage: "exclamationmark.circle.fill")
-                                    .foregroundStyle(.orange)
-                            }
+                            // The collapsed summary above already carries the 余额不足 / 额度已用尽 badge.
                             Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -352,7 +349,7 @@ private struct AccountSummaryView: View {
                             .foregroundStyle(.secondary)
                     }
                     if snapshot.walletAvailable == false {
-                        Label("API 不可用", systemImage: "exclamationmark.circle.fill")
+                        Label(QuotaFormatting.walletUnavailableBadge, systemImage: "exclamationmark.circle.fill")
                             .font(.caption)
                             .foregroundStyle(.orange)
                     }
@@ -360,6 +357,11 @@ private struct AccountSummaryView: View {
                     ForEach(summaryWindows) { window in
                         CompactQuotaWindowView(window: window)
                     }
+                }
+                if snapshot.quotaExceeded == true {
+                    Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
             } else {
                 Label("尚无额度数据", systemImage: "chart.bar.xaxis")

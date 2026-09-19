@@ -197,7 +197,11 @@ private struct AccountPreferencesView: View {
                                 LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
                             }
                             if snapshot.walletAvailable == false {
-                                Label("余额不足，暂时无法调用 API", systemImage: "exclamationmark.circle.fill")
+                                Label(QuotaFormatting.walletUnavailableDetail, systemImage: "exclamationmark.circle.fill")
+                                    .foregroundStyle(.orange)
+                            }
+                            if snapshot.quotaExceeded == true {
+                                Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
                                     .foregroundStyle(.orange)
                             }
                             Text("采集于 \(snapshot.collectedAt.formatted())").font(.caption)
