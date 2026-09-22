@@ -19,16 +19,26 @@ struct NotificationPlanner: Sendable {
             let cycle = resolveCycle(
                 accountID: accountID,
                 previousWindow: previousWindow,
+                previousCollectedAt: previousSnapshot?.collectedAt,
                 currentWindow: window,
                 collectedAt: newSnapshot.collectedAt,
                 ledger: ledger
             )
 
             if cycle.didReset, let occurrence = cycle.resetOccurrence {
-                let alreadyExpected = ledger.hasExpectedReset(occurrence)
+                let expectedResetWasDue: Bool
+                if case .expectedAt(let expectedAt) = occurrence.identity {
+                    expectedResetWasDue = expectedAt <= now
+                } else {
+                    expectedResetWasDue = false
+                }
+                let alreadyExpected = ledger.hasExpectedReset(occurrence) && expectedResetWasDue
                 let alreadyConfirmed = ledger.hasConfirmedReset(occurrence)
                 ledger.recordConfirmedReset(occurrence)
-                if settings.resetRemindersEnabled && !alreadyExpected && !alreadyConfirmed {
+                if cycle.shouldNotifyReset,
+                   settings.resetRemindersEnabled,
+                   !alreadyExpected,
+                   !alreadyConfirmed {
                     confirmedResetWindows.append(window.displayName)
                 }
             }
@@ -38,6 +48,7 @@ struct NotificationPlanner: Sendable {
                 windowID: window.id,
                 identity: cycle.identity,
                 resetAt: window.resetsAt,
+                usedPercentage: window.usedPercentage,
                 observedAt: newSnapshot.collectedAt
             ))
 
@@ -93,7 +104,7 @@ struct NotificationPlanner: Sendable {
         if !confirmedResetWindows.isEmpty {
             operations.append(.deliver(ReminderNotification(
                 identifier: "reset.confirmed.\(accountID.uuidString).\(milliseconds(newSnapshot.collectedAt))",
-                title: "\(accountName)额度已确认重置",
+                title: "\(accountName)额度已重置",
                 body: confirmedResetWindows.joined(separator: "、"),
                 kind: .confirmedReset
             )))
@@ -172,6 +183,7 @@ struct NotificationPlanner: Sendable {
 
     private func resolveCycle(accountID: UUID,
                               previousWindow: QuotaWindow?,
+                              previousCollectedAt: Date?,
                               currentWindow: QuotaWindow,
                               collectedAt: Date,
                               ledger: ReminderLedger) -> CycleResolution {
@@ -195,32 +207,72 @@ struct NotificationPlanner: Sendable {
                         ?? .providerCycle(cycleID)
                 )
                 : nil
-            return CycleResolution(identity: identity, didReset: didReset, resetOccurrence: occurrence)
+            return CycleResolution(
+                identity: identity,
+                didReset: didReset,
+                resetOccurrence: occurrence,
+                shouldNotifyReset: true
+            )
         }
 
         let previousResetAt = existing?.resetAt ?? previousWindow?.resetsAt
-        if let previousResetAt,
-           collectedAt >= previousResetAt,
-           let newResetAt = currentWindow.resetsAt,
-           newResetAt > previousResetAt {
+        let resetBoundaryAdvanced = previousResetAt.flatMap { previousResetAt in
+            currentWindow.resetsAt.map { $0.timeIntervalSince(previousResetAt) > 60 }
+        } ?? false
+        let previousUsedPercentage: Double?
+        if let existing,
+           previousCollectedAt.map({ existing.observedAt > $0 }) ?? true {
+            previousUsedPercentage = existing.usedPercentage
+        } else {
+            previousUsedPercentage = previousWindow?.usedPercentage
+        }
+        let usageDropped = previousUsedPercentage.flatMap { previousUsed in
+            currentWindow.usedPercentage.map { previousUsed - $0 >= 40 }
+        } ?? false
+        if resetBoundaryAdvanced || usageDropped {
+            let previousIdentity = existing?.identity
+                ?? previousResetAt.map(ReminderCycleIdentity.resetBoundary)
+                ?? .unidentified
             return CycleResolution(
-                identity: .resetBoundary(newResetAt),
+                identity: .inferred(collectedAt),
                 didReset: true,
                 resetOccurrence: ResetOccurrenceRecord(
                     accountID: accountID,
                     windowID: currentWindow.id,
-                    identity: .expectedAt(previousResetAt)
+                    identity: resetBoundaryAdvanced
+                        ? previousResetAt.map(ResetOccurrenceIdentity.expectedAt) ?? .inferred(collectedAt)
+                        : .inferred(collectedAt)
+                ),
+                shouldNotifyReset: ledger.containsQuotaAlert(
+                    accountID: accountID,
+                    windowID: currentWindow.id,
+                    cycle: previousIdentity
                 )
             )
         }
 
         if let existing {
-            return CycleResolution(identity: existing.identity, didReset: false, resetOccurrence: nil)
+            return CycleResolution(
+                identity: existing.identity,
+                didReset: false,
+                resetOccurrence: nil,
+                shouldNotifyReset: false
+            )
         }
         if let resetAt = currentWindow.resetsAt {
-            return CycleResolution(identity: .resetBoundary(resetAt), didReset: false, resetOccurrence: nil)
+            return CycleResolution(
+                identity: .resetBoundary(resetAt),
+                didReset: false,
+                resetOccurrence: nil,
+                shouldNotifyReset: false
+            )
         }
-        return CycleResolution(identity: .unidentified, didReset: false, resetOccurrence: nil)
+        return CycleResolution(
+            identity: .unidentified,
+            didReset: false,
+            resetOccurrence: nil,
+            shouldNotifyReset: false
+        )
     }
 
     private func reconcileResetSchedules(accountID: UUID,
@@ -329,6 +381,7 @@ private struct CycleResolution {
     let identity: ReminderCycleIdentity
     let didReset: Bool
     let resetOccurrence: ResetOccurrenceRecord?
+    let shouldNotifyReset: Bool
 }
 
 private struct ScheduleSignature: Equatable {

@@ -102,6 +102,14 @@ struct ReminderLedger: Codable, Equatable, Sendable {
         ))
     }
 
+    func containsQuotaAlert(accountID: UUID,
+                            windowID: String,
+                            cycle: ReminderCycleIdentity) -> Bool {
+        quotaAlerts.contains {
+            $0.accountID == accountID && $0.windowID == windowID && $0.cycle == cycle
+        }
+    }
+
     func walletAlertState(accountID: UUID, currency: String?) -> WalletAlertState? {
         walletAlerts?.first { $0.accountID == accountID && $0.currency == currency }
     }
@@ -180,6 +188,7 @@ struct WalletAlertState: Codable, Equatable, Sendable {
 enum ReminderCycleIdentity: Codable, Hashable, Sendable {
     case provider(String)
     case resetBoundary(Date)
+    case inferred(Date)
     case unidentified
 }
 
@@ -193,6 +202,7 @@ struct QuotaAlertRecord: Codable, Hashable, Sendable {
 enum ResetOccurrenceIdentity: Codable, Hashable, Sendable {
     case expectedAt(Date)
     case providerCycle(String)
+    case inferred(Date)
 }
 
 struct ResetOccurrenceRecord: Codable, Hashable, Sendable {
@@ -206,6 +216,7 @@ struct WindowCycleState: Codable, Equatable, Sendable {
     let windowID: String
     let identity: ReminderCycleIdentity
     let resetAt: Date?
+    let usedPercentage: Double?
     let observedAt: Date
 }
 

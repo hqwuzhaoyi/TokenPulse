@@ -12,6 +12,7 @@ enum DemoMode {
             (.codex, "Codex Pro"), (.codex, "Codex Plus"),
             (.openCodeGo, "OpenCode Go"), (.zai, "Z.ai"), (.superGrok, "SuperGrok"),
             (.qoderInternational, "Qoder 国际版"), (.deepSeek, "DeepSeek 钱包"),
+            (.kimiCode, "Kimi Code 国内版"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -65,6 +66,7 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .kimiCode: [short, weekly, window("kimiCode.monthly", "每月总额度", .monthly, 48)]
         case .zai: [short, weekly]
         case .superGrok: [window("superGrok.pool", "每周额度", .weekly, 62)]
         case .qoderInternational: [

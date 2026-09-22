@@ -237,7 +237,7 @@ struct QuotaWidgetView: View {
         } else if family == .accessoryRectangular {
             accessoryRectangular(entry.accounts[0])
         } else {
-            small(entry.accounts[0])
+            watchSmall(entry.accounts[0])
         }
         #else
         if family == .accessoryInline {
@@ -253,7 +253,7 @@ struct QuotaWidgetView: View {
             case .systemLarge, .systemExtraLarge:
                 large
             default:
-                small(entry.accounts[0])
+                homeScreenSmall(entry.accounts[0])
             }
         }
         #endif
@@ -354,7 +354,7 @@ struct QuotaWidgetView: View {
         .accessibilityLabel(accessibilitySummary(account))
     }
 
-    private func small(_ account: WidgetAccountSnapshot) -> some View {
+    private func watchSmall(_ account: WidgetAccountSnapshot) -> some View {
         let metrics = account.ringMetrics
         return VStack(spacing: 7) {
             AccountHeader(account: account, date: entry.date)
@@ -369,33 +369,38 @@ struct QuotaWidgetView: View {
         }
     }
 
+    private func homeScreenSmall(_ account: WidgetAccountSnapshot) -> some View {
+        HomeScreenAccountContent(account: account, date: entry.date)
+    }
+
     private var medium: some View {
-        HStack(spacing: 8) {
-            ForEach(entry.accounts.prefix(2)) { account in
+        let accounts = Array(entry.accounts.prefix(2))
+        return HStack(spacing: 0) {
+            ForEach(accounts.indices, id: \.self) { index in
+                let account = accounts[index]
                 accountLink(account) {
-                    AccountTile(account: account, date: entry.date, ringDiameter: 44)
+                    MediumAccountColumn(account: account, date: entry.date)
+                }
+                if index < accounts.count - 1 {
+                    Divider().overlay(.white.opacity(0.12))
                 }
             }
         }
     }
 
     private var large: some View {
-        VStack(spacing: 6) {
-            LazyVGrid(
-                columns: entry.accounts.count == 1
-                    ? [GridItem(.flexible())]
-                    : [GridItem(.flexible(), spacing: 8), GridItem(.flexible())],
-                spacing: 8
-            ) {
-                ForEach(entry.accounts.prefix(4)) { account in
+        let accounts = Array(entry.accounts.prefix(4))
+        return VStack(spacing: 0) {
+            ForEach(accounts.indices, id: \.self) { index in
+                let account = accounts[index]
+                VStack(spacing: 0) {
                     accountLink(account) {
-                        AccountTile(
-                            account: account,
-                            date: entry.date,
-                            ringDiameter: entry.accounts.count <= 2 ? 76 : 52
-                        )
+                        LargeAccountRow(account: account, date: entry.date)
                     }
-                    .frame(minHeight: entry.accounts.count <= 2 ? 250 : 120)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    if index < accounts.count - 1 {
+                        Divider().overlay(.white.opacity(0.12))
+                    }
                 }
             }
             if entry.accountSelectionMissing {
@@ -463,13 +468,14 @@ struct QuotaWidgetView: View {
 private struct AccountHeader: View {
     let account: WidgetAccountSnapshot
     let date: Date
+    var showsResetCount = true
 
     var body: some View {
         HStack(spacing: 5) {
             ProviderIcon(provider: account.account.provider, size: 14)
             Text(account.account.name).font(.caption.bold()).lineLimit(1)
             Spacer(minLength: 0)
-            if account.supportsManualResetCount {
+            if showsResetCount && account.supportsManualResetCount {
                 Text("可重置 \(QuotaFormatting.remainingResets(account.remainingResetCount))")
                     .font(.system(size: 8, weight: .semibold))
                     .lineLimit(1)
@@ -494,27 +500,351 @@ private struct AccountHeader: View {
     }
 }
 
-private struct AccountTile: View {
+private struct MediumAccountColumn: View {
     let account: WidgetAccountSnapshot
     let date: Date
-    let ringDiameter: CGFloat
 
     var body: some View {
-        let metrics = account.ringMetrics
-        VStack(spacing: 7) {
-            AccountHeader(account: account, date: date)
-            Spacer(minLength: 0)
-            HStack(spacing: metrics.count == 3 ? 5 : 9) {
+        let metrics = account.displayMetrics
+        VStack(alignment: .leading, spacing: 2) {
+            AccountHeader(account: account, date: date, showsResetCount: false)
+            if metrics.isEmpty {
+                Text("额度未提供")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
                 ForEach(metrics) { metric in
-                    RingMetric(metric: metric, diameter: metrics.count == 3 ? min(ringDiameter, 44) : ringDiameter)
+                    HorizontalMetric(metric: metric, metricCount: metrics.count, presentation: .mediumPanel)
                 }
             }
             Spacer(minLength: 0)
-            AccountStatus(account: account)
+            HomeScreenAccountFooter(account: account)
         }
-        .padding(9)
-        .background(.white.opacity(0.065), in: RoundedRectangle(cornerRadius: 18))
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+private struct LargeAccountRow: View {
+    let account: WidgetAccountSnapshot
+    let date: Date
+
+    var body: some View {
+        let metrics = account.displayMetrics
+        VStack(alignment: .leading, spacing: 3) {
+            header
+            if metrics.isEmpty {
+                Text("额度未提供")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                HStack(alignment: .top, spacing: 10) {
+                    ForEach(metrics) { metric in
+                        HorizontalMetric(metric: metric, metricCount: metrics.count, presentation: .largePanel)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var header: some View {
+        HStack(spacing: 5) {
+            ProviderIcon(provider: account.account.provider, size: 13)
+            Text(account.account.name)
+                .font(.caption.bold())
+                .lineLimit(1)
+            if account.supportsManualResetCount {
+                Text("可重置 \(QuotaFormatting.remainingResets(account.remainingResetCount))")
+                    .font(.system(size: 8, weight: .semibold))
+                    .lineLimit(1)
+            }
+            if account.needsUpdate(at: date) {
+                Image(systemName: "clock.badge.exclamationmark")
+                    .font(.caption2)
+                    .accessibilityLabel("待更新")
+            }
+            Spacer(minLength: 4)
+            AccountStatus(account: account, fontSize: 8)
+                .lineLimit(1)
+        }
+    }
+}
+
+private enum HorizontalMetricPresentation {
+    case homeScreenSmall
+    case mediumPanel
+    case largePanel
+}
+
+private struct HomeScreenAccountContent: View {
+    let account: WidgetAccountSnapshot
+    let date: Date
+
+    var body: some View {
+        let metrics = account.displayMetrics
+        VStack(spacing: metrics.count >= 2 ? 2 : 4) {
+            AccountHeader(account: account, date: date, showsResetCount: false)
+            if metrics.isEmpty {
+                Spacer(minLength: 0)
+                Text("额度未提供")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            } else {
+                if metrics.count == 1 { Spacer(minLength: 4) }
+                ForEach(metrics) { metric in
+                    HorizontalMetric(metric: metric, metricCount: metrics.count)
+                }
+                Spacer(minLength: 0)
+            }
+            HomeScreenAccountFooter(account: account)
+        }
+    }
+}
+
+private struct HomeScreenAccountFooter: View {
+    let account: WidgetAccountSnapshot
+
+    var body: some View {
+        HStack(spacing: 4) {
+            if account.supportsManualResetCount {
+                Text("可重置 \(QuotaFormatting.remainingResets(account.remainingResetCount))")
+                    .font(.system(size: 9, weight: .semibold))
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            AccountStatus(account: account, fontSize: 9)
+        }
+    }
+}
+
+private struct HorizontalMetric: View {
+    let metric: WidgetQuotaMetric
+    let metricCount: Int
+    var presentation: HorizontalMetricPresentation = .homeScreenSmall
+
+    @ViewBuilder
+    var body: some View {
+        switch presentation {
+        case .homeScreenSmall:
+            homeScreenSmall
+        case .mediumPanel:
+            mediumPanel
+        case .largePanel:
+            largePanel
+        }
+    }
+
+    private var homeScreenSmall: some View {
+        VStack(alignment: .leading, spacing: metricCount >= 3 || hasCountValue ? 1 : 3) {
+            if metric.window?.wallet != nil {
+                Text("钱包余额")
+                    .font(.system(size: titleFontSize, weight: .semibold))
+                Text(valueText)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            } else if hasCountValue {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(metric.title)
+                        .font(.system(size: titleFontSize, weight: .semibold))
+                        .lineLimit(2)
+                    Spacer(minLength: 2)
+                    if metric.ringFraction != nil {
+                        Text(percentageText)
+                            .font(.system(size: titleFontSize, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                    }
+                }
+                HStack {
+                    Spacer(minLength: 0)
+                    Text(valueText)
+                        .font(.system(size: metricCount == 1 ? 16 : 12, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(metric.title)
+                        .font(.system(size: titleFontSize, weight: .semibold))
+                        .lineLimit(2)
+                        .layoutPriority(1)
+                    Spacer(minLength: 2)
+                    Text(valueText)
+                        .font(.system(size: valueFontSize, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .multilineTextAlignment(.trailing)
+                        .lineLimit(2)
+                }
+            }
+            progress
+            if metric.window != nil, metric.window?.wallet == nil {
+                Text(timingText)
+                    .font(.system(size: timingFontSize))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var mediumPanel: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            if hasCountValue {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    panelTitle
+                    Spacer(minLength: 2)
+                    Text(percentageText)
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    panelValue(fontSize: 12)
+                    Spacer(minLength: 2)
+                    panelTiming
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    panelTitle
+                    Spacer(minLength: 2)
+                    panelValue(fontSize: 14)
+                }
+            }
+            progress
+            if !hasCountValue, metric.window != nil, metric.window?.wallet == nil {
+                panelTiming
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var largePanel: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            panelTitle
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                panelValue(fontSize: 15)
+                if hasCountValue, metric.ringFraction != nil {
+                    Spacer(minLength: 1)
+                    Text(percentageText)
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                }
+            }
+            progress
+            if metric.window != nil, metric.window?.wallet == nil {
+                panelTiming
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var panelTitle: some View {
+        Text(metric.window?.wallet != nil ? "钱包余额" : metric.title)
+            .font(.system(size: 10, weight: .semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+    }
+
+    private func panelValue(fontSize: CGFloat) -> some View {
+        Text(valueText)
+            .font(.system(size: fontSize, weight: .bold, design: .rounded))
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.65)
+    }
+
+    @ViewBuilder
+    private var progress: some View {
+        if let fraction = metric.ringFraction {
+            ProgressView(value: fraction)
+                .progressViewStyle(.linear)
+                .tint(tint)
+        }
+    }
+
+    private var panelTiming: some View {
+        Text(compactTimingText)
+            .font(.system(size: 8))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+    }
+
+    private var valueText: String {
+        guard let window = metric.window,
+              ["qoder.userQuota", "qoder.orgResourcePackage"].contains(window.id),
+              let unit = window.unit, unit.lowercased() == "credits",
+              metric.valueText.hasSuffix(" " + unit) else { return metric.valueText }
+        return String(metric.valueText.dropLast(unit.count + 1))
+    }
+
+    private var accessibilityText: String {
+        guard metric.window?.wallet == nil, metric.window != nil else {
+            return "\(metric.title) \(metric.valueText)"
+        }
+        let percentage = hasCountValue && metric.ringFraction != nil ? "，已用 \(percentageText)" : ""
+        return "\(metric.title) \(metric.valueText)\(percentage)，\(timingText)"
+    }
+
+    private var titleFontSize: CGFloat {
+        metricCount == 1 ? 13 : metricCount == 2 ? 12 : 11
+    }
+
+    private var valueFontSize: CGFloat {
+        metricCount == 1 ? 22 : metricCount == 2 ? 16 : 13
+    }
+
+    private var timingFontSize: CGFloat {
+        metricCount == 1 ? 11 : metricCount == 2 ? 10 : 9
+    }
+
+    private var hasCountValue: Bool {
+        guard let window = metric.window else { return false }
+        return window.unit != nil && (window.remainingCount != nil || window.totalCount != nil)
+    }
+
+    private var percentageText: String {
+        guard let window = metric.window,
+              let value = QuotaFormatting.effectiveUsedPercentage(window),
+              value.isFinite else { return "" }
+        return value.formatted(.number.precision(.fractionLength(0...1))) + "%"
+    }
+
+    private var timingText: String {
+        guard let window = metric.window else { return "时间未提供" }
+        if let expiresAt = window.expiresAt { return "到期 \(QuotaFormatting.resetDate(expiresAt))" }
+        return "重置 \(QuotaFormatting.resetDate(window.resetsAt))"
+    }
+
+    private var compactTimingText: String {
+        guard let window = metric.window else { return "时间未提供" }
+        if let expiresAt = window.expiresAt { return "到期 \(compactDate(expiresAt))" }
+        guard let resetsAt = window.resetsAt else { return "重置 未提供" }
+        return "重置 \(compactDate(resetsAt))"
+    }
+
+    private func compactDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.timeZone = .autoupdatingCurrent
+        let includesYear = !Calendar.autoupdatingCurrent.isDate(date, equalTo: Date(), toGranularity: .year)
+        formatter.setLocalizedDateFormatFromTemplate(includesYear ? "yMdjm" : "Mdjm")
+        return formatter.string(from: date)
+    }
+
+    private var tint: Color {
+        guard let value = metric.window?.usedPercentage else { return .secondary }
+        if value >= 80 { return .red }
+        if value >= 50 { return .yellow }
+        return .green
     }
 }
 
@@ -576,23 +906,24 @@ private struct RingMetric: View {
 
 private struct AccountStatus: View {
     let account: WidgetAccountSnapshot
+    var fontSize: CGFloat = 7
 
     var body: some View {
         if account.lastFailure != nil {
             Text("刷新失败 · 保留旧数据")
-                .font(.system(size: 7))
+                .font(.system(size: fontSize))
                 .foregroundStyle(.orange)
         } else if account.walletAvailable == false {
             Text(QuotaFormatting.walletUnavailableBadge)
-                .font(.system(size: 7))
+                .font(.system(size: fontSize))
                 .foregroundStyle(.orange)
         } else if account.quotaExceeded == true {
             Text(QuotaFormatting.quotaExceededBadge)
-                .font(.system(size: 7))
+                .font(.system(size: fontSize))
                 .foregroundStyle(.orange)
         } else if let collectedAt = account.collectedAt {
             Text("更新于 \(collectedAt.formatted(date: .omitted, time: .shortened))")
-                .font(.system(size: 7))
+                .font(.system(size: fontSize))
                 .foregroundStyle(.secondary)
         }
     }
