@@ -40,6 +40,15 @@
 - 新归档：`/Users/admin/Library/Developer/Xcode/Archives/2026-09-13/TokenPulse-2026091322.xcarchive`。
 - 证据：`/tmp/tokenpulse-release-2026091322-archive.log`、`/tmp/tokenpulse-release-2026091322-upload.log`、`/tmp/tokenpulse-release-2026091322-symbol-verification.json`。
 
+### 窗口翻转修复构建 2026092201
+
+- **0.1.0 (2026092201)** 已于 2026-09-22 15:30:57（UTC+8）上传成功。Apple 返回 `Uploaded package is processing` 和 `Upload succeeded`，命令结果为 `EXPORT SUCCEEDED`，没有 `Upload Symbols Failed` 警告。
+- 构建包含统一额度窗口翻转规则：没有 provider 周期 ID 时，重置时间推进超过 60 秒或用量下降至少 40 个百分点会重新武装额度阈值。
+- iPhone、Watch 和两个 Widget 的版本均为 `0.1.0 (2026092201)`；四个可执行文件 UUID 均与对应 dSYM 匹配，归档签名验证通过。
+- 归档：`/Users/admin/Library/Developer/Xcode/Archives/2026-09-22/TokenPulse-2026092201.xcarchive`。
+- 证据：`/tmp/tokenpulse-release-2026092201-archive.log`、`/tmp/tokenpulse-release-2026092201-upload.log`。
+- 上传完成后 App Store Connect 网页会话未登录，因此尚未从 TestFlight 页面确认 Processing 完成或测试组可用状态。
+
 ## 提交说明
 
 先完成新构建上传并选择该构建，再把下面的英文说明填写到 Beta App Review Information 的 Notes 中，并在审核消息中回复。不要把示例文字当作用户名或密码填写。不要在旧构建仍被审核时声称演示模式已经可用。
