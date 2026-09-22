@@ -49,6 +49,16 @@
 - 证据：`/tmp/tokenpulse-release-2026092201-archive.log`、`/tmp/tokenpulse-release-2026092201-upload.log`。
 - 上传完成后 App Store Connect 网页会话未登录，因此尚未从 TestFlight 页面确认 Processing 完成或测试组可用状态。
 
+### Kimi Code 与 Widget 改版构建 2026092202
+
+- **0.1.0 (2026092202)** 已于 2026-09-22 22:19:15（UTC+8）上传成功。Apple 返回 `Uploaded package is processing` 和 `Upload succeeded`，命令结果为 `EXPORT SUCCEEDED`，没有符号上传警告。
+- 构建包含主屏幕 Widget 文字/横向进度条改版，以及 Kimi Code 国内版设备授权、额度查询、续期、演示数据和 Lobe Icons 渠道图标。
+- 发布提交为 `65fb676`；隔离 worktree 完整 XCTest 148 项通过，0 失败。
+- iPhone、Watch 和两个 Widget 的版本均为 `0.1.0 (2026092202)`；四个包签名有效，所有可执行文件 UUID 均与对应 dSYM 匹配。
+- 归档：`/Users/admin/Library/Developer/Xcode/Archives/2026-09-22/TokenPulse-2026092202.xcarchive`。
+- 证据：`/tmp/tokenpulse-release-2026092202-tests.log`、`/tmp/tokenpulse-release-2026092202-archive.log`、`/tmp/tokenpulse-release-2026092202-upload.log`、`/tmp/tokenpulse-release-2026092202-verification.json`。
+- 上传成功表示 App Store Connect 已接收并开始处理；处理完成及测试组可用状态仍需在 TestFlight 页面确认。
+
 ## 提交说明
 
 先完成新构建上传并选择该构建，再把下面的英文说明填写到 Beta App Review Information 的 Notes 中，并在审核消息中回复。不要把示例文字当作用户名或密码填写。不要在旧构建仍被审核时声称演示模式已经可用。
