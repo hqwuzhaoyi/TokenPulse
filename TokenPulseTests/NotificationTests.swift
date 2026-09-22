@@ -270,12 +270,12 @@ final class NotificationTests: XCTestCase {
 
     func testMovingUnusedOpenCodeRollingResetDoesNotConfirmReset() throws {
         let firstCollectedAt = Date(timeIntervalSince1970: 1_000)
-        let secondCollectedAt = firstCollectedAt.addingTimeInterval(60)
+        let secondCollectedAt = firstCollectedAt.addingTimeInterval(120)
         let firstWindows = try OpenCodeGoProviderClient.windows(Data(
             #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:16:40Z"}}}"#.utf8
         ))
         let secondWindows = try OpenCodeGoProviderClient.windows(Data(
-            #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:17:40Z"}}}"#.utf8
+            #"{"usage":{"rolling":{"status":"ok","percent":0,"resetsAt":"1970-01-01T05:18:40Z"}}}"#.utf8
         ))
         let firstSnapshot = QuotaSnapshot(
             accountID: accountID,
@@ -515,9 +515,39 @@ final class NotificationTests: XCTestCase {
         XCTAssertEqual(scheduled(resetOnly.operations).count, 1)
     }
 
-    func testResetBoundaryStartsNewQuotaCycleWithoutUsingUsageDrop() {
+    func testResetBoundaryAdvanceOverSixtySecondsStartsNewQuotaCycleImmediately() {
         let oldReset = now.addingTimeInterval(100)
-        let rescheduledReset = now.addingTimeInterval(200)
+        let rescheduledReset = oldReset.addingTimeInterval(61)
+        let previous = snapshot(windows: [
+            window(id: "short", name: "短周期", used: 90, resetAt: oldReset),
+        ])
+        let first = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: nil,
+            newSnapshot: previous,
+            settings: AccountReminderSettings(),
+            ledger: ReminderLedger(),
+            now: now
+        )
+        let advanced = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: previous,
+            newSnapshot: snapshot(
+                collectedAt: now.addingTimeInterval(50),
+                windows: [window(id: "short", name: "短周期", used: 85, resetAt: rescheduledReset)]
+            ),
+            settings: AccountReminderSettings(),
+            ledger: first.ledger,
+            now: now.addingTimeInterval(50)
+        )
+        XCTAssertEqual(delivered(advanced.operations, kind: .quotaAlert).map(\.body), ["短周期达到80%"])
+        XCTAssertEqual(delivered(advanced.operations, kind: .confirmedReset).map(\.body), ["短周期"])
+    }
+
+    func testResetBoundaryAdvanceOfExactlySixtySecondsDoesNotStartNewQuotaCycle() {
+        let oldReset = now.addingTimeInterval(100)
         let previous = snapshot(windows: [
             window(id: "short", name: "短周期", used: 90, resetAt: oldReset),
         ])
@@ -530,53 +560,197 @@ final class NotificationTests: XCTestCase {
             ledger: ReminderLedger(),
             now: now
         )
-        let beforeReset = planner.planSuccessfulRefresh(
+        let advanced = planner.planSuccessfulRefresh(
             accountID: accountID,
             accountName: "测试账号",
             previousSnapshot: previous,
             newSnapshot: snapshot(
                 collectedAt: now.addingTimeInterval(50),
-                windows: [window(id: "short", name: "短周期", used: 85, resetAt: rescheduledReset)]
+                windows: [window(id: "short", name: "短周期", used: 85, resetAt: oldReset.addingTimeInterval(60))]
             ),
             settings: AccountReminderSettings(resetRemindersEnabled: false),
             ledger: first.ledger,
             now: now.addingTimeInterval(50)
         )
-        XCTAssertTrue(delivered(beforeReset.operations, kind: .quotaAlert).isEmpty)
 
-        let afterOldReset = planner.planSuccessfulRefresh(
+        XCTAssertTrue(delivered(advanced.operations, kind: .quotaAlert).isEmpty)
+    }
+
+    func testUsageDropOfFortyWithoutResetAtRearmsThresholdForNextCrossing() {
+        let previous = snapshot(windows: [window(id: "short", name: "短周期", used: 90)])
+        let first = planner.planSuccessfulRefresh(
             accountID: accountID,
             accountName: "测试账号",
-            previousSnapshot: snapshot(
-                collectedAt: now.addingTimeInterval(50),
-                windows: [window(id: "short", name: "短周期", used: 85, resetAt: rescheduledReset)]
-            ),
-            newSnapshot: snapshot(
-                collectedAt: now.addingTimeInterval(101),
-                windows: [window(id: "short", name: "短周期", used: 85, resetAt: rescheduledReset)]
-            ),
+            previousSnapshot: nil,
+            newSnapshot: previous,
             settings: AccountReminderSettings(resetRemindersEnabled: false),
-            ledger: beforeReset.ledger,
-            now: now.addingTimeInterval(101)
+            ledger: ReminderLedger(),
+            now: now
         )
-        XCTAssertTrue(delivered(afterOldReset.operations, kind: .quotaAlert).isEmpty)
-
-        let afterRescheduledReset = planner.planSuccessfulRefresh(
+        let droppedSnapshot = snapshot(
+            collectedAt: now.addingTimeInterval(50),
+            windows: [window(id: "short", name: "短周期", used: 50)]
+        )
+        let dropped = planner.planSuccessfulRefresh(
             accountID: accountID,
             accountName: "测试账号",
-            previousSnapshot: snapshot(
-                collectedAt: now.addingTimeInterval(101),
-                windows: [window(id: "short", name: "短周期", used: 85, resetAt: rescheduledReset)]
-            ),
+            previousSnapshot: previous,
+            newSnapshot: droppedSnapshot,
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: first.ledger,
+            now: now.addingTimeInterval(50)
+        )
+        let crossedAgain = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: droppedSnapshot,
             newSnapshot: snapshot(
-                collectedAt: now.addingTimeInterval(201),
-                windows: [window(id: "short", name: "短周期", used: 85, resetAt: now.addingTimeInterval(1_000))]
+                collectedAt: now.addingTimeInterval(100),
+                windows: [window(id: "short", name: "短周期", used: 90)]
             ),
             settings: AccountReminderSettings(resetRemindersEnabled: false),
-            ledger: afterOldReset.ledger,
-            now: now.addingTimeInterval(201)
+            ledger: dropped.ledger,
+            now: now.addingTimeInterval(100)
         )
-        XCTAssertEqual(delivered(afterRescheduledReset.operations, kind: .quotaAlert).map(\.body), ["短周期达到80%"])
+
+        XCTAssertEqual(delivered(crossedAgain.operations, kind: .quotaAlert).map(\.body), ["短周期达到80%"])
+    }
+
+    func testUsageDropBelowFortyWithoutResetAtDoesNotRearmThreshold() {
+        let previous = snapshot(windows: [window(id: "short", name: "短周期", used: 90)])
+        let first = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: nil,
+            newSnapshot: previous,
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: ReminderLedger(),
+            now: now
+        )
+        let droppedSnapshot = snapshot(
+            collectedAt: now.addingTimeInterval(50),
+            windows: [window(id: "short", name: "短周期", used: 51)]
+        )
+        let dropped = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: previous,
+            newSnapshot: droppedSnapshot,
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: first.ledger,
+            now: now.addingTimeInterval(50)
+        )
+        let crossedAgain = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: droppedSnapshot,
+            newSnapshot: snapshot(
+                collectedAt: now.addingTimeInterval(100),
+                windows: [window(id: "short", name: "短周期", used: 90)]
+            ),
+            settings: AccountReminderSettings(resetRemindersEnabled: false),
+            ledger: dropped.ledger,
+            now: now.addingTimeInterval(100)
+        )
+
+        XCTAssertTrue(delivered(crossedAgain.operations, kind: .quotaAlert).isEmpty)
+    }
+
+    func testMergedTurnoverDoesNotRearmAgainFromAnOlderLocalSnapshot() {
+        let previous = snapshot(windows: [window(id: "short", name: "短周期", used: 90)])
+        let settings = AccountReminderSettings(
+            resetRemindersEnabled: false,
+            thresholds: [40, 80]
+        )
+        let initial = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: nil,
+            newSnapshot: previous,
+            settings: settings,
+            ledger: ReminderLedger(),
+            now: now
+        )
+        let phone = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: previous,
+            newSnapshot: snapshot(
+                collectedAt: now.addingTimeInterval(100),
+                windows: [window(id: "short", name: "短周期", used: 50)]
+            ),
+            settings: settings,
+            ledger: initial.ledger,
+            now: now.addingTimeInterval(100)
+        )
+        let watch = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: previous,
+            newSnapshot: snapshot(
+                collectedAt: now.addingTimeInterval(200),
+                windows: [window(id: "short", name: "短周期", used: 50)]
+            ),
+            settings: settings,
+            ledger: ReminderLedger().merging(phone.ledger),
+            now: now.addingTimeInterval(200)
+        )
+
+        XCTAssertEqual(delivered(phone.operations, kind: .quotaAlert).map(\.body), ["短周期达到40%"])
+        XCTAssertTrue(delivered(watch.operations, kind: .quotaAlert).isEmpty)
+    }
+
+    func testNewerMergedObservationStillDetectsALaterUsageDrop() {
+        let previous = snapshot(windows: [window(id: "short", name: "短周期", used: 90)])
+        let settings = AccountReminderSettings(resetRemindersEnabled: false)
+        let initial = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: nil,
+            newSnapshot: previous,
+            settings: settings,
+            ledger: ReminderLedger(),
+            now: now
+        )
+        let remote = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: previous,
+            newSnapshot: snapshot(
+                collectedAt: now.addingTimeInterval(100),
+                windows: [window(id: "short", name: "短周期", used: 90)]
+            ),
+            settings: settings,
+            ledger: initial.ledger,
+            now: now.addingTimeInterval(100)
+        )
+        let resetSnapshot = snapshot(
+            collectedAt: now.addingTimeInterval(200),
+            windows: [window(id: "short", name: "短周期", used: 0)]
+        )
+        let reset = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: previous,
+            newSnapshot: resetSnapshot,
+            settings: settings,
+            ledger: ReminderLedger().merging(remote.ledger),
+            now: now.addingTimeInterval(200)
+        )
+        let crossedAgain = planner.planSuccessfulRefresh(
+            accountID: accountID,
+            accountName: "测试账号",
+            previousSnapshot: resetSnapshot,
+            newSnapshot: snapshot(
+                collectedAt: now.addingTimeInterval(300),
+                windows: [window(id: "short", name: "短周期", used: 90)]
+            ),
+            settings: settings,
+            ledger: reset.ledger,
+            now: now.addingTimeInterval(300)
+        )
+
+        XCTAssertEqual(delivered(crossedAgain.operations, kind: .quotaAlert).map(\.body), ["短周期达到80%"])
     }
 
     func testKnownResetSchedulesCombinedNotificationAndTimeChangeReplacesIt() {
