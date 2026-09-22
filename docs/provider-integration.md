@@ -2,6 +2,20 @@
 
 This file records implemented contracts and the verification boundary. All response examples in tests are synthetic and contain no real credential or account data. No provider below has been validated with a real subscription or physical device yet.
 
+## Kimi Code 国内版
+
+Implemented:
+
+- RFC 8628 device authorization against `https://auth.kimi.com/api/oauth/device_authorization` and token polling/refresh against `https://auth.kimi.com/api/oauth/token`, using the public Kimi Code client ID.
+- OAuth access and refresh tokens remain inside the existing credential envelope and Keychain flow. Expiring access tokens are refreshed before querying, with refresh-token rotation preserved.
+- `GET https://api.kimi.com/coding/v1/usages` maps the reported 5-hour, 7-day, and shared monthly limits to quota windows. `limit_month_code` is a breakdown of the shared monthly usage, so it is not exposed as a second monthly limit or notification source.
+- Optional Extra Usage funding is shown as a currency balance. Its fixed-point amount follows the official client's millionths-of-a-cent conversion and does not invent granted/top-up wallet fields.
+- The first release targets the mainland China endpoints. Global `.ai` endpoint selection is outside this provider entry.
+
+Primary evidence: [Kimi Code device OAuth implementation](https://github.com/MoonshotAI/kimi-code/blob/main/packages/oauth/src/oauth.ts), [managed usage endpoint and response parser](https://github.com/MoonshotAI/kimi-code/blob/main/packages/oauth/src/managed-usage.ts), and [official Server API quota description](https://www.kimi.com/code/docs/en/kimi-code-cli/reference/server-api.html). A live unauthenticated device-authorization request returned HTTP 200 with the documented fields, a `www.kimi.com` verification URL, a 30-minute lifetime, and a 5-second polling interval.
+
+Not yet verified: browser completion with a real Kimi account, a production subscription response, access-token refresh and rotation against the live service, iCloud credential arrival, independent Watch refresh, or real notifications/widgets. The usage contract is public in Kimi's open-source client, but the HTTP endpoints can still evolve; fixture tests and the authorization handshake do not prove end-to-end account access.
+
 ## Qoder 国际版与 DeepSeek（本次接入）
 
 Qoder 的参考版本为 [CLIProxyAPIPlus 7b9a231](https://github.com/kaitranntt/CLIProxyAPIPlus/commit/7b9a231e189d6a2e150cc6135de3209fa51f531d)。该提交暴露的是管理接口快照，TokenPulse 使用同版本源码中的直连流程：浏览器 PKCE 设备授权、轮询取得凭证、`GET https://openapi.qoder.sh/api/v2/quota/usage` 查询。个人额度与组织资源包分别表示，`expiresAt` 不当成重置时间。

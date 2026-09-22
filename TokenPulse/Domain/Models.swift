@@ -3,7 +3,7 @@ import Foundation
 enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
     case claude, codex, openCodeGo, zai, superGrok
-    case qoderInternational, deepSeek
+    case qoderInternational, deepSeek, kimiCode
 
     var id: String { rawValue }
     var displayName: String {
@@ -16,6 +16,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .superGrok: "SuperGrok"
         case .qoderInternational: "Qoder 国际版"
         case .deepSeek: "DeepSeek"
+        case .kimiCode: "Kimi Code 国内版"
         }
     }
 }

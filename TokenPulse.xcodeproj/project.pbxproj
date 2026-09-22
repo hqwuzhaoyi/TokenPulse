@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F30000000000000000000003 /* KimiCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001; };
+		F30000000000000000000004 /* KimiCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001; };
+		F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000002; };
 		F2000000000000000000000C /* WalletPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2000000000000000000000B; };
 		F20000000000000000000005 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000006 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
@@ -187,6 +190,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F30000000000000000000001 /* KimiCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KimiCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+		F30000000000000000000002 /* KimiCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KimiCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F2000000000000000000000B /* WalletPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletPresentationTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000001 /* QoderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000002 /* DeepSeekProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepSeekProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -337,6 +342,8 @@
 				F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */,
 				F20000000000000000000001 /* QoderProvider.swift */,
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
+				F30000000000000000000001 /* KimiCodeProvider.swift */,
+				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
 				F2000000000000000000000B /* WalletPresentationTests.swift */,
@@ -595,6 +602,7 @@
 				F10000000000000000000002 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
+				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
 				B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */,
 				B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */,
 				B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */,
@@ -610,6 +618,7 @@
 			files = (
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
+				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
 				F2000000000000000000000C /* WalletPresentationTests.swift in Sources */,
 				B00000000000000000000057 /* TokenPulseTests/AccountConfigurationTests.swift in Sources */,
@@ -654,6 +663,7 @@
 				F10000000000000000000003 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
+				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
 				B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */,
 				B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */,
 				D0000000000000000000000E,

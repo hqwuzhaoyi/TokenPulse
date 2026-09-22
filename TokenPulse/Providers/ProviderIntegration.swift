@@ -163,6 +163,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .kimiCode:
+            return try await KimiCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -190,7 +193,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
         case .deepSeek:
             return .init(provider: provider, method: .apiKey, credentialLabel: "DeepSeek API Key")
-        case .codex:
+        case .codex, .kimiCode:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
         case .claude:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
@@ -213,6 +216,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func beginLogin(provider: Provider, callbackURL: URL? = nil) async throws -> ProviderLoginSession {
         switch provider {
+        case .kimiCode:
+            return try await KimiCodeProviderAuthenticator(transport: transport, now: now).begin()
         case .codex:
             return try await CodexProviderAuthenticator(transport: transport, now: now).begin()
         case .superGrok:
@@ -239,6 +244,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func continueLogin(_ session: ProviderLoginSession, callbackURL: URL? = nil) async throws -> ProviderLoginProgress {
         switch session.provider {
+        case .kimiCode:
+            return try await KimiCodeProviderAuthenticator(transport: transport, now: now).poll(session)
         case .codex:
             return try await CodexProviderAuthenticator(transport: transport, now: now).poll(session)
         case .superGrok:
@@ -253,6 +260,8 @@ struct ProviderAuthenticationController: Sendable {
     func refreshCredentialIfNeeded(provider: Provider, credential: String) async throws -> ProviderCredentialRefresh {
         let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
         switch provider {
+        case .kimiCode:
+            return try await KimiCodeProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .codex:
             return try await CodexProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .superGrok:

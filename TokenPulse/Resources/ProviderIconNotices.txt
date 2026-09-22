@@ -4,6 +4,8 @@ Claude, OpenAI, OpenCode, Z.ai, MiniMax and Grok SVG marks are derived from Lobe
 
 Qoder and DeepSeek SVG marks are derived from Lobe Icons commit a94750e3f5f8fc33757b839d85030e742284e43a. Their shapes were checked against the official Qoder and DeepSeek site favicons.
 
+The Kimi Code SVG mark is derived from Lobe Icons commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/kimi.svg.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.
