@@ -471,3 +471,12 @@ License: Apache License 2.0, repository LICENSE. Full license reproduced in the 
 Copyright: qunqin24/Pulse contributors; asset and LICENSE state no specific copyright year.
 TokenPulse changes: currentColor changed to black, explicit dimensions changed to 24x24; vector paths unchanged.
 Official LLMGateway repository logo was inspected at 8e280f73fb38540e0db5e026f8419ce138e05b43 (apps/docs/components/logo.tsx) under AGPLv3. This generic Apache2 asset follows the pinned provider reference and is used as a non-brand alternative.
+
+
+v0 official SDK example icon
+Source: https://github.com/vercel/v0-sdk
+Commit: 4e1613d8a861e7d53abac212eb5ee924bb792de5
+Asset: examples/v0-clone/apps/web/app/icon.svg
+Copyright 2025 Vercel, Inc. (repository LICENSE).
+License: Apache License 2.0, repository LICENSE; full terms reproduced in Factory Droid section.
+TokenPulse changes: retained the two original v0 glyph paths and 180x180 viewBox/dimensions, removed the square background, CSS theme/scale rules and clipping wrapper, set black glyph fill for vector/template tinting.

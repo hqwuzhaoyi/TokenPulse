@@ -340,6 +340,12 @@ private struct AccountSummaryView: View {
                 if snapshot.isNoPlan == true {
                     Text("当前按量计费，没有套餐或 Key 用量上限").font(.subheadline).foregroundStyle(.secondary)
                 }
+                if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.billing" }) {
+                    Text("账期 credits：未提供").font(.caption).foregroundStyle(.secondary)
+                }
+                if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.rate_limit" }) {
+                    Text("消息限流：未提供").font(.caption).foregroundStyle(.secondary)
+                }
                 let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
                 if state.account.provider.balancePresentation == .walletOnly &&
                     (state.account.provider != .newAPI || summaryWindows.contains(where: { $0.wallet?.isMonetary == true })) {

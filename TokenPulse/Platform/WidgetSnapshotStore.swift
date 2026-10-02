@@ -60,6 +60,10 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
             return visible.map {
                 WidgetQuotaMetric(id: $0.id, title: $0.name, window: $0)
             }
+        case .v0:
+            return [("v0.billing", "账期 credits"), ("v0.rate_limit", "消息限流")].map { id, title in
+                WidgetQuotaMetric(id: id, title: title, window: visible.first { $0.id == id })
+            }
         case .superGrok:
             return [WidgetQuotaMetric(id: "weekly", title: "每周已用", window: visible.first { $0.id == "superGrok.pool" })]
         case .zai:

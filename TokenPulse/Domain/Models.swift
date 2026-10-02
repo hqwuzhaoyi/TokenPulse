@@ -14,6 +14,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
+    case v0
     case devPass
     case factory
 
@@ -45,6 +46,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .stepFun: "StepFun"
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
+        case .v0: "v0"
         case .devPass: "DevPass"
         case .factory: "Factory"
         }

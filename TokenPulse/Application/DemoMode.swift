@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
+            (.v0, "v0"),
             (.devPass, "DevPass"),
             (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
         ]
@@ -91,6 +92,14 @@ enum DemoMode {
             QuotaWindow(id: "devpass.key_limit", name: "Key 累计限额", scope: nil, period: .other,
                         usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         unit: "USD credits", exactCounts: .init(used: 40, remaining: 60, total: 100))
+        ]
+        case .v0: [
+            QuotaWindow(id: "v0.billing", name: "账期 credits", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 250, remaining: 750, total: 1000)),
+            QuotaWindow(id: "v0.rate_limit", name: "消息限流", scope: nil, period: .other,
+                        usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(1800),
+                        unit: "条消息", exactCounts: .init(used: 20, remaining: 80, total: 100))
         ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),
