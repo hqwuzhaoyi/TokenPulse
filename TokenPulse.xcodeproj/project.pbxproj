@@ -21,6 +21,7 @@
 		AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000002; };
 		AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
 		AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
+        6A8E00000000000000000025 /* DecimalQuotaCountsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000022; };
 		E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000002; };
@@ -234,6 +235,7 @@
 		57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplenishmentSemanticsTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000002 /* CommandCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CommandCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000001 /* CommandCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CommandCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000022 /* DecimalQuotaCountsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DecimalQuotaCountsTests.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000001 /* ElevenLabsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ElevenLabsProvider.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000002 /* ElevenLabsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ElevenLabsProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57EF00000000000000000001 /* StepFunProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/StepFunProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -411,6 +413,7 @@
 				57EF00000000000000000007 /* WebSessionContainer.swift */,
 				57EF00000000000000000004 /* ProviderRedirectPolicy.swift */,
 				57EF00000000000000000001 /* StepFunProvider.swift */,
+                6A8E00000000000000000022 /* DecimalQuotaCountsTests.swift */,
                 6A7E00000000000000000001 /* NewAPIProvider.swift */,
                 6A7E00000000000000000002 /* NewAPIProviderTests.swift */,
                 C01100000000000000000001 /* CopilotProvider.swift */,
@@ -719,6 +722,7 @@
 				AE2000000000000000000015 /* AmpProviderTests.swift in Sources */,
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */,
+                6A8E00000000000000000025 /* DecimalQuotaCountsTests.swift in Sources */,
                 6A7E00000000000000000005 /* NewAPIProviderTests.swift in Sources */,
                 C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,

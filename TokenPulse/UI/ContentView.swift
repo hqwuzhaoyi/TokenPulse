@@ -477,8 +477,10 @@ struct QuotaWindowView: View {
                     .accessibilityValue(QuotaFormatting.percentage(percentage))
             }
 
-            if !window.isUnlimited, let exact = QuotaFormatting.exactCountSummary(window) {
-                LabeledContent("剩余", value: exact)
+            if !window.isUnlimited, let counts = window.exactCounts {
+                if let used = counts.used { LabeledContent("已用", value: QuotaFormatting.count(used, unit: window.unit)) }
+                if let remaining = counts.remaining { LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit)) }
+                if let total = counts.total { LabeledContent("预算", value: QuotaFormatting.count(total, unit: window.unit)) }
             } else if !window.isUnlimited, let remaining = window.remainingCount {
                 LabeledContent("剩余", value: remainingValue(remaining))
             } else if !window.isUnlimited, let total = window.totalCount {
