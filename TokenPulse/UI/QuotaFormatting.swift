@@ -52,6 +52,7 @@ enum QuotaFormatting {
         if window.isUnlimited { return "无限" }
         if let overage = overageDescription(window) { return overage }
         if window.isExhausted == true { return "已用尽" }
+        if let value = exactCountSummary(window) { return value }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
             let remaining = count(window.remainingCount)
             let total = count(window.totalCount)
@@ -71,6 +72,16 @@ enum QuotaFormatting {
     static func effectiveUsedPercentage(_ window: QuotaWindow) -> Double? {
         guard window.wallet == nil, !window.isUnlimited else { return nil }
         return window.isExhausted == true ? 100 : window.usedPercentage
+    }
+
+    static func exactCountSummary(_ window: QuotaWindow) -> String? {
+        guard let counts = window.exactCounts else { return nil }
+        let values = "\(count(counts.remaining)) / \(count(counts.total))"
+        return window.unit.map { "\(values) \($0)" } ?? values
+    }
+
+    static func count(_ value: Decimal) -> String {
+        value.formatted(.number.precision(.fractionLength(0...38)))
     }
 
     static func count(_ value: Double?) -> String {

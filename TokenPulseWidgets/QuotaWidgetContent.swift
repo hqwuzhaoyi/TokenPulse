@@ -807,7 +807,7 @@ private struct HorizontalMetric: View {
 
     private var hasCountValue: Bool {
         guard let window = metric.window else { return false }
-        return window.unit != nil && (window.remainingCount != nil || window.totalCount != nil)
+        return window.exactCounts != nil || window.unit != nil && (window.remainingCount != nil || window.totalCount != nil)
     }
 
     private var percentageText: String {

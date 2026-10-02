@@ -161,6 +161,13 @@ enum QuotaResetSemantics: String, Codable, Sendable {
     case nonResettingAllowance
 }
 
+/// Exact reported quantities. Percentages remain Double for UI gauges, never for stored counts.
+struct DecimalQuotaCounts: Codable, Equatable, Sendable {
+    let used: Decimal
+    let remaining: Decimal
+    let total: Decimal
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -185,6 +192,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let nextReplenishmentAt: Date?
     /// nil preserves existing exact-time behavior; day stores a UTC calendar-date anchor.
     let resetDatePrecision: QuotaDatePrecision?
+    let exactCounts: DecimalQuotaCounts?
 
     init(id: String,
          name: String,
@@ -204,7 +212,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          overageCount: Double? = nil,
          resetSemantics: QuotaResetSemantics? = nil,
          nextReplenishmentAt: Date? = nil,
-         resetDatePrecision: QuotaDatePrecision? = nil) {
+         resetDatePrecision: QuotaDatePrecision? = nil,
+         exactCounts: DecimalQuotaCounts? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -224,6 +233,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.resetSemantics = resetSemantics
         self.nextReplenishmentAt = nextReplenishmentAt
         self.resetDatePrecision = resetDatePrecision
+        self.exactCounts = exactCounts
     }
 
     func needsUpdate(at date: Date) -> Bool {
