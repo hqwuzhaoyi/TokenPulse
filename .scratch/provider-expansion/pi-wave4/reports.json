@@ -1,0 +1,138 @@
+[
+  {
+    "task": "01-openai-legacy",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "444a1ba08c2caee29e9d003a0ab22ce2f158d88a",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T01:13:24.390084"
+    },
+    "report": "01-openai-legacy.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:13:24.421228",
+    "endedAt": "2026-10-03T01:28:46.232753",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "02-alibaba-token-plan",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "c230bc637d314cbd325d6f3445b67084599f7aab",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T01:20:21.180225"
+    },
+    "report": "02-alibaba-token-plan.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:20:21.211592",
+    "endedAt": "2026-10-03T01:33:04.413758",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "03-google-oauth",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "d4022776b74b646802e28872971adbc7bdd068cb",
+      "workingChanges": " M .scratch/provider-expansion/manifest.json\n M .scratch/provider-expansion/wave4-progress.md\n",
+      "frozenAt": "2026-10-03T01:27:46.766851"
+    },
+    "report": "03-google-oauth.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:27:46.801526",
+    "endedAt": "2026-10-03T01:37:09.685444",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "04-gemini",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "c87507b1e3e317ecc95f5df7c66418fe05ec9b56",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T01:35:41.327572"
+    },
+    "report": "04-gemini.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:35:41.360788",
+    "endedAt": "2026-10-03T01:43:43.046347",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "05-antigravity",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "bb2cab310f6bdeeea4ee310e1d7fa0aaf7e256d9",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T01:42:51.967164"
+    },
+    "report": "05-antigravity.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:42:52.000773",
+    "endedAt": "2026-10-03T01:53:19.869987",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "06-kiro",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "bb2cab310f6bdeeea4ee310e1d7fa0aaf7e256d9",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T01:42:51.967615"
+    },
+    "report": "06-kiro.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:42:52.000770",
+    "endedAt": "2026-10-03T01:59:18.795777",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "07-nous-vault",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "b93a3675b4815a1c0766086ed2b6f352f216b06b",
+      "workingChanges": " M .scratch/provider-expansion/wave4-progress.md\n",
+      "frozenAt": "2026-10-03T01:54:32.088645"
+    },
+    "report": "07-nous-vault.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:54:32.126913",
+    "endedAt": "2026-10-03T02:08:21.566225",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "08-nous-quota-login",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "b93a3675b4815a1c0766086ed2b6f352f216b06b",
+      "workingChanges": " M .scratch/provider-expansion/wave4-progress.md\n",
+      "frozenAt": "2026-10-03T01:54:32.088109"
+    },
+    "report": "08-nous-quota-login.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T01:54:32.129506",
+    "endedAt": "2026-10-03T02:08:09.943552",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  }
+]

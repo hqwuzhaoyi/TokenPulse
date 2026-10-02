@@ -37,3 +37,5 @@ sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root
 - `1a7716f`（77 provider，Nous专项尚未加入）：713 项全量 XCTest，0 失败，日志 `/tmp/tokenpulse-wave4-77-integration.log`，结果 `/tmp/tokenpulse-wave4-77-integration.xcresult`。涵盖 Antigravity/Google 输入与标签的4项新增回归。
 
 - `f5f4678`：Kiro Pi修复后的29项XCTest，0失败，日志 `/tmp/tokenpulse-wave4-kiro-pi-fix.log`。同刻到期多笔credits保留其他池并显示未知分项cohort，试用到期缺失明确标注；不采纳与官方映射相悖的ARN改动。
+
+- `ac6c429`：Nous专项23项XCTest，0失败，日志 `/tmp/tokenpulse-wave4-nous-tests.log`，结果 `/tmp/tokenpulse-wave4-nous-tests.xcresult`。覆盖Pi07/08采用问题、身份GET耗尽后禁止再次POST已消费device code、手机换绑后旧Watch本地链查询前拒绝、rollover/zero/未知月重置。

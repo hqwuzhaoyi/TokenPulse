@@ -86,8 +86,10 @@
   {
     "task": "07-nous-vault",
     "finding": "Expired pending/uncertain token retains unusable refresh secret",
-    "status": "fix-in-progress",
-    "decision": "CAS terminal transition clears no-longer-usable refresh token; preserve no-replay and generation guards."
+    "status": "fixed-and-xctest-verified",
+    "decision": "CAS terminal transition clears no-longer-usable refresh token; preserve no-replay and generation guards.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
   },
   {
     "task": "07-nous-vault",
@@ -98,25 +100,39 @@
   {
     "task": "08-nous-quota-login",
     "finding": "Device-code begin WAF response classified as invalid credentials",
-    "status": "fix-in-progress",
-    "decision": "Treat mitigated/rate-limited startup consistently with other Nous endpoints."
+    "status": "fixed-and-xctest-verified",
+    "decision": "Treat mitigated/rate-limited startup consistently with other Nous endpoints.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
   },
   {
     "task": "08-nous-quota-login",
     "finding": "Transient identity GET after successful device grant loses login",
-    "status": "fix-in-progress",
-    "decision": "Bounded read-only account retry without replaying successful device grant POST or storing unverified identity."
+    "status": "fixed-and-xctest-verified",
+    "decision": "Bounded read-only account retry without replaying successful device grant POST or storing unverified identity.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
   },
   {
     "task": "08-nous-quota-login",
     "finding": "Phone rebind leaves Watch silently showing old account indefinitely",
     "status": "not-reproduced-control-flow-contradiction",
-    "decision": "Monitor binds credential against current config before network query; mismatch clears wrong-scope cache and fails explicitly. Add real merge/rebind regression; do not adopt static trace that skipped this guard."
+    "decision": "Monitor binds credential against current config before network query; mismatch clears wrong-scope cache and fails explicitly. Add real merge/rebind regression; do not adopt static trace that skipped this guard.",
+    "validation": "Actual Monitor phone-rebind/Watch stale vault regression passed among 23 Nous tests."
   },
   {
     "task": "root-nous-review",
     "finding": "Rollover remaining above nominal monthly allowance inferred as zero used; zero partial count omitted; missing monthly reset marked non-resetting",
-    "status": "fix-in-progress",
-    "decision": "Preserve unknown used/percentage, explicit zero counts, and unknown reset time rather than inventing usage or no-reset semantics."
+    "status": "fixed-and-xctest-verified",
+    "decision": "Preserve unknown used/percentage, explicit zero counts, and unknown reset time rather than inventing usage or no-reset semantics.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
+  },
+  {
+    "task": "regional-nous-review",
+    "finding": "After grant completion and failed identity reads, manual Continue could POST consumed device code",
+    "status": "fixed-and-xctest-verified",
+    "commit": "ac6c429",
+    "decision": "Remember consumed code until session expiry; exhausted post-grant validation clears login session. Actual DeviceLoginModel retry starts new grant and cannot replay previous code."
   }
 ]
