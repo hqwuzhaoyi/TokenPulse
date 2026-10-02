@@ -121,9 +121,15 @@ struct ChutesProviderClient: Sendable {
 
     /// Preserve reported amounts when their derived difference is not exact.
     private static func exactDifference(_ lhs: Decimal, _ rhs: Decimal) -> Decimal? {
+        if rhs >= lhs { return 0 }
         var lhs = lhs, rhs = rhs, result = Decimal()
         guard NSDecimalSubtract(&result, &lhs, &rhs, .plain) == .noError, !result.isNaN else { return nil }
-        return max(result, 0)
+        // Foundation can return noError after aligning distant exponents and
+        // dropping a tiny subtrahend. Recover it to verify the derived count.
+        var recovered = Decimal()
+        guard NSDecimalSubtract(&recovered, &lhs, &result, .plain) == .noError,
+              recovered == rhs else { return nil }
+        return result
     }
 
     private static func window(_ payload: [String: Any], id: String, name: String, period: QuotaPeriod,
