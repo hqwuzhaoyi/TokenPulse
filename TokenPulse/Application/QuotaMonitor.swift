@@ -62,13 +62,17 @@ final class QuotaMonitor: ObservableObject {
                 states.append(AccountQuotaState(account: configuration.account))
             }
             for accountID in deletedIDs { await cleanupCredential(for: accountID) }
+            let statesBeforeBinding = states
+            let configurationsBeforeBinding = synchronizedConfigurations
             for configuration in configurations where configuration.account.provider == .newAPI || configuration.credentialIdentity != nil {
                 if let credential = try await credentialStore.credential(for: configuration.id), credential != "demo" {
                     try? bindScopedCredential(credential, accountID: configuration.id, replacing: false)
                 }
             }
-            try await accountStore.save(states)
-            try await configurationStore?.save(synchronizedConfigurations)
+            if states != statesBeforeBinding { try await accountStore.save(states) }
+            if synchronizedConfigurations != configurationsBeforeBinding {
+                try await configurationStore?.save(synchronizedConfigurations)
+            }
             if refresh { await refreshAll() }
         } catch is CancellationError {
             return
@@ -333,7 +337,12 @@ final class QuotaMonitor: ObservableObject {
                 if (configuration.credentialIdentity != nil || states[index].credentialIdentity != nil),
                    states[index].credentialIdentity != configuration.credentialIdentity {
                     credentialRevisions[configuration.id, default: 0] += 1
-                    states[index].snapshot = nil
+                    if let identity = configuration.credentialIdentity,
+                       snapshotMatchesIdentity(states[index], identity: identity) {
+                        states[index].snapshot?.sourceCredentialFingerprint = identity
+                    } else {
+                        states[index].snapshot = nil
+                    }
                     states[index].lastFailure = nil
                     states[index].credentialIdentity = configuration.credentialIdentity
                 }
@@ -374,12 +383,17 @@ final class QuotaMonitor: ObservableObject {
         // iCloud configuration and Keychain can arrive separately. Never query an
         // older Keychain item against a newly synchronized account binding.
         if !replacing, let expected = synchronizedConfigurations[configIndex].credentialIdentity, expected != identity {
-            states[stateIndex].snapshot = nil
-            states[stateIndex].lastFailure = nil
+            if !snapshotMatchesIdentity(states[stateIndex], identity: expected) {
+                states[stateIndex].snapshot = nil
+            }
+            states[stateIndex].credentialIdentity = expected
+            states[stateIndex].lastFailure = .invalidCredential
             throw RefreshFailure.invalidCredential
         }
         if states[stateIndex].credentialIdentity != identity {
-            states[stateIndex].snapshot = nil
+            if !snapshotMatchesIdentity(states[stateIndex], identity: identity) {
+                states[stateIndex].snapshot = nil
+            }
             states[stateIndex].lastFailure = nil
         }
         states[stateIndex].credentialIdentity = identity
@@ -388,6 +402,13 @@ final class QuotaMonitor: ObservableObject {
             synchronizedConfigurations[configIndex].serverAddress = envelope.gatewayAddress?.value
             synchronizedConfigurations[configIndex].modifiedAt = Date()
         }
+    }
+
+    private func snapshotMatchesIdentity(_ state: AccountQuotaState, identity: String) -> Bool {
+        guard let snapshot = state.snapshot, snapshot.accountID == state.id else { return false }
+        // The reading's explicit provenance wins over an outer state tag. The
+        // state tag remains the compatibility fallback for older scoped readings.
+        return (snapshot.sourceCredentialFingerprint ?? state.credentialIdentity) == identity
     }
 
     func setSynchronizationMessage(_ message: String?) { synchronizationMessage = message }

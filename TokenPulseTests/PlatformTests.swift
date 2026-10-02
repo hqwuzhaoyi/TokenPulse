@@ -503,3 +503,193 @@ private final class KeychainFixture {
         ]
     }
 }
+
+/// Replays configuration, snapshot, notification and Keychain arrivals independently.
+final class CloudIdentityMergeTests: XCTestCase {
+    func testOldDevicePushCannotReplaceWinningIdentityReadingOrAlertHistory() {
+        let account = SubscriptionAccount(name: "Gateway", provider: .newAPI)
+        let old = payload(account: account, identity: "A", modified: 10, collected: 100, threshold: 80)
+        let changed = payload(account: account, identity: "B", modified: 20, collected: 30, threshold: 95)
+        for merged in [ICloudSyncRuntime.merge(old, changed), ICloudSyncRuntime.merge(changed, old)] {
+            XCTAssertEqual(merged.configurations, changed.configurations)
+            XCTAssertEqual(merged.states, changed.states)
+            assertOnlyBHistory(merged.ledger, accountID: account.id)
+            // An old device can push repeatedly after changing accounts elsewhere.
+            let pushedAgain = ICloudSyncRuntime.merge(old, merged)
+            XCTAssertEqual(pushedAgain.states, changed.states)
+            assertOnlyBHistory(pushedAgain.ledger, accountID: account.id)
+        }
+    }
+
+    func testConfigurationThenReadingAndLedgerPreserveIdentityThroughEmptyLocalHistory() {
+        let account = SubscriptionAccount(name: "Gateway", provider: .newAPI)
+        let old = payload(account: account, identity: "A", modified: 10, collected: 100, threshold: 80)
+        let changed = payload(account: account, identity: "B", modified: 20, collected: 30, threshold: 95)
+        let configurationFirst = PlatformAccountPayload(configurations: changed.configurations, states: [], ledger: ReminderLedger())
+        let awaitingReading = ICloudSyncRuntime.merge(old, configurationFirst)
+        XCTAssertNil(awaitingReading.states.first?.snapshot)
+        XCTAssertEqual(awaitingReading.states.first?.credentialIdentity, "B")
+        let delivered = ICloudSyncRuntime.merge(awaitingReading, changed)
+        XCTAssertEqual(delivered.states, changed.states)
+        assertOnlyBHistory(delivered.ledger, accountID: account.id)
+        let emptyDevice = PlatformAccountPayload(configurations: changed.configurations, states: [], ledger: ReminderLedger())
+        let recovered = ICloudSyncRuntime.merge(emptyDevice, delivered)
+        assertOnlyBHistory(recovered.ledger, accountID: account.id)
+        // NotificationRuntime binds the configured identity after receipt. This
+        // must keep B history rather than erase records imported without a tag.
+        var rebound = recovered.ledger
+        XCTAssertTrue(rebound.bindCredentialIdentity("B", accountID: account.id).isEmpty)
+        assertOnlyBHistory(rebound, accountID: account.id)
+    }
+
+    func testWinningIdentityRejectsContradictorySnapshotTagAndUnknownLegacyReading() {
+        let account = SubscriptionAccount(name: "Gateway", provider: .newAPI)
+        let changed = payload(account: account, identity: "B", modified: 20, collected: 30, threshold: 95)
+        var contradictory = changed
+        contradictory.states[0].snapshot = QuotaSnapshot(accountID: account.id, windows: [],
+                                                         collectedAt: Date(timeIntervalSince1970: 200),
+                                                         sourceCredentialFingerprint: "A")
+        let safe = ICloudSyncRuntime.merge(changed, contradictory)
+        XCTAssertEqual(safe.states, changed.states)
+        var untagged = changed
+        untagged.states[0].credentialIdentity = nil
+        untagged.states[0].snapshot = QuotaSnapshot(accountID: account.id, windows: [], collectedAt: .distantFuture)
+        XCTAssertEqual(ICloudSyncRuntime.merge(untagged, changed).states, changed.states)
+    }
+
+    func testLegacyProviderWithoutIdentityStillMergesLatestReadingAndHistory() {
+        let account = SubscriptionAccount(name: "Legacy", provider: .miniMaxChina)
+        let old = payload(account: account, identity: nil, modified: 10, collected: 20, threshold: 80)
+        let newer = payload(account: account, identity: nil, modified: 30, collected: 40, threshold: 95)
+        let merged = ICloudSyncRuntime.merge(old, newer)
+        XCTAssertEqual(merged.configurations, newer.configurations)
+        XCTAssertEqual(merged.states, newer.states)
+        for threshold in [80.0, 95.0] {
+            XCTAssertTrue(merged.ledger.containsQuotaAlert(accountID: account.id, windowID: "quota", cycle: .unidentified, threshold: threshold))
+        }
+    }
+
+    func testScopedMergeDoesNotClearAnotherLegacyAccount() {
+        let scoped = SubscriptionAccount(name: "Gateway", provider: .newAPI)
+        let legacy = SubscriptionAccount(name: "Legacy", provider: .miniMaxChina)
+        var old = payload(account: scoped, identity: "A", modified: 10, collected: 100, threshold: 80)
+        let other = payload(account: legacy, identity: nil, modified: 10, collected: 50, threshold: 80)
+        old.configurations += other.configurations
+        old.states += other.states
+        old.ledger = old.ledger.merging(other.ledger)
+        let changed = payload(account: scoped, identity: "B", modified: 20, collected: 30, threshold: 95)
+        let merged = ICloudSyncRuntime.merge(old, changed)
+        XCTAssertEqual(merged.states.first { $0.id == legacy.id }, other.states.first)
+        XCTAssertTrue(merged.ledger.containsQuotaAlert(accountID: legacy.id, windowID: "quota", cycle: .unidentified, threshold: 80))
+        assertOnlyBHistory(merged.ledger, accountID: scoped.id)
+    }
+
+    @MainActor
+    func testCorrectNewSnapshotSurvivesOldKeychainRefreshRestartAndLaterKeyArrival() async throws {
+        let suite = "com.tokenpulse.tests.identity-order.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let account = SubscriptionAccount(name: "Gateway", provider: .newAPI)
+        let keys = IdentitySyncCredentials()
+        let controller = ProviderAuthenticationController()
+        let keyA = try controller.credential(provider: .newAPI, apiKey: "old-fixture", serverAddress: "https://old.example")
+        let keyB = try controller.credential(provider: .newAPI, apiKey: "new-fixture", serverAddress: "https://new.example")
+        let identityA = try XCTUnwrap(ProviderCredentialEnvelope.decode(keyA, expectedProvider: .newAPI).sourceCredentialIdentity)
+        let identityB = try XCTUnwrap(ProviderCredentialEnvelope.decode(keyB, expectedProvider: .newAPI).sourceCredentialIdentity)
+        let old = payload(account: account, identity: identityA, modified: 10, collected: 100, threshold: 80)
+        let changed = payload(account: account, identity: identityB, modified: 20, collected: 30, threshold: 95)
+        let accounts = LocalAccountStateStore(suiteName: suite)
+        let configs = LocalAccountConfigurationStore(suiteName: suite)
+        try await accounts.save(old.states)
+        try await configs.save(old.configurations)
+        try await keys.save(keyA, for: account.id)
+        let query = IdentitySyncFailedQuery()
+        func monitor() -> QuotaMonitor {
+            QuotaMonitor(accountStore: accounts, credentialStore: keys, quotaClient: query, configurationStore: configs)
+        }
+        let first = monitor()
+        await first.start(refresh: false)
+        // Configuration arrives before its reading; clear A, then accept B even
+        // though A had the newer collection timestamp.
+        await first.mergeSynchronized(configurations: changed.configurations, states: [])
+        XCTAssertNil(first.states.first?.snapshot)
+        await first.mergeSynchronized(configurations: changed.configurations, states: changed.states)
+        XCTAssertEqual(first.states.first?.snapshot, changed.states.first?.snapshot)
+        await first.refresh(accountID: account.id)
+        XCTAssertEqual(first.states.first?.snapshot, changed.states.first?.snapshot)
+        XCTAssertEqual(first.states.first?.lastFailure, .invalidCredential)
+        let oldRequests = await query.credentials
+        XCTAssertTrue(oldRequests.isEmpty)
+        let savedStates = defaults.data(forKey: "accountQuotaStates")
+        let savedConfigurations = defaults.data(forKey: "accountConfigurations")
+        let reopened = monitor()
+        await reopened.start(refresh: false)
+        XCTAssertEqual(defaults.data(forKey: "accountQuotaStates"), savedStates)
+        XCTAssertEqual(defaults.data(forKey: "accountConfigurations"), savedConfigurations)
+        XCTAssertEqual(reopened.states.first?.snapshot, changed.states.first?.snapshot)
+        XCTAssertEqual(reopened.states.first?.credentialIdentity, identityB)
+        XCTAssertEqual(reopened.states.first?.lastFailure, .invalidCredential)
+        // A subsequent stale push still cannot restore A.
+        await reopened.mergeSynchronized(configurations: old.configurations, states: old.states)
+        XCTAssertEqual(reopened.states.first?.snapshot, changed.states.first?.snapshot)
+        try await keys.save(keyB, for: account.id)
+        await reopened.refresh(accountID: account.id)
+        let newRequests = await query.credentials
+        XCTAssertEqual(newRequests, [keyB])
+        XCTAssertEqual(reopened.states.first?.snapshot, changed.states.first?.snapshot)
+        XCTAssertEqual(reopened.states.first?.lastFailure, .network)
+    }
+
+    private func payload(account: SubscriptionAccount, identity: String?, modified: TimeInterval,
+                         collected: TimeInterval, threshold: Double) -> PlatformAccountPayload {
+        var configuration = AccountConfiguration(account: account, modifiedAt: Date(timeIntervalSince1970: modified))
+        configuration.credentialIdentity = identity
+        let state = AccountQuotaState(account: account,
+                                      snapshot: QuotaSnapshot(accountID: account.id, windows: [],
+                                                              collectedAt: Date(timeIntervalSince1970: collected),
+                                                              sourceCredentialFingerprint: identity),
+                                      credentialIdentity: identity)
+        var ledger = ReminderLedger()
+        if let identity { _ = ledger.bindCredentialIdentity(identity, accountID: account.id) }
+        ledger.recordQuotaAlert(accountID: account.id, windowID: "quota", cycle: .unidentified, threshold: threshold)
+        let occurrence = ResetOccurrenceRecord(accountID: account.id, windowID: "quota",
+                                                identity: .providerCycle(identity ?? "legacy"))
+        ledger.recordExpectedReset(occurrence)
+        ledger.recordConfirmedReset(occurrence)
+        ledger.setCycleState(WindowCycleState(accountID: account.id, windowID: "quota", identity: .unidentified,
+                                              resetAt: nil, usedPercentage: threshold,
+                                              observedAt: Date(timeIntervalSince1970: collected)))
+        ledger.setWalletAlertState(WalletAlertState(accountID: account.id, currency: "USD", isActive: true,
+                                                   observedAt: Date(timeIntervalSince1970: collected)))
+        return PlatformAccountPayload(configurations: [configuration], states: [state], ledger: ledger)
+    }
+
+    private func assertOnlyBHistory(_ ledger: ReminderLedger, accountID: UUID, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(ledger.containsQuotaAlert(accountID: accountID, windowID: "quota", cycle: .unidentified, threshold: 95), file: file, line: line)
+        XCTAssertFalse(ledger.containsQuotaAlert(accountID: accountID, windowID: "quota", cycle: .unidentified, threshold: 80), file: file, line: line)
+        for identity in ["A", "B"] {
+            let occurrence = ResetOccurrenceRecord(accountID: accountID, windowID: "quota", identity: .providerCycle(identity))
+            XCTAssertEqual(ledger.hasExpectedReset(occurrence), identity == "B", file: file, line: line)
+            XCTAssertEqual(ledger.hasConfirmedReset(occurrence), identity == "B", file: file, line: line)
+        }
+        XCTAssertEqual(ledger.cycleState(accountID: accountID, windowID: "quota")?.observedAt,
+                       Date(timeIntervalSince1970: 30), file: file, line: line)
+        XCTAssertEqual(ledger.walletAlertState(accountID: accountID, currency: "USD")?.observedAt,
+                       Date(timeIntervalSince1970: 30), file: file, line: line)
+    }
+}
+
+private actor IdentitySyncCredentials: CredentialStoring {
+    private var values: [UUID: String] = [:]
+    func save(_ credential: String, for accountID: UUID) async throws { values[accountID] = credential }
+    func credential(for accountID: UUID) async throws -> String? { values[accountID] }
+    func deleteCredential(for accountID: UUID) async throws { values[accountID] = nil }
+}
+
+private actor IdentitySyncFailedQuery: QuotaQuerying {
+    private(set) var credentials: [String] = []
+    func quota(for accountID: UUID, credential: String) async throws -> QuotaSnapshot {
+        credentials.append(credential)
+        throw RefreshFailure.network
+    }
+}

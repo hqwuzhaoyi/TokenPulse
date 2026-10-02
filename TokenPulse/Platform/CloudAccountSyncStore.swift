@@ -156,11 +156,20 @@ actor ICloudSyncRuntime {
         _ cloud: PlatformAccountPayload
     ) -> PlatformAccountPayload {
         let configurations = mergeConfigurations(local.configurations, cloud.configurations)
-        let deletedIDs = Set(configurations.filter { $0.deletedAt != nil }.map(\.id))
+        // Resolve configuration before choosing readings or alert history. A
+        // stale device can observe identity A later than identity B was queried.
+        var localLedger = local.ledger
+        var cloudLedger = cloud.ledger
+        for configuration in configurations where configuration.deletedAt == nil {
+            if let identity = configuration.credentialIdentity {
+                _ = localLedger.bindCredentialIdentity(identity, accountID: configuration.id)
+                _ = cloudLedger.bindCredentialIdentity(identity, accountID: configuration.id)
+            }
+        }
         return PlatformAccountPayload(
             configurations: configurations,
-            states: mergeStates(local.states, cloud.states).filter { !deletedIDs.contains($0.id) },
-            ledger: local.ledger.merging(cloud.ledger)
+            states: mergeStates(local.states, cloud.states, configurations: configurations),
+            ledger: localLedger.merging(cloudLedger)
         )
     }
 
@@ -189,18 +198,44 @@ actor ICloudSyncRuntime {
 
     nonisolated private static func mergeStates(
         _ lhs: [AccountQuotaState],
-        _ rhs: [AccountQuotaState]
+        _ rhs: [AccountQuotaState],
+        configurations: [AccountConfiguration]
     ) -> [AccountQuotaState] {
-        var byID = Dictionary(uniqueKeysWithValues: lhs.map { ($0.id, $0) })
-        for candidate in rhs {
-            guard let current = byID[candidate.id] else {
-                byID[candidate.id] = candidate
-                continue
+        let configurationsByID = Dictionary(uniqueKeysWithValues: configurations.map { ($0.id, $0) })
+        var byID: [UUID: AccountQuotaState] = [:]
+        for original in lhs + rhs {
+            var candidate = original
+            if let configuration = configurationsByID[candidate.id] {
+                guard configuration.deletedAt == nil else { continue }
+                candidate.account = configuration.account
+                if original.account.provider != configuration.account.provider {
+                    candidate.snapshot = nil
+                    candidate.lastFailure = nil
+                }
+                if let identity = configuration.credentialIdentity {
+                    let reportedIdentity = original.credentialIdentity ?? original.snapshot?.sourceCredentialFingerprint
+                    let fingerprint = original.snapshot?.sourceCredentialFingerprint
+                    if reportedIdentity != identity || (fingerprint != nil && fingerprint != identity) {
+                        candidate.snapshot = nil
+                        candidate.lastFailure = nil
+                    }
+                    candidate.credentialIdentity = identity
+                    candidate.snapshot?.sourceCredentialFingerprint = identity
+                }
             }
-            if candidate.snapshot?.collectedAt ?? .distantPast
-                > current.snapshot?.collectedAt ?? .distantPast {
+            if let snapshot = candidate.snapshot, snapshot.accountID != candidate.id {
+                candidate.snapshot = nil
+                candidate.lastFailure = nil
+            }
+            if byID[candidate.id] == nil || (candidate.snapshot?.collectedAt ?? .distantPast)
+                > (byID[candidate.id]?.snapshot?.collectedAt ?? .distantPast) {
                 byID[candidate.id] = candidate
             }
+        }
+        // Configuration can arrive before either device has a matching reading.
+        for configuration in configurations where configuration.deletedAt == nil && byID[configuration.id] == nil {
+            byID[configuration.id] = AccountQuotaState(account: configuration.account,
+                                                       credentialIdentity: configuration.credentialIdentity)
         }
         return byID.values.sorted { $0.id.uuidString < $1.id.uuidString }
     }
