@@ -75,6 +75,13 @@ struct JetBrainsProviderClient: Sendable {
 
     struct JBAMint: Decodable { let access_token: String; let id_token: String; let refresh_token: String? }
     struct AIMint: Decodable { let token: String; let expiresAt: Int64? }
+    static func mintExpiry(_ mint: AIMint, now: Date) throws -> Date {
+        guard let milliseconds = mint.expiresAt else { return now.addingTimeInterval(86_400) }
+        guard milliseconds > 0, milliseconds <= 32_503_680_000_000 else { throw RefreshFailure.unreadableResponse }
+        let expiry = Date(timeIntervalSince1970: Double(milliseconds) / 1_000)
+        guard expiry > now else { throw RefreshFailure.unreadableResponse }
+        return expiry
+    }
 
     func refreshJBA(_ envelope: ProviderCredentialEnvelope) async throws -> JBAMint {
         guard let refresh = envelope.refreshToken, JetBrainsCredential.safe(refresh) else { throw RefreshFailure.invalidCredential }
@@ -252,9 +259,7 @@ actor JetBrainsSessionCoordinator {
             do { mint = try await client.provide(session) }
             catch RefreshFailure.invalidCredential { try await jba(); try await verifyMint(); mint = try await client.provide(session) }
             var ready = session; ready.accessToken = mint.token
-            guard mint.expiresAt.map({ $0 <= 32_503_680_000_000 }) != false else { throw RefreshFailure.unreadableResponse }
-            ready.expiresAt = mint.expiresAt.flatMap { $0 > 0 ? Date(timeIntervalSince1970: Double($0) / 1_000) : nil } ?? now().addingTimeInterval(86_400)
-            guard ready.expiresAt! > now() else { throw RefreshFailure.unreadableResponse }
+            ready.expiresAt = try JetBrainsProviderClient.mintExpiry(mint, now: now())
             ready.metadata["stage"] = "ready"; try await checkpoint(ready)
         }
         if ["oauthPending", "uncertain", "terminal"].contains(session.metadata["stage"] ?? "") { throw RefreshFailure.invalidCredential }
@@ -266,7 +271,8 @@ actor JetBrainsSessionCoordinator {
                 var pending = session; pending.metadata["stage"] = "aiPending"; try await checkpoint(pending)
                 do {
                     let mint = try await client.refreshAI(session)
-                    var ready = session; ready.accessToken = mint.token; ready.expiresAt = now().addingTimeInterval(86_400)
+                    var ready = session; ready.accessToken = mint.token
+                    ready.expiresAt = try JetBrainsProviderClient.mintExpiry(mint, now: now())
                     ready.metadata["stage"] = "ready"; try await checkpoint(ready)
                 } catch { try await provision() }
             } else { try await provision() }
