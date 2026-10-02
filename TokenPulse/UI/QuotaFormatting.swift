@@ -60,12 +60,28 @@ enum QuotaFormatting {
 
     static func exactCountSummary(_ window: QuotaWindow) -> String? {
         guard let counts = window.exactCounts else { return nil }
-        let values = "\(count(counts.remaining)) / \(count(counts.total))"
+        let values: String
+        if let remaining = counts.remaining, let total = counts.total {
+            values = "\(count(remaining)) / \(count(total))"
+        } else if let used = counts.used, let total = counts.total {
+            values = "已用 \(count(used)) / \(count(total))"
+        } else if let used = counts.used {
+            values = "已用 \(count(used))"
+        } else if let remaining = counts.remaining {
+            values = "剩余 \(count(remaining))"
+        } else if let total = counts.total {
+            values = "总量 \(count(total))"
+        } else { return nil }
         return window.unit.map { "\(values) \($0)" } ?? values
     }
 
     static func count(_ value: Decimal) -> String {
         value.formatted(.number.precision(.fractionLength(0...38)))
+    }
+
+    static func count(_ value: Decimal, unit: String?) -> String {
+        let formatted = count(value)
+        return unit.map { "\(formatted) \($0)" } ?? formatted
     }
 
     static func count(_ value: Double?) -> String {

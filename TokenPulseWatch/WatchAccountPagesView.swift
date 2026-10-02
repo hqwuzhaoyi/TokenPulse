@@ -194,8 +194,10 @@ private struct WatchAccountPage: View {
                                 if let overage = QuotaFormatting.overageDescription(window) {
                                     Text(overage).font(.caption2)
                                 }
-                                if !window.isUnlimited, let exact = QuotaFormatting.exactCountSummary(window) {
-                                    LabeledContent("剩余", value: exact).font(.caption2)
+                                if !window.isUnlimited, let counts = window.exactCounts {
+                                    if let used = counts.used { LabeledContent("已用", value: QuotaFormatting.count(used, unit: window.unit)).font(.caption2) }
+                                    if let remaining = counts.remaining { LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit)).font(.caption2) }
+                                    if let total = counts.total { LabeledContent("预算", value: QuotaFormatting.count(total, unit: window.unit)).font(.caption2) }
                                 } else if !window.isUnlimited, let remaining = window.remainingCount {
                                     LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
                                         .font(.caption2)

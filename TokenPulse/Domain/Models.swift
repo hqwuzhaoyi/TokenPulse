@@ -142,9 +142,15 @@ struct WalletBalance: Codable, Equatable, Sendable {
 
 /// Exact reported quantities. Percentages remain Double for UI gauges, never for stored counts.
 struct DecimalQuotaCounts: Codable, Equatable, Sendable {
-    let used: Decimal
-    let remaining: Decimal
-    let total: Decimal
+    let used: Decimal?
+    let remaining: Decimal?
+    let total: Decimal?
+
+    init(used: Decimal? = nil, remaining: Decimal? = nil, total: Decimal? = nil) {
+        self.used = used
+        self.remaining = remaining
+        self.total = total
+    }
 }
 
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
