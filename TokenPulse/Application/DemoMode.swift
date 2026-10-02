@@ -37,7 +37,7 @@ enum DemoMode {
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
             (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
-            (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"), (.ollamaCloud, "Ollama Cloud"),
+            (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"), (.ollamaCloud, "Ollama Cloud"), (.longCat, "LongCat Token 与燃料包"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -87,6 +87,17 @@ enum DemoMode {
         let short = window("demo.five-hour", "5 小时额度", .fiveHour, 36)
         let weekly = window("demo.weekly", "每周额度", .weekly, 71)
         let windows: [QuotaWindow] = switch provider {
+        case .longCat: [
+            QuotaWindow(id: "longcat.tokens", name: "当前 Token 包", scope: nil, period: .other,
+                        usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "tokens", exactCounts: .init(used: 1_000_000, remaining: 4_000_000, total: 5_000_000), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "longcat.fuel", name: "补充燃料包总额", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "tokens", exactCounts: .init(used: 250_000, remaining: 750_000, total: 1_000_000), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "longcat.fuel.expiring", name: "即将到期燃料包（补充包子集）", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "tokens", expiresAt: now.addingTimeInterval(10 * 86400), exactCounts: .init(remaining: 100_000), resetSemantics: .nonResettingAllowance)
+        ]
         case .ollamaCloud: [short, weekly]
         case .qoderChina: [
             QuotaWindow(id: "qoderChina.personal", name: "个人额度（含资源包）", scope: nil, period: .other,

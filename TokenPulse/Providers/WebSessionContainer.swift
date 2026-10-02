@@ -197,6 +197,11 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .longCat:
+            .init(loginURL: LongCatProviderClient.loginURL, allowedOrigins: [LongCatProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "longcat", title: "LongCat 平台账号", credential: try LongCatProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
         case .ollamaCloud:
             .init(loginURL: OllamaCloudProviderClient.loginURL, allowedOrigins: [OllamaCloudProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in

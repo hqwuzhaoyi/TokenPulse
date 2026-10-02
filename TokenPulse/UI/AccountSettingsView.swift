@@ -373,7 +373,7 @@ private struct AccountPreferencesView: View {
 
     private func supportsResetReminders(_ configuration: AccountConfiguration) -> Bool {
         guard configuration.account.provider.balancePresentation != .walletOnly,
-              ![Provider.qoderInternational, .qoderChina].contains(configuration.account.provider) else { return false }
+              ![Provider.qoderInternational, .qoderChina, .longCat].contains(configuration.account.provider) else { return false }
         guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else { return false }
         return snapshot.windows.contains {
             $0.wallet == nil && !$0.isUnlimited && $0.resetSemantics == nil
