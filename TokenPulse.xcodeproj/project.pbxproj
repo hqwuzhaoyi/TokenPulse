@@ -134,10 +134,10 @@
 		57F000000000000000000054 /* ZenMuxProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000053; };
 		57F000000000000000000041 /* XKiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
 		57F000000000000000000041 /* XJetBrainsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
-		57F000000000000000000041 /* XJetBrainsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
+		57F000000000000000000041 /* JetBrainsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
 		57F000000000000000000042 /* XKiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
 		57F000000000000000000042 /* XJetBrainsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
-		57F000000000000000000042 /* XJetBrainsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
+		57F000000000000000000042 /* JetBrainsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
 		57F000000000000000000044 /* XKiroProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000043; };
 		57F000000000000000000044 /* XJetBrainsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000043; };
 		57F000000000000000000031 /* PartialWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000030; };
@@ -515,7 +515,7 @@
 		57F000000000000000000053 /* ZenMuxProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ZenMuxProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000040 /* XKiroProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XKiroProvider.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000040 /* XJetBrainsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XJetBrainsProvider.swift; sourceTree = SOURCE_ROOT; };
-		57F000000000000000000040 /* XJetBrainsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/XJetBrainsImportView.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000040 /* JetBrainsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/JetBrainsImportView.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000043 /* XKiroProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XKiroProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000043 /* XJetBrainsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XJetBrainsProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000030 /* PartialWalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PartialWalletTests.swift; sourceTree = SOURCE_ROOT; };
@@ -872,7 +872,7 @@
 				57F000000000000000000043 /* XJetBrainsProviderTests.swift */,
 				57F000000000000000000040 /* XKiroProvider.swift */,
 				57F000000000000000000040 /* XJetBrainsProvider.swift */,
-				57F000000000000000000040 /* XJetBrainsImportView.swift */,
+				57F000000000000000000040 /* JetBrainsImportView.swift */,
 				57F000000000000000000030 /* PartialWalletTests.swift */,
 				57F000000000000000000023 /* V2EXProviderTests.swift */,
 				57F000000000000000000020 /* V2EXProvider.swift */,
@@ -1215,7 +1215,7 @@
 				57F000000000000000000051 /* ZenMuxProvider.swift in Sources */,
 				57F000000000000000000041 /* XKiroProvider.swift in Sources */,
 				57F000000000000000000041 /* XJetBrainsProvider.swift in Sources */,
-				57F000000000000000000041 /* XJetBrainsImportView.swift in Sources */,
+				57F000000000000000000041 /* JetBrainsImportView.swift in Sources */,
 				57F000000000000000000021 /* V2EXProvider.swift in Sources */,
 				57F000000000000000000011 /* SyntheticProvider.swift in Sources */,
 				2E6200000000000000000309 /* CursorSessionLoginView.swift in Sources */,
@@ -1428,7 +1428,7 @@
 				57F000000000000000000052 /* ZenMuxProvider.swift in Sources */,
 				57F000000000000000000042 /* XKiroProvider.swift in Sources */,
 				57F000000000000000000042 /* XJetBrainsProvider.swift in Sources */,
-				57F000000000000000000042 /* XJetBrainsImportView.swift in Sources */,
+				57F000000000000000000042 /* JetBrainsImportView.swift in Sources */,
 				57F000000000000000000022 /* V2EXProvider.swift in Sources */,
 				57F000000000000000000012 /* SyntheticProvider.swift in Sources */,
 				2E6200000000000000000308 /* CursorProvider.swift in Sources */,
