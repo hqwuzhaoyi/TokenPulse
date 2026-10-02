@@ -18,7 +18,7 @@
 - [x] 凭证本地账号+真实服务个人 scope 绑定；Cookie轮换不误判换账号；逐cookie expiry更新后可独立续期。只使用本账号专属WK会话，不读真实用户凭证或其它浏览器。
 - [x] 脱敏夹具：23项本地实际 XCTest 0 failures；额外提交真实 AccountQuotaClient/QuotaMonitor 续期/恢复回归供主线程跑。
 - [x] 不引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送；不变更设备直连 ADR。
-- [ ] 主线程完整 iOS XCTest 与 unsigned app/widgets/Watch 构建结果待记录（不把小模块通过伪当全目标通过）。
+- [x] root已确认原24项iOS XCTest及77providers unsigned app/widgets/Watch构建通过；Pi06新增小补丁由root重跑，不把小模块通过伪当全目标通过。
 
 ## Evidence
 
@@ -29,3 +29,7 @@
 生产小 module Swift6 语义检查通过，macOS命令行实际23 tests/0 failures，日志 `/tmp/tokenpulse-kiro-small/test.log`。第24项 iOS完整账号客户端/Monitor链路、unsigned全目标由主线程统一执行。
 
 未完成历史真实验收：没有登录外部真实账号，没有与官方实际额度页对照，没有iPhone/Watch实机跨到期或撤销观察；这些事实保留，但按用户最新验收口径不作为关闭阻塞。当前支持默认production portal的Google/GitHub/BuilderID个人会话，企业/其它区域不偷偷兜底。
+
+## Pi06后续 — 2026-10-03
+
+root已确认原24项iOS XCTest与77providers unsigned全目标构建通过。F2接受并修复为同resource/expiry无计数cohort，不冒单packID、不相加；F3保留ACTIVE quota并补未知到期文案；F4与锁定官方Md/profile常量一致，不采纳盲改。5项新回归已加入，生产小module真实macOS XCTest28项0fail（含cohort实际NotificationPlanner不告警），iOS新补丁留root统一执行。详见研究报告末尾。F1已有ca87270修复，未重复改widget。

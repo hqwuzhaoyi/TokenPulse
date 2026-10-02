@@ -58,7 +58,7 @@ main/vendor 和固定 Lobe 图标已加入 `public-source-lock.json`。2026-10-0
 }
 ```
 
-官方页面优先 WithPrecision 字段，fallback 到普通字段；TokenPulse 相同，但不仿照网页把缺字段补 0。数值不能是 Bool、字符串、负数或非有限值。订阅池显示月度额度及返回的 reset；试用、active bonus 和可明确标识的 purchased credits 是到期额度，不宣称周期 reset。resourceType/bonusCode/credit expiry 为稳定 ID；重复/模糊 ID 不偷偷用数组下标代替。purchased credits 若缺 expiry 或同 resource 出现重复 expiry，当前严格拒绝响应，等待可区分 packs 的契约，不返回部分误关联池。
+官方页面优先 WithPrecision 字段，fallback 到普通字段；TokenPulse 相同，但不仿照网页把缺字段补 0。数值不能是 Bool、字符串、负数或非有限值。订阅池显示月度额度及返回的 reset；试用、active bonus 和可明确标识的 purchased credits 是到期额度，不宣称周期 reset。resourceType/bonusCode 是已知维度；credit expiry 仅标识同资源的到期 cohort，不能当单笔 pack 唯一身份。官方 OverageCredit 只有 currentUsage/usageLimit/expiresAt，没有 pack ID。单笔沿原路径显示实际 quota；同资源同刻到期的多笔显示“多笔同刻到期，单池标识未提供”cohort，保留真实 expiry，比例/计数/exactCounts/exhausted 全部 unknown，不求和、不填0、不声称无限，不用下标或可变用量伪造单池ID。其它月池、试用、bonus和不同expiry单笔继续显示。缺expiry仍按原契约拒绝。
 
 credits 是非货币配额；即使响应有 currency/overageCharges，也不凭这些把有限 quota 或预付 credits 转成可提现钱包。未知限额不补 0、不算百分比，已用计数可单独显示。无有限池的明确空 list 显示静态无额度状态。
 
@@ -76,3 +76,16 @@ credits 是非货币配额；即使响应有 currency/overageCharges，也不凭
 - Kiro 图标使用固定 Lobe MIT 源，资产与 mapping 存在，官方 `kirodotdev/kiro` 固定 `bfe7ff30d9b21e583566c844d75e3dd2b572e2c7` 只有 PNG、未建立可复用 SVG 许可，故遵循现有 Lobe 来源。
 
 可选择的真实观察：在独立账号浏览器登录个人账号，与官方额度页对照；等待 Bearer/Cookie 到期或撤销；Watch 手机离线查询。未执行这些观察不阻塞用户当前的实现+图标验收，也不被写成成功。
+
+## Pi06 回归处理（2026-10-03）
+
+锁定公开 main/vendor 的 SHA256 与原锁完全一致，没有读取真实凭证或运行外部账户。
+
+- F1：冻结快照漏widget case属旧缺陷，root已用ca87270修复，24项真实iOS XCTest与77provider unsigned build由root确认通过。本补丁不重复修改。
+- F2：接受同expiry不等于唯一pack的缺陷。官方schema为 `Cut=[3,B,fYe,0,[x_,hM,tq],[1,1,4],2]`，符号解为currentUsage/usageLimit/expiresAt；main HM保留extraCreditPacks列表，未发现同expiry可相加证据。采用有界到期cohort，不整snapshot失败，不合并计数或猜单池身份。cohort无用量/ratio，实际NotificationPlanner不生成额度提醒或周期重置计划。
+- F3：不采纳缺可选expiry就丢弃ACTIVE有效quota的建议。nonResettingAllowance只表示无周期重置；共用UI nextEventValue显示无周期重置，不是永不过期。仅Kiro未知expiry trial的window.name补到期时间未提供，App/Watch/widget使用同displayName，保留实际计数与比例。
+- F4：不采纳改用任意page profile-arn。官方main Md对Google/Github取SOCIAL_PROFILE_ARN，对BuilderId/Internal取BUILDER_ID_PROFILE_ARN，只有其它idp才fallback meta。vendor production常量正是现实现的两枚ARN。当前支持Google/Github/BuilderId，企业/其它stage/Internal仍不在支持范围。新增不同meta ARN及三个支持idp的实际回归，保持官方映射。
+
+实际验证：真实生产小module（Models、Kiro/CBOR、HTTP/redirect、从当前源码抽取的session/envelope定义、QuotaFormatting及NotificationPlanner/ReminderModels）Swift6编译；实际macOS命令行XCTest **28 tests，0 failures**，日志 `/tmp/tokenpulse-kiro-pi06/test.log`。新增5项覆盖同expiry保留月池/unknown字段/不报警、顺序/用量/pack数变化的cohort稳定性、不同expiry单笔不变、畸形/expired边界、trial未知expiry文案及官方profile映射。iOS专属Monitor回归不在这28项中；新补丁完整iOS XCTest和unsigned build留root统一执行。
+
+Pi原报告日期2025-10-03笔误不沿用，本次实际日期为2026-10-03。真实个人账号/Watch观察仍未执行。
