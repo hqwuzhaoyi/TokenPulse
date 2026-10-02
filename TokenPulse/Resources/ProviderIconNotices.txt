@@ -480,3 +480,13 @@ Asset: examples/v0-clone/apps/web/app/icon.svg
 Copyright 2025 Vercel, Inc. (repository LICENSE).
 License: Apache License 2.0, repository LICENSE; full terms reproduced in Factory Droid section.
 TokenPulse changes: retained the two original v0 glyph paths and 180x180 viewBox/dimensions, removed the square background, CSS theme/scale rules and clipping wrapper, set black glyph fill for vector/template tinting.
+
+
+Warp generic integration icon (not the Warp brand mark)
+Source: https://github.com/qunqin24/Pulse
+Commit: 397c8fc4f1bd52180a452d2f3f0c099def97cf69
+Asset: Sources/Pulse/Resources/extension.svg
+License: Apache License 2.0; full terms reproduced in Factory Droid section.
+Copyright: qunqin24/Pulse contributors; no asset-specific year is asserted.
+TokenPulse changes: currentColor replaced with black, explicit 24x24 dimensions; vector geometry unchanged.
+Official warpdotdev/Warp assets were inspected at 3f37d69ff3e87818d24f803c16b2e045fa4bd95e. README licenses app/assets under AGPLv3; only the UI framework crates use MIT. This generic Apache2 alternative avoids importing that brand asset.

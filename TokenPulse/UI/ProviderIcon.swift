@@ -41,6 +41,7 @@ extension Provider {
         case .stepFun: "ProviderStepFun"
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
+        case .warp: "ProviderWarp"
         case .v0: "ProviderV0"
         case .devPass: "ProviderDevPass"
         case .factory: "ProviderFactory"

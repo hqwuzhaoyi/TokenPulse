@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
+            (.warp, "Warp"),
             (.v0, "v0"),
             (.devPass, "DevPass"),
             (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
@@ -100,6 +101,17 @@ enum DemoMode {
             QuotaWindow(id: "v0.rate_limit", name: "消息限流", scope: nil, period: .other,
                         usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(1800),
                         unit: "条消息", exactCounts: .init(used: 20, remaining: 80, total: 100))
+        ]
+        case .warp: [
+            QuotaWindow(id: "warp.plan", name: "套餐 credits", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 625, remaining: 1875, total: 2500)),
+            QuotaWindow(id: "warp.grant.demo.personal", name: "个人 附加 credits 1", scope: nil, period: .other,
+                        usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "credits", expiresAt: now.addingTimeInterval(4 * 86400), exactCounts: .init(used: 600, remaining: 400, total: 1000)),
+            QuotaWindow(id: "warp.grant.demo.workspace", name: "工作区 1 附加 credits 1", scope: nil, period: .other,
+                        usedPercentage: 0, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "credits", expiresAt: now.addingTimeInterval(20 * 86400), exactCounts: .init(used: 0, remaining: 500, total: 500))
         ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),

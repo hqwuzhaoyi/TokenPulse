@@ -1,6 +1,6 @@
 # 32: Warp 套餐与附加 credits
 
-**Status:** ready-for-agent
+**Status:** implemented; static contract verified; central build/test and mobile/real-account validation pending
 
 **Type:** integration
 
@@ -24,3 +24,16 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/warp.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence
+
+- `.warp` public Key/controller/query/shared account lifecycle routing, read-only GraphQL body/client headers, independent phone/Watch path, per-source/per-grant credits, exact quantities, expiry, widgets and isolated demo implemented.
+- Fixed Pulse397c8fc4 source checked through agent-reach GitHub/gh. Added workspace uid/createdAt from official Warp query definition at 3f37d69ff3e87818d24f803c16b2e045fa4bd95e; no live account queried.
+- Personal and workspace grants are separate; no aggregate percentage across unrelated grants. IDs omit consumption and preserve workspace uid identity. Unlimited and denominator-unknown cases never invent percentages.
+- Seven tests cover readonly contract/headers, quantities/source/expiry, stable IDs, flags/invalid shapes/overflow, independent reminders/demo/widgets/coding and isolated account restore/rekey/delete/failure retention. Full App/new test Swift6 typecheck passed; no xcodebuild/simulator run.
+- Non-brand generic Apache2 vector/template icon follows fixed Pulse; official Warp app assets are AGPL and not imported. Only this ticket and dedicated docs changed, no central README/CONTEXT/manifest.
+
+Mobile platform constraints are specifically NOT accepted: the reference macOS compatibility context has not been accepted by a real Warp account on iPhone/Watch. Complete unsigned builds, XCTest execution, real Key/fields/lifetime/revocation, iCloud, physical independent refresh, notifications/widgets remain open. The planned shared nonResettingAllowance / own Key scope follow-up must be integrated for complete reminder lifecycle semantics.
+
+生产 Warp 解析代码 macOS 合成 smoke 通过套餐/个人/工作区分离、独立到期、消费变化稳定ID、无限、缺少分母、真实Bool及计数矛盾拒绝。不是移动端/真实Key验证或模拟器XCTest。

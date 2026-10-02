@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        C02200000000000000000043 /* WarpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000041; };
+        C02200000000000000000044 /* WarpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000041; };
+        C02200000000000000000045 /* WarpProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000042; };
         C02200000000000000000033 /* V0Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000031; };
         C02200000000000000000034 /* V0Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000031; };
         C02200000000000000000035 /* V0ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000032; };
@@ -220,6 +223,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        C02200000000000000000041 /* WarpProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WarpProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000042 /* WarpProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WarpProviderTests.swift; sourceTree = SOURCE_ROOT; };
         C02200000000000000000031 /* V0Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/V0Provider.swift; sourceTree = SOURCE_ROOT; };
         C02200000000000000000032 /* V0ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/V0ProviderTests.swift; sourceTree = SOURCE_ROOT; };
         C02200000000000000000021 /* DevPassProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DevPassProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -394,6 +399,9 @@
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
 				FA0900000000000000000001 /* WalletProvider.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
+                C02200000000000000000041 /* WarpProvider.swift */,
+                C02200000000000000000042 /* WarpProviderTests.swift */,
+
                 C02200000000000000000031 /* V0Provider.swift */,
                 C02200000000000000000032 /* V0ProviderTests.swift */,
 
@@ -678,6 +686,7 @@
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+                C02200000000000000000043 /* WarpProvider.swift in Sources */,
                 C02200000000000000000033 /* V0Provider.swift in Sources */,
                 C02200000000000000000023 /* DevPassProvider.swift in Sources */,
                 C02200000000000000000013 /* FactoryProvider.swift in Sources */,
@@ -703,6 +712,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+                C02200000000000000000045 /* WarpProviderTests.swift in Sources */,
                 C02200000000000000000035 /* V0ProviderTests.swift in Sources */,
                 C02200000000000000000025 /* DevPassProviderTests.swift in Sources */,
                 C02200000000000000000015 /* FactoryProviderTests.swift in Sources */,
@@ -759,6 +769,7 @@
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+                C02200000000000000000044 /* WarpProvider.swift in Sources */,
                 C02200000000000000000034 /* V0Provider.swift in Sources */,
                 C02200000000000000000024 /* DevPassProvider.swift in Sources */,
                 C02200000000000000000014 /* FactoryProvider.swift in Sources */,
