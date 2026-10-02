@@ -73,12 +73,13 @@ final class QuotaMonitor: ObservableObject {
         await refreshAll()
     }
 
-    func addAccount(name: String, credential: String, provider: Provider = .miniMaxChina) async {
+    func addAccount(name: String, credential: String, provider: Provider = .miniMaxChina, accountID: UUID = UUID()) async {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedCredential = credential.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedName.isEmpty, !trimmedCredential.isEmpty else { return }
+        guard !trimmedName.isEmpty, !trimmedCredential.isEmpty,
+              !states.contains(where: { $0.id == accountID }) else { return }
 
-        let account = SubscriptionAccount(name: trimmedName, provider: provider)
+        let account = SubscriptionAccount(id: accountID, name: trimmedName, provider: provider)
         do {
             try await credentialStore.save(trimmedCredential, for: account.id)
             states.append(AccountQuotaState(account: account, snapshot: nil, lastFailure: nil))

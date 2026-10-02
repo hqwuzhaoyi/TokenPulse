@@ -196,11 +196,11 @@ private struct WatchAccountPage: View {
                                         .font(.caption2)
                                 }
                                 LabeledContent(
-                                    window.expiresAt == nil ? "重置" : "到期",
-                                    value: QuotaFormatting.resetDate(window.expiresAt ?? window.resetsAt)
+                                    QuotaFormatting.nextEventLabel(window),
+                                    value: QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window))
                                 )
                                     .font(.caption2)
-                                if window.expiresAt == nil, window.needsUpdate(at: date) {
+                                if window.needsUpdate(at: date) {
                                     Label("待更新", systemImage: "clock.badge.exclamationmark")
                                         .font(.caption2)
                                         .foregroundStyle(.orange)

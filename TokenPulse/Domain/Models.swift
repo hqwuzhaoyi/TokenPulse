@@ -5,6 +5,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case claude, codex, openCodeGo, zai, superGrok
     case qoderInternational, deepSeek, kimiCode, elevenLabs, poe, vercelAIGateway
     case zhipu, miniMaxInternational
+    case stepFun
 
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway }
@@ -25,6 +26,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .vercelAIGateway: "Vercel AI Gateway"
         case .kimiCode: "Kimi Code 国内版"
         case .elevenLabs: "ElevenLabs"
+        case .stepFun: "StepFun"
         }
     }
 }
@@ -194,6 +196,8 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     var remainingResetCount: Int? = nil
     var walletAvailable: Bool? = nil
     var quotaExceeded: Bool? = nil
+    /// A one-way identity for web-session cache matching; never contains cookies.
+    var sourceCredentialFingerprint: String? = nil
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)

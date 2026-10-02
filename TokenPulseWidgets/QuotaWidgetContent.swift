@@ -447,8 +447,7 @@ struct QuotaWidgetView: View {
     private func resetText(_ metric: WidgetQuotaMetric) -> String {
         guard let window = metric.window else { return "时间未提供" }
         if window.wallet != nil { return "钱包余额" }
-        if let expiresAt = window.expiresAt { return "到期 \(QuotaFormatting.resetDate(expiresAt))" }
-        return "重置 \(QuotaFormatting.resetDate(window.resetsAt))"
+        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window)))"
     }
 
     private func accessibilitySummary(_ account: WidgetAccountSnapshot) -> String {
@@ -820,15 +819,13 @@ private struct HorizontalMetric: View {
 
     private var timingText: String {
         guard let window = metric.window else { return "时间未提供" }
-        if let expiresAt = window.expiresAt { return "到期 \(QuotaFormatting.resetDate(expiresAt))" }
-        return "重置 \(QuotaFormatting.resetDate(window.resetsAt))"
+        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window)))"
     }
 
     private var compactTimingText: String {
         guard let window = metric.window else { return "时间未提供" }
-        if let expiresAt = window.expiresAt { return "到期 \(compactDate(expiresAt))" }
-        guard let resetsAt = window.resetsAt else { return "重置 未提供" }
-        return "重置 \(compactDate(resetsAt))"
+        guard let date = QuotaFormatting.nextEventDate(window) else { return "重置 未提供" }
+        return "\(QuotaFormatting.nextEventLabel(window)) \(compactDate(date))"
     }
 
     private func compactDate(_ date: Date) -> String {
@@ -899,8 +896,7 @@ private struct RingMetric: View {
 
     private var timingText: String {
         guard let window = metric.window else { return "时间未提供" }
-        if let expiresAt = window.expiresAt { return "到期 \(QuotaFormatting.resetDate(expiresAt))" }
-        return "重置 \(QuotaFormatting.resetDate(window.resetsAt))"
+        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window)))"
     }
 }
 

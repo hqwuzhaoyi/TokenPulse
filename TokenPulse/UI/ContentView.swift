@@ -93,9 +93,9 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $showingAddAccount) {
-                    AddAccountView(isDemoMode: runtime.isDemoMode) { name, key, provider in
+                    AddAccountView(isDemoMode: runtime.isDemoMode) { name, key, provider, accountID in
                         let previousCount = monitor.states.count
-                        await monitor.addAccount(name: name, credential: key, provider: provider)
+                        await monitor.addAccount(name: name, credential: key, provider: provider, accountID: accountID)
                         return monitor.states.count > previousCount
                     }
                     .presentationDetents([.medium, .large])
@@ -400,8 +400,8 @@ private struct CompactQuotaWindowView: View {
             }
             if window.wallet == nil {
                 LabeledContent(
-                    window.expiresAt == nil ? "下次重置" : "到期时间",
-                    value: QuotaFormatting.resetDate(window.expiresAt ?? window.resetsAt)
+                    QuotaFormatting.nextEventLabel(window),
+                    value: QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window))
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -476,8 +476,13 @@ struct QuotaWindowView: View {
             }
 
             if let expiresAt = window.expiresAt {
-                LabeledContent("到期时间", value: QuotaFormatting.resetDate(expiresAt))
-            } else {
+                LabeledContent(window.id == "stepfun.credits" ? "最早积分到期" : "到期时间",
+                               value: QuotaFormatting.resetDate(expiresAt))
+            }
+            if window.resetsAt != nil {
+                LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt))
+            }
+            if window.expiresAt == nil || window.resetsAt != nil {
                 TimelineView(.periodic(from: .now, by: 60)) { context in
                     if window.needsUpdate(at: context.date) {
                         Label("已到预计重置时间，等待刷新确认", systemImage: "clock.badge.exclamationmark")
@@ -513,6 +518,7 @@ struct WalletBalanceView: View {
 
 private struct AddAccountView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var newAccountID = UUID()
     @State private var name = ""
     @State private var key = ""
     @State private var provider = Provider.miniMaxChina
@@ -520,7 +526,7 @@ private struct AddAccountView: View {
     @State private var showingLogin = false
     @State private var loginMessage: String?
     let isDemoMode: Bool
-    let save: (String, String, Provider) async -> Bool
+    let save: (String, String, Provider, UUID) async -> Bool
 
     var body: some View {
         NavigationStack {
@@ -590,7 +596,7 @@ private struct AddAccountView: View {
                                 let credential = isDemoMode ? "demo" : usesAPIKey
                                     ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key)
                                     : key
-                                guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider) else {
+                                guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider, newAccountID) else {
                                     loginMessage = "账号未保存，请重试。"
                                     saving = false
                                     return
@@ -613,7 +619,7 @@ private struct AddAccountView: View {
             }
             .onChange(of: provider) { _, _ in key = ""; loginMessage = nil }
             .sheet(isPresented: $showingLogin) {
-                ProviderSignInView(provider: provider) { credential in
+                ProviderSignInView(provider: provider, accountID: newAccountID) { credential in
                     key = credential
                     showingLogin = false
                 }

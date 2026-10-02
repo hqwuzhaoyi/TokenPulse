@@ -38,6 +38,7 @@ extension Provider {
         case .vercelAIGateway: "ProviderVercel"
         case .kimiCode: "ProviderKimiCode"
         case .elevenLabs: "ProviderElevenLabs"
+        case .stepFun: "ProviderStepFun"
         }
     }
 

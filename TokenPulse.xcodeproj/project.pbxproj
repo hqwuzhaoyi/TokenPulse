@@ -10,6 +10,14 @@
 		E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000002; };
+		57EF00000000000000000002 /* StepFunProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000001; };
+		57EF00000000000000000003 /* StepFunProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000001; };
+		57EF00000000000000000005 /* ProviderRedirectPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000004; };
+		57EF00000000000000000006 /* ProviderRedirectPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000004; };
+		57EF00000000000000000008 /* WebSessionContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000007; };
+		57EF00000000000000000009 /* WebSessionContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000007; };
+		57EF0000000000000000000B /* StepFunSessionLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF0000000000000000000A; };
+		57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF0000000000000000000C; };
 		F30000000000000000000003 /* KimiCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001; };
 		F30000000000000000000004 /* KimiCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001; };
 		F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000002; };
@@ -198,6 +206,11 @@
 /* Begin PBXFileReference section */
 		E11000000000000000000001 /* ElevenLabsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ElevenLabsProvider.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000002 /* ElevenLabsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ElevenLabsProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57EF00000000000000000001 /* StepFunProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/StepFunProvider.swift; sourceTree = SOURCE_ROOT; };
+		57EF00000000000000000004 /* ProviderRedirectPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ProviderRedirectPolicy.swift; sourceTree = SOURCE_ROOT; };
+		57EF00000000000000000007 /* WebSessionContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WebSessionContainer.swift; sourceTree = SOURCE_ROOT; };
+		57EF0000000000000000000A /* StepFunSessionLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/StepFunSessionLoginView.swift; sourceTree = SOURCE_ROOT; };
+		57EF0000000000000000000C /* StepFunProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/StepFunProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F30000000000000000000001 /* KimiCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KimiCodeProvider.swift; sourceTree = SOURCE_ROOT; };
 		F30000000000000000000002 /* KimiCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KimiCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F2000000000000000000000B /* WalletPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletPresentationTests.swift; sourceTree = SOURCE_ROOT; };
@@ -355,6 +368,11 @@
 				FA0900000000000000000001 /* WalletProvider.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
+				57EF0000000000000000000C /* StepFunProviderTests.swift */,
+				57EF0000000000000000000A /* StepFunSessionLoginView.swift */,
+				57EF00000000000000000007 /* WebSessionContainer.swift */,
+				57EF00000000000000000004 /* ProviderRedirectPolicy.swift */,
+				57EF00000000000000000001 /* StepFunProvider.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				F20000000000000000000003 /* QoderProviderTests.swift */,
@@ -619,6 +637,10 @@
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
+				57EF00000000000000000002 /* StepFunProvider.swift in Sources */,
+				57EF00000000000000000005 /* ProviderRedirectPolicy.swift in Sources */,
+				57EF00000000000000000008 /* WebSessionContainer.swift in Sources */,
+				57EF0000000000000000000B /* StepFunSessionLoginView.swift in Sources */,
 				B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */,
 				B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */,
 				B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */,
@@ -636,6 +658,7 @@
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
+				57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
 				FA0900000000000000000005 /* WalletProviderTests.swift in Sources */,
 				F2000000000000000000000C /* WalletPresentationTests.swift in Sources */,
@@ -684,6 +707,9 @@
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
+				57EF00000000000000000003 /* StepFunProvider.swift in Sources */,
+				57EF00000000000000000006 /* ProviderRedirectPolicy.swift in Sources */,
+				57EF00000000000000000009 /* WebSessionContainer.swift in Sources */,
 				B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */,
 				B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */,
 				D0000000000000000000000E,

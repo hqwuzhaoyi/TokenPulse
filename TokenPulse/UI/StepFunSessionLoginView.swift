@@ -1,0 +1,104 @@
+import SwiftUI
+import WebKit
+
+struct StepFunSessionLoginView: View {
+    @StateObject private var model: StepFunSessionLoginModel
+    @State private var site = StepFunSite.china
+
+    init(accountID: UUID, onCredential: @escaping (String) -> Void) {
+        _model = StateObject(wrappedValue: StepFunSessionLoginModel(accountID: accountID, onCredential: onCredential))
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Picker("站点", selection: $site) {
+                ForEach(StepFunSite.allCases) { Text($0.displayName).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            Text("国内站和国际站分别登录。切换站点会清除本次临时会话；完成验证后保存所选站点的凭证。")
+                .font(.caption).foregroundStyle(.secondary).padding(.horizontal)
+            if let webView = model.container?.webView {
+                StepFunWebView(webView: webView).id(site)
+            }
+            if let message = model.message {
+                Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal)
+            }
+            Button(model.verifying ? "正在验证" : "完成登录并验证") {
+                Task { await model.verify() }
+            }
+            .buttonStyle(.borderedProminent).disabled(model.verifying)
+            Button("清除会话并重新登录") { model.start(site: site) }.disabled(model.verifying)
+            Text("登录只在此账号的临时浏览器中进行；仅保存查询套餐所需的会话与设备标识。")
+                .font(.caption).foregroundStyle(.secondary).padding(.horizontal)
+        }
+        .task { model.start(site: site) }
+        .onChange(of: site) { _, site in model.start(site: site) }
+        .onDisappear { model.close() }
+    }
+}
+
+@MainActor
+final class StepFunSessionLoginModel: ObservableObject {
+    @Published private(set) var container: WebSessionContainer?
+    @Published private(set) var message: String?
+    @Published private(set) var verifying = false
+    private let accountID: UUID
+    private let onCredential: (String) -> Void
+    private var completed = false
+    private var runID = UUID()
+    private var site = StepFunSite.china
+
+    init(accountID: UUID, onCredential: @escaping (String) -> Void) {
+        self.accountID = accountID
+        self.onCredential = onCredential
+    }
+
+    func start(site: StepFunSite) {
+        close()
+        self.site = site
+        message = nil
+        completed = false
+        let container = WebSessionContainer(scope: .init(provider: .stepFun, accountID: accountID, host: site.host))
+        self.container = container
+        container.webView.load(URLRequest(url: site.usageURL))
+    }
+
+    func close() {
+        runID = UUID()
+        container?.close()
+        container = nil
+        verifying = false
+    }
+
+    func verify() async {
+        guard !verifying, !completed, let container, !container.closed else { return }
+        let run = runID
+        let selectedSite = site
+        verifying = true
+        defer { if runID == run { verifying = false } }
+        do {
+            let cookies: [HTTPCookie] = await withCheckedContinuation { continuation in
+                container.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { continuation.resume(returning: $0) }
+            }
+            let credential = try StepFunSession.credential(cookies: cookies, site: selectedSite, accountID: accountID, now: Date())
+            _ = try await ProviderQuotaClient(provider: .stepFun).quota(for: accountID, credential: credential)
+            guard runID == run, !container.closed, !Task.isCancelled else { return }
+            completed = true
+            onCredential(credential)
+            close()
+        } catch {
+            guard runID == run, !container.closed, !Task.isCancelled else { return }
+            let failure = error as? RefreshFailure
+            message = failure == .invalidCredential
+                ? "未读取到有效会话及匹配的设备标识，请完成登录后重试。"
+                : failure?.displayName ?? "无法验证套餐，请检查网络后重试。"
+        }
+    }
+}
+
+private struct StepFunWebView: UIViewRepresentable {
+    let webView: WKWebView
+    func makeUIView(context: Context) -> WKWebView { webView }
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+}

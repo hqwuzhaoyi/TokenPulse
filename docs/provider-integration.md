@@ -121,3 +121,7 @@ Not yet verified: a real SuperGrok subscription, whether the billing response st
 ## ElevenLabs
 
 API Key 需 user_read 权限；直接查询官方 user/subscription 接口，采用 xi-api-key 头且拒绝重定向。仅使用服务返回的字符用量、总量与重置时间，不将 voice slots 当额度，不推断固定月度周期。缺少查询权限与凭证无效分别提示。手机与 Watch 使用各自 HTTP 客户端查询。当前使用合成响应测试，真实账号与物理设备尚未验收。
+
+## StepFun
+
+StepFun 的 Token Plan 积分池和 Coding Plan 五小时／每周额度通过按账号隔离的网页登录配置；国内与国际站凭证分别绑定。iPhone 与 Watch 使用同一受限 Cookie 和匹配设备标识独立查询，积分到期不是重置，不查询 API 预付钱包。契约、登录／同步方式及未真实验收范围见 [StepFun 接入记录](stepfun-provider-integration.md)。

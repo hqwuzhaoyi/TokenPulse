@@ -17,6 +17,16 @@ enum QuotaFormatting {
         return formatter.string(from: date)
     }
 
+    static func nextEventDate(_ window: QuotaWindow) -> Date? {
+        [window.expiresAt, window.resetsAt].compactMap { $0 }.min()
+    }
+
+    static func nextEventLabel(_ window: QuotaWindow) -> String {
+        guard let expiry = window.expiresAt else { return "下次重置" }
+        return window.resetsAt.map { $0 < expiry } == true ? "下次重置"
+            : window.id == "stepfun.credits" ? "最早积分到期" : "到期时间"
+    }
+
     static func percentage(_ value: Double?) -> String {
         guard let value else { return "未提供" }
         return value.formatted(.number.precision(.fractionLength(0...1))) + "% 已用"

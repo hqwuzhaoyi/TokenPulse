@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProviderSignInView: View {
     let provider: Provider
+    var accountID: UUID = UUID()
     let completion: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
@@ -12,7 +13,9 @@ struct ProviderSignInView: View {
         NavigationStack {
             Group {
                 if provider == .claude {
-                    ClaudeSessionLoginView(onCredential: completion)
+                    ClaudeSessionLoginView(accountID: accountID, onCredential: completion)
+                } else if provider == .stepFun {
+                    StepFunSessionLoginView(accountID: accountID, onCredential: completion)
                 } else {
                     Form {
                         if let session = login.session {

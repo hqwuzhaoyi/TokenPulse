@@ -14,6 +14,8 @@ The Poe SVG mark is derived from Lobe Icons commit 79b551cf26aab9ea4ac701fb80716
 
 The Vercel SVG mark is derived from the official vercel/vercel repository commit c628be7835e03a965b93e9cf9e2bd5ac2acbf5eb, examples/nextjs/public/vercel.svg, Copyright 2017 Vercel, Inc., Apache License 2.0. TokenPulse replaces the white fill with black, adds explicit dimensions and packages it for template rendering; vector paths are unchanged. The applicable full Apache License is included below.
 
+The StepFun SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit ef22550bbbdc0350e40596ee6e9097024f2eeda7, packages/static-svg/icons/stepfun.svg, Copyright (c) 2023 LobeHub, under the MIT License reproduced below.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

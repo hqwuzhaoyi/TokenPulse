@@ -106,22 +106,33 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
     @Published private(set) var organizations: [ClaudeOrganization] = []
     @Published private(set) var message: String?
 
+    private var container: WebSessionContainer?
+    private let accountID: UUID
     private var sessionHeader: String?
     private var sessionExpiresAt: Date?
     private let onCredential: (String) -> Void
 
-    init(onCredential: @escaping (String) -> Void) {
+    init(accountID: UUID = UUID(), onCredential: @escaping (String) -> Void) {
+        self.accountID = accountID
         self.onCredential = onCredential
     }
 
     func start() {
         guard webView == nil else { return }
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = .nonPersistent()
-        let view = WKWebView(frame: .zero, configuration: configuration)
+        let container = WebSessionContainer(scope: .init(provider: .claude, accountID: accountID, host: "claude.ai"))
+        self.container = container
+        let view = container.webView
         view.navigationDelegate = self
         webView = view
         view.load(URLRequest(url: URL(string: "https://claude.ai/login")!))
+    }
+
+    func close() {
+        container?.close()
+        webView = nil
+        container = nil
+        sessionHeader = nil
+        organizations = []
     }
 
     func select(_ organization: ClaudeOrganization) {
@@ -142,17 +153,13 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
-            guard let self else { return }
-            var names: Set<String> = []
-            let sessionCookies = cookies.filter {
-                ["sessionKey", "sessionKeyV3"].contains($0.name)
-                    && ($0.domain == "claude.ai" || $0.domain == ".claude.ai")
-                    && !$0.value.isEmpty
-                    && names.insert($0.name).inserted
-            }
-            guard !sessionCookies.isEmpty else { return }
-            let header = sessionCookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
-            let expiresAt = sessionCookies.compactMap(\.expiresDate).min()
+            guard let self, self.container?.closed == false else { return }
+            guard let selection = try? WebSessionCookiePolicy.select(cookies,
+                names: ["sessionKey", "sessionKeyV3"], requiredNames: [],
+                requiredAnyNames: ["sessionKey", "sessionKeyV3"], domains: ["claude.ai"],
+                path: "/api/bootstrap", now: Date()) else { return }
+            let header = selection.header
+            let expiresAt = selection.expiresByName.values.min()
             Task { @MainActor in await self.loadOrganizations(cookieHeader: header, expiresAt: expiresAt) }
         }
     }
@@ -170,7 +177,8 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
             configuration.httpCookieStorage = nil
             configuration.urlCache = nil
             let (data, response) = try await URLSession(configuration: configuration).data(for: request)
-            guard (response as? HTTPURLResponse)?.statusCode == 200,
+            guard container?.closed == false,
+                  (response as? HTTPURLResponse)?.statusCode == 200,
                   let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let account = root["account"] as? [String: Any],
                   let memberships = account["memberships"] as? [[String: Any]] else { return }
@@ -192,8 +200,8 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
 struct ClaudeSessionLoginView: View {
     @StateObject private var model: ClaudeSessionLoginModel
 
-    init(onCredential: @escaping (String) -> Void) {
-        _model = StateObject(wrappedValue: ClaudeSessionLoginModel(onCredential: onCredential))
+    init(accountID: UUID = UUID(), onCredential: @escaping (String) -> Void) {
+        _model = StateObject(wrappedValue: ClaudeSessionLoginModel(accountID: accountID, onCredential: onCredential))
     }
 
     var body: some View {
@@ -216,6 +224,7 @@ struct ClaudeSessionLoginView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .onDisappear { model.close() }
     }
 }
 

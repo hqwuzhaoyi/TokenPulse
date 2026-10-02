@@ -183,6 +183,9 @@ private struct AccountPreferencesView: View {
                             if let plan = snapshot.subscriptionPlan, configuration.account.provider == .codex {
                                 LabeledContent("套餐", value: plan.displayName)
                             }
+                            if configuration.account.provider == .stepFun, snapshot.windows.isEmpty {
+                                Text("当前账号没有可用的 Step Plan")
+                            }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
                                 if window.scope == nil || configuration.account.provider == .qoderInternational {
                                     QuotaWindowView(window: window)
@@ -219,7 +222,8 @@ private struct AccountPreferencesView: View {
                         if configuration.account.provider.hasMonetaryWallet {
                             walletReminderControls(configuration: configuration)
                         } else {
-                            if configuration.account.provider != .qoderInternational {
+                            if configuration.account.provider != .qoderInternational &&
+                                (configuration.account.provider != .stepFun || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil }) == true) {
                                 Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
                                     var settings = configuration.reminders; settings.resetRemindersEnabled = value
                                     Task { await monitor.updateReminders(settings, accountID: accountID) }
@@ -286,7 +290,7 @@ private struct AccountPreferencesView: View {
         }
         .sheet(isPresented: $showingLogin) {
             if let provider = monitor.configuration(for: accountID)?.account.provider {
-                ProviderSignInView(provider: provider) { value in
+                ProviderSignInView(provider: provider, accountID: accountID) { value in
                     showingLogin = false
                     Task { await monitor.replaceCredential(value, accountID: accountID) }
                 }

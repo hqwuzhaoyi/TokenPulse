@@ -124,7 +124,7 @@ struct URLSessionProviderTransport: ProviderTransport {
     }
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        try await session.data(for: request)
+        try await session.data(for: request, delegate: ProviderRedirectPolicy(origin: request.url))
     }
 }
 
@@ -194,6 +194,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .vercelAIGateway:
             return try await VercelAIGatewayProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .stepFun:
+            return try await StepFunProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -233,7 +236,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude:
+        case .claude, .stepFun:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -275,6 +278,8 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
+        case .stepFun:
+            throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
         case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
@@ -290,7 +295,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -306,7 +311,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun:
             return .init(credential: credential, changed: false)
         }
     }
