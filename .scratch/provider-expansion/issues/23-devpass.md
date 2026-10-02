@@ -48,3 +48,8 @@ Central unsigned App/Widgets/Watch build and simulator XCTest execution, real AP
 追加四个回归方法验证实际 Key/metadata/空值与kind、四提供商换 Key失败清旧数据及恢复、all-time Key额度恢复不通知重置、grant恢复不通知重置。最终 Factory10/DevPass8/v0 7/Warp8 共33个provider XCTest方法完成Swift6 typecheck，完整App模块与共用partial/reset tests一起typecheck通过；补丁最后的无效kind/空Key防御分支已经语法检查但未额外运行模拟器。root统一执行最终编译、全部XCTest和unsigned构建。
 
 合成 Foundation smoke 通过实际Key identity及 nonResetting Key恢复不通知/不排重置；它不能代替Keychain/iCloud/物理设备或真实API验收。验收仍保持pending。
+
+
+## Integration review correction
+
+noPlan 仅允许显式 JSON null Key limit；unknown/missing usage with positive cap、missing cap 和未核实的零预算不再误判无上限。畸形 PAYG 保留旧额度与采集时间。矩形 complication 优先呈现已有 statusText，其他字段/形态保持既有逻辑。新增两项回归；最终统一编译/XCTest及视觉验收由 root 执行，真实账号仍未验收。

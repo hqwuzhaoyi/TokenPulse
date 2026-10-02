@@ -60,6 +60,43 @@ final class DevPassProviderTests: XCTestCase {
         XCTAssertThrowsError(try DevPassProviderClient.snapshot(Data(fixture.replacingOccurrences(of: "\"pro\"", with: "\"future\"").utf8), accountID: UUID(), collectedAt: Date()))
     }
 
+    func testNoPlanRequiresAnExplicitNullKeyLimitNotMissingUsageOrZeroBudget() throws {
+        for body in [
+            #"{"data":{"devPlan":"none","limit":"100"}}"#,
+            #"{"data":{"devPlan":"none","usage":"1"}}"#,
+            #"{"data":{"devPlan":"none","usage":"0","limit":"0"}}"#,
+            #"{"data":{"devPlan":"none","limit":"0"}}"#,
+        ] {
+            XCTAssertThrowsError(try DevPassProviderClient.snapshot(Data(body.utf8), accountID: UUID(), collectedAt: Date())) {
+                XCTAssertEqual($0 as? RefreshFailure, .unreadableResponse)
+            }
+        }
+        let explicitNull = try DevPassProviderClient.snapshot(Data(#"{"data":{"devPlan":"none","limit":null}}"#.utf8), accountID: UUID(), collectedAt: Date())
+        XCTAssertEqual(explicitNull.isNoPlan, true)
+        XCTAssertTrue(explicitNull.windows.isEmpty)
+        let account = SubscriptionAccount(id: explicitNull.accountID, name: "PAYG", provider: .devPass)
+        let widget = WidgetAccountSnapshot(account: account, windows: [], collectedAt: explicitNull.collectedAt,
+            lastFailure: nil, isNoPlan: explicitNull.isNoPlan)
+        XCTAssertEqual(widget.displayMetrics.first?.statusText, "按量计费，无上限")
+        XCTAssertEqual(widget.displayMetrics.first?.valueText, "按量计费，无上限")
+    }
+
+    @MainActor
+    func testIncompletePayAsYouGoResponseKeepsPreviousQuotaInsteadOfPublishingUnlimited() async throws {
+        let store = DevPassStore()
+        let transport = DevPassTransport([(200, fixture), (200, #"{"data":{"devPlan":"none","limit":"100"}}"#)])
+        let client = ProviderQuotaClient(provider: .devPass, transport: transport)
+        let monitor = QuotaMonitor(accountStore: store, credentialStore: store, quotaClient: client)
+        await monitor.start(refresh: false)
+        await monitor.addAccount(name: "Scope", credential: try key("fixture"), provider: .devPass)
+        let previous = try XCTUnwrap(monitor.states.first?.snapshot)
+        let id = try XCTUnwrap(monitor.states.first?.id)
+        await monitor.refresh(accountID: id)
+        XCTAssertEqual(monitor.states.first?.snapshot, previous)
+        XCTAssertNil(monitor.states.first?.snapshot?.isNoPlan)
+        XCTAssertEqual(monitor.states.first?.lastFailure, .unreadableResponse)
+    }
+
     func testInvalidDecimalShapesBooleanAndOverflowDoNotBecomeZero() throws {
         for invalid in ["nan", "inf", "1e300", "-1", "1.2.3", String(repeating: "9", count: 39), "0." + String(repeating: "0", count: 200) + "1"] {
             XCTAssertThrowsError(try DevPassProviderClient.amount(invalid), invalid)

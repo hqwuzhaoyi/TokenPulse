@@ -345,8 +345,12 @@ struct QuotaWidgetView: View {
                     Text(account.account.name).font(.caption2.bold()).lineLimit(1)
                 }
                 if let metric = account.displayMetrics.first {
-                    Text(metric.title).font(.caption2).lineLimit(1)
-                    Text(resetText(metric)).font(.system(size: 8)).foregroundStyle(.secondary)
+                    if let status = metric.statusText {
+                        Text(status).font(.caption2).lineLimit(2)
+                    } else {
+                        Text(metric.title).font(.caption2).lineLimit(1)
+                        Text(resetText(metric)).font(.system(size: 8)).foregroundStyle(.secondary)
+                    }
                 }
             }
         }

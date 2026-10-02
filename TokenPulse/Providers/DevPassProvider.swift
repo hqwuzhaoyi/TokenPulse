@@ -52,6 +52,13 @@ struct DevPassProviderClient: Sendable {
         if let budget = try window(id: "devpass.key_limit", name: "Key 累计限额", period: .other,
                                    used: key.usage, total: key.limit, reset: nil) { windows.append(budget) }
         guard key.devPlan == "none" || !windows.isEmpty else { throw RefreshFailure.noQuotaWindows }
+        if key.devPlan == "none", windows.isEmpty {
+            // Only JSON null explicitly means no all-time Key cap. A missing
+            // numerator, absent cap or zero cap must not become "unlimited".
+            let root = try ProviderHTTP.json(data)
+            guard key.limit == nil, let fields = root["data"] as? [String: Any],
+                  let limit = fields["limit"], limit is NSNull else { throw RefreshFailure.unreadableResponse }
+        }
         return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt,
                              providerPlanName: key.devPlan == "none" ? "按量计费" : key.devPlan.capitalized,
                              isNoPlan: key.devPlan == "none" && windows.isEmpty ? true : nil)

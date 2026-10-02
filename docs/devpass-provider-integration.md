@@ -6,7 +6,7 @@
 
 Premium 每周额度 (`devpass.premium_weekly`)、账期 credits (`devpass.cycle`) 和 Key 累计限额 (`devpass.key_limit`) 是三个独立窗口，单位为 `USD credits`，不是 API 钱包余额。数量只接受十进制字符串，先用 Foundation Decimal 解析与相减，最大 38 位有效数字；负数、科学计数法、非有限、布尔/数字替代字符串、不可精确表示的差值均拒绝，不能补零。`QuotaWindow.exactCounts` 保留 used/remaining/total 原始十进制精度，iPhone、Watch 和 widget 共用精确显示；只有环形百分比转有限 Double。零额度表示未发放窗口，缺失任一计数不能制造百分比。
 
-计划只接受 none/lite/pro/max，未知计划失败并保留旧数据。none 且没有正 Key 上限是成功的按量计费无上限状态 (`isNoPlan=true`)，清除过往套餐窗口；卡片、Watch、组件明确显示，没有假额度。none 但有 Key 上限仍显示 Key 累计预算窗口。付费计划完全缺少有效额度是 noQuotaWindows，格式错误是 unreadableResponse。
+计划只接受 none/lite/pro/max，未知计划失败并保留旧数据。none 且 limit 明确为 JSON null 是成功的按量计费无上限状态 (`isNoPlan=true`)，清除过往套餐窗口；卡片、Watch、组件明确显示，没有假额度。none 但有 Key 上限仍显示 Key 累计预算窗口。付费计划完全缺少有效额度是 noQuotaWindows，格式错误是 unreadableResponse。
 
 每周 premium reset 使用返回的 ISO 日期。官方说明窗口从首个 premium 请求开始，过期后接口返回真实零用量和 null reset，直到下一次请求重新开始；不将 null 猜成下周时间。账期 credits 没有返回结束时间，Key 累计限额为所有时间预算，两者没有重置或虚构固定周期。只有实际存在的重置能预排预计提醒；按量计费无上限不开放额度提醒，只有 Key/账期额度时不显示无用的重置开关。所有有效额度共用阈值去重，不启用钱包低余额提醒。错误保留同账号的旧采集时间。
 
@@ -30,3 +30,8 @@ Premium 每周额度 (`devpass.premium_weekly`)、账期 credits (`devpass.cycle
 追加四个回归方法验证实际 Key/metadata/空值与kind、四提供商换 Key失败清旧数据及恢复、all-time Key额度恢复不通知重置、grant恢复不通知重置。最终 Factory10/DevPass8/v0 7/Warp8 共33个provider XCTest方法完成Swift6 typecheck，完整App模块与共用partial/reset tests一起typecheck通过；补丁最后的无效kind/空Key防御分支已经语法检查但未额外运行模拟器。root统一执行最终编译、全部XCTest和unsigned构建。
 
 合成 Foundation smoke 通过实际Key identity及 nonResetting Key恢复不通知/不排重置；它不能代替Keychain/iCloud/物理设备或真实API验收。验收仍保持pending。
+
+
+## No-plan completeness fix
+
+仅明确 `limit: null` 可以把 none/empty 解释为无 Key 上限；正限额缺使用量、限额字段缺失和零限额的未验证语义均报不可读，保留同 Key 的旧额度/采集时间，不能伪装为无限。矩形复杂功能优先显示 statusText，防止已有 isNoPlan=true 在视觉上只剩“时间未提供”。两条新回归覆盖解析/旧数据保留及 widget 状态指标，未执行布局截图或真实账号查询。
