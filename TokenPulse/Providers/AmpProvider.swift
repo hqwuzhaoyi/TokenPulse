@@ -123,7 +123,8 @@ struct AmpProviderClient: Sendable {
                            usedPercentage: percentage, remainingCount: unit == nil ? nil : remainder,
                            totalCount: unit == nil ? nil : limit, resetsAt: reset, unit: unit,
                            resetSemantics: continuous ? .continuousReplenishment : nil,
-                           resetDatePrecision: reset != nil ? .day : nil)
+                           resetDatePrecision: reset != nil ? .day : nil,
+                           exactCounts: unit == nil ? nil : DecimalQuotaCounts(used: max(0, total - remaining), remaining: remaining, total: total))
     }
 
     private static func periodEnd(_ text: String) -> Date? {

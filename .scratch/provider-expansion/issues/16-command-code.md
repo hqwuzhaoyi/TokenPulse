@@ -30,3 +30,5 @@
 已实现 `.commandCode` 添加入口、Key envelope、安全保存/账号隔离与既有同步/删除路径、双端直接客户端、混合额度+钱包能力、Widget/演示、固定 MIT 图标与7个合成契约测试。只读取 whoami 与 credits，不调用 subscriptions/summary、不含价格表或推算月度总额。钱包只在三个金额池全部明确返回时以 Decimal 相加，未知池不补零。
 
 [实施范围与验证记录](../../../docs/command-code-provider-integration.md)。完整 App 的 Swift6 iOS module emit 和完整新增 XCTest 文件 semantic typecheck通过，PBX/plist与diff检查通过；未运行xcodebuild/模拟器，真实Key、iCloud到Watch、手机离线的物理Watch读取、真实提醒及完整无签名目标构建仍未验收，由root集中验证。未把合成测试或源码接口作为真实账号证明。
+
+跟进：加入 scoped credential SHA-256 身份绑定与 Decimal exactCounts，新增精确小数限额归档/Widget回归，当前8个测试方法。[本组最终静态验证](../../../docs/provider-wave2-research-validation.md)覆盖完整App/Widgets支持源/44个Watch target源及所有相关测试语义；XCTest执行和实际验收仍待root。

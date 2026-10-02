@@ -17,6 +17,7 @@ final class AmpProviderTests: XCTestCase {
         XCTAssertEqual(free.usedPercentage, 40)
         XCTAssertEqual(free.remainingCount, 6)
         XCTAssertEqual(free.unit, "USD")
+        XCTAssertEqual(free.exactCounts, DecimalQuotaCounts(used: 4, remaining: 6, total: 10))
         XCTAssertNil(free.period)
         XCTAssertNil(free.resetsAt)
         XCTAssertEqual(free.resetSemantics, .continuousReplenishment)
@@ -43,6 +44,8 @@ final class AmpProviderTests: XCTestCase {
         XCTAssertEqual(snapshot.windows.last?.unit, "小时")
         XCTAssertEqual(snapshot.windows.last?.remainingCount, 732.8)
         XCTAssertEqual(snapshot.windows.last?.totalCount, 750)
+        XCTAssertEqual(snapshot.windows.first?.exactCounts, DecimalQuotaCounts(used: Decimal(string: "1.43"), remaining: Decimal(string: "18.57"), total: 20))
+        XCTAssertEqual(snapshot.windows.last?.exactCounts, DecimalQuotaCounts(used: Decimal(string: "17.2"), remaining: Decimal(string: "732.8"), total: 750))
         for window in snapshot.windows {
             XCTAssertEqual(window.resetDatePrecision, .day)
             XCTAssertEqual(QuotaFormatting.nextEventValue(window), "2026-10-13")

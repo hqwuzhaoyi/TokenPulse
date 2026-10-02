@@ -18,6 +18,7 @@ final class CommandCodeProviderTests: XCTestCase {
         XCTAssertEqual(snapshot.windows.last?.wallet?.currency, "USD")
         XCTAssertNil(snapshot.windows.last?.usedPercentage)
         XCTAssertEqual(snapshot.windows.first?.usedPercentage, 40)
+        XCTAssertEqual(snapshot.windows.first?.exactCounts, DecimalQuotaCounts(used: 4, remaining: 6, total: 10))
         XCTAssertEqual(snapshot.windows.first?.resetsAt, Date(timeIntervalSince1970: 1790985600))
         XCTAssertTrue(snapshot.windows.filter { $0.id.contains("org.") }.first?.id.contains("model/a") == true)
         XCTAssertFalse(snapshot.windows.contains { $0.id == "monthly" || $0.id == "credits" })
@@ -43,6 +44,17 @@ final class CommandCodeProviderTests: XCTestCase {
         let zeros = try CommandCodeProviderClient.snapshot(whoamiData: Data("{}".utf8),
             creditsData: Data(#"{"credits":{"monthlyCredits":0,"purchasedCredits":0,"freeCredits":0}}"#.utf8), accountID: UUID(), collectedAt: time)
         XCTAssertEqual(zeros.windows.first?.wallet?.total, 0)
+    }
+
+    func testReportedMonetaryQuotaKeepsExactDecimalQuantitiesAcrossArchiveAndWidget() throws {
+        let payload = #"{"windowLimits":{"limited":true,"fiveHour":{"used":"0.000000000000000001","cap":"10.123456789012345678"}}}"#
+        let snapshot = try CommandCodeProviderClient.snapshot(whoamiData: Data("{}".utf8), creditsData: Data(payload.utf8), accountID: UUID(), collectedAt: time)
+        let window = try XCTUnwrap(snapshot.windows.first)
+        XCTAssertEqual(window.exactCounts?.used, Decimal(string: "0.000000000000000001"))
+        XCTAssertEqual(window.exactCounts?.total, Decimal(string: "10.123456789012345678"))
+        XCTAssertEqual(window.exactCounts?.remaining, Decimal(string: "10.123456789012345677"))
+        XCTAssertEqual(try JSONDecoder().decode(QuotaWindow.self, from: JSONEncoder().encode(window)).exactCounts, window.exactCounts)
+        XCTAssertEqual(WidgetQuotaMetric(id: window.id, title: window.name, window: window).valueText, QuotaFormatting.exactCountSummary(window))
     }
 
     func testStrictFlagsMalformedAmountsAndUnknownShapesFail() {

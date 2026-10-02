@@ -4,6 +4,8 @@
 
 直接凭证保存 SHA-256(provider,key) 单向身份元数据，沿用既有 scoped credential 绑定。换 Key、配置/Keychain 分批同步或正在查询时更换凭证，不允许旧用户额度冒充新账号；身份变化清旧快照，提醒账本按同一配置身份协调。
 
+跟进共享 DecimalQuotaCounts 后，所有实际USD限额另保存 exactCounts 的 Decimal used/remaining/total，App/Watch/Widget展示优先这组精确值；旧Double标量仅用于兼容/比率，不再是金额展示的唯一数据。新增精确小数限额归档与Widget回归，当前共8个CommandCode方法。
+
 请求固定为 Bearer GET `https://api.commandcode.ai/alpha/whoami?limits=1`，成功后以该响应 `org.id` 为 URL query `orgId` 读取 `/alpha/billing/credits`。组织缺失时参数省略，查询 token 默认身份。认证失败先停止后续请求；HTTP 401/403、429、服务器错误和不可读 JSON 分开报错，既有 QuotaMonitor 保留旧快照与采集时间。
 
 `credits.monthlyCredits/purchasedCredits/freeCredits` 都表示当前美元余额池，不是月度 allowance。全部三个实际返回时才用 Decimal 相加成 USD 钱包；缺任意池就不计算未知总额，仍可显示已给出的有界限额。没有凭套餐名称/价格表推算月度总额，没有用剩余+历史消费构造假限额，不请求 subscriptions/summary。服务给出的 `planId` 仅作为名称。

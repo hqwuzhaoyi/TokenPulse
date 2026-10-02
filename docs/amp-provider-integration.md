@@ -4,6 +4,8 @@
 
 凭证元数据包含 SHA-256(provider,token) 单向身份，换 token 时利用既有 scoped credential 机制清旧账号快照并协调提醒账本。配置和 Keychain 尚未一致时不发起旧 token 的新账号查询。
 
+跟进共享 DecimalQuotaCounts 后，美元Free/Agent与已知Orb小时另保存Decimal exactCounts；通用App/Watch/Widget优先精确数量显示，旧百分比文本没有分母/单位，仍不补造数量。
+
 响应只能是严格 Bool `ok` + `result.displayText`；`ok:false/error.code=auth-required` 或登录提示表示凭证失效，其他业务拒绝为服务错误，HTTP 拒绝/限流分开处理。没有公开刷新协议时不发明续期请求，失效从账号设置重新配置。
 
 已知文本形态取固定 Pulse commit `397c8fc4f1bd52180a452d2f3f0c099def97cf69` 的[Amp provider文档](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/amp.md)和[parser](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/Profiled/AmpUsageService.swift)：小时Free `Amp Free: $R/$L remaining (replenishes +$x/hour)`、每日Free的明确 today/resets daily 百分比、`Amp <Plan> Tier: agent usage $R of $L remaining` 与其 `a1.small orb hours`、两个旧 Subscription 百分比表述及 `Individual credits: $N remaining`。只清 ANSI 与 Markdown bold，不改变数字；千位分组必须合法，未知text/缺失/错误类型不生成零。Workspace balance与其他Orb单位不混入个人钱包/小时额度。

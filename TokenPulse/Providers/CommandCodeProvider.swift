@@ -155,7 +155,8 @@ struct CommandCodeProviderClient: Sendable {
         guard percentage.isFinite, remaining.isFinite, total.isFinite else { return nil }
         return QuotaWindow(id: id, name: name, scope: scope, period: period,
                            isExhausted: exceeded ?? (spent >= limit), usedPercentage: percentage,
-                           remainingCount: remaining, totalCount: total, resetsAt: reset, unit: "USD")
+                           remainingCount: remaining, totalCount: total, resetsAt: reset, unit: "USD",
+                           exactCounts: DecimalQuotaCounts(used: spent, remaining: max(0, limit - spent), total: limit))
     }
 
     private static func decode<T: Decodable>(_ type: T.Type, _ data: Data) throws -> T {

@@ -30,3 +30,5 @@
 已实现 `.amp` Access Token 配置、只读 balance RPC、严格已知 displayText 解析、Decimal 个人 USD 钱包、Free/Agent/Orb 稳定窗口、mixed 路由、demo 与固定 MIT 图标。小时 Free 使用 continuousReplenishment，不预排/确认 reset；billing end 用 day 精度保持源日期，不当 UTC 午夜精确重置。
 
 [实施范围/字段与验证](../../../docs/amp-provider-integration.md)。7 个合成 XCTest 方法、全部 App Swift6 iOS module emit 及完整测试 semantic typecheck 通过，PBX/diff/资产 metadata 检查通过。未运行 xcodebuild/模拟器/XCTest，完整构建和测试由 root 集中验证；无真实 token/账号和物理 iPhone/Watch 直连、iCloud 与提醒验收，整票未完成。
+
+跟进：加入 scoped credential 身份绑定，美元Free/Agent与Orb小时保存Decimal exactCounts。[本组最终静态验证](../../../docs/provider-wave2-research-validation.md)包含全部相关App/Widget/Watch源与完整测试语义，不冒充XCTest执行/真实设备通过。
