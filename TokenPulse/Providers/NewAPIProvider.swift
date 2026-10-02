@@ -105,13 +105,13 @@ struct GatewayServerAddress: Equatable, Sendable {
 
 extension ProviderCredentialEnvelope {
     var gatewayAddress: GatewayServerAddress? {
-        guard let value = metadata["serverAddress"] else { return nil }
-        return try? GatewayServerAddress(value)
+        guard provider.requiresGatewayAddress, let value = metadata["serverAddress"] else { return nil }
+        return try? GatewayCredentials.address(value, provider: provider)
     }
 
     var sourceCredentialIdentity: String? {
         if metadata["webSessionFormat"] == "v1" { return try? WebProviderSession.fingerprint(self) }
-        if provider == .newAPI { return gatewayIdentity }
+        if provider.requiresGatewayAddress { return gatewayIdentity }
         if provider == .ibmBob { return (try? IBMBobCredential(envelope: self))?.fingerprint }
         if provider == .xaiAPI { return (try? XAIManagementCredential(envelope: self))?.fingerprint }
         if provider == .volcengine { return (try? VolcengineAccessKeys(accessToken))?.fingerprint }
@@ -128,9 +128,7 @@ extension ProviderCredentialEnvelope {
 
     /// Scope is canonical server + key; metadata order and trailing /v1 are irrelevant.
     var gatewayIdentity: String? {
-        guard provider == .newAPI, kind == .apiKey, let address = gatewayAddress,
-              let bytes = try? JSONEncoder().encode([provider.rawValue, address.value, accessToken]) else { return nil }
-        return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        GatewayCredentials.fingerprint(self)
     }
 }
 
@@ -151,7 +149,10 @@ struct GatewayProviderTransport: ProviderTransport {
     }()
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        guard let url = request.url, (try? GatewayServerAddress(url.absoluteString, trimming: [])) != nil else {
+        guard let url = request.url, var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.fragment == nil else { throw ProviderIntegrationError.invalidCredentialData }
+        components.query = nil
+        guard let baseURL = components.url, (try? GatewayServerAddress(baseURL.absoluteString, trimming: [])) != nil else {
             throw ProviderIntegrationError.invalidCredentialData
         }
         return try await Self.session.data(for: request)

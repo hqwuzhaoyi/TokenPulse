@@ -64,7 +64,7 @@ final class QuotaMonitor: ObservableObject {
             for accountID in deletedIDs { await cleanupCredential(for: accountID) }
             let statesBeforeBinding = states
             let configurationsBeforeBinding = synchronizedConfigurations
-            for configuration in configurations where configuration.account.provider == .newAPI || configuration.credentialIdentity != nil {
+            for configuration in configurations where configuration.account.provider.requiresGatewayAddress || configuration.credentialIdentity != nil {
                 if let credential = try await credentialStore.credential(for: configuration.id), credential != "demo" {
                     try? bindScopedCredential(credential, accountID: configuration.id, replacing: false)
                 }
@@ -92,8 +92,8 @@ final class QuotaMonitor: ObservableObject {
         guard !trimmedName.isEmpty, !trimmedCredential.isEmpty,
               !states.contains(where: { $0.id == accountID }) else { return }
 
-        if provider == .newAPI, trimmedCredential != "demo",
-           (try? ProviderCredentialEnvelope.decode(trimmedCredential, expectedProvider: .newAPI).gatewayIdentity) == nil {
+        if provider.requiresGatewayAddress, trimmedCredential != "demo",
+           (try? ProviderCredentialEnvelope.decode(trimmedCredential, expectedProvider: provider).gatewayIdentity) == nil {
             storageMessage = "服务器地址与凭证无法绑定"
             return
         }
@@ -152,7 +152,7 @@ final class QuotaMonitor: ObservableObject {
                   !credential.isEmpty else {
                 throw RefreshFailure.invalidCredential
             }
-            if credential != "demo", previous.account.provider == .newAPI || sourceIdentity(credential, provider: previous.account.provider) != nil || configuration(for: accountID)?.credentialIdentity != nil {
+            if credential != "demo", previous.account.provider.requiresGatewayAddress || sourceIdentity(credential, provider: previous.account.provider) != nil || configuration(for: accountID)?.credentialIdentity != nil {
                 try bindScopedCredential(credential, accountID: accountID, replacing: false)
             }
             let scopedPrevious = states.first { $0.id == accountID }
@@ -296,8 +296,8 @@ final class QuotaMonitor: ObservableObject {
     func replaceCredential(_ credential: String, accountID: UUID) async {
         guard states.contains(where: { $0.id == accountID }), !credential.isEmpty else { return }
         do {
-            if configuration(for: accountID)?.account.provider == .newAPI, credential != "demo",
-               (try? ProviderCredentialEnvelope.decode(credential, expectedProvider: .newAPI).gatewayIdentity) == nil {
+            if let provider = configuration(for: accountID)?.account.provider, provider.requiresGatewayAddress, credential != "demo",
+               (try? ProviderCredentialEnvelope.decode(credential, expectedProvider: provider).gatewayIdentity) == nil {
                 throw RefreshFailure.invalidCredential
             }
             if let configuration = configuration(for: accountID), configuration.credentialIdentity != nil,
@@ -352,7 +352,7 @@ final class QuotaMonitor: ObservableObject {
         for incomingState in incomingStates {
             guard let snapshot = incomingState.snapshot, snapshot.accountID == incomingState.id,
                   let index = states.firstIndex(where: { $0.id == incomingState.id }) else { continue }
-            if incomingState.account.provider == .newAPI || configuration(for: incomingState.id)?.credentialIdentity != nil {
+            if incomingState.account.provider.requiresGatewayAddress || configuration(for: incomingState.id)?.credentialIdentity != nil {
                 guard let identity = configuration(for: incomingState.id)?.credentialIdentity,
                       (incomingState.credentialIdentity ?? snapshot.sourceCredentialFingerprint) == identity,
                       snapshot.sourceCredentialFingerprint == nil || snapshot.sourceCredentialFingerprint == identity else { continue }

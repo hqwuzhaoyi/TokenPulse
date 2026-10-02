@@ -1,6 +1,6 @@
 # 15: LiteLLM 用户与团队预算接入
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,8 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/litellm.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+
+## 2026-10-02 wave3 evidence
+
+`.liteLLM` gateway地址/Key绑定、双端Key→user/team只读GET、严格返回身份/绑定团队筛选、Decimal预算独立窗口、权限未提供status与无回退、UI/Watch/widget/demo/适用提醒和图标映射均已实现。SF puzzlepiece.extension.fill存在；主源/许可/边界在[专属文档](../../../docs/litellm-provider-integration.md)。新增回归和小模块Swift6语义检查通过，parse/PBX/diff通过；实际XCTest和target构建交root，未请求真实Key或部署、未启动模拟器。当前AC完成，旧真实验证记录保持未验。

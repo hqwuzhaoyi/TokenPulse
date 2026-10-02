@@ -1,6 +1,6 @@
 # 14: Bifrost 虚拟 Key 预算接入
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,8 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/bifrost.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+
+## 2026-10-02 wave3 evidence
+
+`.bifrost` 完整gateway账号/凭证/UI/Watch/widget/demo注册；x-bf-vk只读查询，Key/provider/model三层Decimal预算分窗，active override和旧/日历reset边界，停用与无预算的明确不同状态已实现。SF Symbol puzzlepiece.extension.fill存在并映射，来源许可已记录。新BifrostProviderTests、小模块Swift6语义检查、parse/PBX/diff通过；root统一实际XCTest/构建，本分支无真实Key/部署/设备请求。当前AC完成，旧清单与真实未验证边界保留。[源码与专属说明](../../../docs/bifrost-provider-integration.md)。

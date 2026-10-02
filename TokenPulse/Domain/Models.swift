@@ -13,6 +13,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case zhipu, miniMaxInternational
     case stepFun
     case newAPI
+    case sub2api
+    case bifrost
+    case liteLLM
+    case llmProxy
     case copilot
     case clinePass
     case clawRouter
@@ -39,12 +43,12 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper, .manus].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .replicate, .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI, .typeSafe: .walletOnly
-        case .sakana, .mistral, .manus, .devin, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
+        case .sub2api, .sakana, .mistral, .manus, .devin, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -66,6 +70,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .elevenLabs: "ElevenLabs"
         case .stepFun: "StepFun"
         case .newAPI: "New API"
+        case .sub2api: "sub2api"
+        case .bifrost: "Bifrost"
+        case .liteLLM: "LiteLLM"
+        case .llmProxy: "LLM API Key Proxy"
         case .copilot: "GitHub Copilot"
         case .clinePass: "ClinePass"
         case .clawRouter: "ClawRouter"

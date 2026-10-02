@@ -47,6 +47,8 @@ extension Provider {
         case .elevenLabs: "ProviderElevenLabs"
         case .stepFun: "ProviderStepFun"
         case .newAPI: "ProviderNewAPI"
+        case .sub2api: "ProviderSub2API"
+        case .bifrost, .liteLLM, .llmProxy: nil
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
         case .clawRouter: "ProviderClawRouter"
@@ -89,7 +91,7 @@ extension Provider {
         case .neuralwatt: "bolt.circle"
         case .aixy: "network"
         case .hyper: "bolt.circle"
-        case .synthetic, .xKiro: "puzzlepiece.extension.fill"
+        case .synthetic, .xKiro, .bifrost, .liteLLM, .llmProxy: "puzzlepiece.extension.fill"
         case .v2ex: "bubble.left.and.bubble.right.fill"
         default: nil
         }

@@ -1,6 +1,6 @@
 # 37: LLM API Key Proxy 分组额度
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -30,3 +30,8 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/llm-proxy.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## 2026-10-02 wave3 evidence
+
+`.llmProxy` 完整gateway账号地址/Key/scope生命周期、GET quota-stats只读、逐上游配额组对象/列表解析、实际reset/局部畸形/不取全局min、App/Watch/widget/demo及适用提醒注册已实现。SF Symbols puzzlepiece.extension.fill图标存在，来源许可在Notices；[专属docs](../../../docs/llm-proxy-provider-integration.md)固定主源和缓存观察边界。新增有效回归、小模块Swift6语义、parse/PBX/diff检查通过。root统一实际target测试/构建，无真实Key/部署/设备/iCloud验证，按当前AC不阻塞done，旧清单未验证项不伪称通过。
