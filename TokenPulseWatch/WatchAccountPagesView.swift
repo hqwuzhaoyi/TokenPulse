@@ -194,7 +194,9 @@ private struct WatchAccountPage: View {
                                 if let overage = QuotaFormatting.overageDescription(window) {
                                     Text(overage).font(.caption2)
                                 }
-                                if !window.isUnlimited, let remaining = window.remainingCount {
+                                if !window.isUnlimited, let exact = QuotaFormatting.exactCountSummary(window) {
+                                    LabeledContent("剩余", value: exact).font(.caption2)
+                                } else if !window.isUnlimited, let remaining = window.remainingCount {
                                     LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
                                         .font(.caption2)
                                 }
