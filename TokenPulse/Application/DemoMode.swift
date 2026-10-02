@@ -35,6 +35,7 @@ enum DemoMode {
             (.huggingFace, "Hugging Face ZeroGPU"),
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
+            (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -133,6 +134,25 @@ enum DemoMode {
                         resetSemantics: .continuousReplenishment, nextReplenishmentAt: now.addingTimeInterval(600)),
             QuotaWindow(id: "synthetic.search_hourly", name: "每小时额度", scope: "Search", period: .other,
                         usedPercentage: 10, remainingCount: 225, totalCount: 250, resetsAt: now.addingTimeInterval(1800), unit: "次请求")
+        ]
+        case .ibmBob: [
+            QuotaWindow(id: "ibmBob.personal.solo.user", name: "Bobcoins", scope: "Personal · Solo", period: .monthly,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(10 * 86_400), unit: "Bobcoins",
+                        exactCounts: DecimalQuotaCounts(used: 10, remaining: 30, total: 40)),
+            QuotaWindow(id: "ibmBob.work.platform.user", name: "Bobcoins（预算未提供）", scope: "Work · Platform", period: .monthly,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(20 * 86_400), unit: "Bobcoins",
+                        exactCounts: DecimalQuotaCounts(used: 12.5))
+        ]
+        case .xaiAPI: [
+            QuotaWindow(id: "xaiAPI.team.demo.wallet.USD", name: "已入账预付余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "USD", wallet: WalletBalance(currency: "USD", total: 12.34))
+        ]
+        case .volcengine: [
+            window("volcengine.coding.fiveHour", "5 小时额度", .fiveHour, 12, scope: "Coding Plan"),
+            window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
+            QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
+                        usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
         ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),

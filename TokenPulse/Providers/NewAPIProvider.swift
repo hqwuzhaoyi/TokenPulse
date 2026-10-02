@@ -110,7 +110,12 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
-        provider == .newAPI ? gatewayIdentity : provider.requiresRegion ? regionalIdentity : metadata["sourceCredentialFingerprint"]
+        if provider == .newAPI { return gatewayIdentity }
+        if provider == .ibmBob { return (try? IBMBobCredential(envelope: self))?.fingerprint }
+        if provider == .xaiAPI { return (try? XAIManagementCredential(envelope: self))?.fingerprint }
+        if provider == .volcengine { return (try? VolcengineAccessKeys(accessToken))?.fingerprint }
+        if provider.requiresRegion { return regionalIdentity }
+        return metadata["sourceCredentialFingerprint"]
     }
 
     /// Scope is canonical server + key; metadata order and trailing /v1 are irrelevant.

@@ -224,27 +224,29 @@ private struct AccountPreferencesView: View {
                 }
                 let quotaRemindersAvailable = supportsQuotaReminders(configuration)
                 let walletRemindersAvailable = supportsWalletReminders(configuration)
-                if quotaRemindersAvailable || walletRemindersAvailable {
+                let resetRemindersAvailable = supportsResetReminders(configuration)
+                if quotaRemindersAvailable || walletRemindersAvailable || resetRemindersAvailable {
                     Section("提醒") {
                         if quotaRemindersAvailable {
                             Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
                                 var settings = configuration.reminders; settings.quotaAlertsEnabled = value
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
-                            if configuration.account.provider != .qoderInternational &&
-                                (![Provider.stepFun, .synthetic, .v2ex].contains(configuration.account.provider) || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil && $0.resetSemantics == nil }) == true) &&
-                                (configuration.account.provider.balancePresentation != .mixed || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.wallet == nil && $0.resetsAt != nil }) == true) {
-                                Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
-                                    var settings = configuration.reminders; settings.resetRemindersEnabled = value
-                                    Task { await monitor.updateReminders(settings, accountID: accountID) }
-                                }))
-                            }
                             TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
                             Button("保存阈值") { saveQuotaThresholds(configuration) }
                         }
+                        if resetRemindersAvailable {
+                            Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
+                                var settings = configuration.reminders; settings.resetRemindersEnabled = value
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
+                        }
                         if walletRemindersAvailable {
                             Toggle("低余额提醒", isOn: Binding(get: { configuration.reminders.effectiveWalletAlertsEnabled }, set: { value in
-                                var settings = configuration.reminders; settings.walletAlertsEnabled = value
+                                var settings = configuration.reminders
+                                if configuration.account.provider.balancePresentation == .walletOnly {
+                                    settings.quotaAlertsEnabled = value; settings.walletAlertsEnabled = nil
+                                } else { settings.walletAlertsEnabled = value }
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                             walletReminderControls(configuration: configuration)
@@ -286,6 +288,18 @@ private struct AccountPreferencesView: View {
                             TextField("组织 ID（可选）", text: $organizationID)
                                 .textInputAutocapitalization(.never).autocorrectionDisabled()
                             Text("这是会过期的账户会话 Token，失效后请重新配置。留空读取默认组织；更换组织与 Token 会清除旧额度。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .volcengine {
+                            Text("输入 AccessKeyID:SecretAccessKey，使用英文冒号。两个套餐分别查询；AK/SK 仅保存在系统安全存储中。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .xaiAPI {
+                            Text("输入 TeamID:ManagementKey，使用英文冒号。需要管理 Key 和账单读取权限，推理 Key 无效。余额是已入账值，账期内可能高于控制台实时余额。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .ibmBob {
+                            Text("通用 API Key 输入 apikey:Key；登录 JWT 输入 token:JWT。推理专用 Key 不适用。各实例和团队的 Bobcoins 预算分别展示，不换算成货币。登录 token 到期后需更新。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
@@ -347,9 +361,20 @@ private struct AccountPreferencesView: View {
 
     private func supportsQuotaReminders(_ configuration: AccountConfiguration) -> Bool {
         guard configuration.account.provider.balancePresentation != .walletOnly else { return false }
-        guard configuration.account.provider.balancePresentation == .mixed,
-              let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else { return true }
-        return snapshot.windows.contains { $0.wallet == nil && !$0.isUnlimited && ($0.usedPercentage != nil || $0.totalCount != nil) }
+        guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else {
+            return configuration.account.provider != .ibmBob
+        }
+        return snapshot.windows.contains { $0.wallet == nil && !$0.isUnlimited && $0.usedPercentage != nil }
+    }
+
+    private func supportsResetReminders(_ configuration: AccountConfiguration) -> Bool {
+        guard configuration.account.provider.balancePresentation != .walletOnly,
+              configuration.account.provider != .qoderInternational else { return false }
+        guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else { return false }
+        return snapshot.windows.contains {
+            $0.wallet == nil && !$0.isUnlimited && $0.resetSemantics == nil
+                && ($0.resetsAt != nil || $0.cycleID != nil || $0.usedPercentage != nil)
+        }
     }
 
     private func supportsWalletReminders(_ configuration: AccountConfiguration) -> Bool {

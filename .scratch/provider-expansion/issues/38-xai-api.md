@@ -1,6 +1,6 @@
 # 38: xAI API 团队预付余额
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,14 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/xai-api.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence (2026-10-02)
+
+- Added distinct `.xaiAPI` enum and `TeamID:ManagementKey` secure composite entry with explicit billing/management role instructions. Team ID is one strict ASCII path segment; Key/control character/size guards run before any request. Envelope team+key synchronize together through existing Keychain; identity is recomputed from actual team/key rather than trusting cached metadata.
+- Direct read-only device GET to fixed `management-api.x.ai` prepaid balance endpoint; ephemeral default transport rejects all redirects. Management envelopes are distinct from SuperGrok/inference envelopes, with no CLI/browser/inference or billing writes.
+- Official xAI Billing REST page identifies `total` as USD cents, and purchases are negative ledger values; Decimal `-total.val / 100` supports negative balances. Missing malformed values fail; no fabricated quota percentages, reset, balance components or API availability. Posted-vs-live caveat is on add/update UI and dedicated docs.
+- Account, Watch, widget, demo and USD low-balance behavior reuse the wallet pipeline. Tests include exact money/boundaries, fixed headers/route, team path and role refusal, failures, multi-team persistence/replace/delete/stale sync, reminder recovery and widget/demo.
+- Swift 6 temporary testable module includes real Domain/all Providers/Monitor/Demo/Reminder/WidgetSnapshotStore/PlatformConstants/formatting. New XAI and existing new Volcengine XCTest sources semantic typecheck passed with the real XCTest Swift overlay. PBX lint/UI syntax/diff validation passed; no xcodebuild/simulator/XCTest runtime executed by this agent. Root integrated tests and unsigned complete target build remain pending.
+- Icon uses pinned Lobe Icons `a94750e3f5f8fc33757b839d85030e742284e43a`, `packages/static-svg/icons/xai.svg`, MIT notice, black explicit-size template vector. Actual resource compilation pending.
+- No real Management Key/team, invalid-key live response, iCloud arrival or independent Watch refresh has been validated. Actual account and device criteria remain unchecked. Sources and all validation limits: [xAI API integration](../../../docs/xai-api-provider-integration.md).

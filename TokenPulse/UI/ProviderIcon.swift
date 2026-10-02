@@ -62,6 +62,9 @@ extension Provider {
         case .alibabaCodingPlan: "ProviderAlibabaCloud"
         case .chutes: "ProviderChutes"
         case .cursor: "ProviderCursor"
+        case .volcengine: "ProviderVolcengine"
+        case .xaiAPI: "ProviderXAIAPI"
+        case .ibmBob: "ProviderIBMBob"
         }
     }
 

@@ -29,14 +29,17 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case commandCode, amp, gitKraken, huggingFace
     case synthetic, v2ex, xKiro, zenMux
     case alibabaCodingPlan, chutes, cursor
+    case volcengine
+    case xaiAPI
+    case ibmBob
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
-        case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice: .walletOnly
+        case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI: .walletOnly
         case .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
@@ -83,6 +86,9 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .alibabaCodingPlan: "阿里百炼 Coding Plan"
         case .chutes: "Chutes"
         case .cursor: "Cursor"
+        case .volcengine: "火山方舟"
+        case .xaiAPI: "xAI API"
+        case .ibmBob: "IBM Bob"
         }
     }
 }

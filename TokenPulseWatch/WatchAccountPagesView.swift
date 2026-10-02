@@ -180,7 +180,7 @@ private struct WatchAccountPage: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                                     Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
-                                    Text(state.account.provider == .cursor ? window.displayName : window.name)
+                                    Text(window.displayName)
                                 } currentValueLabel: {
                                     Text(window.isExhausted == true
                                          ? "已用尽"

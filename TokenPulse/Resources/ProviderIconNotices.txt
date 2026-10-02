@@ -579,3 +579,9 @@ Alibaba Coding Plan uses Lobe Icons (https://github.com/lobehub/lobe-icons) comm
 Chutes uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/chutes.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets width/height to 64; vector paths are unchanged.
 
 Cursor uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/cursor.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets explicit width/height; vector paths are unchanged.
+
+Volcengine vector mark: https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, packages/static-svg/icons/volcengine.svg. Copyright (c) 2023 LobeHub; MIT License reproduced above. Official Volcengine SDK repositories did not provide an appropriate vector service mark; existing Lobe Icons source used. TokenPulse sets black fill and explicit 24x24 dimensions and preserves vector/template rendering.
+
+xAI API vector mark: https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, packages/static-svg/icons/xai.svg. Copyright (c) 2023 LobeHub, MIT License reproduced above. Uses the existing Lobe source; vector paths preserved with black 24x24 template rendering.
+
+IBM Bob uses the IBM vector mark from the existing Lobe Icons source, https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, packages/static-svg/icons/ibm.svg. Copyright (c) 2023 LobeHub, MIT License reproduced above. Black fill, explicit 24x24 size, preserved vector paths and template rendering. IBM/ibm-bob repository 76fe1c08ecb27eba5b942e3f8b346218851f7465 has no provider vector asset.

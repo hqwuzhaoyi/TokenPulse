@@ -366,8 +366,7 @@ struct NotificationPlanner: Sendable {
                   window.resetSemantics == nil,
                   window.resetDatePrecision != .day,
                   !window.isUnlimited,
-                  let usedPercentage = window.usedPercentage,
-                  usedPercentage > 0,
+                  (window.usedPercentage.map { $0 > 0 } ?? window.exactCounts?.used.map { $0 > 0 } ?? false),
                   let resetAt = window.resetsAt,
                   Int64(exactly: (resetAt.timeIntervalSince1970 * 1000).rounded()) != nil,
                   resetAt > now else { return nil }
