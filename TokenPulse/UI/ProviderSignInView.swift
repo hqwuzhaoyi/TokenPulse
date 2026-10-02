@@ -47,6 +47,10 @@ struct ProviderSignInView: View {
                                             .textSelection(.enabled)
                                     }
                                 }
+                                if provider == .nousPortal {
+                                    Text("iPhone 与 Watch 需分别授权同一账号。授权页可能显示 Hermes CLI。")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
                                 Link(destination: session.authorizationURL) {
                                     Label("前往 \(provider.displayName) 授权", systemImage: "safari")
                                         .frame(maxWidth: .infinity)
@@ -81,7 +85,7 @@ struct ProviderSignInView: View {
                     }
                     .task(id: scenePhase == .active ? attempt : -1) {
                         guard scenePhase == .active else { return }
-                        await login.authorize(provider: provider, completion: completion)
+                        await login.authorize(provider: provider, accountID: accountID, completion: completion)
                     }
                 }
             }
@@ -115,7 +119,7 @@ final class DeviceLoginModel: ObservableObject {
         self.sleep = sleep
     }
 
-    func authorize(provider: Provider, completion: (String) -> Void) async {
+    func authorize(provider: Provider, accountID: UUID? = nil, completion: (String) -> Void) async {
         guard !completed else { return }
         let runID = UUID()
         activeRunID = runID
@@ -123,7 +127,7 @@ final class DeviceLoginModel: ObservableObject {
         message = nil
         do {
             if session == nil {
-                let pending = try await controller.beginLogin(provider: provider)
+                let pending = try await controller.beginLogin(provider: provider, accountID: accountID)
                 try Task.checkCancellation()
                 guard activeRunID == runID else { return }
                 session = pending

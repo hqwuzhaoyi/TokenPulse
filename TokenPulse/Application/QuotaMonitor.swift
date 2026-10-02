@@ -65,7 +65,7 @@ final class QuotaMonitor: ObservableObject {
             let statesBeforeBinding = states
             let configurationsBeforeBinding = synchronizedConfigurations
             for configuration in configurations where configuration.account.provider.requiresGatewayAddress || configuration.credentialIdentity != nil {
-                if let credential = try await credentialStore.credential(for: configuration.id), credential != "demo" {
+                if let credential = try await credentialStore.credential(for: configuration.id, provider: configuration.account.provider), credential != "demo" {
                     try? bindScopedCredential(credential, accountID: configuration.id, replacing: false)
                 }
             }
@@ -99,14 +99,14 @@ final class QuotaMonitor: ObservableObject {
         }
         let account = SubscriptionAccount(id: accountID, name: trimmedName, provider: provider)
         do {
-            try await credentialStore.save(trimmedCredential, for: account.id)
+            try await credentialStore.save(trimmedCredential, for: account.id, provider: provider)
             states.append(AccountQuotaState(account: account, snapshot: nil, lastFailure: nil))
             do {
                 try await accountStore.save(states)
             } catch {
                 states.removeAll { $0.id == account.id }
                 do {
-                    try await credentialStore.deleteCredential(for: account.id)
+                    try await credentialStore.deleteCredential(for: account.id, provider: provider)
                     storageMessage = "无法安全保存账号"
                 } catch {
                     pendingCredentialCleanupAccountIDs.insert(account.id)
@@ -148,7 +148,7 @@ final class QuotaMonitor: ObservableObject {
         }
 
         do {
-            guard let credential = try await credentialStore.credential(for: accountID),
+            guard let credential = try await credentialStore.credential(for: accountID, provider: previous.account.provider),
                   !credential.isEmpty else {
                 throw RefreshFailure.invalidCredential
             }
@@ -164,7 +164,7 @@ final class QuotaMonitor: ObservableObject {
             }
             guard !Task.isCancelled, credentialRevisions[accountID, default: 0] == revision else { return }
             if let identity = states[index].credentialIdentity {
-                guard let latest = try await credentialStore.credential(for: accountID),
+                guard let latest = try await credentialStore.credential(for: accountID, provider: previous.account.provider),
                       sourceIdentity(latest, provider: previous.account.provider) == identity else { return }
                 guard snapshot.sourceCredentialFingerprint == nil || snapshot.sourceCredentialFingerprint == identity else {
                     throw RefreshFailure.unreadableResponse
@@ -285,7 +285,9 @@ final class QuotaMonitor: ObservableObject {
 
     private func cleanupCredential(for accountID: UUID) async {
         do {
-            try await credentialStore.deleteCredential(for: accountID)
+            if let provider = synchronizedConfigurations.first(where: { $0.id == accountID })?.account.provider {
+                try await credentialStore.deleteCredential(for: accountID, provider: provider)
+            } else { try await credentialStore.deleteCredential(for: accountID) }
             pendingCredentialCleanupAccountIDs.remove(accountID)
         } catch {
             pendingCredentialCleanupAccountIDs.insert(accountID)
@@ -293,9 +295,17 @@ final class QuotaMonitor: ObservableObject {
         }
     }
 
-    func replaceCredential(_ credential: String, accountID: UUID) async {
+    func replaceCredential(_ credential: String, accountID: UUID, expectedIdentity: String? = nil) async {
         guard states.contains(where: { $0.id == accountID }), !credential.isEmpty else { return }
         do {
+            if let expectedIdentity {
+                guard configuration(for: accountID)?.credentialIdentity == expectedIdentity,
+                      let provider = configuration(for: accountID)?.account.provider,
+                      sourceIdentity(credential, provider: provider) == expectedIdentity else {
+                    storageMessage = "请授权与此服务账号一致的 Nous 用户和组织。"
+                    return
+                }
+            }
             if let provider = configuration(for: accountID)?.account.provider, provider.requiresGatewayAddress, credential != "demo",
                (try? ProviderCredentialEnvelope.decode(credential, expectedProvider: provider).gatewayIdentity) == nil {
                 throw RefreshFailure.invalidCredential
@@ -304,9 +314,19 @@ final class QuotaMonitor: ObservableObject {
                credential != "demo", sourceIdentity(credential, provider: configuration.account.provider) == nil {
                 throw RefreshFailure.invalidCredential
             }
-            try await credentialStore.save(credential, for: accountID)
+            guard let provider = configuration(for: accountID)?.account.provider else { return }
+            try await credentialStore.save(credential, for: accountID, provider: provider)
             guard states.contains(where: { $0.id == accountID }) else {
                 await cleanupCredential(for: accountID)
+                return
+            }
+            if let expectedIdentity, configuration(for: accountID)?.credentialIdentity != expectedIdentity {
+                if let local = credentialStore as? any DeviceOAuthVaultProviding {
+                    let saved = try await local.deviceOAuthVault.version(for: accountID)
+                    if saved.credential == credential {
+                        _ = try await local.deviceOAuthVault.compareAndSwap(expectedGeneration: saved.generation, credential: nil, for: accountID)
+                    }
+                }
                 return
             }
             credentialRevisions[accountID, default: 0] += 1
@@ -443,7 +463,9 @@ final class QuotaMonitor: ObservableObject {
     func retryPendingCredentialCleanup() async {
         for accountID in pendingCredentialCleanupAccountIDs {
             do {
-                try await credentialStore.deleteCredential(for: accountID)
+                if let provider = synchronizedConfigurations.first(where: { $0.id == accountID })?.account.provider {
+                    try await credentialStore.deleteCredential(for: accountID, provider: provider)
+                } else { try await credentialStore.deleteCredential(for: accountID) }
                 pendingCredentialCleanupAccountIDs.remove(accountID)
             } catch {
                 // Keep the identifier so the visible action can retry it.

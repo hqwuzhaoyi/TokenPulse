@@ -14,6 +14,7 @@ final class AppRuntime: ObservableObject {
     private let demoSuiteName: String
     private let widgetStore: WidgetSnapshotStore
     private let credentials: SynchronizableCredentialStore
+    private let accountCredentials: ProviderScopedCredentialStore
     private var realMonitor: QuotaMonitor?
     private var realNotifications: NotificationRuntime?
     private var started = false
@@ -41,13 +42,15 @@ final class AppRuntime: ObservableObject {
         self.cloudSync = cloudSync
         let credentials = SynchronizableCredentialStore(syncEnabled: cloudSync.isEnabled)
         self.credentials = credentials
+        let accountCredentials = ProviderScopedCredentialStore(synchronized: credentials)
+        self.accountCredentials = accountCredentials
         let demoEnabled = defaults.bool(forKey: DemoMode.enabledKey)
         isDemoMode = demoEnabled
         if demoEnabled {
             monitor = DemoMode.makeMonitor(suiteName: demoSuiteName)
             notifications = NotificationRuntime(defaults: demoDefaults)
         } else {
-            monitor = Self.makeRealMonitor(suiteName: defaultsSuiteName, credentials: credentials)
+            monitor = Self.makeRealMonitor(suiteName: defaultsSuiteName, credentials: accountCredentials)
             notifications = NotificationRuntime(defaults: defaults)
             realMonitor = monitor
             realNotifications = notifications
@@ -56,7 +59,7 @@ final class AppRuntime: ObservableObject {
     }
 
     private static func makeRealMonitor(suiteName: String?,
-                                        credentials: SynchronizableCredentialStore) -> QuotaMonitor {
+                                        credentials: any CredentialStoring) -> QuotaMonitor {
         QuotaMonitor(
             accountStore: LocalAccountStateStore(suiteName: suiteName), credentialStore: credentials,
             quotaClient: MiniMaxQuotaClient(), configurationStore: LocalAccountConfigurationStore(suiteName: suiteName),
@@ -99,7 +102,7 @@ final class AppRuntime: ObservableObject {
                 monitor.setSynchronizationMessage("演示提醒清理失败，请稍后重试退出演示。")
                 return
             }
-            monitor = realMonitor ?? Self.makeRealMonitor(suiteName: defaultsSuiteName, credentials: credentials)
+            monitor = realMonitor ?? Self.makeRealMonitor(suiteName: defaultsSuiteName, credentials: accountCredentials)
             notifications = realNotifications ?? NotificationRuntime(defaults: defaults)
             realMonitor = monitor
             realNotifications = notifications
@@ -190,7 +193,7 @@ final class AppRuntime: ObservableObject {
             try await sync.start()
             guard cloudSync.isEnabled, !isDemoMode, !isSwitchingMode, monitor === source else { return }
             var credentialSyncFailed = false
-            for configuration in source.configurations {
+            for configuration in source.configurations where !configuration.account.provider.requiresDeviceLocalCredential {
                 guard cloudSync.isEnabled, !isDemoMode, !isSwitchingMode, monitor === source else { return }
                 _ = try await credentials.credential(for: configuration.id)
                 if await credentials.credentialSyncIssue != nil { credentialSyncFailed = true }

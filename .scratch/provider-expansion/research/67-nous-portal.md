@@ -37,3 +37,7 @@ Hermes 在同机使用文件锁共享 store；iCloud 最终同步不能提供跨
 5. 撤销一个 TokenPulse session，确认另一设备的预期行为和失效显示；记录设备、OS、时间、状态码和脱敏额度字段。测试不调用 inference/billing 修改。
 
 缺独立 client 许可、两个测试授权 session 和 Watch 实机，**票未完成**。验证通过后的实施范围须包含按设备凭证隔离、原子旋转/重试、撤销与临时挑战区分、额度单位/账期、双端直接读取、缓存与组件/提醒及真实验收。
+
+## 2026-10-03实施更新
+
+用户验收改为实现+图标存在，真实账号/设备非门槛。官方hermes-cli为public native client ID，未找到独立注册为硬要求或复用被禁止的官方证据；缺许可验证不能自行推断权限限制。现已实际device授权与account读取，各设备本机独立rotating链，服务端privy_did+organisation真实一致来源，Watch独立代码授权，更新见docs/nous-portal-provider.md。旧文“票未完成/先外部许可”保留为研究时历史结论，不作为当前阻塞。真实观察仍未声称已做。

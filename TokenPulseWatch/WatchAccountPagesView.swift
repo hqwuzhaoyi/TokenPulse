@@ -24,6 +24,8 @@ struct WatchAccountPagesView: View {
                             TimelineView(.periodic(from: .now, by: 30)) { context in
                                 WatchAccountPage(
                                     state: state,
+                                    monitor: monitor,
+                                    isDemoMode: runtime.isDemoMode,
                                     date: context.date,
                                     isRefreshing: monitor.refreshingAccountIDs.contains(state.id)
                                 ) {
@@ -150,6 +152,9 @@ private struct WatchWidgetAccountSelectionView: View {
 
 private struct WatchAccountPage: View {
     let state: AccountQuotaState
+    @ObservedObject var monitor: QuotaMonitor
+    let isDemoMode: Bool
+    @State private var showingNousAuthorization = false
     let date: Date
     let isRefreshing: Bool
     let refresh: () async -> Void
@@ -263,6 +268,10 @@ private struct WatchAccountPage: View {
                     .foregroundStyle(.orange)
                 }
 
+                if state.account.provider == .nousPortal, !isDemoMode {
+                    Button("连接此 Watch") { showingNousAuthorization = true }
+                        .disabled(monitor.configuration(for: state.id)?.credentialIdentity == nil)
+                }
                 Button {
                     Task { await refresh() }
                 } label: {
@@ -273,6 +282,13 @@ private struct WatchAccountPage: View {
                     }
                 }
                 .disabled(isRefreshing)
+            }
+        }
+        .sheet(isPresented: $showingNousAuthorization) {
+            if let identity = monitor.configuration(for: state.id)?.credentialIdentity {
+                WatchNousAuthorizationView(accountID: state.id, expectedIdentity: identity) { value in
+                    Task { await monitor.replaceCredential(value, accountID: state.id, expectedIdentity: identity) }
+                }
             }
         }
     }

@@ -1773,3 +1773,5 @@ Commit: a94750e3f5f8fc33757b839d85030e742284e43a
 Asset: packages/static-svg/icons/gemini.svg
 Copyright (c) 2023 LobeHub
 License: MIT (full text above). Monochrome template adaptation.
+
+Nous Portal SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit 03fa842d9a4aae31437b6ebd5aa7ca8de7180acc, packages/static-svg/icons/nousresearch.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. currentColor changed to black and explicit 24x24 dimensions added; vector paths unchanged.

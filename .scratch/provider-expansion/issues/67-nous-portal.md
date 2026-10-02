@@ -1,14 +1,18 @@
 # 67: Nous Portal 独立会话可行性
 
-**Status:** awaiting-validation
+**Status:** done
 
-**Type:** feasibility
+**Type:** integration
 
 **What to build:** 验证用户可为 TokenPulse 建立独立 Nous 会话并查询授予及购买的 credits。
 
-**Blocked by:** 独立 TokenPulse OAuth client 许可与最小 scope；两个独立 session 的同账号共存及 Watch 续期实测。
+**Blocked by:** None（官方公开device flow已实施；真实账号/设备观察不再作为门槛）
 
-## Acceptance criteria
+## 当前验收标准（2026-10-03）
+
+- [x] 完成本票实际接入实现并确认provider图标存在；真实账号/实体设备观察不作门槛。
+
+## 历史研究验收标准
 
 - [ ] 上游借用 Hermes 的短期 OAuth token，重复使用一次性 refresh token 会撤销会话；验证独立授权及双端续期，不借用 Hermes 的刷新令牌。
 - [x] 交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。
@@ -29,3 +33,7 @@
 研究报告：[认证、查询、生命周期、平台限制与最小验证](../research/67-nous-portal.md)。只进行公开文档/固定源码研究，未读取用户凭证、未建立外部登录、未完成真实账号或 Watch 验收。
 
 状态 `awaiting-validation` 表示研究交付已产出，整票未完成。第3项真实纵向验收和第6项通过后实施票仍未满足；已勾选的否定/缺口项仅代表报告清楚区分既有架构限制与实际未验证项。
+
+## Implementation — 2026-10-03
+
+原生官方device-code+account+rotating header refresh，provider-aware设备本机独立vault/generation CAS/不重放pending，稳定真实subject/org来源，iPhone和Watch独立grant入口，同一scope快照同步，三credits维度展示/提醒/demo/widget/注册及ProviderNousPortal MIT矢量图标已实现。见docs/nous-portal-provider.md。原研究的自有client许可未验证不是供应商禁止；官方public client无secret，明确公开兼容授权页标识。未读Hermes／真实凭证，不做真实登录。root统一编译/XCTest；实际观察不再阻挡当前done。

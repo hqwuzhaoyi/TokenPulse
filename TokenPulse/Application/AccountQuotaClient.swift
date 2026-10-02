@@ -18,13 +18,18 @@ struct AccountQuotaClient: QuotaQuerying {
         if provider == .miniMaxChina {
             return try await MiniMaxQuotaClient().quota(for: accountID, credential: credential)
         }
+        if provider == .nousPortal {
+            guard let local = credentialStore as? any DeviceOAuthVaultProviding else { throw RefreshFailure.invalidCredential }
+            return try await NousSessionCoordinator.shared.quota(accountID: accountID, vault: local.deviceOAuthVault,
+                transport: transport ?? URLSessionProviderTransport.rejectingRedirects(), now: now)
+        }
         do {
             let authentication = ProviderAuthenticationController(transport: transport ?? URLSessionProviderTransport(), now: now)
             let refreshed = try await authentication.refreshCredentialIfNeeded(provider: provider, credential: credential)
-            if refreshed.changed { try await credentialStore.save(refreshed.credential, for: accountID) }
+            if refreshed.changed { try await credentialStore.save(refreshed.credential, for: accountID, provider: provider) }
             let result = try await ProviderQuotaClient(provider: provider, transport: transport, now: now)
                 .quotaResult(for: accountID, credential: refreshed.credential)
-            if let updated = result.updatedCredential { try await credentialStore.save(updated, for: accountID) }
+            if let updated = result.updatedCredential { try await credentialStore.save(updated, for: accountID, provider: provider) }
             return result.snapshot
         } catch let error as ProviderIntegrationError {
             switch error {

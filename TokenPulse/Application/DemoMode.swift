@@ -43,7 +43,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
-            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"),
+            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"), (.nousPortal, "Nous Portal"),
             (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"), (.ollamaCloud, "Ollama Cloud"), (.longCat, "LongCat Token 与燃料包"),
             (.abacus, "Abacus AI"),
             (.perplexity, "Perplexity API"),
@@ -221,6 +221,15 @@ enum DemoMode {
             window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
             QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
                         usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
+        ]
+        case .nousPortal: [
+            QuotaWindow(id: "nous.subscription", name: "订阅 credits", scope: nil, period: .monthly, usedPercentage: 25,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400), unit: "credits",
+                        exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100)),
+            QuotaWindow(id: "nous.purchased", name: "购买 credits", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                        resetsAt: nil, unit: "credits", exactCounts: DecimalQuotaCounts(remaining: 20), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "nous.total", name: "总可用 credits", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                        resetsAt: nil, wallet: WalletBalance(currency: "credits", total: 95, isMonetary: false))
         ]
         case .windsurf: [
             QuotaWindow(id: "windsurf.daily", name: "每日额度", scope: nil, period: .other, usedPercentage: 32,

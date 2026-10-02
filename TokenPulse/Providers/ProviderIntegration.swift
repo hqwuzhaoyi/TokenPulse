@@ -255,6 +255,8 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .v0:
             return try await V0ProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .nousPortal:
+            return try await NousPortalProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .windsurf:
             return try await WindsurfProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -378,11 +380,13 @@ struct ProviderQuotaClient: QuotaQuerying {
 
 struct ProviderAuthenticationController: Sendable {
     private let transport: any ProviderTransport
+    private let nousTransport: any ProviderTransport
     private let now: @Sendable () -> Date
 
-    init(transport: any ProviderTransport = URLSessionProviderTransport(),
+    init(transport: (any ProviderTransport)? = nil,
          now: @escaping @Sendable () -> Date = Date.init) {
-        self.transport = transport
+        self.transport = transport ?? URLSessionProviderTransport()
+        self.nousTransport = transport ?? URLSessionProviderTransport.rejectingRedirects()
         self.now = now
     }
 
@@ -480,7 +484,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "ZenMux Management Key（非推理 Key）")
         case .vercelAIGateway:
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
-        case .codex, .kimiCode, .copilot:
+        case .codex, .kimiCode, .copilot, .nousPortal:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
         case .claude, .stepFun, .cursor, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .kiro, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
@@ -528,12 +532,15 @@ struct ProviderAuthenticationController: Sendable {
         return try credential.encoded()
     }
 
-    func beginLogin(provider: Provider, callbackURL: URL? = nil) async throws -> ProviderLoginSession {
+    func beginLogin(provider: Provider, callbackURL: URL? = nil, accountID: UUID? = nil) async throws -> ProviderLoginSession {
         switch provider {
         case .gemini:
             throw ProviderIntegrationError.unsupportedLogin("请配置自己的 Google iOS OAuth Client ID 后授权")
         case .antigravity:
             throw ProviderIntegrationError.unsupportedLogin("请通过自有 iOS Google Client ID 完成原生授权")
+        case .nousPortal:
+            guard let accountID else { throw ProviderIntegrationError.invalidCredentialData }
+            return try await NousPortalAuthenticator(transport: nousTransport, now: now).begin(accountID: accountID)
         case .copilot:
             return try await CopilotProviderAuthenticator(transport: transport, now: now).begin()
         case .kimiCode:
@@ -611,6 +618,9 @@ struct ProviderAuthenticationController: Sendable {
         case .antigravity:
             let updated = try await AntigravityProviderClient(transport: transport, now: now).refreshed(envelope)
             return .init(credential: updated == envelope ? credential : try updated.encoded(), changed: updated != envelope)
+        case .nousPortal:
+            // The local coordinator persists each rotated chain with generation CAS.
+            return .init(credential: credential, changed: false)
         case .copilot:
             return try CopilotProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .kimiCode:
