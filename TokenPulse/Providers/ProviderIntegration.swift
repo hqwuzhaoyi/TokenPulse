@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider == .newAPI { self.transport = GatewayProviderTransport() }
-        else if [.devin, .elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if [.manus, .devin, .elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -218,6 +218,9 @@ struct ProviderQuotaClient: QuotaQuerying {
                 .quota(accountID: accountID, credential: envelope)
         case .v0:
             return try await V0ProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .manus:
+            return try await ManusProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .devin:
             return try await DevinProviderClient(transport: transport, now: now)
@@ -385,7 +388,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude, .stepFun, .cursor, .devin:
+        case .claude, .stepFun, .cursor, .devin, .manus:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -454,6 +457,8 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
+        case .manus:
+            throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中登录 Manus")
         case .devin:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中登录 Devin 并选择组织")
         case .cursor:
@@ -477,7 +482,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -495,7 +500,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus:
             return .init(credential: credential, changed: false)
         }
     }

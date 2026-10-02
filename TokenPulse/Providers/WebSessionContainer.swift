@@ -197,6 +197,11 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .manus:
+            WebProviderLoginProfile(loginURL: URL(string: "https://manus.im/")!, allowedOrigins: [ManusWebSession.origin], makeCredentials: { cookies, _, accountID, now in
+                let envelope = try ManusWebSession.credential(cookies: cookies, accountID: accountID, now: now)
+                return [WebLoginCredentialChoice(id: "manus", title: "Manus", credential: try envelope.encoded())]
+            })
         case .devin:
             WebProviderLoginProfile(loginURL: URL(string: "https://app.devin.ai/")!, allowedOrigins: [DevinWebSession.origin],
                 storageKeys: ["auth1_session"], storagePrefixes: [DevinWebSession.organizationPrefix], makeCredentials: { _, storage, accountID, _ in

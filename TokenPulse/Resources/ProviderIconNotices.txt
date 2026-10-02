@@ -827,3 +827,5 @@ TokenPulse changes: currentColor replaced with black, explicit 24x24 dimensions;
 Official warpdotdev/Warp assets were inspected at 3f37d69ff3e87818d24f803c16b2e045fa4bd95e. README licenses app/assets under AGPLv3; only the UI framework crates use MIT. This generic Apache2 alternative avoids importing that brand asset.
 
 Devin SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit c23e42baf04f1749d7a1c78d807f20cd40cae97e, packages/static-svg/icons/devin.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. Only currentColor changed to black and explicit 24x24 dimensions added for template vector rendering.
+
+Manus SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit 2df73b8899ec387eb94b96ecb6b87b151c4770dc, packages/static-svg/icons/manus.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. currentColor changed to black and explicit 24x24 dimensions added; vector paths unchanged.
