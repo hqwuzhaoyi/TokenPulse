@@ -73,9 +73,9 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .deepSeek, .vercelAIGateway, .moonshot:
+        case .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
             return currency.map { currency in
                 [WidgetQuotaMetric(

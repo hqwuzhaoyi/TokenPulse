@@ -21,16 +21,20 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case codebuff
     case moonshot
     case factory
+    case venice
+    case hyper
+    case deepInfra
+    case kiloCode
+    case atlasCloud
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot }
-    var hasMonetaryWallet: Bool { self == .neuralwatt || self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .moonshot }
-    var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe || self == .codebuff }
+    var hasMonetaryWallet: Bool { [.neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
-        case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot: .walletOnly
-        case .codebuff: .mixed
-        case .neuralwatt: .mixed
+        case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice: .walletOnly
+        case .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -60,6 +64,11 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .codebuff: "Codebuff"
         case .moonshot: "Moonshot API 钱包"
         case .factory: "Factory"
+        case .venice: "Venice"
+        case .hyper: "Hyper"
+        case .deepInfra: "DeepInfra"
+        case .kiloCode: "Kilo Code"
+        case .atlasCloud: "Atlas Cloud"
         }
     }
 }

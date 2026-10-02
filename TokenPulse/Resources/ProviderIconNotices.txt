@@ -20,6 +20,16 @@ The New API SVG mark is derived from Lobe Icons repository https://github.com/lo
 
 The GitHub Copilot SVG mark is derived from Lobe Icons commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/githubcopilot.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official github/copilot.vim repository inspected for an icon did not include an SVG provider mark.
 
+ProviderAtlasCloud: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/atlascloud.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
+ProviderKiloCode: Kilo-Org/kilocode commit 622ed1f5ae5af2d864908a0bb759b0c9121d406c, asset packages/kilo-docs/public/img/kilo-v1.svg, Copyright (c) 2026 Kilo Code; Copyright (c) 2025 opencode, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
+ProviderDeepInfra: deepinfra/docs commit f21a19294a8b7d71239dec271a01250b4b9ca08f, asset logo/light.svg (wordmark viewBox cropped to its 32x32 symbol; paths unchanged), Copyright (c) 2023 Mintlify (repository LICENSE); DeepInfra mark belongs to DeepInfra, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
+Hyper uses the platform SF Symbol bolt.circle as a generic indicator, not a copied brand mark. The official charmbracelet/pi-hyper-provider tree and Lobe Icons were checked; no suitable Hyper brand SVG was found. No external Hyper artwork is imported.
+
+ProviderVenice: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/venice.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.
@@ -473,3 +483,52 @@ Neuralwatt: no reusable licensed provider SVG was found in the inspected officia
 Aixy: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol network as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.
 
 ClawRouter uses the OpenClaw parent mark from official openclaw/openclaw commit 0c75aa96f8419fc7570f3b679b28cc855db94741, apps/linux/src-tauri/icons/tray-template.svg. Copyright (c) 2026 OpenClaw Foundation; MIT License (full permission text above). Changes: explicit 18x18 dimensions and Xcode vector/template packaging; paths and alpha mask unchanged.
+
+Kilo Code official asset license
+
+MIT License
+
+Copyright (c) 2026 Kilo Code
+Copyright (c) 2025 opencode
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+DeepInfra official documentation asset license
+
+MIT License
+
+Copyright (c) 2023 Mintlify
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

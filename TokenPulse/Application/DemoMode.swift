@@ -24,6 +24,11 @@ enum DemoMode {
             (.codebuff, "Codebuff"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
             (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
+            (.atlasCloud, "Atlas Cloud"),
+            (.kiloCode, "Kilo Code"),
+            (.deepInfra, "DeepInfra"),
+            (.hyper, "Hyper"),
+            (.venice, "Venice"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -166,6 +171,11 @@ enum DemoMode {
                 usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: nil,
                 cycleID: "demo-claw-budget", unit: "USD", exactCounts: .init(used: 7, remaining: 13, total: 20))
         ]
+        case .atlasCloud: [WalletExpansionHTTP.walletWindow(id: "atlasCloud.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "42.50")!))]
+        case .kiloCode: [WalletExpansionHTTP.walletWindow(id: "kiloCode.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.75")!)), QuotaWindow(id: "kiloCode.pass", name: "Kilo Pass 当期额度", scope: nil, period: .other, usedPercentage: 25, remainingCount: 21.375, totalCount: 28.5, resetsAt: now.addingTimeInterval(12 * 86_400), unit: "USD")]
+        case .deepInfra: [WalletExpansionHTTP.walletWindow(id: "deepInfra.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "95.81")!)), QuotaWindow(id: "deepInfra.spend", name: "支出上限", scope: nil, period: .other, usedPercentage: 19.7, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD", exactCounts: DecimalQuotaCounts(used: Decimal(string: "3.94")!, remaining: Decimal(string: "16.06")!, total: 20))]
+        case .hyper: [WalletExpansionHTTP.walletWindow(id: "hyper.HC", wallet: WalletBalance(currency: "HC", total: Decimal(string: "1234.5")!, isMonetary: false))]
+        case .venice: [WalletExpansionHTTP.walletWindow(id: "venice.balance.DIEM", wallet: WalletBalance(currency: "DIEM", total: Decimal(string: "90.5")!, isMonetary: false))]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

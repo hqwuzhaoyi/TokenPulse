@@ -1,6 +1,6 @@
 # 18: Atlas Cloud 钱包余额
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/atlas-cloud.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+账户余额 scope、精确 Decimal/币种、API Key 添加及共用凭证/恢复/删除/同步、双端直连、纯钱包展示/低余额提醒/widget/演示和 licensed icon 已实现。AtlasCloudProviderTests 覆盖契约、边界、错误与多账号生命周期。完整 iOS Swift 6 module 与相关 XCTest 静态 typecheck、PBX/diff 检查通过；实际 XCTest、unsigned 全目标资源构建和真实账号权限/设备验收未执行，清单保持开放。详见 `docs/atlas-cloud-integration.md`。

@@ -34,6 +34,11 @@ extension Provider {
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
+        case .venice: "ProviderVenice"
+        case .hyper: nil
+        case .deepInfra: "ProviderDeepInfra"
+        case .kiloCode: "ProviderKiloCode"
+        case .atlasCloud: "ProviderAtlasCloud"
         case .poe: "ProviderPoe"
         case .vercelAIGateway: "ProviderVercel"
         case .kimiCode: "ProviderKimiCode"
@@ -56,6 +61,7 @@ extension Provider {
         case .codebuff: "terminal"
         case .neuralwatt: "bolt.circle"
         case .aixy: "network"
+        case .hyper: "bolt.circle"
         default: nil
         }
     }

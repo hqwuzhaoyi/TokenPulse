@@ -386,7 +386,11 @@ private struct AccountSummaryView: View {
     }
 
     private func selectedWalletCurrency(in windows: [QuotaWindow]) -> String? {
-        walletCurrency ?? windows.compactMap(\.wallet?.currency).first
+        let wallets = windows.compactMap(\.wallet)
+        // A prior USD reminder selection cannot hide the service-selected DIEM
+        // reading. Missing monetary selections still remain visibly missing.
+        if !wallets.contains(where: \.isMonetary) { return wallets.first?.currency }
+        return walletCurrency ?? wallets.first?.currency
     }
 }
 
