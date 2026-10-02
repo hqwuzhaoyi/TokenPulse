@@ -7,6 +7,7 @@ struct GoogleNativeOAuth: Sendable {
     let clientID: String
     let transport: any ProviderTransport
     let now: @Sendable () -> Date
+    var requestedScopes: [String] = Self.scopes
 
     static func redirectURL(clientID: String) throws -> URL {
         let suffix = ".apps.googleusercontent.com"
@@ -22,7 +23,7 @@ struct GoogleNativeOAuth: Sendable {
         let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
         let state = UUID().uuidString
         var url = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
-        url.queryItems = ["client_id": clientID, "redirect_uri": callback.absoluteString, "response_type": "code", "scope": Self.scopes.joined(separator: " "), "code_challenge": challenge, "code_challenge_method": "S256", "state": state, "access_type": "offline", "prompt": "consent select_account"].map { URLQueryItem(name: $0.key, value: $0.value) }
+        url.queryItems = ["client_id": clientID, "redirect_uri": callback.absoluteString, "response_type": "code", "scope": requestedScopes.joined(separator: " "), "code_challenge": challenge, "code_challenge_method": "S256", "state": state, "access_type": "offline", "prompt": "consent select_account"].map { URLQueryItem(name: $0.key, value: $0.value) }
         return .init(provider: provider, authorizationURL: url.url!, userCode: nil, deviceCode: nil, state: state, codeVerifier: verifier, callbackURL: callback, pollingInterval: nil, expiresAt: now().addingTimeInterval(600), metadata: ["clientID": clientID])
     }
 
@@ -74,7 +75,7 @@ struct GoogleNativeOAuth: Sendable {
         guard let reply = try? JSONDecoder().decode(Token.self, from: data), !reply.access_token.isEmpty, reply.token_type.lowercased() == "bearer",
               reply.expires_in.isFinite, reply.expires_in > 0, reply.expires_in <= 31_536_000 else { throw RefreshFailure.unreadableResponse }
         let granted = reply.scope ?? previous?.metadata["grantedScopes"]
-        guard let granted, Set(granted.split(separator: " ").map(String.init)).isSuperset(of: Self.scopes) else { throw ProviderIntegrationError.unsupportedLogin("Google 未授予查询所需权限，请重新授权") }
+        guard let granted, Set(granted.split(separator: " ").map(String.init)).isSuperset(of: requestedScopes) else { throw ProviderIntegrationError.unsupportedLogin("Google 未授予查询所需权限，请重新授权") }
         let refresh = reply.refresh_token ?? previous?.refreshToken
         guard let refresh, !refresh.isEmpty else { throw ProviderIntegrationError.unsupportedLogin("Google 未返回离线刷新令牌，请重新同意授权") }
         var envelope = previous ?? .init(provider: provider, kind: .oauth, accessToken: reply.access_token)
