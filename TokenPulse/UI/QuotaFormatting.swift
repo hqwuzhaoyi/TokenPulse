@@ -50,8 +50,8 @@ enum QuotaFormatting {
         if let overage = overageDescription(window) { return overage }
         if window.isExhausted == true { return "已用尽" }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
-            let remaining = count(window.remainingCount)
-            let total = count(window.totalCount)
+            let remaining = count(window.remainingCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
+            let total = count(window.totalCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
             let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
             return window.unit.map { "\(values) \($0)" } ?? values
         }
@@ -70,13 +70,13 @@ enum QuotaFormatting {
         return window.isExhausted == true ? 100 : window.usedPercentage
     }
 
-    static func count(_ value: Double?) -> String {
+    static func count(_ value: Double?, maximumFractionDigits: Int = 2) -> String {
         guard let value else { return "未提供" }
-        return value.formatted(.number.precision(.fractionLength(0...2)))
+        return value.formatted(.number.precision(.fractionLength(0...maximumFractionDigits)))
     }
 
     static func count(_ value: Double?, unit: String?) -> String {
-        let value = count(value)
+        let value = count(value, maximumFractionDigits: unit == "USD 预算额度" ? 6 : 2)
         guard value != "未提供", let unit, !unit.isEmpty else { return value }
         return "\(value) \(unit)"
     }

@@ -514,7 +514,7 @@ struct QuotaWindowView: View {
 
     private func remainingValue(_ remaining: Double) -> String {
         guard let total = window.totalCount else { return QuotaFormatting.count(remaining, unit: window.unit) }
-        let values = "\(QuotaFormatting.count(remaining)) / \(QuotaFormatting.count(total))"
+        let values = "\(QuotaFormatting.count(remaining, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)) / \(QuotaFormatting.count(total, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2))"
         guard let unit = window.unit, !unit.isEmpty else { return values }
         return "\(values) \(unit)"
     }

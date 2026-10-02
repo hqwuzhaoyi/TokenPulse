@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"), (.v2ex, "V2EX"),
+            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,16 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .xKiro: [
+            QuotaWindow(id: "xkiro.short", name: "5 小时额度", scope: nil, period: .fiveHour,
+                        usedPercentage: 25, remainingCount: 150, totalCount: 200, resetsAt: now.addingTimeInterval(5005), unit: "USD 预算额度"),
+            QuotaWindow(id: "xkiro.long", name: "每周额度", scope: nil, period: .weekly,
+                        usedPercentage: 25, remainingCount: 990, totalCount: 1320, resetsAt: now.addingTimeInterval(199405), unit: "USD 预算额度"),
+            QuotaWindow(id: "xkiro.free_tokens", name: "每日免费 tokens", scope: nil, period: .other,
+                        usedPercentage: 0.13734333, remainingCount: 299_587_970, totalCount: 300_000_000, resetsAt: XKiroProviderClient.nextMidnightUTC(after: now), unit: "tokens"),
+            QuotaWindow(id: "xkiro.wallet", name: "API 钱包余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "683.95")!))
+        ]
         case .v2ex: [
             QuotaWindow(id: "v2ex.five_hour", name: "5 小时额度", scope: nil, period: .fiveHour,
                         usedPercentage: 25, remainingCount: 6_015_000, totalCount: 8_020_000,

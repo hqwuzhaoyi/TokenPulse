@@ -75,7 +75,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .synthetic, .v2ex:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .synthetic, .v2ex, .xKiro:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
@@ -108,8 +108,8 @@ struct WidgetQuotaMetric: Identifiable {
         if window.isExhausted == true { return "已用尽" }
         if window.isUnlimited { return "无限" }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
-            let remaining = QuotaFormatting.count(window.remainingCount)
-            let total = QuotaFormatting.count(window.totalCount)
+            let remaining = QuotaFormatting.count(window.remainingCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
+            let total = QuotaFormatting.count(window.totalCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
             let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
             return window.unit.map { "\(values) \($0)" } ?? values
         }

@@ -176,6 +176,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .xKiro:
+            return try await XKiroProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .v2ex:
             return try await V2EXProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -244,6 +247,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Synthetic API Key")
         case .v2ex:
             return .init(provider: provider, method: .apiKey, credentialLabel: "V2EX Personal Access Token")
+        case .xKiro:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "xKiro API Key")
         case .vercelAIGateway:
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
@@ -258,7 +263,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String, serverAddress: String? = nil) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .synthetic || provider == .v2ex else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .synthetic || provider == .v2ex || provider == .xKiro else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -267,7 +272,7 @@ struct ProviderAuthenticationController: Sendable {
         let metadata: [String: String] = provider == .newAPI
             ? ["serverAddress": try GatewayServerAddress(serverAddress ?? "").value] : [:]
         var credential = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata)
-        if provider == .synthetic || provider == .v2ex { credential.metadata["sourceCredentialFingerprint"] = credential.apiKeySourceFingerprint }
+        if provider == .synthetic || provider == .v2ex || provider == .xKiro { credential.metadata["sourceCredentialFingerprint"] = credential.apiKeySourceFingerprint }
         return try credential.encoded()
     }
 
@@ -298,7 +303,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .synthetic, .v2ex:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .synthetic, .v2ex, .xKiro:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -315,7 +320,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .synthetic, .v2ex:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .synthetic, .v2ex, .xKiro:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -333,7 +338,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .synthetic, .v2ex:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .synthetic, .v2ex, .xKiro:
             return .init(credential: credential, changed: false)
         }
     }

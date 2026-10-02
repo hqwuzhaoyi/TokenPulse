@@ -41,12 +41,12 @@ extension Provider {
         case .stepFun: "ProviderStepFun"
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
-        case .synthetic, .v2ex: nil
+        case .synthetic, .v2ex, .xKiro: nil
         }
     }
 
     var systemIconName: String? {
-        self == .synthetic ? "puzzlepiece.extension.fill" : self == .v2ex ? "bubble.left.and.bubble.right.fill" : nil
+        [Provider.synthetic, .xKiro].contains(self) ? "puzzlepiece.extension.fill" : self == .v2ex ? "bubble.left.and.bubble.right.fill" : nil
     }
 }
 
