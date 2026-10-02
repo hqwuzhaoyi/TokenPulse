@@ -19,6 +19,7 @@ struct GoogleNativeOAuthLoginView: View {
                 TextField("Cloud 项目 ID（可选）", text: $project)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
             }
+            .disabled(model.busy)
             Section {
                 Text("在 Google Cloud 注册 iOS OAuth client，Bundle ID 为 com.tokenpulse.app。需开启 Google 账户授权并授予页面列出的权限。使用自己的 client ID，无需 client secret。")
                 Text("请先在 Google 官方服务中完成账户与 Code Assist 项目设置。留空项目时使用服务返回的已激活项目；TokenPulse 不会创建项目或自动开通服务。")
