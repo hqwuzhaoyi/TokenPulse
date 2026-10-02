@@ -25,6 +25,25 @@ final class WebProviderSessionTests: XCTestCase {
         XCTAssertThrowsError(try policy.values(in: "session.0=fixture; unknown=other"))
         XCTAssertThrowsError(try policy.values(in: "session.0=fixture; session.0=other"))
     }
+    func testCategoricalQuotaStatusSurvivesStorageAndNeverHidesReportedWindows() async throws {
+        let suite = "com.tokenpulse.tests.web-status." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite))
+        let account = SubscriptionAccount(name: "Web", provider: .raycastAI)
+        let snapshot = QuotaSnapshot(accountID: account.id, windows: [], collectedAt: Date(), quotaStatusText: "当前账号未包含个人额度")
+        try await store.save(states: [.init(account: account, snapshot: snapshot)])
+        let saved = await store.load()
+        let widget = try XCTUnwrap(saved.first)
+        XCTAssertEqual(widget.quotaStatusText, snapshot.quotaStatusText)
+        XCTAssertEqual(widget.displayMetrics.first?.valueText, "当前账号未包含个人额度")
+        var reported = widget
+        reported.windows = [.init(id: "credits", name: "credits", scope: nil, usedPercentage: 25,
+            remainingCount: 75, totalCount: 100, resetsAt: nil, unit: "credits")]
+        XCTAssertEqual(reported.displayMetrics.map(\.id), ["credits"])
+        XCTAssertNotNil(reported.displayMetrics.first?.window)
+    }
+
     func testOriginAndHeaderRestrictionsRejectInvalidSessions() throws {
         let profile = try XCTUnwrap(Provider.raycastAI.webLoginProfile)
         XCTAssertTrue(profile.permits(URL(string: "https://www.raycast.com/settings")))
