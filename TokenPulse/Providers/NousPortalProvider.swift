@@ -114,7 +114,7 @@ struct NousPortalProviderClient: Sendable {
         let size = account.subscription?.monthly_credits?.amount
         let left = account.subscription?.credits_remaining?.amount ?? account.paid_service_access?.subscription_credits_remaining?.amount
         guard size.map({ $0 >= 0 }) != false else { throw RefreshFailure.unreadableResponse }
-        if size.map({ $0 > 0 }) == true || left.map({ $0 > 0 }) == true {
+        if size != nil || left != nil {
             let used: Decimal?
             if let size, size > 0, let left { used = difference(size, max(left, 0)) } else { used = nil }
             let percentage = used.flatMap { used in
@@ -130,7 +130,7 @@ struct NousPortalProviderClient: Sendable {
                 isExhausted: size.map({ $0 > 0 }) == true ? left.map { $0 <= 0 } : nil,
                 usedPercentage: percentage, remainingCount: nil, totalCount: nil,
                 resetsAt: reset, unit: "credits", exactCounts: DecimalQuotaCounts(used: used, remaining: left, total: size),
-                resetSemantics: reset == nil ? .nonResettingAllowance : nil))
+                resetSemantics: nil))
         }
         let purchased = account.paid_service_access?.purchased_credits_remaining?.amount ?? account.purchased_credits_remaining?.amount
         if let purchased {
@@ -148,7 +148,7 @@ struct NousPortalProviderClient: Sendable {
             providerPlanName: account.subscription?.plan, quotaStatusText: account.paid_service_access?.allowed == false ? "当前未开放付费服务" : nil)
     }
     private static func difference(_ size: Decimal, _ left: Decimal) -> Decimal? {
-        guard left <= size else { return 0 }
+        guard left <= size else { return nil }
         var size = size, left = left, used = Decimal(), inverse = Decimal()
         guard NSDecimalSubtract(&used, &size, &left, .plain) == .noError,
               NSDecimalSubtract(&inverse, &size, &used, .plain) == .noError, inverse == left else { return nil }
@@ -176,7 +176,10 @@ struct NousPortalAuthenticator: Sendable {
         let scope: String?
     }
     func begin(accountID: UUID) async throws -> ProviderLoginSession {
+        try Task.checkCancellation()
         let (data, response) = try await post("device/code", form: ["client_id": NousPortalCredential.clientID, "scope": NousPortalCredential.scope])
+        try Task.checkCancellation()
+        if response.value(forHTTPHeaderField: "x-vercel-mitigated") != nil { throw ProviderIntegrationError.rateLimited }
         if let failure = ProviderHTTP.integrationFailure(status: response.statusCode) { throw failure }
         guard let reply = try? JSONDecoder().decode(DeviceCode.self, from: data), reply.expires_in.isFinite, reply.expires_in > 0,
               NousPortalCredential.safe(reply.device_code), NousPortalCredential.safe(reply.user_code),
@@ -188,12 +191,19 @@ struct NousPortalAuthenticator: Sendable {
             metadata: ["localAccountID": accountID.uuidString, "ownerDeviceID": deviceID])
     }
     func poll(_ session: ProviderLoginSession) async throws -> ProviderLoginProgress {
+        try Task.checkCancellation()
         guard session.provider == .nousPortal, session.metadata["ownerDeviceID"] == deviceID,
               let rawID = session.metadata["localAccountID"], let id = UUID(uuidString: rawID),
               let code = session.deviceCode, NousPortalCredential.safe(code) else { throw ProviderIntegrationError.invalidCredentialData }
-        guard session.expiresAt.map({ $0 > now() }) == true else { throw ProviderIntegrationError.loginExpired }
+        guard session.expiresAt.map({ $0 > now() }) == true,
+              !(await NousDevicePollPacing.shared.consumed(code: code, now: now())) else { throw ProviderIntegrationError.loginExpired }
         let (data, response) = try await post("token", form: ["grant_type": "urn:ietf:params:oauth:grant-type:device_code",
                                                            "client_id": NousPortalCredential.clientID, "device_code": code])
+        // Remember success before observing cancellation: an approved code cannot be replayed.
+        if 200..<300 ~= response.statusCode {
+            await NousDevicePollPacing.shared.consume(code: code, until: session.expiresAt!)
+        }
+        try Task.checkCancellation()
         let error = (try? ProviderHTTP.json(data))?["error"] as? String
         if error == "authorization_pending" { return .pending(retryAfter: await NousDevicePollPacing.shared.interval(code: code, initial: session.pollingInterval ?? 5)) }
         if error == "slow_down" { return .pending(retryAfter: await NousDevicePollPacing.shared.slowDown(code: code, initial: session.pollingInterval ?? 5)) }
@@ -203,14 +213,37 @@ struct NousPortalAuthenticator: Sendable {
             return .pending(retryAfter: max(session.pollingInterval ?? 5, 10))
         }
         if let failure = ProviderHTTP.integrationFailure(status: response.statusCode) { throw failure }
-        var envelope = try tokens(data, accountID: id, identity: nil)
-        let account = try await NousPortalProviderClient(transport: transport, now: now, deviceID: deviceID).account(accessToken: envelope.accessToken)
-        let identity = try NousPortalProviderClient.remoteIdentity(account)
-        envelope.accountID = identity.subject
-        envelope.metadata["organizationID"] = identity.organization
-        envelope.metadata["sourceCredentialFingerprint"] = try NousPortalCredential.fingerprint(envelope)
-        await NousDevicePollPacing.shared.finished(code: code)
-        return .completed(credential: try envelope.encoded())
+        // Identity verification is read-only; no unverified chain is persisted.
+        do {
+            var envelope = try tokens(data, accountID: id, identity: nil)
+            let account = try await verifiedAccountData(accessToken: envelope.accessToken)
+            try Task.checkCancellation()
+            let identity = try NousPortalProviderClient.remoteIdentity(account)
+            envelope.accountID = identity.subject
+            envelope.metadata["organizationID"] = identity.organization
+            envelope.metadata["sourceCredentialFingerprint"] = try NousPortalCredential.fingerprint(envelope)
+            return .completed(credential: try envelope.encoded())
+        } catch is CancellationError { throw CancellationError() }
+        catch {
+            // The phone login model clears this session. Retrying requires a fresh device code,
+            // rather than replaying the consumed POST or saving an unverified token chain.
+            throw ProviderIntegrationError.loginExpired
+        }
+    }
+    // Retry only the read after a successful grant. The device-code POST is single-use.
+    private func verifiedAccountData(accessToken: String) async throws -> Data {
+        let client = NousPortalProviderClient(transport: transport, now: now, deviceID: deviceID)
+        for attempt in 0..<3 {
+            try Task.checkCancellation()
+            do { return try await client.account(accessToken: accessToken) }
+            catch {
+                try Task.checkCancellation()
+                guard attempt < 2, let failure = error as? RefreshFailure,
+                      [.network, .server, .rateLimited].contains(failure) else { throw error }
+                try await Task.sleep(for: .milliseconds(250 * (attempt + 1)))
+            }
+        }
+        throw RefreshFailure.network
     }
     func refresh(_ envelope: ProviderCredentialEnvelope, accountID: UUID) async throws -> ProviderCredentialEnvelope {
         guard let refresh = envelope.refreshToken, NousPortalCredential.safe(refresh) else { throw RefreshFailure.invalidCredential }
@@ -262,13 +295,18 @@ enum NousRefreshError: Error, Sendable { case safeRejection(RefreshFailure), ter
 private actor NousDevicePollPacing {
     static let shared = NousDevicePollPacing()
     private var intervals: [String: TimeInterval] = [:]
+    private var consumedCodes: [String: Date] = [:]
+    func consumed(code: String, now: Date) -> Bool {
+        consumedCodes = consumedCodes.filter { $0.value > now }
+        return consumedCodes[code] != nil
+    }
+    func consume(code: String, until expiry: Date) { consumedCodes[code] = expiry; intervals[code] = nil }
     func interval(code: String, initial: TimeInterval) -> TimeInterval { intervals[code] ?? initial }
     func slowDown(code: String, initial: TimeInterval) -> TimeInterval {
         let value = min((intervals[code] ?? initial) + 5, 60)
         intervals[code] = value
         return value
     }
-    func finished(code: String) { intervals[code] = nil }
 }
 
 /// One whole refresh/query operation per account/device. Only the vault performs atomic generation CAS.
@@ -297,7 +335,13 @@ actor NousSessionCoordinator {
         let state = envelope.metadata["rotationState"] ?? "active"
         if state != "active" {
             // A prior POST's result is unknown. Never resend its single-use refresh, including after restart.
-            guard state != "terminal", expires > now() else { throw RefreshFailure.invalidCredential }
+            guard state != "terminal" else { throw RefreshFailure.invalidCredential }
+            if expires <= now() {
+                envelope.metadata["rotationState"] = "terminal"
+                envelope.refreshToken = nil
+                guard try await vault.compareAndSwap(expectedGeneration: version.generation, credential: envelope.encoded(), for: accountID) != nil else { throw CancellationError() }
+                throw RefreshFailure.invalidCredential
+            }
         } else if needsRefresh {
             let original = envelope
             envelope.metadata["rotationState"] = "pending"

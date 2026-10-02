@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        57F000000000000000000332 /* NousPortalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000331; };
 		57F000000000000000000301 /* NousPortalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000300; };
 		57F000000000000000000302 /* NousPortalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000300; };
 		57F000000000000000000304 /* DeviceOAuthCredentialVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000303; };
@@ -417,6 +418,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        57F000000000000000000331 /* NousPortalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NousPortalTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000300 /* NousPortalProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/NousPortalProvider.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000303 /* DeviceOAuthCredentialVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/DeviceOAuthCredentialVault.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000306 /* NousDeviceLoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/NousDeviceLoginModel.swift; sourceTree = SOURCE_ROOT; };
@@ -820,6 +822,7 @@
                 C01100000000000000000001 /* CopilotProvider.swift */,
                 C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+                57F000000000000000000331 /* NousPortalTests.swift */,
 				57F000000000000000000309 /* WatchNousAuthorizationView.swift */,
 				57F000000000000000000306 /* NousDeviceLoginModel.swift */,
 				57F000000000000000000303 /* DeviceOAuthCredentialVault.swift */,
@@ -1230,6 +1233,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+                57F000000000000000000332 /* NousPortalTests.swift in Sources */,
                 57F000000000000000000202 /* ClaudeSessionScopeTests.swift in Sources */,
 				57F000000000000000000124 /* WindsurfProviderTests.swift in Sources */,
 				57F000000000000000000114 /* ManusProviderTests.swift in Sources */,

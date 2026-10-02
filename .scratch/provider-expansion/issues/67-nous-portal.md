@@ -32,8 +32,14 @@
 
 研究报告：[认证、查询、生命周期、平台限制与最小验证](../research/67-nous-portal.md)。只进行公开文档/固定源码研究，未读取用户凭证、未建立外部登录、未完成真实账号或 Watch 验收。
 
-状态 `awaiting-validation` 表示研究交付已产出，整票未完成。第3项真实纵向验收和第6项通过后实施票仍未满足；已勾选的否定/缺口项仅代表报告清楚区分既有架构限制与实际未验证项。
+历史研究阶段曾使用 `awaiting-validation`；当前按上方2026-10-03验收标准完成实际实现和图标，status为done。历史实机观察仍未执行，保留未勾选以准确记录事实。
 
 ## Implementation — 2026-10-03
 
 原生官方device-code+account+rotating header refresh，provider-aware设备本机独立vault/generation CAS/不重放pending，稳定真实subject/org来源，iPhone和Watch独立grant入口，同一scope快照同步，三credits维度展示/提醒/demo/widget/注册及ProviderNousPortal MIT矢量图标已实现。见docs/nous-portal-provider.md。原研究的自有client许可未验证不是供应商禁止；官方public client无secret，明确公开兼容授权页标识。未读Hermes／真实凭证，不做真实登录。root统一编译/XCTest；实际观察不再阻挡当前done。
+
+### Regression followup
+
+root2b530a3已完成77-provider App/Watch/widget unsigned target build。新增23项NousPortalTests涵盖实际controller、AccountQuotaClient、Monitor同步换绑、独立设备vault/CAS/unknown refresh、Watch取消和精确额度边界。worker parser/PBX/diff及对root真实App module的Swift6测试源码typecheck通过；XCTest运行交root，未把静态检查写成测试执行成功。device grant成功后的账户瞬态失败只进行最多3次GET重试，不重放grant POST或持久化未核实身份；过期pending/uncertain以CAS清不可重用refresh；WAF保持rateLimited；zero partial/rollover/无明确monthly reset不会推断错误状态。
+
+账户GET重试耗尽或成功grant后的验证失败会终止已消费session并要求新授权；成功device code在本进程记到其明确expiry，取消／手动继续不能再POST它。新增真实iPhone DeviceLoginModel两次尝试回归：第一次验证失败清session，下一次必须先请求新device code。

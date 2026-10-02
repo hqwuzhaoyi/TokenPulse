@@ -23,6 +23,7 @@ final class NousDeviceLoginModel: ObservableObject {
         let work = Task { @MainActor in
             defer { if runID == run { running = false; task = nil } }
             do {
+                guard runID == run, !Task.isCancelled else { return }
                 let pending = try await controller.beginLogin(provider: .nousPortal, accountID: accountID)
                 guard runID == run, !Task.isCancelled else { return }
                 session = pending
