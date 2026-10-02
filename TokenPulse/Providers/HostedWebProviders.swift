@@ -184,16 +184,18 @@ struct T3ChatProviderClient: Sendable {
     static func snapshot(_ data: Data, accountID: UUID, collectedAt: Date) throws -> QuotaSnapshot {
         let customer = try customer(data)
         let subscription = customer["subscription"] as? [String: Any]
-        let fields: [(String, String, String, QuotaPeriod, Any?)] = [
-            ("usageFourHourPercentage", "four_hour", "4 小时额度", .other, customer["usageFourHourNextResetAt"] ?? customer["usageWindowNextResetAt"]),
-            ("usageMonthPercentage", "monthly", "每月额度", .monthly, subscription?["currentPeriodEnd"]),
+        let fields: [(String, String, String, QuotaPeriod, Date?)] = [
+            ("usageFourHourPercentage", "four_hour", "4 小时额度", .other,
+             HostedWebHTTP.epoch(HostedWebHTTP.numeric(customer["usageFourHourNextResetAt"]))
+                ?? HostedWebHTTP.epoch(HostedWebHTTP.numeric(customer["usageWindowNextResetAt"]))),
+            ("usageMonthPercentage", "monthly", "每月额度", .monthly, HostedWebHTTP.epoch(HostedWebHTTP.numeric(subscription?["currentPeriodEnd"]))),
         ]
         let windows = try fields.compactMap { field, id, name, period, reset -> QuotaWindow? in
             guard let raw = customer[field] else { return nil }
             guard let percentage = HostedWebHTTP.numeric(raw), percentage >= 0 else { throw RefreshFailure.unreadableResponse }
             return .init(id: "t3chat.\(id)", name: name, scope: nil, period: period, isExhausted: percentage >= 100,
                 usedPercentage: percentage, remainingCount: nil, totalCount: nil,
-                resetsAt: HostedWebHTTP.epoch(HostedWebHTTP.numeric(reset)))
+                resetsAt: reset)
         }
         guard !windows.isEmpty else { throw RefreshFailure.noQuotaWindows }
         return .init(accountID: accountID, windows: windows, collectedAt: collectedAt,

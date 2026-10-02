@@ -69,6 +69,20 @@ final class QwenCloudProviderTests: XCTestCase {
         do { _ = try await ProviderQuotaClient(provider: .qwenCloud, transport: transport).quota(for: UUID(), credential: credential.encoded()); XCTFail("wrong local account") } catch { XCTAssertEqual(error as? RefreshFailure,.invalidCredential) }
         let after = await transport.requests; XCTAssertEqual(after.count,3)
     }
+    func testConfirmedNoPlanDoesNotFetchOrDisplayPossiblyHistoricalTier() async throws {
+        let id = UUID(), date = now
+        let credential = try WebProviderSession.credential(provider: .qwenCloud, origin: QwenCloudSession.origin, accountID: id,
+            accessToken: "qwen_sso_ticket=fixture; sec_token=cookie-token")
+        let transport = QwenTestTransport(replies: [(200, "<html>console</html>"), (200, #"{"data":{"TotalCount":0}}"#),
+            (200, #"{"data":{"specCode":"lite"}}"#)])
+        let snapshot = try await ProviderQuotaClient(provider: .qwenCloud, transport: transport, now: { date }).quota(for: id, credential: credential.encoded())
+        XCTAssertTrue(snapshot.windows.isEmpty)
+        XCTAssertNotNil(snapshot.quotaStatusText)
+        XCTAssertNil(snapshot.providerPlanName)
+        let requests = await transport.requests
+        XCTAssertEqual(requests.count, 2)
+    }
+
     func testCookieTokenFallbackAndRedirectRejection() async throws {
         let id = UUID(), date = now
         let credential = try WebProviderSession.credential(provider: .qwenCloud, origin: QwenCloudSession.origin, accountID: id,

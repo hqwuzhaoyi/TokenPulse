@@ -110,6 +110,12 @@ final class HostedWebProviderTests: XCTestCase {
         XCTAssertThrowsError(try T3ChatProviderClient.snapshot(Data(t3.replacingOccurrences(of: "34.25", with: "true").utf8), accountID: UUID(), collectedAt: now))
         XCTAssertThrowsError(try T3ChatProviderClient.snapshot(Data((t3 + "\n" + t3.split(separator: "\n")[3]).utf8), accountID: UUID(), collectedAt: now))
     }
+    func testT3NullPrimaryResetUsesReportedFallback() throws {
+        let body = #"{"result":{"data":{"json":{"usageFourHourPercentage":10,"usageFourHourNextResetAt":null,"usageWindowNextResetAt":200}}}}"#
+        let snapshot = try T3ChatProviderClient.snapshot(Data(body.utf8), accountID: UUID(), collectedAt: now)
+        XCTAssertEqual(snapshot.windows.first?.resetsAt, Date(timeIntervalSince1970: 200))
+    }
+
     func testZoomUnlimitedOverageDisabledAndSafeDates() throws {
         let overage = try ZoomMateProviderClient.snapshot(Data(zoom.utf8), accountID: UUID(), collectedAt: now).windows[0]
         XCTAssertEqual(overage.isExhausted, false)

@@ -31,6 +31,7 @@ struct QwenCloudProviderClient: Sendable {
             let usage = try await send(Self.request(api: Self.usageAPI, token: token, cookie: credential.accessToken, cookies: cookies))
             var snapshot = try Self.snapshot(usage, accountID: accountID, collectedAt: now())
             snapshot.sourceCredentialFingerprint = credential.sourceCredentialIdentity
+            if snapshot.windows.isEmpty { return .init(snapshot: snapshot, updatedCredential: nil) }
             do {
                 let response = try await send(Self.request(api: Self.subscriptionAPI, token: token,
                     cookie: credential.accessToken, cookies: cookies))
