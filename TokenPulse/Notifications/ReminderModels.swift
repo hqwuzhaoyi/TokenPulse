@@ -244,6 +244,8 @@ struct WindowCycleState: Codable, Equatable, Sendable {
     let resetAt: Date?
     let usedPercentage: Double?
     let observedAt: Date
+    /// The last known exact observation; absent in legacy reminder ledgers.
+    var exactCounts: DecimalQuotaCounts? = nil
 }
 
 struct PendingResetSchedule: Codable, Equatable, Sendable {

@@ -1092,3 +1092,155 @@ private actor RecordingNotificationAdapter: NotificationApplying {
     }
     func operations() -> [NotificationOperation] { recordedOperations }
 }
+
+final class PreciseQuotaThresholdTests: XCTestCase {
+    private let accountID = UUID()
+
+    func testLargeExactCountersDoNotAlertOneUnitBefore80_95Or100AndDoAlertAtBoundary() {
+        let limit = Decimal(string: "100000000000000000")!
+        for threshold in [80.0, 95.0, 100.0] {
+            let boundary = Decimal(threshold) * limit / 100
+            // Deliberately use the rounded display percentage at both observations.
+            let before = plan(used: boundary - 1, total: limit, reported: threshold, thresholds: [threshold], time: 100)
+            XCTAssertTrue(alerts(before).isEmpty, "Below \(threshold)% must not alert")
+            XCTAssertFalse(before.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: threshold))
+            let reached = plan(used: boundary, total: limit, reported: threshold, thresholds: [threshold], time: 101, ledger: before.ledger)
+            XCTAssertEqual(alerts(reached).count, 1)
+            XCTAssertTrue(reached.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: threshold))
+            let repeated = plan(used: boundary, total: limit, reported: threshold, thresholds: [threshold], time: 102, ledger: reached.ledger)
+            XCTAssertTrue(alerts(repeated).isEmpty)
+        }
+    }
+
+    func testRepeatingFractionUsesDecimalBoundaryInsteadOfDisplayedDoubleAndZeroIsValid() {
+        let third = plan(used: 1, total: 3, reported: 50, thresholds: [33, 34])
+        XCTAssertEqual(alerts(third).map(\.body), ["精确额度达到33%"])
+        XCTAssertTrue(third.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: 33))
+        XCTAssertFalse(third.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: 34))
+        XCTAssertEqual(alerts(plan(used: Decimal(string: "2.5"), total: 10, reported: nil, thresholds: [25])).count, 1)
+        XCTAssertTrue(alerts(plan(used: 0, total: 10, reported: 100)).isEmpty)
+    }
+
+    func testExactExhaustionAndOverageReachAllConfiguredThresholdsEvenWithoutPercentage() {
+        for used in [Decimal(10), Decimal(11)] {
+            let result = plan(used: used, total: 10, reported: nil)
+            XCTAssertEqual(alerts(result).map(\.body), ["精确额度达到100%"])
+            for threshold in [80.0, 95.0, 100.0] {
+                XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: threshold))
+            }
+        }
+    }
+
+    func testInvalidOrIncompleteExactCountsFallBackToExistingReportedPercentage() {
+        let cases: [(Decimal?, Decimal?)] = [(nil, 100), (90, nil), (-1, 100), (90, 0), (90, -1), (.nan, 100), (90, .nan)]
+        for (used, total) in cases {
+            let result = plan(used: used, total: total, reported: 90)
+            XCTAssertEqual(alerts(result).map(\.body), ["精确额度达到80%"])
+        }
+    }
+
+    func testExplicitExhaustionStillOverridesExactCountsAndUnlimitedStillSuppressesAlerts() {
+        XCTAssertEqual(alerts(plan(used: 1, total: 100, reported: 60, exhausted: true)).map(\.body), ["精确额度达到100%"])
+        XCTAssertTrue(alerts(plan(used: 100, total: 100, reported: 100, unlimited: true)).isEmpty)
+        XCTAssertTrue(alerts(plan(used: 100, total: 100, reported: 100, enabled: false)).isEmpty)
+    }
+
+    func testLegacyWindowsWithoutExactCountsRetainThresholdAndExhaustionRules() {
+        XCTAssertTrue(alerts(plan(used: nil, total: nil, reported: 79.9, includeExact: false)).isEmpty)
+        XCTAssertEqual(alerts(plan(used: nil, total: nil, reported: 80, includeExact: false)).map(\.body), ["精确额度达到80%"])
+        XCTAssertEqual(alerts(plan(used: nil, total: nil, reported: 60, exhausted: true, includeExact: false)).map(\.body), ["精确额度达到100%"])
+        XCTAssertTrue(alerts(plan(used: nil, total: nil, reported: nil, exhausted: true, includeExact: false)).isEmpty)
+    }
+
+    func testContinuousAndLifetimeRecoveryRearmsOnlyOnceAtTheExactBoundaryWithoutResetNotice() {
+        let limit = Decimal(string: "100000000000000000")!, boundary = limit * 80 / 100
+        for semantics in [QuotaResetSemantics.continuousReplenishment, .nonResettingAllowance] {
+            let first = plan(used: boundary, total: limit, reported: 80, thresholds: [80], resetSemantics: semantics)
+            XCTAssertEqual(alerts(first).count, 1)
+            let recovered = plan(used: boundary - 1, total: limit, reported: 80, thresholds: [80], time: 101,
+                                 ledger: first.ledger, resetSemantics: semantics)
+            XCTAssertTrue(recovered.operations.isEmpty)
+            let cycle = recovered.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity
+            XCTAssertNotEqual(cycle, first.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity)
+            let furtherRecovery = plan(used: boundary - 2, total: limit, reported: 80, thresholds: [80], time: 102,
+                                       ledger: recovered.ledger, resetSemantics: semantics)
+            XCTAssertTrue(furtherRecovery.operations.isEmpty)
+            XCTAssertEqual(furtherRecovery.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity, cycle)
+            let crossed = plan(used: boundary, total: limit, reported: 80, thresholds: [80], time: 103,
+                               ledger: furtherRecovery.ledger, resetSemantics: semantics)
+            XCTAssertEqual(alerts(crossed).count, 1)
+            XCTAssertFalse(crossed.operations.contains {
+                if case .deliver(let notification) = $0 { return notification.kind == .confirmedReset }; return false
+            })
+        }
+    }
+
+    func testRoundedPreviousDisplayBelowThresholdCannotRepeatedlyRearmAndMissingUsageKeepsExactObservation() {
+        let limit = Decimal(string: "100000000000000000")!, boundary = limit * 80 / 100
+        let first = plan(used: boundary - 1, total: limit, reported: 80, thresholds: [80], resetSemantics: .continuousReplenishment)
+        let identity = first.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity
+        let lower = plan(used: boundary - 2, total: limit, reported: 80, thresholds: [80], time: 101,
+                         ledger: first.ledger, resetSemantics: .continuousReplenishment)
+        XCTAssertTrue(lower.operations.isEmpty)
+        XCTAssertEqual(lower.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity, identity)
+        let unknown = plan(used: nil, total: limit, reported: nil, thresholds: [80], time: 102,
+                           ledger: lower.ledger, resetSemantics: .continuousReplenishment)
+        XCTAssertTrue(unknown.operations.isEmpty)
+        XCTAssertEqual(unknown.ledger.cycleState(accountID: accountID, windowID: "exact")?.exactCounts,
+                       lower.ledger.cycleState(accountID: accountID, windowID: "exact")?.exactCounts)
+        let lowerAgain = plan(used: boundary - 3, total: limit, reported: 80, thresholds: [80], time: 103,
+                              ledger: unknown.ledger, resetSemantics: .continuousReplenishment)
+        XCTAssertEqual(lowerAgain.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity, identity)
+        XCTAssertTrue(lowerAgain.operations.isEmpty)
+    }
+
+    func testExplicitExhaustionRemainsAuthoritativeForTheNextRecoveryObservation() {
+        let first = plan(used: 1, total: 100, reported: 60, thresholds: [80], exhausted: true, resetSemantics: .nonResettingAllowance)
+        XCTAssertEqual(alerts(first).count, 1)
+        XCTAssertEqual(first.ledger.cycleState(accountID: accountID, windowID: "exact")?.usedPercentage, 100)
+        XCTAssertNil(first.ledger.cycleState(accountID: accountID, windowID: "exact")?.exactCounts)
+        let recovered = plan(used: 1, total: 100, reported: 60, thresholds: [80], time: 101,
+                             ledger: first.ledger, resetSemantics: .nonResettingAllowance)
+        XCTAssertTrue(recovered.operations.isEmpty)
+        XCTAssertNotEqual(recovered.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity,
+                          first.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity)
+        let crossed = plan(used: 80, total: 100, reported: 80, thresholds: [80], time: 102,
+                           ledger: recovered.ledger, resetSemantics: .nonResettingAllowance)
+        XCTAssertEqual(alerts(crossed).count, 1)
+    }
+
+    func testNewPercentageObservationReplacesOldExactCountersAndLegacyCycleStateDecodes() throws {
+        let first = plan(used: 90, total: 100, reported: 90, thresholds: [80], resetSemantics: .nonResettingAllowance)
+        let newer = plan(used: nil, total: nil, reported: 85, thresholds: [80], time: 101,
+                         ledger: first.ledger, includeExact: false, resetSemantics: .nonResettingAllowance)
+        let state = try XCTUnwrap(newer.ledger.cycleState(accountID: accountID, windowID: "exact"))
+        XCTAssertNil(state.exactCounts)
+        XCTAssertEqual(state.usedPercentage, 85)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(state)) as? [String: Any])
+        object.removeValue(forKey: "exactCounts")
+        let legacy = try JSONDecoder().decode(WindowCycleState.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertEqual(legacy, state)
+        let savedLedger = try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(first.ledger))
+        XCTAssertEqual(savedLedger, first.ledger)
+    }
+
+    private func plan(used: Decimal?, total: Decimal?, reported: Double?, thresholds: [Double] = [80, 95, 100],
+                      time: TimeInterval = 100, ledger: ReminderLedger = ReminderLedger(),
+                      exhausted: Bool = false, unlimited: Bool = false, enabled: Bool = true,
+                      includeExact: Bool = true, resetSemantics: QuotaResetSemantics? = nil) -> NotificationPlanningResult {
+        let date = Date(timeIntervalSince1970: time)
+        let window = QuotaWindow(id: "exact", name: "精确额度", scope: nil, isExhausted: exhausted,
+                                 isUnlimited: unlimited, usedPercentage: reported, remainingCount: nil, totalCount: nil,
+                                 resetsAt: nil, cycleID: "stable", exactCounts: includeExact ? DecimalQuotaCounts(used: used, total: total) : nil,
+                                 resetSemantics: resetSemantics)
+        return NotificationPlanner().planSuccessfulRefresh(accountID: accountID, accountName: "测试", previousSnapshot: nil,
+                                                           newSnapshot: QuotaSnapshot(accountID: accountID, windows: [window], collectedAt: date),
+                                                           settings: AccountReminderSettings(quotaAlertsEnabled: enabled, resetRemindersEnabled: false, thresholds: thresholds),
+                                                           ledger: ledger, now: date)
+    }
+    private func alerts(_ result: NotificationPlanningResult) -> [ReminderNotification] {
+        result.operations.compactMap {
+            if case .deliver(let notification) = $0, notification.kind == .quotaAlert { return notification }; return nil
+        }
+    }
+}

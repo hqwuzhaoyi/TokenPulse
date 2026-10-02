@@ -47,24 +47,19 @@ struct NotificationPlanner: Sendable {
                 }
             }
 
+            let observation = cycleObservation(window, previous: ledger.cycleState(accountID: accountID, windowID: window.id))
             ledger.setCycleState(WindowCycleState(
                 accountID: accountID,
                 windowID: window.id,
                 identity: cycle.identity,
                 resetAt: window.resetsAt,
-                usedPercentage: window.resetSemantics == nil ? window.usedPercentage
-                    : window.isExhausted == true ? 100 : window.usedPercentage
-                        ?? ledger.cycleState(accountID: accountID, windowID: window.id)?.usedPercentage,
-                observedAt: newSnapshot.collectedAt
+                usedPercentage: observation.percentage,
+                observedAt: newSnapshot.collectedAt,
+                exactCounts: observation.counts
             ))
 
-            guard settings.quotaAlertsEnabled,
-                  !window.isUnlimited,
-                  let reportedPercentage = window.usedPercentage else { continue }
-            let usedPercentage = window.isExhausted == true ? 100 : reportedPercentage
-
-            let reachedThresholds = normalizedThresholds(settings.thresholds)
-                .filter { $0 <= usedPercentage }
+            guard settings.quotaAlertsEnabled, !window.isUnlimited else { continue }
+            let reachedThresholds = reachedQuotaThresholds(window, thresholds: normalizedThresholds(settings.thresholds))
             let newThresholds = reachedThresholds.filter {
                 !ledger.containsQuotaAlert(
                     accountID: accountID,
@@ -200,16 +195,20 @@ struct NotificationPlanner: Sendable {
         let existing = ledger.cycleState(accountID: accountID, windowID: currentWindow.id)
 
         if currentWindow.resetSemantics != nil {
+            let previousCounts: DecimalQuotaCounts?
             let previousUsed: Double?
             if let existing, previousCollectedAt.map({ existing.observedAt >= $0 }) ?? true {
+                previousCounts = existing.exactCounts
                 previousUsed = existing.usedPercentage
-            } else { previousUsed = previousWindow?.usedPercentage }
-            let restored = minimumThreshold.flatMap { threshold in
-                previousUsed.flatMap { previous in
-                    (currentWindow.isExhausted == true ? 100 : currentWindow.usedPercentage).map { current in
-                        previous.isFinite && current.isFinite && previous >= threshold && current < threshold
-                    }
-                }
+            } else {
+                previousCounts = previousWindow?.isExhausted == true ? nil : previousWindow?.exactCounts
+                previousUsed = previousWindow?.isExhausted == true ? 100 : previousWindow?.usedPercentage
+            }
+            let restored = minimumThreshold.map { threshold in
+                let wasReached = thresholdReached(counts: previousCounts, percentage: previousUsed, threshold: threshold)
+                let isReached = currentWindow.isExhausted == true ? true
+                    : thresholdReached(counts: currentWindow.exactCounts, percentage: currentWindow.usedPercentage, threshold: threshold)
+                return wasReached == true && isReached == false
             } ?? false
             // This is only alert rearming after recovery. It is not a provider reset observation.
             return CycleResolution(identity: restored ? .inferred(collectedAt) : existing?.identity ?? .unidentified,
@@ -392,6 +391,58 @@ struct NotificationPlanner: Sendable {
                 return lhs.windowIDs.sorted().joined(separator: "\u{0}")
                     < rhs.windowIDs.sorted().joined(separator: "\u{0}")
             }
+    }
+
+    private func validExactCounts(_ counts: DecimalQuotaCounts?) -> DecimalQuotaCounts? {
+        guard let counts, let used = counts.used, let total = counts.total,
+              !used.isNaN, !total.isNaN, used >= 0, total > 0 else { return nil }
+        return counts
+    }
+
+    /// nil means unknown, so a missing reading cannot count as recovery.
+    private func thresholdReached(counts: DecimalQuotaCounts?, percentage: Double?, threshold: Double) -> Bool? {
+        if let counts = validExactCounts(counts), var used = counts.used, var total = counts.total {
+            if used >= total { return true }
+            var fraction = Decimal()
+            let division = NSDecimalDivide(&fraction, &used, &total, .down)
+            guard division == .noError || division == .lossOfPrecision,
+                  !fraction.isNaN, fraction >= 0, fraction <= 1 else { return nil }
+            var scale = Decimal(100), usedPercentage = Decimal()
+            let multiplication = NSDecimalMultiply(&usedPercentage, &fraction, &scale, .down)
+            guard multiplication == .noError || multiplication == .lossOfPrecision,
+                  !usedPercentage.isNaN else { return nil }
+            let exactThreshold = Decimal(threshold)
+            guard !exactThreshold.isNaN, exactThreshold > 0 else { return nil }
+            return usedPercentage >= exactThreshold
+        }
+        guard let percentage, percentage.isFinite else { return nil }
+        return percentage >= threshold
+    }
+
+    private func reachedQuotaThresholds(_ window: QuotaWindow, thresholds: [Double]) -> [Double] {
+        // Preserve explicit exhaustion and the legacy percentage-only behavior,
+        // including its missing-percentage handling.
+        if window.isExhausted == true, window.usedPercentage != nil { return thresholds }
+        if validExactCounts(window.exactCounts) != nil {
+            if window.isExhausted == true { return thresholds }
+            return thresholds.filter { thresholdReached(counts: window.exactCounts, percentage: nil, threshold: $0) == true }
+        }
+        guard let reported = window.usedPercentage else { return [] }
+        return thresholds.filter { $0 <= reported }
+    }
+
+    private func cycleObservation(_ window: QuotaWindow, previous: WindowCycleState?)
+        -> (percentage: Double?, counts: DecimalQuotaCounts?) {
+        let counts = validExactCounts(window.exactCounts)
+        guard window.resetSemantics != nil else { return (window.usedPercentage, counts) }
+        // Store the provider's exhausted flag as the authoritative 100% reading,
+        // without conflicting exact counters overriding it on the next refresh.
+        if window.isExhausted == true { return (100, nil) }
+        let knownUsed = window.exactCounts?.used.map { !$0.isNaN && $0 >= 0 } ?? false
+        if knownUsed || window.usedPercentage?.isFinite == true {
+            return (window.usedPercentage, counts)
+        }
+        return (previous?.usedPercentage, previous?.exactCounts)
     }
 
     private func normalizedThresholds(_ thresholds: [Double]) -> [Double] {
