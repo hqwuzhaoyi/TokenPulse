@@ -338,7 +338,7 @@ private struct AccountSummaryView: View {
             if let snapshot = state.snapshot {
                 Divider()
                 let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
-                if state.account.provider.hasMonetaryWallet &&
+                if state.account.provider.balancePresentation == .walletOnly &&
                     (state.account.provider != .newAPI || summaryWindows.contains(where: { $0.wallet?.isMonetary == true })) {
                     if let currency = selectedWalletCurrency(in: summaryWindows),
                        let window = summaryWindows.first(where: { $0.wallet?.currency == currency }) {
@@ -515,7 +515,7 @@ struct WalletBalanceView: View {
     let balance: WalletBalance
 
     var body: some View {
-        LabeledContent(balance.isMonetary ? "总可用余额" : "剩余 points",
+        LabeledContent(balance.isMonetary ? "总可用余额" : "剩余 \(balance.currency)",
                        value: QuotaFormatting.balance(balance.total, wallet: balance))
         if balance.isMonetary {
             LabeledContent("赠送余额", value: QuotaFormatting.balance(balance.granted, wallet: balance))

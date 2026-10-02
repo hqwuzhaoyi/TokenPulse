@@ -6,17 +6,22 @@ struct AccountReminderSettings: Codable, Equatable, Sendable {
     var thresholds: [Double]
     var walletCurrency: String?
     var walletThresholds: [String: Decimal]?
+    /// nil retains the historical shared quota/wallet toggle for existing accounts.
+    var walletAlertsEnabled: Bool?
+    var effectiveWalletAlertsEnabled: Bool { walletAlertsEnabled ?? quotaAlertsEnabled }
 
     init(quotaAlertsEnabled: Bool = true,
          resetRemindersEnabled: Bool = true,
          thresholds: [Double] = [80, 95, 100],
          walletCurrency: String? = nil,
-         walletThresholds: [String: Decimal]? = nil) {
+         walletThresholds: [String: Decimal]? = nil,
+         walletAlertsEnabled: Bool? = nil) {
         self.quotaAlertsEnabled = quotaAlertsEnabled
         self.resetRemindersEnabled = resetRemindersEnabled
         self.thresholds = thresholds
         self.walletCurrency = walletCurrency
         self.walletThresholds = walletThresholds
+        self.walletAlertsEnabled = walletAlertsEnabled
     }
 
     func walletThreshold(for currency: String) -> Decimal {

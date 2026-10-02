@@ -1,5 +1,11 @@
 import Foundation
 
+enum ProviderBalancePresentation: Sendable {
+    case none
+    case walletOnly
+    case mixed
+}
+
 enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
     case claude, codex, openCodeGo, zai, superGrok
@@ -12,6 +18,12 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
+    var balancePresentation: ProviderBalancePresentation {
+        switch self {
+        case .deepSeek, .vercelAIGateway, .newAPI, .poe: .walletOnly
+        default: .none
+        }
+    }
     var displayName: String {
         switch self {
         case .miniMaxChina: "MiniMax 国内版"
