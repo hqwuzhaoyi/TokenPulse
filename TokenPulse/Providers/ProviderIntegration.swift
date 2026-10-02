@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider == .newAPI { self.transport = GatewayProviderTransport() }
-        else if [.elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if [.elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob, .replicate].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -176,6 +176,9 @@ struct ProviderQuotaClient: QuotaQuerying {
                 .quota(accountID: accountID, credential: envelope)
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .replicate:
+            return try await ReplicateProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .factory:
             return try await FactoryProviderClient(transport: transport, now: now)
@@ -382,7 +385,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude, .stepFun, .cursor:
+        case .claude, .stepFun, .cursor, .replicate:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -453,6 +456,8 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .cursor:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成 Cursor 授权")
+        case .replicate:
+            throw ProviderIntegrationError.unsupportedLogin("Use the account-isolated web login view")
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
         case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
@@ -462,6 +467,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func continueLogin(_ session: ProviderLoginSession, callbackURL: URL? = nil) async throws -> ProviderLoginProgress {
         switch session.provider {
+        case .replicate:
+            throw ProviderIntegrationError.unsupportedLogin("Use the account-isolated web login view")
         case .copilot:
             return try await CopilotProviderAuthenticator(transport: transport, now: now).poll(session)
         case .kimiCode:
@@ -490,7 +497,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .replicate:
             return .init(credential: credential, changed: false)
         }
     }

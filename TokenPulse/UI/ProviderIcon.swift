@@ -68,6 +68,7 @@ extension Provider {
         case .warp: "ProviderWarp"
         case .v0: "ProviderV0"
         case .devPass: "ProviderDevPass"
+        case .replicate: "ProviderReplicate"
         }
     }
 

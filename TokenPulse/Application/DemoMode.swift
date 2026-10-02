@@ -31,6 +31,7 @@ enum DemoMode {
             (.venice, "Venice"),
             (.commandCode, "Command Code"),
             (.amp, "Amp"),
+            (.replicate, "Replicate"),
             (.gitKraken, "GitKraken AI"),
             (.huggingFace, "Hugging Face ZeroGPU"),
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
@@ -324,6 +325,11 @@ enum DemoMode {
                         exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100))
         ]
         case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
+        case .replicate: [
+            QuotaWindow(id: "replicate.wallet.USD", name: "Prepaid USD balance", scope: "Demo personal account",
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "80.25")!))
+        ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

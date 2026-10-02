@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000202; };
+		AE2000000000000000000204 /* ReplicateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000201; };
+		AE2000000000000000000203 /* ReplicateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000201; };
 		E23600000000000000000003 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
 		E23600000000000000000004 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
 		E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000002; };
@@ -312,6 +315,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AE2000000000000000000202 /* ReplicateProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplicateProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000201 /* ReplicateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ReplicateProvider.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000001 /* ClawRouterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClawRouterProvider.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000002 /* ClawRouterProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClawRouterProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E23500000000000000000001 /* AixyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AixyProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -582,6 +587,7 @@
 
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
 				AE2000000000000000000001 /* CommandCodeProvider.swift */,
+				AE2000000000000000000201 /* ReplicateProvider.swift */,
 				AE2000000000000000000031 /* HuggingFaceProvider.swift */,
 				AE2000000000000000000021 /* GitKrakenProvider.swift */,
 				AE2000000000000000000011 /* AmpProvider.swift */,
@@ -624,6 +630,7 @@
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
+				AE2000000000000000000202 /* ReplicateProviderTests.swift */,
 				AE2000000000000000000032 /* HuggingFaceProviderTests.swift */,
 				AE2000000000000000000022 /* GitKrakenProviderTests.swift */,
 				AE2000000000000000000012 /* AmpProviderTests.swift */,
@@ -925,6 +932,7 @@
                 C02200000000000000000023 /* DevPassProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000203 /* ReplicateProvider.swift in Sources */,
 				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
 				AE2000000000000000000023 /* GitKrakenProvider.swift in Sources */,
 				AE2000000000000000000013 /* AmpProvider.swift in Sources */,
@@ -971,6 +979,7 @@
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
+				AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */,
 				AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */,
 				AE2000000000000000000025 /* GitKrakenProviderTests.swift in Sources */,
 				AE2000000000000000000015 /* AmpProviderTests.swift in Sources */,
@@ -1064,6 +1073,7 @@
                 C02200000000000000000024 /* DevPassProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000204 /* ReplicateProvider.swift in Sources */,
 				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,
 				AE2000000000000000000024 /* GitKrakenProvider.swift in Sources */,
 				AE2000000000000000000014 /* AmpProvider.swift in Sources */,

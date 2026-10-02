@@ -197,6 +197,7 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .replicate: ReplicateProviderClient.loginProfile
         default: nil
         }
     }
