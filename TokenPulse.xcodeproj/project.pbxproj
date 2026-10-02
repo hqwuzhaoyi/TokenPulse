@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000001001; };
 		57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000001; };
 		AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000002; };
 		AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
@@ -214,6 +215,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QuotaDatePrecisionTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplenishmentSemanticsTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000002 /* CommandCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CommandCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000001 /* CommandCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CommandCodeProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -399,6 +401,7 @@
 				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
+				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
 				FA0900000000000000000004 /* WalletProviderTests.swift */,
@@ -687,6 +690,7 @@
 				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
+				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */,
                 6A7E00000000000000000005 /* NewAPIProviderTests.swift in Sources */,
                 C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
