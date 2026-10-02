@@ -2,6 +2,8 @@ Provider icons
 
 Claude, OpenAI, OpenCode, Z.ai, MiniMax and Grok SVG marks are derived from Lobe Icons (https://github.com/lobehub/lobe-icons), via qunqin24/Pulse commit 8d7fd60454ce383dd0a136a30790c1e277f8069b, Sources/Pulse/Resources.
 
+OpenAI API Legacy balance reuses the existing ProviderCodex OpenAI mark: lobehub/lobe-icons via qunqin24/Pulse commit 8d7fd60454ce383dd0a136a30790c1e277f8069b, Sources/Pulse/Resources/openai.svg, Copyright (c) 2023 LobeHub, MIT License (below). No new artwork is imported; existing vector/template packaging applies.
+
 Zhipu mainland reuses the existing ProviderZai mark, and MiniMax International reuses the existing ProviderMiniMax mark. The source commit, copyright, MIT License and vector/template packaging above apply to both regional entries; no new asset is imported.
 
 Qoder and DeepSeek SVG marks are derived from Lobe Icons commit a94750e3f5f8fc33757b839d85030e742284e43a. Their shapes were checked against the official Qoder and DeepSeek site favicons.

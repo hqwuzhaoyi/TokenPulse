@@ -313,6 +313,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .moonshot:
             return try await MoonshotProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .openAIAPI:
+            return try await OpenAIAPIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .atlasCloud:
             return try await AtlasCloudProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -428,6 +431,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "ClinePass API Key")
         case .moonshot:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Moonshot 开放平台 API Key")
+        case .openAIAPI:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "OpenAI Key（需兼容旧余额接口）")
         case .atlasCloud:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Atlas Cloud API Key（需余额读取权限）")
         case .kiloCode:
@@ -480,7 +485,7 @@ struct ProviderAuthenticationController: Sendable {
             envelope.metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
             return try envelope.encoded()
         }
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) || [.alibabaCodingPlan, .chutes].contains(provider) || [.devPass, .v0, .warp].contains(provider) else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.openAIAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) || [.alibabaCodingPlan, .chutes].contains(provider) || [.devPass, .v0, .warp].contains(provider) else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -548,7 +553,7 @@ struct ProviderAuthenticationController: Sendable {
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成登录")
         case .replicate, .mistral, .sakana, .stepFun, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
+        case .openAIAPI, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -567,7 +572,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -585,7 +590,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(credential: credential, changed: false)
         }
     }

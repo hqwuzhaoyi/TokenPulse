@@ -183,6 +183,7 @@
 		F20000000000000000000006 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000007 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
 		FA0900000000000000000002 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A44001000000000000000002 /* OpenAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44001000000000000000001; };
 		A330060000000000000002 /* NotionAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330060000000000000001; };
 		A330040000000000000002 /* PerplexityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330040000000000000001; };
 		A330010000000000000002 /* AbacusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330010000000000000001; };
@@ -194,6 +195,7 @@
 		A220010000000000000002 /* WalletExpansionHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220010000000000000001; };
 		F20000000000000000000008 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
 		FA0900000000000000000003 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A44001000000000000000003 /* OpenAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44001000000000000000001; };
 		A330060000000000000003 /* NotionAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330060000000000000001; };
 		A330040000000000000003 /* PerplexityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330040000000000000001; };
 		A330010000000000000003 /* AbacusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330010000000000000001; };
@@ -206,6 +208,7 @@
 		F20000000000000000000009 /* QoderProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003; };
 		F2000000000000000000000A /* WalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000004; };
 		FA0900000000000000000005 /* WalletProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000004; };
+		A44002000000000000000002 /* OpenAIAPIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44002000000000000000001; };
 		A330070000000000000002 /* NotionAIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330070000000000000001; };
 		A330050000000000000002 /* PerplexityProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330050000000000000001; };
 		A330030000000000000002 /* AbacusProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330030000000000000001; };
@@ -511,6 +514,7 @@
 		F20000000000000000000001 /* QoderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000002 /* DeepSeekProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepSeekProvider.swift; sourceTree = SOURCE_ROOT; };
 		FA0900000000000000000001 /* WalletProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WalletProvider.swift; sourceTree = SOURCE_ROOT; };
+		A44001000000000000000001 /* OpenAIAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/OpenAIAPIProvider.swift; sourceTree = SOURCE_ROOT; };
 		A330060000000000000001 /* NotionAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/NotionAIProvider.swift; sourceTree = SOURCE_ROOT; };
 		A330040000000000000001 /* PerplexityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/PerplexityProvider.swift; sourceTree = SOURCE_ROOT; };
 		A330010000000000000001 /* AbacusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AbacusProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -523,6 +527,7 @@
 		F20000000000000000000003 /* QoderProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000004 /* WalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletTests.swift; sourceTree = SOURCE_ROOT; };
 		FA0900000000000000000004 /* WalletProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A44002000000000000000001 /* OpenAIAPIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/OpenAIAPIProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A330070000000000000001 /* NotionAIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NotionAIProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A330050000000000000001 /* PerplexityProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PerplexityProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A330030000000000000001 /* AbacusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AbacusProviderTests.swift; sourceTree = SOURCE_ROOT; };
@@ -679,6 +684,7 @@
 				F20000000000000000000001 /* QoderProvider.swift */,
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
 				FA0900000000000000000001 /* WalletProvider.swift */,
+				A44001000000000000000001 /* OpenAIAPIProvider.swift */,
 				A330060000000000000001 /* NotionAIProvider.swift */,
 				A330040000000000000001 /* PerplexityProvider.swift */,
 				A330010000000000000001 /* AbacusProvider.swift */,
@@ -808,6 +814,7 @@
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
 				FA0900000000000000000004 /* WalletProviderTests.swift */,
+				A44002000000000000000001 /* OpenAIAPIProviderTests.swift */,
 				A330070000000000000001 /* NotionAIProviderTests.swift */,
 				A330050000000000000001 /* PerplexityProviderTests.swift */,
 				A330030000000000000001 /* AbacusProviderTests.swift */,
@@ -1075,6 +1082,7 @@
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
+				A44001000000000000000002 /* OpenAIAPIProvider.swift in Sources */,
 				A330060000000000000002 /* NotionAIProvider.swift in Sources */,
 				A330040000000000000002 /* PerplexityProvider.swift in Sources */,
 				A330010000000000000002 /* AbacusProvider.swift in Sources */,
@@ -1210,6 +1218,7 @@
                 C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
 				FA0900000000000000000005 /* WalletProviderTests.swift in Sources */,
+				A44002000000000000000002 /* OpenAIAPIProviderTests.swift in Sources */,
 				A330070000000000000002 /* NotionAIProviderTests.swift in Sources */,
 				A330050000000000000002 /* PerplexityProviderTests.swift in Sources */,
 				A330030000000000000002 /* AbacusProviderTests.swift in Sources */,
@@ -1264,6 +1273,7 @@
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
+				A44001000000000000000003 /* OpenAIAPIProvider.swift in Sources */,
 				A330060000000000000003 /* NotionAIProvider.swift in Sources */,
 				A330040000000000000003 /* PerplexityProvider.swift in Sources */,
 				A330010000000000000003 /* AbacusProvider.swift in Sources */,

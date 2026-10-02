@@ -27,7 +27,7 @@ extension Provider {
     var iconAssetName: String? {
         switch self {
         case .claude: "ProviderClaude"
-        case .codex: "ProviderCodex"
+        case .codex, .openAIAPI: "ProviderCodex"
         case .openCodeGo: "ProviderOpenCode"
         case .zai, .zhipu: "ProviderZai"
         case .miniMaxChina, .miniMaxInternational: "ProviderMiniMax"

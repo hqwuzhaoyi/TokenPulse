@@ -1,31 +1,33 @@
-# 69: OpenAI API 钱包可用接口验证
+# 69: OpenAI API Legacy 钱包余额
 
-**Status:** awaiting-validation
+**Status:** done
 
-**Type:** feasibility
+**Type:** integration（范围有限的 legacy 兼容）
 
-**What to build:** 核验当前可用凭证能否获取真实预付余额，并明确余额与组织花费的边界。
+**What to build:** 通过用户主动配置的 Key 请求旧 `credit_grants`，只显示实际返回的预付余额，不将组织消费统计当作余额。
 
-**Blocked by:** 用户授权的测试 key/账号与真实钱包余额路由；iPhone/Watch 真值对照与撤销测试。
+**Blocked by:** 无实现阻塞；真实账号与设备行为未实测，不作为当前关票条件。
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-03确认）
 
-- [x] 旧 credit_grants 路由兼容范围有限；Admin costs 仅表示消费，不能推算出未知的余额、充值或套餐上限。
-- [x] 交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。
-- [ ] 若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。
-- [x] 若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。
-- [x] 不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。
-- [ ] 验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。
-- [x] 测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。
+- [x] 完成本票接入实现，并确认 provider 图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 明确区分未文档化、未实测与已经废弃；本次未找到官方废弃声明，不宣称 legacy 路由通用兼容。
 
-## Evidence
+## 实施记录 — 2026-10-03
 
-参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/openai-api.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+- [x] `.openAIAPI` 注册、Key envelope、安全保存/更换/删除与既有同步路径；新增与更换凭证页面提示旧接口兼容性因账号与 Key 而异。
+- [x] 固定 HTTPS GET/Bearer 查询；请求不含 Key URL 参数，校验响应同源，403 权限不足与401凭证错误区分，404/限流/服务错误保留既有缓存。
+- [x] `total_available` 数字直接解码 Decimal，零与负余额保留；缺失、null、Boolean、字符串或非有限数值失败，未提供明细保留 nil。
+- [x] USD 语义来自固定 Pulse legacy contract；不由 Costs 推断币种/余额，不做 Costs probe/fallback，不把 total_used/total_granted 或 grant 到期生成比例与 reset。
+- [x] 纯钱包 App/详情/Watch/Widget/低余额提醒及独立演示账号；新增 App+Watch 源码与 XCTest PBX 注册。
+- [x] 复用已存在 `ProviderCodex` 的 OpenAI SVG 标记，补固定来源、MIT 许可和路径记录。
+- [x] 七个合成回归测试覆盖精确金额、缺失/错误/Costs拒绝、请求与失败/no-probe、错误scope/credential、响应origin、账号隔离/失败缓存/重启/删除、Widget/demo/提醒。
+- [x] Swift parse、PBX plist lint、git diff --check通过；小型实际 Foundation parser 可执行验证精度/零/负数/缺失/非法边界通过。
+- [ ] 本次未执行真实账号、当前 Key 兼容矩阵、iPhone/Watch 真值或撤销实测；没有保存或读取真实 Key。
+- [ ] 本分支未跑 Xcode/XCTest/模拟器，交 root 串行集成验证；上述合成测试不宣称真实路由可用。
 
-## Research result — 2026-10-02
+## 来源与说明
 
-官方 Admin Costs 查询可查消费，不能完成钱包余额目的；legacy credit_grants 当前账号兼容未验证。
+固定 [Pulse source](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/Profiled/OpenAIPlatformUsageService.swift) 与 [synthetic fixture](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Tests/PulseTests/Fixtures/openai-api-credit-grants.json)。上游明确 shape 为二手，不能用其旧 Key 注释保证所有账号兼容。
 
-研究报告：[认证、查询、生命周期、平台限制与最小验证](../research/69-openai-api.md)。只进行公开文档/固定源码研究，未读取用户凭证、未建立外部登录、未完成真实账号或 Watch 验收。
-
-状态 `awaiting-validation` 表示研究交付已产出，整票未完成。第3项真实纵向验收和第6项通过后实施票仍未满足；已勾选的否定/缺口项仅代表报告清楚区分既有架构限制与实际未验证项。
+官方 [Costs reference](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) 仅用于证明组织消费 API 的语义边界。完整边界与设备验证步骤见 [research](../research/69-openai-api.md) 和 [接入说明](../../../docs/openai-api-integration.md)。

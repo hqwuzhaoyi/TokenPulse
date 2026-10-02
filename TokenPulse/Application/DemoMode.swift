@@ -49,6 +49,7 @@ enum DemoMode {
             (.perplexity, "Perplexity API"),
             (.notionAI, "Notion AI"),
             (.augmentCode, "Augment Code"), (.zed, "Zed"), (.grokBot, "Grok Bot"),
+            (.openAIAPI, "OpenAI API Legacy 余额"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -368,6 +369,7 @@ enum DemoMode {
                 usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: nil,
                 cycleID: "demo-claw-budget", unit: "USD", exactCounts: .init(used: 7, remaining: 13, total: 20))
         ]
+        case .openAIAPI: [WalletExpansionHTTP.walletWindow(id: "openAIAPI.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.30")!))]
         case .atlasCloud: [WalletExpansionHTTP.walletWindow(id: "atlasCloud.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "42.50")!))]
         case .kiloCode: [WalletExpansionHTTP.walletWindow(id: "kiloCode.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.75")!)), QuotaWindow(id: "kiloCode.pass", name: "Kilo Pass 当期额度", scope: nil, period: .other, usedPercentage: 25, remainingCount: 21.375, totalCount: 28.5, resetsAt: now.addingTimeInterval(12 * 86_400), unit: "USD")]
         case .deepInfra: [WalletExpansionHTTP.walletWindow(id: "deepInfra.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "95.81")!)), QuotaWindow(id: "deepInfra.spend", name: "支出上限", scope: nil, period: .other, usedPercentage: 19.7, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD", exactCounts: DecimalQuotaCounts(used: Decimal(string: "3.94")!, remaining: Decimal(string: "16.06")!, total: 20))]

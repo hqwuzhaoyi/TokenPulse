@@ -644,6 +644,10 @@ private struct AddAccountView: View {
                             Text("通用 API Key 输入 apikey:Key；登录 JWT 输入 token:JWT。推理专用 Key 不适用。各实例和团队的 Bobcoins 预算分别展示，不换算成货币。登录 token 到期后需更新。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
+                        if provider == .openAIAPI {
+                            Text(OpenAIAPIProviderClient.connectionNotice)
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel, text: $key)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()

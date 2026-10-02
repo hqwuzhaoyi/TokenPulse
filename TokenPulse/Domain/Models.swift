@@ -45,14 +45,15 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case notionAI
     case perplexity
     case abacus
+    case openAIAPI
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.perplexity, .xiaomiCodingPlan, .sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.openAIAPI, .perplexity, .xiaomiCodingPlan, .sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper, .manus].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
-        case .perplexity, .replicate, .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI, .typeSafe: .walletOnly
+        case .openAIAPI, .perplexity, .replicate, .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI, .typeSafe: .walletOnly
         case .xiaomiCodingPlan, .sub2api, .sakana, .mistral, .manus, .devin, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
@@ -130,6 +131,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .notionAI: "Notion AI"
         case .perplexity: "Perplexity API"
         case .abacus: "Abacus AI"
+        case .openAIAPI: "OpenAI API（Legacy 余额）"
         }
     }
 }
