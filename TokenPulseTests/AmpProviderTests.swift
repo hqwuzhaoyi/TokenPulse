@@ -95,6 +95,10 @@ final class AmpProviderTests: XCTestCase {
         XCTAssertEqual(auth.loginConfiguration(for: .amp).credentialLabel, "Amp Access Token")
         let id = UUID()
         let credential = try auth.credential(provider: .amp, apiKey: " token-a \n")
+        let identity = try ProviderCredentialEnvelope.decode(credential, expectedProvider: .amp).sourceCredentialIdentity
+        XCTAssertNotNil(identity)
+        XCTAssertEqual(identity, try ProviderCredentialEnvelope.decode(auth.credential(provider: .amp, apiKey: "token-a"), expectedProvider: .amp).sourceCredentialIdentity)
+        XCTAssertNotEqual(identity, try ProviderCredentialEnvelope.decode(auth.credential(provider: .amp, apiKey: "token-b"), expectedProvider: .amp).sourceCredentialIdentity)
         let snapshot = try await ProviderQuotaClient(provider: .amp, transport: transport).quota(for: id, credential: credential)
         XCTAssertEqual(snapshot.accountID, id)
         let captured = await transport.lastRequest()

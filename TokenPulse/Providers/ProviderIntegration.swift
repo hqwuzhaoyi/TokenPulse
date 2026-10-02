@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 enum ProviderCredentialKind: String, Codable, Sendable {
     case apiKey
@@ -264,8 +265,12 @@ struct ProviderAuthenticationController: Sendable {
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { throw ProviderIntegrationError.invalidCredentialData }
         if provider == .miniMaxChina { return key }
-        let metadata: [String: String] = provider == .newAPI
+        var metadata: [String: String] = provider == .newAPI
             ? ["serverAddress": try GatewayServerAddress(serverAddress ?? "").value] : [:]
+        if provider == .commandCode || provider == .amp {
+            let identityData = try JSONEncoder().encode([provider.rawValue, key])
+            metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
+        }
         return try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata).encoded()
     }
 

@@ -2,6 +2,8 @@
 
 新增 `.commandCode` 提供商，可在 iPhone/Watch 添加自己的 API Key。使用既有按账号 Keychain envelope、配置持久化、可选 iCloud 同步、重新配置和删除流程；不开启同步时本机可查询，客户端不运行 CLI、不读取本机 Command Code 凭证、不依赖 Mac 代查。
 
+直接凭证保存 SHA-256(provider,key) 单向身份元数据，沿用既有 scoped credential 绑定。换 Key、配置/Keychain 分批同步或正在查询时更换凭证，不允许旧用户额度冒充新账号；身份变化清旧快照，提醒账本按同一配置身份协调。
+
 请求固定为 Bearer GET `https://api.commandcode.ai/alpha/whoami?limits=1`，成功后以该响应 `org.id` 为 URL query `orgId` 读取 `/alpha/billing/credits`。组织缺失时参数省略，查询 token 默认身份。认证失败先停止后续请求；HTTP 401/403、429、服务器错误和不可读 JSON 分开报错，既有 QuotaMonitor 保留旧快照与采集时间。
 
 `credits.monthlyCredits/purchasedCredits/freeCredits` 都表示当前美元余额池，不是月度 allowance。全部三个实际返回时才用 Decimal 相加成 USD 钱包；缺任意池就不计算未知总额，仍可显示已给出的有界限额。没有凭套餐名称/价格表推算月度总额，没有用剩余+历史消费构造假限额，不请求 subscriptions/summary。服务给出的 `planId` 仅作为名称。
