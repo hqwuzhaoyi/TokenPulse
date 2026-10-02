@@ -363,6 +363,7 @@ struct NotificationPlanner: Sendable {
         let candidates = snapshot.windows.compactMap { window -> (Date, String)? in
             guard window.wallet == nil,
                   window.resetSemantics == nil,
+                  window.resetDatePrecision != .day,
                   !window.isUnlimited,
                   let usedPercentage = window.usedPercentage,
                   usedPercentage > 0,

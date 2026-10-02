@@ -406,7 +406,7 @@ private struct CompactQuotaWindowView: View {
             if window.wallet == nil {
                 LabeledContent(
                     QuotaFormatting.nextEventLabel(window),
-                    value: QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window))
+                    value: QuotaFormatting.nextEventValue(window)
                 )
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -490,7 +490,7 @@ struct QuotaWindowView: View {
                                value: QuotaFormatting.resetDate(expiresAt))
             }
             if window.resetsAt != nil {
-                LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt))
+                LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt, precision: window.resetDatePrecision))
             }
             if let replenishment = window.nextReplenishmentAt {
                 LabeledContent("下次补充", value: QuotaFormatting.resetDate(replenishment))

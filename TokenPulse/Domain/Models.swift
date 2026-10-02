@@ -162,6 +162,8 @@ struct WalletBalance: Codable, Equatable, Sendable {
     }
 }
 
+enum QuotaDatePrecision: String, Codable, Sendable { case day }
+
 enum QuotaResetSemantics: String, Codable, Sendable {
     case continuousReplenishment
     case nonResettingAllowance
@@ -197,6 +199,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     /// A partial refill time, never a complete reset or reset-notification schedule.
     let nextReplenishmentAt: Date?
     let exactCounts: DecimalQuotaCounts?
+    /// nil preserves existing exact-time behavior; day stores a UTC calendar-date anchor.
+    let resetDatePrecision: QuotaDatePrecision?
 
     init(id: String,
          name: String,
@@ -216,7 +220,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          overageCount: Double? = nil,
          exactCounts: DecimalQuotaCounts? = nil,
          resetSemantics: QuotaResetSemantics? = nil,
-         nextReplenishmentAt: Date? = nil) {
+         nextReplenishmentAt: Date? = nil,
+         resetDatePrecision: QuotaDatePrecision? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -236,10 +241,11 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.resetSemantics = resetSemantics
         self.nextReplenishmentAt = nextReplenishmentAt
         self.exactCounts = exactCounts
+        self.resetDatePrecision = resetDatePrecision
     }
 
     func needsUpdate(at date: Date) -> Bool {
-        resetsAt.map { $0 <= date } ?? false
+        resetDatePrecision != .day && (resetsAt.map { $0 <= date } ?? false)
     }
 
     var displayName: String {

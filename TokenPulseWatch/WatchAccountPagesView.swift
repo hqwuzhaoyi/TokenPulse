@@ -202,7 +202,7 @@ private struct WatchAccountPage: View {
                                 }
                                 LabeledContent(
                                     QuotaFormatting.nextEventLabel(window),
-                                    value: QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window))
+                                    value: QuotaFormatting.nextEventValue(window)
                                 )
                                     .font(.caption2)
                                 if window.needsUpdate(at: date) {

@@ -7,18 +7,30 @@ enum QuotaFormatting {
     }
 
     static func resetDate(_ date: Date?, locale: Locale = .autoupdatingCurrent,
-                          timeZone: TimeZone = .autoupdatingCurrent) -> String {
+                          timeZone: TimeZone = .autoupdatingCurrent,
+                          precision: QuotaDatePrecision? = nil) -> String {
         guard let date else { return "未提供" }
         let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.timeZone = timeZone
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
+        if precision == .day {
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.dateFormat = "yyyy-MM-dd"
+        } else {
+            formatter.locale = locale
+            formatter.timeZone = timeZone
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+        }
         return formatter.string(from: date)
     }
 
     static func nextEventDate(_ window: QuotaWindow) -> Date? {
         [window.expiresAt, window.resetsAt, window.nextReplenishmentAt].compactMap { $0 }.min()
+    }
+
+    static func nextEventValue(_ window: QuotaWindow) -> String {
+        let event = nextEventDate(window)
+        return resetDate(event, precision: event == window.resetsAt ? window.resetDatePrecision : nil)
     }
 
     static func nextEventLabel(_ window: QuotaWindow) -> String {

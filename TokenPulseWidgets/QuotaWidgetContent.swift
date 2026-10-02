@@ -267,7 +267,7 @@ struct QuotaWidgetView: View {
                 .widgetLabel {
                     if let fraction = metric.ringFraction {
                         Gauge(value: fraction) {
-                            Text("重置 \(QuotaFormatting.resetDate(metric.window?.resetsAt))")
+                            Text("重置 \(QuotaFormatting.resetDate(metric.window?.resetsAt, precision: metric.window?.resetDatePrecision))")
                         } currentValueLabel: {
                             Text(metric.valueText)
                         }
@@ -447,7 +447,7 @@ struct QuotaWidgetView: View {
     private func resetText(_ metric: WidgetQuotaMetric) -> String {
         guard let window = metric.window else { return "时间未提供" }
         if window.wallet != nil { return "钱包余额" }
-        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window)))"
+        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.nextEventValue(window))"
     }
 
     private func accessibilitySummary(_ account: WidgetAccountSnapshot) -> String {
@@ -819,12 +819,15 @@ private struct HorizontalMetric: View {
 
     private var timingText: String {
         guard let window = metric.window else { return "时间未提供" }
-        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window)))"
+        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.nextEventValue(window))"
     }
 
     private var compactTimingText: String {
         guard let window = metric.window else { return "时间未提供" }
         guard let date = QuotaFormatting.nextEventDate(window) else { return "重置 未提供" }
+        if window.resetDatePrecision == .day, date == window.resetsAt {
+            return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.nextEventValue(window))"
+        }
         return "\(QuotaFormatting.nextEventLabel(window)) \(compactDate(date))"
     }
 
@@ -897,7 +900,7 @@ private struct RingMetric: View {
 
     private var timingText: String {
         guard let window = metric.window else { return "时间未提供" }
-        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.resetDate(QuotaFormatting.nextEventDate(window)))"
+        return "\(QuotaFormatting.nextEventLabel(window)) \(QuotaFormatting.nextEventValue(window))"
     }
 }
 
