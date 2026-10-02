@@ -46,6 +46,19 @@ final class MistralProviderTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(QuotaSnapshot.self, from: JSONEncoder().encode(snapshot)), snapshot)
     }
 
+    func testNetWalletRejectsOverflowAndSilentAbsorptionOfTinyAmount() {
+        let huge = "99999999999999999999999999999999999999"
+        for payload in [
+            "{\"wallet_amount\":\"\(huge)\",\"credit_notes_amount\":\"\(huge)\",\"ongoing_usage_balance\":0,\"currency\":\"USD\"}",
+            #"{"wallet_amount":"100000000000000000","credit_notes_amount":0,"ongoing_usage_balance":"0.0000000000000000000001","currency":"USD"}"#,
+            #"{"wallet_amount":"100000000000000000","credit_notes_amount":"0.0000000000000000000001","ongoing_usage_balance":0,"currency":"USD"}"#
+        ] {
+            XCTAssertThrowsError(try MistralProviderParser.wallet(Data(payload.utf8))) {
+                XCTAssertEqual($0 as? RefreshFailure, .unreadableResponse)
+            }
+        }
+    }
+
     func testFallbackVibeUsesOnlyConsoleCSRFAndAuxiliaryFailureKeepsValidWallet() async throws {
         let id = UUID(), transport = MistralTransport(credits: money, subscription: "<html>No subscription payload</html>", vibe: #"[{"result":{"data":{"json":{"usage_percentage":35,"reset_at":"$D2026-10-04T00:00:00Z"}}}}]"#)
         let snapshot = try await ProviderQuotaClient(provider: .mistral, transport: transport).quota(for: id, credential: session(id))

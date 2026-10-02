@@ -135,9 +135,25 @@ enum MistralProviderParser {
         guard let wallet = reply.wallet_amount?.amount, let notes = reply.credit_notes_amount?.amount,
               let usage = reply.ongoing_usage_balance?.amount, let code = reply.currency?.uppercased(),
               code.range(of: #"\A[A-Z]{3}\z"#, options: .regularExpression) != nil else { return nil }
-        let total = wallet + notes - usage
-        guard !total.isNaN else { throw RefreshFailure.unreadableResponse }
+        let total = try exactArithmetic(try exactArithmetic(wallet, notes, subtract: false), usage, subtract: true)
         return WalletBalance(currency: code, total: total)
+    }
+
+    private static func exactArithmetic(_ lhs: Decimal, _ rhs: Decimal, subtract: Bool) throws -> Decimal {
+        var left = lhs, right = rhs, result = Decimal()
+        let status = subtract ? NSDecimalSubtract(&result, &left, &right, .plain) : NSDecimalAdd(&result, &left, &right, .plain)
+        guard status == .noError, !result.isNaN else { throw RefreshFailure.unreadableResponse }
+        // Foundation can report noError after absorbing a tiny operand. Verify both inverse identities.
+        var inverseLeft = Decimal(), inverseRight = Decimal(), checkResult = result
+        let first = subtract ? NSDecimalAdd(&inverseLeft, &checkResult, &right, .plain)
+            : NSDecimalSubtract(&inverseLeft, &checkResult, &right, .plain)
+        checkResult = result
+        let second = subtract ? NSDecimalSubtract(&inverseRight, &left, &checkResult, .plain)
+            : NSDecimalSubtract(&inverseRight, &checkResult, &left, .plain)
+        guard first == .noError, second == .noError, inverseLeft == lhs, inverseRight == rhs else {
+            throw RefreshFailure.unreadableResponse
+        }
+        return result
     }
 
     static func subscription(_ html: String) throws -> [String: Budget] {

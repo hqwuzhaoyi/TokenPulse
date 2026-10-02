@@ -11,3 +11,5 @@ credits三项wallet_amount/credit_notes_amount/ongoing_usage_balance都实际返
 契约源：[Pulse397c8fc4 Mistral文档](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/mistral.md)及[客户端](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/Profiled/MistralUsageService.swift)。私有余额/页面形状仍是二手契约。调查日官方[文档入口](https://docs.mistral.ai/)列出console.mistral.ai的Studio入口；旧credits/billing文档路径已404，未把404或公开SDK当账单JSON验证。官方mistralai/client-python固定e8dfa1c8a2d0975cebfc0136b2d9060ff555494d树没有SVG；图标采用Lobe79b551cf的packages/static-svg/icons/mistral.svg，MIT与版权/path全记录于notices，矢量模板存在。
 
 新增5个合成方法覆盖Decimal/币种/缺失、Flight重复与错误旗标、Vibe CSRF/辅助失败保留、primary失效与余额partial、Cookie域、本地绑定、mixed widget/提醒。工作者只执行parse/PBX lint/diff，不Xcode/模拟器/重复大typecheck；root执行真实测试/整体构建。未访问真实Cookie，没有当前生产登录、账单、物理Watch/iCloud验收证据；按用户2026-10-02“实现+图标”标准关票，限制仍如实保存。
+
+后续精度复核增加第6个极值回归：净额使用checked NSDecimalAdd/Subtract并检查两条逆运算一致性，拒绝status错误、overflow与返回noError却吸收微小金额的静默舍入。原字段全部required的规则不变。
