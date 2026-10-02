@@ -52,6 +52,7 @@ enum DemoMode {
             (.openAIAPI, "OpenAI API Legacy 余额"),
             (.alibabaTokenPlan, "百炼 Personal Token Plan"),
             (.gemini, "Gemini Code Assist"),
+            (.antigravity, "Antigravity 模型组"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -372,6 +373,7 @@ enum DemoMode {
                 usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: nil,
                 cycleID: "demo-claw-budget", unit: "USD", exactCounts: .init(used: 7, remaining: 13, total: 20))
         ]
+        case .antigravity: [QuotaWindow(id: "antigravity.bucket.demo", name: "Gemini 模型组", scope: nil, period: .fiveHour, usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(7200))]
         case .openAIAPI: [WalletExpansionHTTP.walletWindow(id: "openAIAPI.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.30")!))]
         case .atlasCloud: [WalletExpansionHTTP.walletWindow(id: "atlasCloud.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "42.50")!))]
         case .kiloCode: [WalletExpansionHTTP.walletWindow(id: "kiloCode.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.75")!)), QuotaWindow(id: "kiloCode.pass", name: "Kilo Pass 当期额度", scope: nil, period: .other, usedPercentage: 25, remainingCount: 21.375, totalCount: 28.5, resetsAt: now.addingTimeInterval(12 * 86_400), unit: "USD")]

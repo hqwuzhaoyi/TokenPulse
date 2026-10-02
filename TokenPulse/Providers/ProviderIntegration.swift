@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider.requiresGatewayAddress { self.transport = GatewayProviderTransport() }
-        else if provider.webLoginProfile != nil || [.gemini, .grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider.webLoginProfile != nil || [.antigravity, .gemini, .grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -315,6 +315,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .moonshot:
             return try await MoonshotProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .antigravity:
+            return try await AntigravityProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .openAIAPI:
             return try await OpenAIAPIProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -438,6 +441,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "ClinePass API Key")
         case .moonshot:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Moonshot 开放平台 API Key")
+        case .antigravity:
+            return .init(provider: provider, method: .authorizationCode, credentialLabel: nil)
         case .openAIAPI:
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenAI Key（需兼容旧余额接口）")
         case .atlasCloud:
@@ -524,6 +529,8 @@ struct ProviderAuthenticationController: Sendable {
         switch provider {
         case .gemini:
             throw ProviderIntegrationError.unsupportedLogin("请配置自己的 Google iOS OAuth Client ID 后授权")
+        case .antigravity:
+            throw ProviderIntegrationError.unsupportedLogin("请通过自有 iOS Google Client ID 完成原生授权")
         case .copilot:
             return try await CopilotProviderAuthenticator(transport: transport, now: now).begin()
         case .kimiCode:
@@ -574,6 +581,8 @@ struct ProviderAuthenticationController: Sendable {
         switch session.provider {
         case .gemini:
             throw ProviderIntegrationError.unsupportedLogin("请使用 Google 原生授权界面完成配置")
+        case .antigravity:
+            throw ProviderIntegrationError.unsupportedLogin("请在原生 Google 授权页完成回调")
         case .replicate, .mistral, .sakana:
             throw ProviderIntegrationError.unsupportedLogin("Use the account-isolated web login view")
         case .copilot:
@@ -596,6 +605,9 @@ struct ProviderAuthenticationController: Sendable {
         switch provider {
         case .gemini:
             return try await GeminiProviderClient(transport: transport, now: now).refreshIfNeeded(envelope)
+        case .antigravity:
+            let updated = try await AntigravityProviderClient(transport: transport, now: now).refreshed(envelope)
+            return .init(credential: updated == envelope ? credential : try updated.encoded(), changed: updated != envelope)
         case .copilot:
             return try CopilotProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .kimiCode:

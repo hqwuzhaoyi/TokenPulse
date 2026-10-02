@@ -33,6 +33,7 @@ extension Provider {
         case .miniMaxChina, .miniMaxInternational: "ProviderMiniMax"
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational, .qoderChina: "ProviderQoder"
+        case .antigravity: "ProviderAntigravity"
         case .deepSeek: "ProviderDeepSeek"
         case .notionAI: "ProviderNotionAI"
         case .perplexity: "ProviderPerplexity"

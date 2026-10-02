@@ -17,6 +17,16 @@ struct ProviderSignInView: View {
                         try await GeminiProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
                             .authorize(callback: callback, session: pending, accountID: id, configuredProject: project)
                     }, onCredential: completion)
+                } else if provider == .antigravity {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("需要账号已获得 Antigravity 访问权限；Google 可能拒绝自有客户端的授权或查询。")
+                            .font(.footnote).padding(.horizontal)
+                        GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, requestedScopes: AntigravityProviderClient.scopes,
+                            complete: { callback, session, id, project in
+                                try await AntigravityProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
+                                    .authorize(callback: callback, session: session, accountID: id, configuredProject: project)
+                            }, onCredential: completion)
+                    }
                 } else if provider == .claude {
                     ClaudeSessionLoginView(accountID: accountID, onCredential: completion)
                 } else if provider == .cursor || provider == .grokBot {

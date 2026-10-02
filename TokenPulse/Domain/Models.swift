@@ -46,6 +46,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case perplexity
     case abacus
     case openAIAPI
+    case antigravity
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan || self == .alibabaTokenPlan }
@@ -134,6 +135,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .perplexity: "Perplexity API"
         case .abacus: "Abacus AI"
         case .openAIAPI: "OpenAI API（Legacy 余额）"
+        case .antigravity: "Antigravity"
         }
     }
 }

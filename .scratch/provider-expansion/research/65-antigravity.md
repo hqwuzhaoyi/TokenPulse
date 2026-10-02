@@ -1,6 +1,6 @@
 # 65 Antigravity：独立额度查询研究
 
-调查日期：2026-10-02。结论：**固定 Pulse 本机语言服务器路线不满足 ADR；当前官方 CLI 已确认后端额度刷新，但没有建立 TokenPulse 可用的远程认证与 quota 契约**。不能继续沿用“额度仅存在本机”的全局否定判断。
+初次调查：2026-10-02；官方静态协议深化与实施：2026-10-03。当前结论：**固定 Pulse 本机语言服务器路线不满足 ADR；官方 CLI 1.2.15 内嵌远程协议现已核实，原生自有 OAuth client 窄接入已实现；自有 client 的 scope/entitlement 授予无通用承诺且未实测**。不再将真实账号/设备当硬关票门槛。
 
 ## 来源与版本
 
@@ -17,7 +17,7 @@ quota shape 为 `groups[].buckets[]`，bucket 有 `bucketId/window/remainingFrac
 
 ## 新官方线索及其限度
 
-当前官方 `/usage` 明确访问 backend，这足以推翻“服务器绝无额度数据”的推断，却未给出 quota URL、请求 schema、OAuth client 注册、scope、刷新协议或 response 与 Pulse bucket 的一一关系。CLI 支持远程授权码仍在终端完成 token 交换，不能直接假定 iOS 回调可用。API key 模式直接使用 Gemini API、没有 Antigravity 账号 session，不能拿它查询订阅的共享模型组额度。企业 ADC 又是另一 entitlement/项目体系，不能代替个人 Google AI 订阅。
+初次调查时官方 `/usage` 明确访问 backend，但网页没有给出 wire contract；本轮通过官方公开CLI归档静态解析补齐 quota 路由/schema与consumer登录scope。CLI 支持远程授权码仍在终端完成 token 交换，不能直接假定 iOS 回调可用。API key 模式直接使用 Gemini API、没有 Antigravity 账号 session，不能拿它查询订阅的共享模型组额度。企业 ADC 又是另一 entitlement/项目体系，不能代替个人 Google AI 订阅。
 
 没有安装/运行 Antigravity、读取 keyring、读取本机 token 或建立外部登录。本次认证续期只能记录官方 CLI 自动持有 session，不能给出未公开的生命周期数值。
 
@@ -25,7 +25,7 @@ quota shape 为 `groups[].buckets[]`，bucket 有 `bucketId/window/remainingFrac
 
 - 已证实：固定 Pulse 依赖本机语言服务器；官方新 CLI 会查后端。
 - 不可行：该语言服务器/CSRF 架构原样用于 iPhone/Watch 独立刷新。
-- 未验证：供应商支持的 TokenPulse 独立授权与真实 quota API、手机平台许可、token 续期与 Watch token 转移。
+- 已实现但服务权限未验证：用户自有iOS OAuth授权、续期、quota直连与凭证向Watch同步；无供应商对任意第三方client开放Antigravity权限的承诺。
 
 ## 可重复的最小验证（本次未执行账号步骤）
 
@@ -35,4 +35,22 @@ quota shape 为 `groups[].buckets[]`，bucket 有 `bucketId/window/remainingFrac
 4. Watch 使用 TokenPulse 的有效可续期凭证，手机离线且所有桌面 Antigravity 进程停止后读取；跨 token 过期再续期读取，记录具体设备和 OS。
 5. 测试撤销、无 entitlement、模型组缺失、账号切换；无成功实际值时维持 unavailable/未验证。
 
-缺远程 quota/client 契约和真实双端设备实验，**票未完成**。正式实施票必须等待该实验，且覆盖个人/企业身份、模型组语义、刷新与撤销、稳定 bucket、双端直连、UI/组件/提醒，不将实验性 availability 路线发布为 provider。
+## 官方CLI 1.2.15 静态深化证据
+
+官方 [安装脚本](https://antigravity.google/install.sh)指向 [darwin_arm64 manifest](https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/darwin_arm64.json)。本轮记录版本1.2.15、[归档](https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.15-5434575321694208/darwin-arm/cli_mac_arm64.tar.gz) SHA512：`1b75da1501ee3e877fa708116f31bd88fabc7f25d8a4b29ef7948b9647d7ad8549b98f6c23418756a38fa210a1a25a526739005ea7b178e50847b67b967cfc7d`。实际对下载归档独立校验匹配，再只读解析Mach-O中的FileDescriptor与Go函数/常量，不执行归档内程序。
+
+`google/internal/cloud/code/v1internal/quota_summary.proto` descriptor位于已解压antigravity文件offset 51935891，长度1234；`prediction_service.proto` offset52905578，长度4807；`onboarding.proto` offset53802614，长度9645。HTTP annotation明确`POST /v1internal:retrieveUserQuotaSummary`、body `*`；request.project为required string。CodeAssistClient.fetchRetrieveUserQuotaSummary静态函数以项目getter取得project并调度该RPC；`cloudcode-pa.googleapis.com`为官方客户端常量，不是从Pulse loopback猜测的host。
+
+response.groups[].buckets[]使用bucketId/displayName/window/disabled/resetTime；remainingFraction为float、remainingAmount为int64且同oneof remaining，resetTime为protobuf.Timestamp。根buckets是deprecated compatibility字段，groups存在时不合并重复根buckets。数量字段没有货币或token单位；无法从int64剩余数量造分母。`5h`/`weekly`窗口字符串对应固定Pulse解析事实，新unknown窗口不推算周期。
+
+consumer OAuth静态调度与GCP模式不同：公共CLI scope slice有cloud-platform、userinfo.email、userinfo.profile、cclog、experimentsandconfigs；consumer路径另外补aicode、openid。本实施保留已核实的7scope集合，因为尚无依据证明后三个内部scope可删除或3scope足够。**静态存在不证明这些scope对用户自有client开放，也不证明每个scope对quota均必要**。未复制官方Google-owned clientID/secret；TokenPulse使用用户自行注册的iOS公共OAuth client、reverse-client callback、PKCE、state、offline refresh与Googleuserinfo subject。
+
+loadCodeAssist descriptor含currentTier/paidTier/allowedTiers/cloudaicompanionProject/projectValidationError。实现只消费已经激活的tier与实际managed或用户配置项目，不调用onboardUser、创建项目或购买。metadata为UNSPECIFIED并用TokenPulse名字，不声明官方CLI/IDE身份。自有client被Google拒绝时准确显示授权/权限失败，不提供伪装或外部proxy绕过。
+
+官方 [CLI repo](https://github.com/google-antigravity/antigravity-cli/tree/ae27bff644d78ed0c759b4d8a6b79506f1bed96d)仅公开文档/examples；[Python SDK](https://github.com/google-antigravity/antigravity-sdk-python/tree/12f9a4c3becf487302dc799b0f59054f01f3ddb9)的[local_connection.py](https://github.com/google-antigravity/antigravity-sdk-python/blob/12f9a4c3becf487302dc799b0f59054f01f3ddb9/google/antigravity/connections/local/local_connection.py)启动local harness subprocess，其[models.py](https://github.com/google-antigravity/antigravity-sdk-python/blob/12f9a4c3becf487302dc799b0f59054f01f3ddb9/google/antigravity/models.py)提供AI Studio/Vertex配置；不能把这个SDK称为个人订阅quota SDK。官方当前[/credits](https://antigravity.google/docs/cli/commands/credits/)说明还存在AI Premium credits；本65仅模型组quota，不因credits面板推算钱包或换汇。
+
+## 当前交付与验收
+
+原生授权、token续期、作用域身份、真实quota schema、App/Watch/Widget/提醒/demo/注册与图标完成。七项合成XCTest已写，小型实际Foundation parser及Swift6 provider/OAuth和5项parser/auth测试语义检查通过，parse/PBX lint通过；完整构建测试交root串行。
+
+用户当前验收为实现+图标存在，故票记done。仍没有真实Google账号、scope授予、quota真值或双端设备实测；这些未验证事实保留，不等于服务一定拒绝、不等于协议不存在，也不能宣称任意第三方client兼容。详见[接入说明](../../../docs/antigravity-integration.md)。
