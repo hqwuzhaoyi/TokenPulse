@@ -94,6 +94,8 @@ enum QuotaFormatting {
             values = "\(count(remaining)) / \(count(total))"
         } else if let used = counts.used, let total = counts.total {
             values = "已用 \(count(used)) / \(count(total))"
+        } else if let used = counts.used, let remaining = counts.remaining {
+            values = "已用 \(count(used)) · 剩余 \(count(remaining))"
         } else if let used = counts.used {
             values = "已用 \(count(used))"
         } else if let remaining = counts.remaining {

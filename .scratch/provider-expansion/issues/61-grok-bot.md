@@ -1,6 +1,6 @@
 # 61: Grok Bot 独立周额度
 
-**Status:** ready-for-agent
+**Status:** implemented — current integration/icon criteria met; aggregate tests delegated to root
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,14 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/grok-bot.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence
+
+- `.grokBot` register/query/independent auth+JWT cookie+UUID/provider fingerprint/UI/Watch/widget/demo/PBX and secure lifecycle complete. Necessary Cursor auth helpers/views parameterized only for Cursor/GrokBot with existing Cursor default; no reusing a Cursor envelope as GrokBot credential.
+- Fixed397c8fc4 service/Cursor auth source plus current official xAI FAQ read via agent-reach gh/Jina. REST get-sand with Origin and no redirects, not SuperGrok endpoint; weekly does not imply actual reset date. No periodStart+7d/Monday inference or marketing-price balance.
+- Explicit absent/pooled-personal quota is successful static quotaStatusText/empty snapshot, removing old quota; unknown/missing flags do not become false subscription claims or fake0. Strict Bool/finite percent/contradiction/expiry and cross-provider/account validation.
+- Seven tests plus preserved Cursor tests, source parse/PBX lint/diff checks. Root handles aggregate semantic tests/build; worker did not Xcode/simulator. Lobe xai.svg MIT fixed2e76c... is distinct from SuperGrok and image-set exists.
+- Dedicated docs/grok-bot-provider-integration.md; no central README/CONTEXT/manifest.
+
+Real login/API/cookie lifetime/iCloud/physicalWatch/widgets not measured; remain evidence gaps rather than current close gates. No real token accessed or exposed.

@@ -1,6 +1,6 @@
 # 58: Zed 编辑预测与支出限额
 
-**Status:** ready-for-agent
+**Status:** implemented — current integration/icon criteria met; aggregate tests delegated to root
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,13 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/zed.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence
+
+- `.zed` web profile/auth/query/controller/all target registry/PBX/Watch/widget/demo and common secure account lifecycle complete. Ephemeral login at official dashboard; only restricted zed.session sent to cloud usage route, account/origin/hash/expiry checked.
+- Pulse397c8fc4 source/fixture and official zed-industries docs9dd6993e inspected with agent-reach GitHub/gh. Predictions vs USD spend budget remain separate; only explicit unlimited becomes infinity, missing limits stay unknown, zero budget never unlimited or a fake0/0 percentage.
+- No web response reset exists, none borrowed from editor/macOS Keychain. Threshold alerts require actual denominator, no wallet reminders; partial spend/status do not hide other windows. Six new tests written and parsed, PBX/diff checks passed; root runs aggregate compiler/XCTest.
+- ProviderZed generic Apache2 non-brand image-set exists with vector/template configuration and provenance/license. Dedicated docs/zed-provider-integration.md; no central README/CONTEXT/manifest changes.
+
+Historical real Cookie/browser/Watch/iCloud/rendering measurements not performed, accurately retained as gaps without imposing a new acceptance gate.

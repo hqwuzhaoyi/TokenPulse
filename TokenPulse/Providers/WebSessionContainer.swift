@@ -242,6 +242,8 @@ extension Provider {
         case .abacus: AbacusProviderClient.loginProfile
         case .perplexity: PerplexityProviderClient.loginProfile
         case .notionAI: NotionAIProviderClient.loginProfile
+        case .augmentCode: AugmentCodeProviderClient.loginProfile
+        case .zed: ZedProviderClient.loginProfile
         default: nil
         }
     }

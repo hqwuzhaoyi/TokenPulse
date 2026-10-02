@@ -55,6 +55,15 @@
 		2E6300000000000000000414 /* XiaomiCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000411; };
 		2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000412; };
 
+        C02300000000000000000033 /* GrokBotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000031; };
+        C02300000000000000000034 /* GrokBotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000031; };
+        C02300000000000000000035 /* GrokBotProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000032; };
+        C02300000000000000000023 /* ZedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000021; };
+        C02300000000000000000024 /* ZedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000021; };
+        C02300000000000000000025 /* ZedProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000022; };
+        C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000011; };
+        C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000011; };
+        C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000012; };
 		E23600000000000000000003 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
 		E23600000000000000000004 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
 		E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000002; };
@@ -412,6 +421,12 @@
 		2E6300000000000000000411 /* XiaomiCodingPlanProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XiaomiCodingPlanProvider.swift; sourceTree = SOURCE_ROOT; };
 		2E6300000000000000000412 /* XiaomiCodingPlanProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XiaomiCodingPlanProviderTests.swift; sourceTree = SOURCE_ROOT; };
 
+        C02300000000000000000031 /* GrokBotProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GrokBotProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000032 /* GrokBotProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GrokBotProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000021 /* ZedProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZedProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000022 /* ZedProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ZedProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000011 /* AugmentCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AugmentCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000012 /* AugmentCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AugmentCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000001 /* ClawRouterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClawRouterProvider.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000002 /* ClawRouterProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClawRouterProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E23500000000000000000001 /* AixyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AixyProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -676,6 +691,15 @@
 				2E6300000000000000000431 /* OllamaCloudProvider.swift */,
 				2E6300000000000000000421 /* QoderChinaProvider.swift */,
 				2E6300000000000000000411 /* XiaomiCodingPlanProvider.swift */,
+                C02300000000000000000031 /* GrokBotProvider.swift */,
+                C02300000000000000000032 /* GrokBotProviderTests.swift */,
+
+                C02300000000000000000021 /* ZedProvider.swift */,
+                C02300000000000000000022 /* ZedProviderTests.swift */,
+
+                C02300000000000000000011 /* AugmentCodeProvider.swift */,
+                C02300000000000000000012 /* AugmentCodeProviderTests.swift */,
+
 				E23600000000000000000001 /* ClawRouterProvider.swift */,
 				E23500000000000000000001 /* AixyProvider.swift */,
 				E22900000000000000000001 /* NeuralwattProvider.swift */,
@@ -1074,6 +1098,9 @@
 				2E6300000000000000000433 /* OllamaCloudProvider.swift in Sources */,
 				2E6300000000000000000423 /* QoderChinaProvider.swift in Sources */,
 				2E6300000000000000000413 /* XiaomiCodingPlanProvider.swift in Sources */,
+                C02300000000000000000033 /* GrokBotProvider.swift in Sources */,
+                C02300000000000000000023 /* ZedProvider.swift in Sources */,
+                C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */,
 				E23600000000000000000003 /* ClawRouterProvider.swift in Sources */,
 				E23500000000000000000003 /* AixyProvider.swift in Sources */,
 				E22900000000000000000003 /* NeuralwattProvider.swift in Sources */,
@@ -1132,6 +1159,9 @@
 				2E6300000000000000000435 /* OllamaCloudProviderTests.swift in Sources */,
 				2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */,
 				2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */,
+                C02300000000000000000035 /* GrokBotProviderTests.swift in Sources */,
+                C02300000000000000000025 /* ZedProviderTests.swift in Sources */,
+                C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */,
 				E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */,
 				E23500000000000000000005 /* AixyProviderTests.swift in Sources */,
 				E22900000000000000000005 /* NeuralwattProviderTests.swift in Sources */,
@@ -1256,6 +1286,9 @@
 				2E6300000000000000000434 /* OllamaCloudProvider.swift in Sources */,
 				2E6300000000000000000424 /* QoderChinaProvider.swift in Sources */,
 				2E6300000000000000000414 /* XiaomiCodingPlanProvider.swift in Sources */,
+                C02300000000000000000034 /* GrokBotProvider.swift in Sources */,
+                C02300000000000000000024 /* ZedProvider.swift in Sources */,
+                C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */,
 				E23600000000000000000004 /* ClawRouterProvider.swift in Sources */,
 				E23500000000000000000004 /* AixyProvider.swift in Sources */,
 				E22900000000000000000004 /* NeuralwattProvider.swift in Sources */,

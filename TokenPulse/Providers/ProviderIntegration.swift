@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider.requiresGatewayAddress { self.transport = GatewayProviderTransport() }
-        else if provider.webLoginProfile != nil || [.elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider.webLoginProfile != nil || [.grokBot, .elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -328,6 +328,15 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .venice:
             return try await VeniceProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .grokBot:
+            return try await GrokBotProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .zed:
+            return try await ZedProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .augmentCode:
+            return try await AugmentCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .cursor:
             return try await CursorProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -451,7 +460,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude, .stepFun, .cursor, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI:
+        case .claude, .stepFun, .cursor, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -521,6 +530,12 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
+        case .grokBot:
+            throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中通过 Cursor 账号授权 Grok Bot")
+        case .zed:
+            throw ProviderIntegrationError.unsupportedLogin("请在此账号的临时浏览器中登录 Zed 网页账户")
+        case .augmentCode:
+            throw ProviderIntegrationError.unsupportedLogin("请在此账号的临时浏览器中登录 Augment Code")
         case .windsurf:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中登录 Windsurf")
         case .manus:
@@ -552,7 +567,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI:
+        case .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -570,7 +585,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI:
+        case .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(credential: credential, changed: false)
         }
     }
