@@ -245,12 +245,6 @@ private struct AccountPreferencesView: View {
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                         }
-                        if augmentResetAvailable {
-                            Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
-                                var settings = configuration.reminders; settings.resetRemindersEnabled = value
-                                Task { await monitor.updateReminders(settings, accountID: accountID) }
-                            }))
-                        }
                         if walletRemindersAvailable {
                             Toggle("低余额提醒", isOn: Binding(get: { configuration.reminders.effectiveWalletAlertsEnabled }, set: { value in
                                 var settings = configuration.reminders

@@ -14,7 +14,7 @@ struct CursorSessionLoginView: View {
                  ? "通过 Cursor 账号授权，仅查询独立 Grok Bot 每周额度；不会合并 Cursor 月度额度或 SuperGrok。此临时浏览器不读取编辑器或 Safari 登录。"
                  : "在此账号专用临时浏览器中登录 Cursor。此非官方接入使用 Cursor/Grok 客户端的已知授权页；不读取编辑器或 Safari 登录。")
                 .font(.caption).foregroundStyle(.secondary).padding(.horizontal)
-            if let container = model.container { CursorAccountWebView(webView: container.webView) }
+            if let container = model.container { CursorAccountWebView(webView: container.webView).id(ObjectIdentifier(container.webView)) }
             if let message = model.message { Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal) }
             if model.waiting { ProgressView("等待授权并验证额度") }
             Button("清除会话并重新登录") { model.start() }

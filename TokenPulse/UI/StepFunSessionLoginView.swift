@@ -19,7 +19,7 @@ struct StepFunSessionLoginView: View {
             Text("国内站和国际站分别登录。切换站点会清除本次临时会话；完成验证后保存所选站点的凭证。")
                 .font(.caption).foregroundStyle(.secondary).padding(.horizontal)
             if let webView = model.container?.webView {
-                StepFunWebView(webView: webView).id(site)
+                StepFunWebView(webView: webView).id(ObjectIdentifier(webView))
             }
             if let message = model.message {
                 Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal)

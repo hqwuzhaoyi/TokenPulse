@@ -260,7 +260,7 @@ struct WebProviderSessionLoginView: View {
     }
     var body: some View {
         VStack(spacing: 10) {
-            if let view = model.container?.webView { ProviderSessionBrowser(webView: view) }
+            if let view = model.container?.webView { ProviderSessionBrowser(webView: view).id(ObjectIdentifier(view)) }
             if !model.choices.isEmpty {
                 Text("选择要添加的工作区或组织").font(.headline)
                 ScrollView {
