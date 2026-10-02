@@ -192,6 +192,9 @@ private struct AccountPreferencesView: View {
                             if let plan = snapshot.providerPlanName {
                                 LabeledContent("套餐", value: plan)
                             }
+                            if let status = snapshot.quotaStatusText {
+                                Text(status).font(.subheadline).foregroundStyle(.secondary)
+                            }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
                                 if window.scope == nil || window.hasDetailValues {
                                     QuotaWindowView(window: window)

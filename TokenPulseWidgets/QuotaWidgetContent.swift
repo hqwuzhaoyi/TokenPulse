@@ -933,6 +933,9 @@ private struct AccountStatus: View {
                 .font(.system(size: fontSize))
                 .foregroundStyle(.secondary)
         }
+        if let status = account.quotaStatusText {
+            Text(status).font(.system(size: fontSize)).foregroundStyle(.secondary).lineLimit(2)
+        }
     }
 }
 

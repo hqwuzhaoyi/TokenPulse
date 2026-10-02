@@ -164,7 +164,9 @@ private struct WatchAccountPage: View {
                     .foregroundStyle(.secondary)
 
                 if let snapshot = state.snapshot {
-                    if snapshot.isNoPlan == true {
+                    if let status = snapshot.quotaStatusText {
+                        Text(status).font(.caption2).foregroundStyle(.secondary)
+                    } else if snapshot.isNoPlan == true {
                         Text("按量计费，无套餐或 Key 上限").font(.caption2)
                     }
                     if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.billing" }) {
