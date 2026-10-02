@@ -35,4 +35,17 @@ Central CLI 官方文档说明 OAuth 2.0 PKCE 对 JetBrains Account 登录，随
 4. Watch 使用有效可续期凭证，在手机离线、IDE/Central CLI 停止时直连查询，跨 token expiry 续期重读，记录具体设备、OS、时间与脱敏结果。
 5. 验证角色撤销、套餐改变、top-up、shared pool 耗尽、账号切换和 stale cache 的表示。
 
-缺官方手机 quota 契约、测试账号与 Watch，**票未完成**。实施票须等待纵向实测，范围包括 entitlement 类别、授权与续期、shared/sub-limit 区分、单位/周期、快照 stale 处理、多账号、组件/提醒和双端实测。
+缺少完整个人 quota/client 协议组合，当前 provider 尚未实现。按调整后的验收，只要求原生实现与图标；真实账号/Watch观察不再是实施前硬门槛。仍须保持 entitlement、shared/sub-limit、单位/周期、身份与生命周期正确。
+
+
+## 2026-10-03 再核查：个人远程 quota 存在，但协议未交付
+
+[官方 CLI commands](https://www.jetbrains.com/help/central-cli/cli-commands.html) 直接说明 `central limit` 显示 seat-based usage limit 或 license-based quota，以 AI credits 计量；`central quota` 是别名。因此不应再把“只有IDE本地quota”或“远程只面向企业”当结论。
+
+[官方CLI setup](https://www.jetbrains.com/help/central-cli/cli-setup.html) 要求 active AI subscription，可以来自自己的license或组织；多来源时用户选择workspace或个人license。[in-depth](https://www.jetbrains.com/help/central-cli/cli-in-depth.html)，页面Last modified18 September2026，确认PKCE OAuth、license经典AIPlatform流程及workspace usage/governance令牌。公开的Grazie-Authenticate-JWT `/user/v5/llm/...`、Bearer `/llm/...`属于模型调用，没有说明 `central limit` 的具体HTTP路线、token-mint audience/scopes、quota结构或自有第三方iOS client注册。不能把这些字符串拼成假quota路径。
+
+公开Account API再取仍13 paths且上述SHA不变；没有quota/credit/usage响应定义。这仅限定该公开schema，不证明供应商内部没有quota服务。官方[Junie README](https://github.com/JetBrains/junie/blob/10b769b013cf61da012b92ced2cc6946c1beeb41/README.md)和同版公开树暴露OAuth/JunieAPIKey入口，但公开源码为文档及集成包装，未提供这条个人quota网络客户端；代码搜索对 usage-limit-token/quota 的结果未给出完整发行+读取组合。搜索为空也不等同于不存在。
+
+本次只GET公开文档/schema与官方GitHub源；没有运行Central/Junie、读取tokens.enc/系统Keychain、模拟其它OAuth客户端或请求真实账户。缺口具体为个人/license quota HTTPS method+URL+schema、合法client/redirect/scope、usage credential发行与续期、许可/seat/pool账户身份。供应商只需提供协议即可解除代码阻碍；没有测试账号不是另一个阻塞理由。旧纵向真实观察计划保留为后续验证建议，不再是本票关票门槛。
+
+可重复公开审计：读取上述命令/深入文档和公共OpenAPI，确认新增个人quota path/schema；若官方公布SDK或协议，再核对用户授权身份与对应quota请求，禁止以推理license token或XML current/maximum替代云端quota。原生实现前不新增假成功parser/授权入口或名义provider。
