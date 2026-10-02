@@ -302,7 +302,7 @@ final class QuotaMonitor: ObservableObject {
                 guard configuration(for: accountID)?.credentialIdentity == expectedIdentity,
                       let provider = configuration(for: accountID)?.account.provider,
                       sourceIdentity(credential, provider: provider) == expectedIdentity else {
-                    storageMessage = "请授权与此服务账号一致的 Nous 用户和组织。"
+                    storageMessage = "请使用与此服务账号一致的用户及授权范围。"
                     return
                 }
             }

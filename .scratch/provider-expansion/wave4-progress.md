@@ -39,3 +39,5 @@ sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root
 - `f5f4678`：Kiro Pi修复后的29项XCTest，0失败，日志 `/tmp/tokenpulse-wave4-kiro-pi-fix.log`。同刻到期多笔credits保留其他池并显示未知分项cohort，试用到期缺失明确标注；不采纳与官方映射相悖的ARN改动。
 
 - `ac6c429`：Nous专项23项XCTest，0失败，日志 `/tmp/tokenpulse-wave4-nous-tests.log`，结果 `/tmp/tokenpulse-wave4-nous-tests.xcresult`。覆盖Pi07/08采用问题、身份GET耗尽后禁止再次POST已消费device code、手机换绑后旧Watch本地链查询前拒绝、rollover/zero/未知月重置。
+
+- JetBrains WIP `916d539` 首次工程编译发现PBX克隆错误（重复占用XKiro引用），已由 `4417993` 为各源文件分配独立A442 IDs并检查全部定义唯一；`fc388bb` 修正测试Widget构造器。24项JetBrains XCTest已通过（`/tmp/tokenpulse-wave4-jetbrains-wip-tests.log`、同名 `.xcresult`）。此为WIP验证，独立candidate/receipt保存语义仍在完善，第68票未关闭。
