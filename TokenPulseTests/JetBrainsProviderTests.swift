@@ -6,6 +6,7 @@ private final class JetBrainsRecords: DeviceOAuthRecordStoring, @unchecked Senda
     private let lock = NSLock()
     private var data: [UUID: Data] = [:]
     private var writes = 0
+    var writeCount: Int { lock.lock(); defer { lock.unlock() }; return writes }
     var failAt: Int? = nil
     func read(_ id: UUID) -> Data? { lock.lock(); defer { lock.unlock() }; return data[id] }
     func write(_ value: Data, for id: UUID) throws {
@@ -73,11 +74,18 @@ final class JetBrainsProviderTests: XCTestCase {
          .init(status: 200, body: quota), .init(status: 200, body: refill)]
     }
     private func vault(_ records: JetBrainsRecords = JetBrainsRecords(), device: String = UUID().uuidString) -> DeviceOAuthCredentialVault {
-        DeviceOAuthCredentialVault(records: records, deviceID: device)
+        DeviceOAuthCredentialVault(records: records, deviceID: device, now: { Date(timeIntervalSince1970: 1_000) })
     }
     private func envelope(_ vault: DeviceOAuthCredentialVault, _ id: UUID) async throws -> ProviderCredentialEnvelope {
-        let value = try await vault.version(for: id)
-        return try ProviderCredentialEnvelope.decode(XCTUnwrap(value.credential), expectedProvider: .jetBrainsAI)
+        let active = try await vault.version(for: id)
+        let candidateID = JetBrainsCredential.candidateRecordID(accountID: id, marker: try JetBrainsTokenTransfer.decode(transfer()).grantMarker)
+        let candidate = try await vault.version(for: candidateID)
+        return try ProviderCredentialEnvelope.decode(XCTUnwrap(active.credential ?? candidate.credential), expectedProvider: .jetBrainsAI)
+    }
+
+    private func activate(_ receipt: String, store: DeviceOAuthCredentialVault, id: UUID) async throws {
+        try await ProviderScopedCredentialStore(synchronized: JetBrainsSynchronizedSecrets(), deviceOAuthVault: store)
+            .save(receipt, for: id, provider: .jetBrainsAI)
     }
 
     func testTransferRejectsUnsupportedVersionEnvironmentEnterpriseMissingLicenseAndWrongBool() throws {
@@ -123,8 +131,9 @@ final class JetBrainsProviderTests: XCTestCase {
     }
     func testInitialImportExactRoutesPublicClientAndCheckpointBeforeSigning() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator()
+        let candidateID = JetBrainsCredential.candidateRecordID(accountID: id, marker: try JetBrainsTokenTransfer.decode(transfer()).grantMarker)
         let transport = JetBrainsTransport(successful(), observe: { request in
-            let saved = try await store.version(for: id)
+            let saved = try await store.version(for: candidateID)
             let envelope = try ProviderCredentialEnvelope.decode(XCTUnwrap(saved.credential), expectedProvider: .jetBrainsAI)
             if request.url?.path == "/oauth2/token" { XCTAssertEqual(envelope.metadata["stage"], "oauthPending") }
             if request.url?.path == "/auth/jetbrains-jwt/register" {
@@ -132,6 +141,8 @@ final class JetBrainsProviderTests: XCTestCase {
             }
         })
         let value = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: transport, now: { Date(timeIntervalSince1970: 1_000) })
+        let beforeSave = try await store.version(for: id); XCTAssertNil(beforeSave.credential)
+        try await activate(value, store: store, id: id)
         let saved = try ProviderCredentialEnvelope.decode(value, expectedProvider: .jetBrainsAI)
         XCTAssertEqual(saved.refreshToken, "rotated-rt"); XCTAssertEqual(saved.expiresAt, Date(timeIntervalSince1970: 3_600))
         XCTAssertEqual(saved.accountID, "sub:same-subject"); XCTAssertEqual(saved.metadata["stage"], "ready")
@@ -171,8 +182,8 @@ final class JetBrainsProviderTests: XCTestCase {
         let observed = try await envelope(store, id)
         XCTAssertEqual(observed.refreshToken, "rotated-rt")
         let good = JetBrainsTransport(Array(successful().suffix(2)))
-        let snapshot = try await coordinator.quota(accountID: id, vault: store, transport: good, now: { Date(timeIntervalSince1970: 1_000) })
-        XCTAssertEqual(snapshot.windows.count, 2)
+        let receipt = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: good, now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(receipt, store: store, id: id)
         let requests = await good.received(); XCTAssertEqual(requests.count, 2)
     }
     func testUncertainPOSTCannotBeReplayedBySameExportOrNewAccountUUIDEvenAfterDeletion() async throws {
@@ -234,7 +245,8 @@ final class JetBrainsProviderTests: XCTestCase {
     }
     func testAIRefreshFailureFallsBackToRegisterUsingValidJBAWithoutConsumingRefreshToken() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator()
-        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        let seed = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(seed, store: store, id: id)
         let fallback = JetBrainsTransport([.init(status: 401, body: "{}"), .init(status: 201, body: "{}"),
             .init(status: 200, body: #"{"token":"renewed-ai"}"#), .init(status: 200, body: quota), .init(status: 200, body: refill)])
         _ = try await coordinator.quota(accountID: id, vault: store, transport: fallback, now: { Date(timeIntervalSince1970: 3_601) })
@@ -245,7 +257,8 @@ final class JetBrainsProviderTests: XCTestCase {
     }
     func testExpiredJBAUsesCheckpointRefreshAndKeepsBoundIdentity() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator()
-        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        let seed = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(seed, store: store, id: id)
         let transport = JetBrainsTransport(successful(oauth(refresh: "next-rt", expiry: 10_000)).map { reply in
             reply.body.contains("expiresAt") ? .init(status: 200, body: #"{"token":"next-ai","expiresAt":9000000}"#) : reply
         })
@@ -257,7 +270,8 @@ final class JetBrainsProviderTests: XCTestCase {
     }
     func testCrossOriginMintResponseAndChangedServerSubjectNeverOverwriteLogicalScope() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator()
-        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        let seed = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(seed, store: store, id: id)
         let changed = JetBrainsTransport([oauth(subject: "different", expiry: 10_000)])
         do { _ = try await coordinator.quota(accountID: id, vault: store, transport: changed, now: { Date(timeIntervalSince1970: 5_001) }); XCTFail("scope changed") } catch {}
         let observed = try await envelope(store, id)
@@ -267,19 +281,20 @@ final class JetBrainsProviderTests: XCTestCase {
             transport: unrelated, now: { Date(timeIntervalSince1970: 1_000) }); XCTFail("redirect accepted") } catch {}
     }
 
-    func testConcurrentQueryJoinsInitialMintAndConsumesRefreshOnlyOnce() async throws {
+    func testConcurrentActiveQueriesShareOneReadWithoutConsumingAnotherRefresh() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator(), gate = JetBrainsBarrier()
-        let transport = JetBrainsTransport(successful(), observe: { request in
-            if request.url!.path == "/oauth2/token" { await gate.pause() }
+        let receipt = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(receipt, store: store, id: id)
+        let transport = JetBrainsTransport(Array(successful().suffix(2)), observe: { request in
+            if request.url!.path == "/user/v5/quota/get" { await gate.pause() }
         })
-        let input = transfer()
-        let importing = Task { try await coordinator.importTransfer(input, accountID: id, vault: store, transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
+        let first = Task { try await coordinator.quota(accountID: id, vault: store, transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
         await gate.waitForStart()
-        let query = Task { try await coordinator.quota(accountID: id, vault: store, transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
+        let second = Task { try await coordinator.quota(accountID: id, vault: store, transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
         await Task.yield(); await gate.release()
-        _ = try await importing.value; let snapshot = try await query.value
+        _ = try await first.value; let snapshot = try await second.value
         XCTAssertEqual(snapshot.windows.count, 2)
-        let requests = await transport.received(); XCTAssertEqual(requests.filter { $0.url!.path == "/oauth2/token" }.count, 1)
+        let requests = await transport.received(); XCTAssertEqual(requests.count, 2)
     }
     func testCancellationTombstoneRejectsLateMintAndPreservesSpentMarkerAcrossNewUUID() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator(), gate = JetBrainsBarrier()
@@ -307,10 +322,12 @@ final class JetBrainsProviderTests: XCTestCase {
     }
     func testDelayedOldPageCleanupCannotDeleteANewerImportLease() async throws {
         let id = UUID(), store = vault(), coordinator = JetBrainsSessionCoordinator(), oldLease = UUID(), newLease = UUID()
-        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, attemptID: oldLease,
+        let oldPrepared = try await coordinator.importTransfer(transfer(), accountID: id, vault: store, attemptID: oldLease,
             transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
-        _ = try await coordinator.importTransfer(transfer(refresh: "new-independent-export"), accountID: id, vault: store, attemptID: newLease,
+        try await activate(oldPrepared, store: store, id: id)
+        let newPrepared = try await coordinator.importTransfer(transfer(refresh: "new-independent-export"), accountID: id, vault: store, attemptID: newLease,
             transport: JetBrainsTransport(successful(oauth(refresh: "new-ready-rt"))), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(newPrepared, store: store, id: id)
         let before = try await store.version(for: id)
         try await coordinator.cancelImport(accountID: id, vault: store, attemptID: oldLease)
         let after = try await store.version(for: id); XCTAssertEqual(after, before)
@@ -321,7 +338,8 @@ final class JetBrainsProviderTests: XCTestCase {
         let router = ProviderScopedCredentialStore(synchronized: shared, deviceOAuthVault: local)
         let bootstrap = try await JetBrainsSessionCoordinator().importTransfer(transfer(), accountID: id, vault: local,
             transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
-        var newer = try ProviderCredentialEnvelope.decode(bootstrap, expectedProvider: .jetBrainsAI)
+        try await router.save(bootstrap, for: id, provider: .jetBrainsAI)
+        var newer = try await envelope(local, id)
         newer.accessToken = "newer-ai"; newer.refreshToken = "newer-rt"; newer.expiresAt = Date(timeIntervalSince1970: 9_000)
         try await local.save(newer.encoded(), for: id)
         let before = try await local.version(for: id)
@@ -340,7 +358,134 @@ final class JetBrainsProviderTests: XCTestCase {
         let fresh = try await JetBrainsSessionCoordinator().importTransfer(transfer(refresh: "new-family"), accountID: id, vault: local,
             transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
         do { try await router.save(bootstrap, for: id, provider: .jetBrainsAI); XCTFail("replaced another grant") } catch {}
-        let saved = try await local.version(for: id); XCTAssertEqual(saved.credential, fresh)
+        try await router.save(fresh, for: id, provider: .jetBrainsAI)
+        let saved = try await envelope(local, id); XCTAssertEqual(saved.metadata["grantMarker"], try ProviderCredentialEnvelope.decode(fresh, expectedProvider: .jetBrainsAI).metadata["grantMarker"])
+    }
+    func testFreshCandidateFailuresAndCancellationPreserveExistingReadyAuthorization() async throws {
+        for failedPhase in 0..<4 {
+            let id = UUID(), local = vault(), coordinator = JetBrainsSessionCoordinator()
+            let original = try await coordinator.importTransfer(transfer(), accountID: id, vault: local,
+                transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+            try await activate(original, store: local, id: id)
+            let before = try await local.version(for: id), lease = UUID()
+            var replies = Array(successful().prefix(failedPhase))
+            replies.append(.init(status: failedPhase == 0 ? 0 : 500, body: "{}", fail: failedPhase == 0))
+            let input = transfer(refresh: "fresh-phase-\(failedPhase)")
+            do { _ = try await coordinator.importTransfer(input, accountID: id, vault: local, attemptID: lease,
+                transport: JetBrainsTransport(replies), now: { Date(timeIntervalSince1970: 1_000) }); XCTFail("failed candidate accepted") } catch {}
+            let afterFailure = try await local.version(for: id); XCTAssertEqual(afterFailure, before)
+            try await coordinator.cancelImport(accountID: id, vault: local, attemptID: lease)
+            let afterCancel = try await local.version(for: id); XCTAssertEqual(afterCancel, before)
+        }
+    }
+    func testCandidateReceiptRequiresRealSaveAndStaleBaselineCannotReplaceNewerActive() async throws {
+        let id = UUID(), local = vault(), coordinator = JetBrainsSessionCoordinator()
+        let initial = try await coordinator.importTransfer(transfer(), accountID: id, vault: local,
+            transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(initial, store: local, id: id)
+        let before = try await local.version(for: id), input = transfer(refresh: "candidate-fresh")
+        let receipt = try await coordinator.importTransfer(input, accountID: id, vault: local,
+            transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        let afterPrepare = try await local.version(for: id); XCTAssertEqual(afterPrepare, before)
+        var updated = try await envelope(local, id); updated.refreshToken = "active-rotated-after-prepare"
+        try await local.save(updated.encoded(), for: id)
+        let newer = try await local.version(for: id)
+        do { try await activate(receipt, store: local, id: id); XCTFail("stale baseline activated") } catch {}
+        let afterRejection = try await local.version(for: id); XCTAssertEqual(afterRejection, newer)
+        let refreshedReceipt = try await coordinator.importTransfer(input, accountID: id, vault: local,
+            transport: JetBrainsTransport(Array(successful().suffix(2))), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(refreshedReceipt, store: local, id: id)
+        let adopted = try await envelope(local, id)
+        XCTAssertEqual(adopted.metadata["grantMarker"], try JetBrainsTokenTransfer.decode(input).grantMarker)
+        XCTAssertNil(adopted.metadata["candidateRecordID"])
+        let candidateID = JetBrainsCredential.candidateRecordID(accountID: id, marker: try JetBrainsTokenTransfer.decode(input).grantMarker)
+        let cleared = try await local.version(for: candidateID); XCTAssertNil(cleared.credential)
+    }
+    func testDeletedActiveDuringCandidatePrepareCannotBeResurrectedByLateReceipt() async throws {
+        let id = UUID(), local = vault(), coordinator = JetBrainsSessionCoordinator(), gate = JetBrainsBarrier()
+        let initial = try await coordinator.importTransfer(transfer(), accountID: id, vault: local,
+            transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(initial, store: local, id: id)
+        let input = transfer(refresh: "new-delayed"), lease = UUID()
+        let transport = JetBrainsTransport(successful(), observe: { request in
+            if request.url!.path == "/oauth2/token" { await gate.pause() }
+        })
+        let preparing = Task { try await coordinator.importTransfer(input, accountID: id, vault: local, attemptID: lease,
+            transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
+        await gate.waitForStart(); try await local.delete(for: id); await gate.release()
+        let receipt = try await preparing.value
+        do { try await activate(receipt, store: local, id: id); XCTFail("late receipt revived deleted account") } catch {}
+        let deleted = try await local.version(for: id); XCTAssertNil(deleted.credential)
+        try await coordinator.cancelImport(accountID: id, vault: local, attemptID: lease)
+    }
+    func testActiveQuotaDoesNotJoinDifferentGrantCandidateAndSameGrantCancelDoesNotDeleteActive() async throws {
+        let id = UUID(), local = vault(), coordinator = JetBrainsSessionCoordinator(), gate = JetBrainsBarrier()
+        let initial = try await coordinator.importTransfer(transfer(), accountID: id, vault: local,
+            transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        try await activate(initial, store: local, id: id)
+        let before = try await local.version(for: id), input = transfer(refresh: "other-grant", license: "other-license"), lease = UUID()
+        let transport = JetBrainsTransport(successful(), observe: { request in
+            if request.url!.path == "/oauth2/token" { await gate.pause() }
+        })
+        let preparing = Task { try await coordinator.importTransfer(input, accountID: id, vault: local, attemptID: lease,
+            transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
+        await gate.waitForStart()
+        let snapshot = try await coordinator.quota(accountID: id, vault: local, transport: JetBrainsTransport(Array(successful().suffix(2))), now: { Date(timeIntervalSince1970: 1_000) })
+        let old = try ProviderCredentialEnvelope.decode(XCTUnwrap(before.credential), expectedProvider: .jetBrainsAI)
+        XCTAssertEqual(snapshot.sourceCredentialFingerprint, try JetBrainsCredential.fingerprint(old))
+        await gate.release(); _ = try await preparing.value
+        try await coordinator.cancelImport(accountID: id, vault: local, attemptID: lease)
+        let after = try await local.version(for: id); XCTAssertEqual(after, before)
+        let sameLease = UUID()
+        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: local, attemptID: sameLease,
+            transport: JetBrainsTransport(Array(successful().suffix(2))), now: { Date(timeIntervalSince1970: 1_000) })
+        try await coordinator.cancelImport(accountID: id, vault: local, attemptID: sameLease)
+        let same = try await local.version(for: id); XCTAssertEqual(same, before)
+    }
+    func testResumedCandidateClaimsNewLeaseBeforeAwaitSoOldCleanupCannotDeleteIt() async throws {
+        let id = UUID(), local = vault(), coordinator = JetBrainsSessionCoordinator(), firstLease = UUID(), secondLease = UUID(), gate = JetBrainsBarrier()
+        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: local, attemptID: firstLease,
+            transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        let transport = JetBrainsTransport(Array(successful().suffix(2)), observe: { request in
+            if request.url!.path == "/user/v5/quota/get" { await gate.pause() }
+        })
+        let input = transfer()
+        let resumed = Task { try await coordinator.importTransfer(input, accountID: id, vault: local, attemptID: secondLease,
+            transport: transport, now: { Date(timeIntervalSince1970: 1_000) }) }
+        await gate.waitForStart()
+        try await coordinator.cancelImport(accountID: id, vault: local, attemptID: firstLease)
+        await gate.release(); let receipt = try await resumed.value
+        try await activate(receipt, store: local, id: id)
+        let active = try await local.version(for: id); XCTAssertNotNil(active.credential)
+    }
+    func testActivationWriteFailureKeepsCandidateSealedAndReceiptRetriesWithoutNativeRefresh() async throws {
+        let id = UUID(), records = JetBrainsRecords(), local = vault(records), coordinator = JetBrainsSessionCoordinator()
+        let transport = JetBrainsTransport(successful())
+        let receipt = try await coordinator.importTransfer(transfer(), accountID: id, vault: local, transport: transport, now: { Date(timeIntervalSince1970: 1_000) })
+        records.failAt = records.writeCount + 2 // Claim candidate succeeds; writing active fails.
+        do { try await activate(receipt, store: local, id: id); XCTFail("failed write accepted") } catch {}
+        let stillEmpty = try await local.version(for: id); XCTAssertNil(stillEmpty.credential)
+        let retryTransport = JetBrainsTransport(successful())
+        do { _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: local, transport: retryTransport, now: { Date(timeIntervalSince1970: 1_000) }); XCTFail("sealed candidate refreshed") } catch {}
+        let requests = await retryTransport.received(); XCTAssertTrue(requests.isEmpty)
+        records.failAt = nil
+        try await activate(receipt, store: local, id: id)
+        let active = try await local.version(for: id); XCTAssertNotNil(active.credential)
+        let originalRequests = await transport.received(); XCTAssertEqual(originalRequests.count, 5)
+    }
+    func testUnsavedCandidateExpiresWithoutBecomingActiveAndCannotReplayItsExport() async throws {
+        let id = UUID(), local = vault(), coordinator = JetBrainsSessionCoordinator()
+        _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: local,
+            transport: JetBrainsTransport(successful()), now: { Date(timeIntervalSince1970: 1_000) })
+        let beforeSave = try await local.version(for: id); XCTAssertNil(beforeSave.credential)
+        let expired = JetBrainsTransport(successful())
+        do { _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: local, transport: expired, now: { Date(timeIntervalSince1970: 4_601) }); XCTFail("expired candidate resumed") } catch {}
+        let requests = await expired.received(); XCTAssertTrue(requests.isEmpty)
+        let candidate = try await local.version(for: JetBrainsCredential.candidateRecordID(accountID: id, marker: try JetBrainsTokenTransfer.decode(transfer()).grantMarker))
+        XCTAssertNil(candidate.credential)
+        let replay = JetBrainsTransport(successful())
+        do { _ = try await coordinator.importTransfer(transfer(), accountID: id, vault: local, transport: replay, now: { Date(timeIntervalSince1970: 4_602) }); XCTFail("expired export replayed") } catch {}
+        let replayRequests = await replay.received(); XCTAssertTrue(replayRequests.isEmpty)
     }
     #if os(iOS)
     @MainActor

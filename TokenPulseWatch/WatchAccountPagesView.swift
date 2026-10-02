@@ -294,7 +294,15 @@ private struct WatchAccountPage: View {
                 JetBrainsImportView(accountID: state.id, expectedIdentity: identity, bindCredential: { value in
                     guard monitor.configuration(for: state.id)?.credentialIdentity == identity else { return false }
                     await monitor.replaceCredential(value, accountID: state.id, expectedIdentity: identity)
-                    return monitor.configuration(for: state.id)?.credentialIdentity == identity
+                    guard monitor.configuration(for: state.id)?.credentialIdentity == identity,
+                          let version = try? await DeviceOAuthCredentialVault.shared.version(for: state.id),
+                          let stored = version.credential,
+                          let active = try? ProviderCredentialEnvelope.decode(stored, expectedProvider: .jetBrainsAI),
+                          let receipt = try? ProviderCredentialEnvelope.decode(value, expectedProvider: .jetBrainsAI),
+                          active.metadata["candidateRecordID"] == nil,
+                          active.metadata["grantMarker"] == receipt.metadata["grantMarker"],
+                          (try? JetBrainsCredential.fingerprint(active)) == identity else { return false }
+                    return true
                 }, completion: { _ in })
             }
         }

@@ -22,6 +22,10 @@ struct JetBrainsImportView: View {
                     .font(.footnote)
                 Text("每台设备必须分别登录并导出新的独立授权；不要把手机使用的同一 export 输入 Watch。导出值包含凭证，只保存在此设备。")
                     .font(.footnote).foregroundStyle(.secondary)
+                if bindCredential == nil {
+                    Text("验证成功后请在账号表单点“保存”。未保存的授权不会替换现有账号，候选可在一小时内保存。")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
                 SecureField("central-…", text: $transfer)
                     .disabled(running)
                 Button("导入并读取额度") {

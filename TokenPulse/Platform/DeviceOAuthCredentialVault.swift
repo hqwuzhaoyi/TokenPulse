@@ -58,10 +58,13 @@ actor DeviceOAuthCredentialVault {
     static let shared = DeviceOAuthCredentialVault()
     nonisolated let deviceID: String
     private let records: any DeviceOAuthRecordStoring
+    private let now: @Sendable () -> Date
     private static let grantLedgerID = UUID(uuidString: "A68A0000-0000-0000-0000-000000000001")!
-    init(records: any DeviceOAuthRecordStoring = KeychainDeviceOAuthRecords(), deviceID: String = DeviceOAuthIdentity.id) {
+    init(records: any DeviceOAuthRecordStoring = KeychainDeviceOAuthRecords(), deviceID: String = DeviceOAuthIdentity.id,
+         now: @escaping @Sendable () -> Date = Date.init) {
         self.records = records
         self.deviceID = deviceID
+        self.now = now
     }
     func version(for accountID: UUID) throws -> DeviceCredentialVersion {
         guard accountID != Self.grantLedgerID else { throw ProviderIntegrationError.invalidCredentialData }
@@ -83,6 +86,47 @@ actor DeviceOAuthCredentialVault {
         ledger[marker] = accountID
         try records.write(JSONEncoder().encode(ledger), for: Self.grantLedgerID)
         return true
+    }
+    /// JetBrains prepare receipts are activated only by the user's actual save/replace operation.
+    /// All checks and both record writes happen in this actor without an intervening await.
+    func activateJetBrainsReceipt(_ receipt: ProviderCredentialEnvelope, accountID: UUID) throws {
+        try JetBrainsCredential.validateLocal(receipt, accountID: accountID, deviceID: deviceID)
+        let current = try version(for: accountID)
+        if let text = current.credential {
+            let active = try ProviderCredentialEnvelope.decode(text, expectedProvider: .jetBrainsAI)
+            try JetBrainsCredential.validateLocal(active, accountID: accountID, deviceID: deviceID)
+            if active.metadata["grantMarker"] == receipt.metadata["grantMarker"],
+               try JetBrainsCredential.fingerprint(active) == JetBrainsCredential.fingerprint(receipt) {
+                // Acknowledge the current version; never overwrite a later rotation with stale UI bytes.
+                return
+            }
+        }
+        guard let candidateText = receipt.metadata["candidateRecordID"], let candidateID = UUID(uuidString: candidateText),
+              candidateID != accountID, let generationText = receipt.metadata["candidateGeneration"], let generation = UInt64(generationText),
+              let baselineText = receipt.metadata["activeBaselineGeneration"], let baseline = UInt64(baselineText),
+              baseline == current.generation, let deadlineText = receipt.metadata["candidateDeadline"], let deadline = Double(deadlineText),
+              deadline.isFinite, deadline > now().timeIntervalSince1970 else { throw RefreshFailure.invalidCredential }
+        let candidate = try version(for: candidateID)
+        guard let data = candidate.credential else { throw RefreshFailure.invalidCredential }
+        var prepared = try ProviderCredentialEnvelope.decode(data, expectedProvider: .jetBrainsAI)
+        try JetBrainsCredential.validateLocal(prepared, accountID: accountID, deviceID: deviceID)
+        guard prepared.metadata["candidateRecordID"] == candidateText, prepared.metadata["candidateGeneration"] == generationText,
+              prepared.metadata["activeBaselineGeneration"] == baselineText, prepared.metadata["grantMarker"] == receipt.metadata["grantMarker"],
+              try JetBrainsCredential.fingerprint(prepared) == JetBrainsCredential.fingerprint(receipt),
+              (prepared.metadata["stage"] == "ready" && candidate.generation == generation)
+                || (prepared.metadata["stage"] == "activationPending" && generation < UInt64.max && candidate.generation == generation + 1) else {
+            throw RefreshFailure.invalidCredential
+        }
+        var claimedGeneration = candidate.generation
+        if prepared.metadata["stage"] == "ready" {
+            prepared.metadata["stage"] = "activationPending"
+            claimedGeneration = try write(prepared.encoded(), generation: candidate.generation, for: candidateID).generation
+        }
+        prepared.metadata["stage"] = "ready"
+        for key in ["candidateRecordID", "candidateGeneration", "activeBaselineGeneration", "candidateDeadline"] { prepared.metadata.removeValue(forKey: key) }
+        _ = try write(prepared.encoded(), generation: current.generation, for: accountID)
+        // If clearing the candidate fails, activationPending still forbids any native refresh on that duplicate.
+        _ = try? write(nil, generation: claimedGeneration, for: candidateID)
     }
     func save(_ credential: String, for accountID: UUID) throws {
         let current = try version(for: accountID)
@@ -120,15 +164,7 @@ struct ProviderScopedCredentialStore: CredentialStoring, DeviceOAuthVaultProvidi
         if provider.requiresDeviceLocalCredential {
             let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
             if provider == .jetBrainsAI {
-                try JetBrainsCredential.validateLocal(envelope, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
-                // Import already checkpointed the grant. A UI handoff must never overwrite a later rotation.
-                let current = try await deviceOAuthVault.version(for: accountID)
-                guard let stored = current.credential else { throw RefreshFailure.invalidCredential }
-                let latest = try ProviderCredentialEnvelope.decode(stored, expectedProvider: provider)
-                try JetBrainsCredential.validateLocal(latest, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
-                guard latest.metadata["grantMarker"] == envelope.metadata["grantMarker"],
-                      try JetBrainsCredential.fingerprint(latest) == JetBrainsCredential.fingerprint(envelope) else { throw RefreshFailure.invalidCredential }
-                // Acknowledge the existing generation, including newer in-progress refresh checkpoints.
+                try await deviceOAuthVault.activateJetBrainsReceipt(envelope, accountID: accountID)
             } else {
                 try NousPortalCredential.validateLocal(envelope, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
                 try await deviceOAuthVault.save(credential, for: accountID)

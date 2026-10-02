@@ -32,6 +32,11 @@ enum JetBrainsCredential {
     static func hash(_ values: [String]) -> String {
         SHA256.hash(data: (try? JSONEncoder().encode(values)) ?? Data()).map { String(format: "%02x", $0) }.joined()
     }
+    static func candidateRecordID(accountID: UUID, marker: String) -> UUID {
+        let text = Array(hash(["jetbrains.candidate.v1", accountID.uuidString, marker]).prefix(32))
+        let formatted = String(text[0..<8]) + "-" + String(text[8..<12]) + "-" + String(text[12..<16]) + "-" + String(text[16..<20]) + "-" + String(text[20..<32])
+        return UUID(uuidString: formatted)!
+    }
     static func fingerprint(_ envelope: ProviderCredentialEnvelope) throws -> String {
         guard envelope.provider == .jetBrainsAI, envelope.kind == .oauth, envelope.metadata["jetbrainsFormat"] == "device-v1",
               envelope.metadata["issuer"] == issuer, let local = envelope.metadata["localAccountID"], UUID(uuidString: local) != nil,
@@ -126,23 +131,35 @@ actor JetBrainsSessionCoordinator {
     static let shared = JetBrainsSessionCoordinator()
     private struct Flight { let attemptID: UUID?; let task: Task<(String, QuotaSnapshot), Error> }
     private var flights: [String: Flight] = [:]
+    private var attemptRecords: [UUID: UUID] = [:]
     func cancelImport(accountID: UUID, vault: DeviceOAuthCredentialVault, attemptID: UUID) async throws {
-        let key = vault.deviceID + "/" + accountID.uuidString
-        if let flight = flights[key], flight.attemptID == attemptID { flight.task.cancel() }
-        let version = try await vault.version(for: accountID)
+        guard let recordID = attemptRecords[attemptID], recordID != accountID else { return }
+        let key = vault.deviceID + "/" + recordID.uuidString
+        if let flight = flights[key] {
+            guard flight.attemptID == attemptID else { return }
+            flight.task.cancel()
+        }
+        let version = try await vault.version(for: recordID)
         guard let text = version.credential,
               let envelope = try? ProviderCredentialEnvelope.decode(text, expectedProvider: .jetBrainsAI),
               envelope.metadata["importAttemptID"] == attemptID.uuidString else { return }
-        _ = try await vault.compareAndSwap(expectedGeneration: version.generation, credential: nil, for: accountID)
+        _ = try await vault.compareAndSwap(expectedGeneration: version.generation, credential: nil, for: recordID)
+        attemptRecords[attemptID] = nil
     }
     func importTransfer(_ input: String, accountID: UUID, vault: DeviceOAuthCredentialVault,
                         expectedIdentity: String? = nil, attemptID: UUID = UUID(), transport: any ProviderTransport = URLSessionProviderTransport.rejectingRedirects(),
                         now: @escaping @Sendable () -> Date = Date.init) async throws -> String {
         let transfer = try JetBrainsTokenTransfer.decode(input)
-        let key = vault.deviceID + "/" + accountID.uuidString
+        let active = try await vault.version(for: accountID)
+        let activeEnvelope = try active.credential.map { try ProviderCredentialEnvelope.decode($0, expectedProvider: .jetBrainsAI) }
+        let recordID = activeEnvelope?.metadata["grantMarker"] == transfer.grantMarker ? accountID
+            : JetBrainsCredential.candidateRecordID(accountID: accountID, marker: transfer.grantMarker)
+        attemptRecords[attemptID] = recordID
+        let key = vault.deviceID + "/" + recordID.uuidString
         guard flights[key] == nil else { throw RefreshFailure.server }
         let task = Task { try await Self.perform(accountID: accountID, vault: vault, transfer: transfer,
-            expectedIdentity: expectedIdentity, importAttemptID: attemptID, transport: transport, now: now) }
+            recordID: recordID, activeBaseline: active.generation, expectedIdentity: expectedIdentity,
+            importAttemptID: recordID == accountID ? nil : attemptID, transport: transport, now: now) }
         flights[key] = Flight(attemptID: attemptID, task: task); defer { flights[key] = nil }
         return try await task.value.0
     }
@@ -151,14 +168,15 @@ actor JetBrainsSessionCoordinator {
         let key = vault.deviceID + "/" + accountID.uuidString
         if let flight = flights[key] { return try await flight.task.value.1 }
         let task = Task { try await Self.perform(accountID: accountID, vault: vault, transfer: nil,
-            expectedIdentity: nil, importAttemptID: nil, transport: transport, now: now) }
+            recordID: accountID, activeBaseline: nil, expectedIdentity: nil, importAttemptID: nil, transport: transport, now: now) }
         flights[key] = Flight(attemptID: nil, task: task); defer { flights[key] = nil }
         return try await task.value.1
     }
     private static func perform(accountID: UUID, vault: DeviceOAuthCredentialVault, transfer: JetBrainsTokenTransfer?,
+                                recordID: UUID, activeBaseline: UInt64?,
                                 expectedIdentity: String?, importAttemptID: UUID?, transport: any ProviderTransport,
                                 now: @escaping @Sendable () -> Date) async throws -> (String, QuotaSnapshot) {
-        var version = try await vault.version(for: accountID)
+        var version = try await vault.version(for: recordID)
         var envelope = try version.credential.map { try ProviderCredentialEnvelope.decode($0, expectedProvider: .jetBrainsAI) }
         if let transfer {
             let fresh = try await vault.reserveGrantMarker(transfer.grantMarker, accountID: accountID)
@@ -170,20 +188,32 @@ actor JetBrainsSessionCoordinator {
                         "localAccountID": accountID.uuidString, "licenseID": transfer.ai_access.license_id!,
                         "grantMarker": transfer.grantMarker, "stage": "new"])
                 envelope?.metadata["expectedIdentity"] = expectedIdentity
+                envelope?.metadata["candidateDeadline"] = String(now().addingTimeInterval(3_600).timeIntervalSince1970)
             } else {
                 guard envelope?.metadata["licenseID"] == transfer.ai_access.license_id else { throw RefreshFailure.invalidCredential }
             }
         }
         guard var session = envelope, session.metadata["localAccountID"] == accountID.uuidString,
               session.metadata["ownerDeviceID"] == vault.deviceID else { throw RefreshFailure.invalidCredential }
+        if recordID != accountID {
+            guard let text = session.metadata["candidateDeadline"], let deadline = Double(text), deadline.isFinite,
+                  deadline > now().timeIntervalSince1970 else {
+                try await vault.delete(for: recordID); throw RefreshFailure.invalidCredential
+            }
+            guard session.metadata["stage"] != "activationPending" else { throw RefreshFailure.invalidCredential }
+        }
         let client = JetBrainsProviderClient(transport: transport, now: now, deviceID: vault.deviceID)
         func checkpoint(_ updated: ProviderCredentialEnvelope) async throws {
             try Task.checkCancellation()
             var tagged = updated
             if let importAttemptID { tagged.metadata["importAttemptID"] = importAttemptID.uuidString }
             if let expectedIdentity { tagged.metadata["expectedIdentity"] = expectedIdentity }
-            guard let saved = try await vault.compareAndSwap(expectedGeneration: version.generation, credential: tagged.encoded(), for: accountID) else { throw CancellationError() }
+            guard let saved = try await vault.compareAndSwap(expectedGeneration: version.generation, credential: tagged.encoded(), for: recordID) else { throw CancellationError() }
             version = saved; session = tagged
+        }
+        if recordID != accountID, importAttemptID != nil, session.metadata["stage"] != "new" {
+            // Claim a resumed candidate before its first network await; an old page cannot clear it.
+            try await checkpoint(session)
         }
         func jba() async throws {
             guard !["oauthPending", "uncertain", "terminal"].contains(session.metadata["stage"] ?? "") else { throw RefreshFailure.invalidCredential }
@@ -246,7 +276,15 @@ actor JetBrainsSessionCoordinator {
         let result: ProviderQueryResult
         do { result = try await client.quota(accountID: accountID, credential: session) }
         catch RefreshFailure.invalidCredential { try await provision(); result = try await client.quota(accountID: accountID, credential: session) }
-        guard try await vault.version(for: accountID).generation == version.generation else { throw CancellationError() }
+        guard try await vault.version(for: recordID).generation == version.generation else { throw CancellationError() }
+        if recordID != accountID {
+            guard version.generation < UInt64.max, let activeBaseline else { throw RefreshFailure.invalidCredential }
+            var receipt = session
+            receipt.metadata["candidateRecordID"] = recordID.uuidString
+            receipt.metadata["candidateGeneration"] = String(version.generation + 1)
+            receipt.metadata["activeBaselineGeneration"] = String(activeBaseline)
+            try await checkpoint(receipt)
+        }
         return (try session.encoded(), result.snapshot)
     }
 }
