@@ -296,7 +296,7 @@ final class WebProviderSessionLoginModel: ObservableObject {
     }
     private func validate(_ choice: WebLoginCredentialChoice, run: UUID, container: WebSessionContainer) async throws {
         guard active(run, container) else { return }
-        let result = try await ProviderQuotaClient(provider: provider).quota(for: accountID, credential: choice.credential)
+        let result = try await ProviderQuotaClient(provider: provider).quotaResult(for: accountID, credential: choice.credential)
         guard active(run, container) else { return }
         onCredential(result.updatedCredential ?? choice.credential)
         close()
