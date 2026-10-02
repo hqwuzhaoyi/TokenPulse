@@ -14,7 +14,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
-    case moonshot, alibabaCodingPlan
+    case moonshot, alibabaCodingPlan, chutes
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
@@ -47,6 +47,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .copilot: "GitHub Copilot"
         case .moonshot: "Moonshot API 钱包"
         case .alibabaCodingPlan: "阿里百炼 Coding Plan"
+        case .chutes: "Chutes"
         }
     }
 }

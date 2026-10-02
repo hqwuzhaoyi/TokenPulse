@@ -19,7 +19,7 @@ enum DemoMode {
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
-            (.alibabaCodingPlan, "百炼 Coding Plan"),
+            (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -116,6 +116,17 @@ enum DemoMode {
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
+        case .chutes: [
+            QuotaWindow(id: "chutes.fourHour", name: "4 小时固定额度", scope: nil, period: .other,
+                        usedPercentage: 40, remainingCount: 5, totalCount: 8.333333333333334,
+                        resetsAt: now.addingTimeInterval(3600), unit: "USD 预算",
+                        exactCounts: DecimalQuotaCounts(used: Decimal(string: "3.333333333333334")!, remaining: 5,
+                                                       total: Decimal(string: "8.333333333333334")!)),
+            QuotaWindow(id: "chutes.monthly", name: "账期额度", scope: nil, period: .monthly,
+                        usedPercentage: 25, remainingCount: 75, totalCount: 100,
+                        resetsAt: now.addingTimeInterval(12 * 86400), unit: "USD 预算",
+                        exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100))
         ]
         case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
         case .moonshot: [

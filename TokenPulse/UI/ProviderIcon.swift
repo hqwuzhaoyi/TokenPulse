@@ -43,6 +43,7 @@ extension Provider {
         case .copilot: "ProviderCopilot"
         case .moonshot: "ProviderMoonshot"
         case .alibabaCodingPlan: "ProviderAlibabaCloud"
+        case .chutes: "ProviderChutes"
         }
     }
 

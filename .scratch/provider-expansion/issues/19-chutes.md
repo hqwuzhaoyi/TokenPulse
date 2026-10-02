@@ -1,6 +1,6 @@
 # 19: Chutes 订阅额度
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -24,3 +24,9 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/chutes.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation and validation (2026-10-02)
+
+Implemented Key entry, direct device-side requests, quota/widget/Watch/demo/reminder paths and pinned vector icon. Primary backend commit `chutesai/chutes-api 3b5609f42f84e29dea374382ef1fa95b0fda329c` establishes subscription Bool, fixed four-hour and billing budgets in USD, and custom uncapped monthly quota; this supersedes the older rolling-window description. Raw budget amounts use Decimal/exactCounts. See [provider evidence and boundaries](../../../docs/chutes-integration.md).
+
+Verified production module, all nine new XCTest methods, complete App UI with real Swift 6 iOS type checking, PBX plist and diff checks. Root still owns serial XCTest and full unsigned App/Widgets/Watch builds. Real Key/plan response, revoked credentials, Keychain/iCloud delivery, iCloud-off device lifecycle, physical Watch independent refresh and real UI/notifications are pending; no real credential was accessed and acceptance checkboxes stay open.
