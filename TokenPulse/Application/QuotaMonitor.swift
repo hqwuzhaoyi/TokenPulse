@@ -370,12 +370,22 @@ final class QuotaMonitor: ObservableObject {
     }
 
     private func sourceIdentity(_ value: String, provider: Provider) -> String? {
-        (try? ProviderCredentialEnvelope.decode(value, expectedProvider: provider))?.sourceCredentialIdentity
+        (try? identityEnvelope(value, provider: provider))?.sourceCredentialIdentity
+    }
+
+    /// MiniMax China keeps its existing raw-Key storage/query contract. This
+    /// in-memory wrapper is only for scope calculation; it is never persisted.
+    private func identityEnvelope(_ value: String, provider: Provider) throws -> ProviderCredentialEnvelope {
+        if provider == .miniMaxChina {
+            guard !value.isEmpty, value != "demo" else { throw RefreshFailure.invalidCredential }
+            return ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: value)
+        }
+        return try ProviderCredentialEnvelope.decode(value, expectedProvider: provider)
     }
 
     private func bindScopedCredential(_ value: String, accountID: UUID, replacing: Bool) throws {
         guard let provider = configuration(for: accountID)?.account.provider else { throw RefreshFailure.invalidCredential }
-        let envelope = try ProviderCredentialEnvelope.decode(value, expectedProvider: provider)
+        let envelope = try identityEnvelope(value, provider: provider)
         guard let identity = envelope.sourceCredentialIdentity,
               let stateIndex = states.firstIndex(where: { $0.id == accountID }),
               let configIndex = synchronizedConfigurations.firstIndex(where: { $0.id == accountID && $0.deletedAt == nil }) else {

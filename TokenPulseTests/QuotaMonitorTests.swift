@@ -28,8 +28,10 @@ final class QuotaMonitorTests: XCTestCase {
             AccountQuotaState(account: second, snapshot: nil, lastFailure: nil),
         ])
         let credentials = MemoryCredentialStore(values: [first.id: "first-key", second.id: "second-key"])
-        let firstSnapshot = snapshot(accountID: first.id, used: 20, collectedAt: Date(timeIntervalSince1970: 100))
-        let secondSnapshot = snapshot(accountID: second.id, used: 75, collectedAt: Date(timeIntervalSince1970: 200))
+        var firstSnapshot = snapshot(accountID: first.id, used: 20, collectedAt: Date(timeIntervalSince1970: 100))
+        firstSnapshot.sourceCredentialFingerprint = ProviderCredentialEnvelope(provider: .miniMaxChina, kind: .apiKey, accessToken: "first-key").sourceCredentialIdentity
+        var secondSnapshot = snapshot(accountID: second.id, used: 75, collectedAt: Date(timeIntervalSince1970: 200))
+        secondSnapshot.sourceCredentialFingerprint = ProviderCredentialEnvelope(provider: .miniMaxChina, kind: .apiKey, accessToken: "second-key").sourceCredentialIdentity
         let client = StubQuotaClient(results: [
             first.id: [.success(firstSnapshot)],
             second.id: [.success(secondSnapshot)],
@@ -50,7 +52,8 @@ final class QuotaMonitorTests: XCTestCase {
 
     func testFailedRefreshRetainsLastSuccessfulDataAndMarksInvalidKey() async throws {
         let account = SubscriptionAccount(name: "失效 Key")
-        let oldSnapshot = snapshot(accountID: account.id, used: 42, collectedAt: Date(timeIntervalSince1970: 100))
+        var oldSnapshot = snapshot(accountID: account.id, used: 42, collectedAt: Date(timeIntervalSince1970: 100))
+        oldSnapshot.sourceCredentialFingerprint = ProviderCredentialEnvelope(provider: .miniMaxChina, kind: .apiKey, accessToken: "expired-key").sourceCredentialIdentity
         let store = MemoryAccountStore(initial: [
             AccountQuotaState(account: account, snapshot: oldSnapshot, lastFailure: nil),
         ])
@@ -83,7 +86,8 @@ final class QuotaMonitorTests: XCTestCase {
     func testBecomingActiveRefreshesLoadedAccountsAgain() async throws {
         let account = SubscriptionAccount(name: "前台刷新账号")
         let firstSnapshot = snapshot(accountID: account.id, used: 20, collectedAt: Date(timeIntervalSince1970: 100))
-        let secondSnapshot = snapshot(accountID: account.id, used: 30, collectedAt: Date(timeIntervalSince1970: 200))
+        var secondSnapshot = snapshot(accountID: account.id, used: 30, collectedAt: Date(timeIntervalSince1970: 200))
+        secondSnapshot.sourceCredentialFingerprint = ProviderCredentialEnvelope(provider: .miniMaxChina, kind: .apiKey, accessToken: "placeholder-key").sourceCredentialIdentity
         let store = MemoryAccountStore(initial: [
             AccountQuotaState(account: account, snapshot: nil, lastFailure: nil),
         ])
@@ -117,8 +121,10 @@ final class QuotaMonitorTests: XCTestCase {
 
     func testCancelledRefreshDoesNotOverwriteOrPersistOldState() async throws {
         let account = SubscriptionAccount(name: "取消刷新账号")
-        let oldSnapshot = snapshot(accountID: account.id, used: 42, collectedAt: Date(timeIntervalSince1970: 100))
-        let oldState = AccountQuotaState(account: account, snapshot: oldSnapshot, lastFailure: .rateLimited)
+        var oldSnapshot = snapshot(accountID: account.id, used: 42, collectedAt: Date(timeIntervalSince1970: 100))
+        let identity = ProviderCredentialEnvelope(provider: .miniMaxChina, kind: .apiKey, accessToken: "placeholder-key").sourceCredentialIdentity
+        oldSnapshot.sourceCredentialFingerprint = identity
+        let oldState = AccountQuotaState(account: account, snapshot: oldSnapshot, lastFailure: .rateLimited, credentialIdentity: identity)
         let store = MemoryAccountStore(initial: [oldState])
         let credentials = MemoryCredentialStore(values: [account.id: "placeholder-key"])
         let client = StubQuotaClient(cancelledAccountIDs: [account.id])
@@ -416,4 +422,57 @@ private actor APIKeyScopeConfigurations: AccountConfigurationStoring {
     private var values: [AccountConfiguration] = []
     func load() -> [AccountConfiguration] { values }
     func save(_ values: [AccountConfiguration]) { self.values = values }
+}
+
+@MainActor
+final class MiniMaxRawKeyScopeRegressionTests: XCTestCase {
+    func testRawKeyReplacementFailureRejectsOldCacheAndCloudButKeepsRawContract() async throws {
+        let id = UUID()
+        let accounts = MemoryAccountStore()
+        let keys = MemoryCredentialStore()
+        let configurations = APIKeyScopeConfigurations()
+        let snapshot = QuotaSnapshot(accountID: id, windows: [], collectedAt: Date(timeIntervalSince1970: 100))
+        let client = StubQuotaClient(results: [id: [.success(snapshot), .failure(.network)]])
+        let monitor = QuotaMonitor(accountStore: accounts, credentialStore: keys, quotaClient: client, configurationStore: configurations)
+        await monitor.addAccount(name: "Synthetic raw", credential: "raw-synthetic-A", provider: .miniMaxChina, accountID: id)
+        let previous = monitor.states[0]
+        let configuration = try XCTUnwrap(monitor.configuration(for: id))
+        let firstStored = await keys.credential(for: id)
+        let firstSent = await client.receivedCredential(for: id)
+        XCTAssertEqual(firstStored, "raw-synthetic-A")
+        XCTAssertEqual(firstSent, "raw-synthetic-A")
+        await monitor.replaceCredential("raw-synthetic-B", accountID: id)
+        XCTAssertNil(monitor.states[0].snapshot)
+        XCTAssertEqual(monitor.states[0].lastFailure, .network)
+        let secondStored = await keys.credential(for: id)
+        let secondSent = await client.receivedCredential(for: id)
+        XCTAssertEqual(secondStored, "raw-synthetic-B")
+        XCTAssertEqual(secondSent, "raw-synthetic-B")
+        var stale = previous
+        stale.snapshot = QuotaSnapshot(accountID: id, windows: [], collectedAt: .distantFuture,
+                                       sourceCredentialFingerprint: previous.snapshot?.sourceCredentialFingerprint)
+        await monitor.mergeSynchronized(configurations: [configuration], states: [stale])
+        XCTAssertNil(monitor.states[0].snapshot)
+        let reopened = QuotaMonitor(accountStore: accounts, credentialStore: keys, quotaClient: client, configurationStore: configurations)
+        await reopened.start(refresh: false)
+        XCTAssertNil(reopened.states[0].snapshot)
+        XCTAssertEqual(reopened.configuration(for: id)?.credentialIdentity, monitor.configuration(for: id)?.credentialIdentity)
+    }
+
+    func testMiniMaxDemoRawValueRemainsUnscopedAndCanRefresh() async throws {
+        let id = UUID()
+        let initial = QuotaSnapshot(accountID: id, windows: [], collectedAt: Date(timeIntervalSince1970: 100))
+        let fresh = QuotaSnapshot(accountID: id, windows: [], collectedAt: Date(timeIntervalSince1970: 200))
+        let keys = MemoryCredentialStore()
+        let client = StubQuotaClient(results: [id: [.success(initial), .success(fresh)]])
+        let monitor = QuotaMonitor(accountStore: MemoryAccountStore(), credentialStore: keys, quotaClient: client,
+                                   configurationStore: APIKeyScopeConfigurations())
+        await monitor.addAccount(name: "Demo", credential: "demo", provider: .miniMaxChina, accountID: id)
+        XCTAssertNil(monitor.configuration(for: id)?.credentialIdentity)
+        await monitor.replaceCredential("demo", accountID: id)
+        XCTAssertEqual(monitor.states[0].snapshot, fresh)
+        XCTAssertNil(monitor.states[0].lastFailure)
+        let sent = await client.receivedCredential(for: id)
+        XCTAssertEqual(sent, "demo")
+    }
 }

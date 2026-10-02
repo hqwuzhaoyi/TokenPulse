@@ -1,0 +1,7 @@
+# MiniMax China raw-Key identity adapter
+
+After the envelope fix, a separate offline probe used the production monitor and synthetic raw MiniMax Keys. A successful raw Key A query followed by raw Key B replacement and failed query still retained A's cache and accepted a later old cloud snapshot: both booleans true, exit 1. An independent QuotaMonitor adapter makes the same original probe print both false, exit 0.
+
+The adapter constructs a ProviderCredentialEnvelope only in memory for scope calculation/binding. Raw Keychain storage and the credential string passed into the existing MiniMax client remain byte-for-byte the original raw Key. It does not migrate storage or alter authentication. The demo sentinel remains unscoped and is passed unchanged. Existing same-Key failure/cancellation tests now explicitly tag snapshots with their actual raw-Key provenance; legacy snapshots lacking any provenance are not assumed to belong to the currently stored Key.
+
+New tests verify changed-Key failure/cache and old-cloud rejection, raw persisted/query values, reopen recovery and demo add/replace/refresh compatibility. The parent factory/devPass/v0/warp API-key-only guard (66778f3) was cherry-picked before this follow-up and is untouched. No Claude, notification planner, central docs, real credential, Xcode or simulator changes. Target XCTest/build remain the parent's unified validation; the local evidence is the deterministic synthetic Swift6 red/green probe plus parse/diff checks.
