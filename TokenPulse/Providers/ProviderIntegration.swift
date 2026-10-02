@@ -293,7 +293,7 @@ struct ProviderAuthenticationController: Sendable {
         var metadata: [String: String] = provider == .newAPI
             ? ["serverAddress": try GatewayServerAddress(serverAddress ?? "").value]
             : provider.requiresRegion ? ["region": region!.rawValue] : [:]
-        if [.neuralwatt, .clinePass, .codebuff].contains(provider) {
+        if [.clinePass, .codebuff, .neuralwatt, .aixy, .clawRouter].contains(provider) {
             metadata["sourceCredentialFingerprint"] = try KeyQuotaRequest.fingerprint(provider: provider, key: key)
         }
         return try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata).encoded()
