@@ -111,16 +111,19 @@ extension ProviderCredentialEnvelope {
 
     var sourceCredentialIdentity: String? {
         if provider == .claude { return try? ClaudeWebSession.fingerprint(self) }
-        if metadata["webSessionFormat"] == "v1" { return try? WebProviderSession.fingerprint(self) }
+        if kind == .session, metadata["webSessionFormat"] == "v1" { return try? WebProviderSession.fingerprint(self) }
         if provider.requiresGatewayAddress { return gatewayIdentity }
         if provider == .ibmBob { return (try? IBMBobCredential(envelope: self))?.fingerprint }
         if provider == .xaiAPI { return (try? XAIManagementCredential(envelope: self))?.fingerprint }
         if provider == .volcengine { return (try? VolcengineAccessKeys(accessToken))?.fingerprint }
         if provider.requiresRegion { return regionalIdentity }
-        if [.factory, .devPass, .v0, .warp].contains(provider) {
-            guard kind == .apiKey, !accessToken.isEmpty,
+        if kind == .apiKey {
+            // Preserve the published fingerprint used by these existing clients.
+            if [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) { return apiKeySourceFingerprint }
+            guard !accessToken.isEmpty,
                   let bytes = try? JSONEncoder().encode([provider.rawValue, accessToken]) else { return nil }
-            // Recompute from the actual Key; metadata cannot claim another Key's identity.
+            // Legacy envelopes may omit identity metadata. Never let a claimed
+            // fingerprint keep one Key's cache/reminders bound to another Key.
             return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
         }
         return metadata["sourceCredentialFingerprint"]

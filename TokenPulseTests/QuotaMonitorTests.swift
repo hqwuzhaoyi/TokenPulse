@@ -301,3 +301,119 @@ final class LocalAccountStateStoreTests: XCTestCase {
         XCTAssertNil(UserDefaults.standard.data(forKey: key))
     }
 }
+
+@MainActor
+final class APIKeyScopeRegressionTests: XCTestCase {
+    func testLegacyAPIKeyEnvelopeGetsActualIdentityIgnoringClaimedAndUnrelatedWebMetadata() throws {
+        for provider in [Provider.deepSeek, .poe, .elevenLabs, .vercelAIGateway, .zai, .openCodeGo] {
+            let first = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "synthetic-A")
+            let oldIdentity = try XCTUnwrap(first.sourceCredentialIdentity)
+            var second = first
+            second.accessToken = "synthetic-B"
+            second.metadata["sourceCredentialFingerprint"] = oldIdentity
+            second.metadata["webSessionFormat"] = "v1"
+            XCTAssertNotNil(second.sourceCredentialIdentity)
+            XCTAssertNotEqual(second.sourceCredentialIdentity, oldIdentity)
+            second.metadata = [:]
+            let restored = try ProviderCredentialEnvelope.decode(second.encoded(), expectedProvider: provider)
+            XCTAssertEqual(restored.sourceCredentialIdentity, second.sourceCredentialIdentity)
+            XCTAssertNotEqual(restored.sourceCredentialIdentity, oldIdentity)
+        }
+    }
+
+    func testPublishedKeyFingerprintFormatsRemainCompatibleAndDedicatedScopesWin() throws {
+        for provider in [Provider.synthetic, .v2ex, .xKiro, .zenMux] {
+            let envelope = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "synthetic-key",
+                                                       metadata: ["sourceCredentialFingerprint": "false-claim"])
+            XCTAssertEqual(envelope.sourceCredentialIdentity, envelope.apiKeySourceFingerprint)
+            XCTAssertNotEqual(envelope.sourceCredentialIdentity, "false-claim")
+        }
+        for provider in [Provider.factory, .devPass, .v0, .warp, .clinePass, .amp, .commandCode, .huggingFace] {
+            let envelope = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "synthetic-key")
+            XCTAssertEqual(envelope.sourceCredentialIdentity, try KeyQuotaRequest.fingerprint(provider: provider, key: envelope.accessToken))
+        }
+        let gateway = try GatewayCredentials.make(provider: .newAPI, key: "synthetic-key", server: "https://one.example")
+        var moved = gateway
+        moved.metadata["serverAddress"] = "https://two.example"
+        moved.metadata["sourceCredentialFingerprint"] = gateway.sourceCredentialIdentity
+        moved.metadata["webSessionFormat"] = "v1"
+        XCTAssertEqual(moved.sourceCredentialIdentity, moved.gatewayIdentity)
+        XCTAssertNotEqual(moved.sourceCredentialIdentity, gateway.sourceCredentialIdentity)
+        let china = ProviderCredentialEnvelope(provider: .moonshot, kind: .apiKey, accessToken: "synthetic-key", metadata: ["region": "china"])
+        var international = china
+        international.metadata["region"] = "international"
+        XCTAssertEqual(china.sourceCredentialIdentity, china.regionalIdentity)
+        XCTAssertEqual(international.sourceCredentialIdentity, international.regionalIdentity)
+        XCTAssertNotEqual(china.sourceCredentialIdentity, international.sourceCredentialIdentity)
+    }
+
+    func testLegalWebAndCompositeCredentialsRetainDedicatedScopePriority() throws {
+        let web = try WebProviderSession.credential(provider: .raycastAI, origin: "https://www.raycast.com", accountID: UUID(),
+                                                     accessToken: "__raycast_session=synthetic", metadata: ["workspaceID": "one"])
+        XCTAssertEqual(web.sourceCredentialIdentity, try WebProviderSession.fingerprint(web))
+        var otherWorkspace = web
+        otherWorkspace.metadata["workspaceID"] = "two"
+        XCTAssertEqual(otherWorkspace.sourceCredentialIdentity, try WebProviderSession.fingerprint(otherWorkspace))
+        XCTAssertNotEqual(web.sourceCredentialIdentity, otherWorkspace.sourceCredentialIdentity)
+        let ibm = try IBMBobCredential("apikey:synthetic-key").envelope()
+        XCTAssertEqual(ibm.sourceCredentialIdentity, try IBMBobCredential(envelope: ibm).fingerprint)
+        let xai = try XAIManagementCredential("team-one:synthetic-key").envelope()
+        XCTAssertEqual(xai.sourceCredentialIdentity, try XAIManagementCredential(envelope: xai).fingerprint)
+        let volc = try VolcengineAccessKeys("synthetic-AK:synthetic-SK").envelope()
+        XCTAssertEqual(volc.sourceCredentialIdentity, try VolcengineAccessKeys(volc.accessToken).fingerprint)
+    }
+
+    func testChangedKeyFailureClearsOldCacheAndRejectsLaterOldCloudSnapshot() async throws {
+        for provider in [Provider.deepSeek, .poe, .elevenLabs] {
+            let id = UUID()
+            let old = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "synthetic-A")
+            let snapshot = QuotaSnapshot(accountID: id, windows: [
+                QuotaWindow(id: "fixture", name: "Fixture", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                            resetsAt: nil, wallet: WalletBalance(currency: "USD", total: 12))
+            ], collectedAt: Date(timeIntervalSince1970: 100))
+            let configurations = APIKeyScopeConfigurations()
+            let client = StubQuotaClient(results: [id: [.success(snapshot), .failure(.network)]])
+            let monitor = QuotaMonitor(accountStore: MemoryAccountStore(), credentialStore: MemoryCredentialStore(), quotaClient: client,
+                                       configurationStore: configurations)
+            await monitor.addAccount(name: "Synthetic", credential: try old.encoded(), provider: provider, accountID: id)
+            let previous = try XCTUnwrap(monitor.states.first)
+            let previousConfiguration = try XCTUnwrap(monitor.configuration(for: id))
+            var replacement = old
+            replacement.accessToken = "synthetic-B"
+            replacement.metadata["sourceCredentialFingerprint"] = old.sourceCredentialIdentity
+            replacement.metadata["webSessionFormat"] = "v1"
+            await monitor.replaceCredential(try replacement.encoded(), accountID: id)
+            XCTAssertNil(monitor.states[0].snapshot)
+            XCTAssertEqual(monitor.states[0].lastFailure, .network)
+            XCTAssertNotEqual(monitor.configuration(for: id)?.credentialIdentity, previousConfiguration.credentialIdentity)
+            var stale = previous
+            if let reading = stale.snapshot {
+                stale.snapshot = QuotaSnapshot(accountID: id, windows: reading.windows, collectedAt: .distantFuture,
+                                               sourceCredentialFingerprint: reading.sourceCredentialFingerprint)
+            }
+            await monitor.mergeSynchronized(configurations: [previousConfiguration], states: [stale])
+            XCTAssertNil(monitor.states[0].snapshot)
+            XCTAssertEqual(monitor.configuration(for: id)?.credentialIdentity, replacement.sourceCredentialIdentity)
+        }
+    }
+
+    func testSameKeyFailureRetainsCorrectScopedSnapshot() async throws {
+        let id = UUID()
+        let envelope = ProviderCredentialEnvelope(provider: .deepSeek, kind: .apiKey, accessToken: "synthetic-key")
+        let snapshot = QuotaSnapshot(accountID: id, windows: [], collectedAt: Date(timeIntervalSince1970: 100))
+        let monitor = QuotaMonitor(accountStore: MemoryAccountStore(), credentialStore: MemoryCredentialStore(),
+                                   quotaClient: StubQuotaClient(results: [id: [.success(snapshot), .failure(.network)]]),
+                                   configurationStore: APIKeyScopeConfigurations())
+        await monitor.addAccount(name: "Synthetic", credential: try envelope.encoded(), provider: .deepSeek, accountID: id)
+        let previous = monitor.states[0].snapshot
+        await monitor.refresh(accountID: id)
+        XCTAssertEqual(monitor.states[0].snapshot, previous)
+        XCTAssertEqual(monitor.states[0].lastFailure, .network)
+    }
+}
+
+private actor APIKeyScopeConfigurations: AccountConfigurationStoring {
+    private var values: [AccountConfiguration] = []
+    func load() -> [AccountConfiguration] { values }
+    func save(_ values: [AccountConfiguration]) { self.values = values }
+}
