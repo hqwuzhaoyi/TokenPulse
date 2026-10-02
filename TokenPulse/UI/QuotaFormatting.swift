@@ -18,10 +18,12 @@ enum QuotaFormatting {
     }
 
     static func nextEventDate(_ window: QuotaWindow) -> Date? {
-        [window.expiresAt, window.resetsAt].compactMap { $0 }.min()
+        [window.expiresAt, window.resetsAt, window.nextReplenishmentAt].compactMap { $0 }.min()
     }
 
     static func nextEventLabel(_ window: QuotaWindow) -> String {
+        if let replenishment = window.nextReplenishmentAt,
+           nextEventDate(window) == replenishment { return "下次补充" }
         guard let expiry = window.expiresAt else { return "下次重置" }
         return window.resetsAt.map { $0 < expiry } == true ? "下次重置"
             : window.id == "stepfun.credits" ? "最早积分到期" : "到期时间"

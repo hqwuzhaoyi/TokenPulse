@@ -15,6 +15,9 @@ struct NotificationPlanner: Sendable {
         let previousWindows = Dictionary(uniqueKeysWithValues: (previousSnapshot?.windows ?? []).map { ($0.id, $0) })
 
         for window in newSnapshot.windows where window.wallet == nil {
+            if window.resetSemantics != nil,
+               let existing = ledger.cycleState(accountID: accountID, windowID: window.id),
+               newSnapshot.collectedAt <= existing.observedAt { continue }
             let previousWindow = previousWindows[window.id]
             let cycle = resolveCycle(
                 accountID: accountID,
@@ -22,7 +25,8 @@ struct NotificationPlanner: Sendable {
                 previousCollectedAt: previousSnapshot?.collectedAt,
                 currentWindow: window,
                 collectedAt: newSnapshot.collectedAt,
-                ledger: ledger
+                ledger: ledger,
+                minimumThreshold: normalizedThresholds(settings.thresholds).first
             )
 
             if cycle.didReset, let occurrence = cycle.resetOccurrence {
@@ -48,7 +52,9 @@ struct NotificationPlanner: Sendable {
                 windowID: window.id,
                 identity: cycle.identity,
                 resetAt: window.resetsAt,
-                usedPercentage: window.usedPercentage,
+                usedPercentage: window.resetSemantics == nil ? window.usedPercentage
+                    : window.isExhausted == true ? 100 : window.usedPercentage
+                        ?? ledger.cycleState(accountID: accountID, windowID: window.id)?.usedPercentage,
                 observedAt: newSnapshot.collectedAt
             ))
 
@@ -187,8 +193,26 @@ struct NotificationPlanner: Sendable {
                               previousCollectedAt: Date?,
                               currentWindow: QuotaWindow,
                               collectedAt: Date,
-                              ledger: ReminderLedger) -> CycleResolution {
+                              ledger: ReminderLedger,
+                              minimumThreshold: Double?) -> CycleResolution {
         let existing = ledger.cycleState(accountID: accountID, windowID: currentWindow.id)
+
+        if currentWindow.resetSemantics != nil {
+            let previousUsed: Double?
+            if let existing, previousCollectedAt.map({ existing.observedAt >= $0 }) ?? true {
+                previousUsed = existing.usedPercentage
+            } else { previousUsed = previousWindow?.usedPercentage }
+            let restored = minimumThreshold.flatMap { threshold in
+                previousUsed.flatMap { previous in
+                    (currentWindow.isExhausted == true ? 100 : currentWindow.usedPercentage).map { current in
+                        previous.isFinite && current.isFinite && previous >= threshold && current < threshold
+                    }
+                }
+            } ?? false
+            // This is only alert rearming after recovery. It is not a provider reset observation.
+            return CycleResolution(identity: restored ? .inferred(collectedAt) : existing?.identity ?? .unidentified,
+                                   didReset: false, resetOccurrence: nil, shouldNotifyReset: false)
+        }
 
         if let cycleID = currentWindow.cycleID {
             let identity = ReminderCycleIdentity.provider(cycleID)
@@ -338,6 +362,7 @@ struct NotificationPlanner: Sendable {
         guard enabled, let snapshot else { return [] }
         let candidates = snapshot.windows.compactMap { window -> (Date, String)? in
             guard window.wallet == nil,
+                  window.resetSemantics == nil,
                   !window.isUnlimited,
                   let usedPercentage = window.usedPercentage,
                   usedPercentage > 0,

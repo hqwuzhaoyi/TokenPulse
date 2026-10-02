@@ -136,6 +136,11 @@ struct WalletBalance: Codable, Equatable, Sendable {
     }
 }
 
+enum QuotaResetSemantics: String, Codable, Sendable {
+    case continuousReplenishment
+    case nonResettingAllowance
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -154,6 +159,10 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let wallet: WalletBalance?
     let overagePermitted: Bool?
     let overageCount: Double?
+    /// Nil preserves the existing provider-window reset rules.
+    let resetSemantics: QuotaResetSemantics?
+    /// A partial refill time, never a complete reset or reset-notification schedule.
+    let nextReplenishmentAt: Date?
 
     init(id: String,
          name: String,
@@ -170,7 +179,9 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          expiresAt: Date? = nil,
          wallet: WalletBalance? = nil,
          overagePermitted: Bool? = nil,
-         overageCount: Double? = nil) {
+         overageCount: Double? = nil,
+         resetSemantics: QuotaResetSemantics? = nil,
+         nextReplenishmentAt: Date? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -187,6 +198,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.wallet = wallet
         self.overagePermitted = overagePermitted
         self.overageCount = overageCount
+        self.resetSemantics = resetSemantics
+        self.nextReplenishmentAt = nextReplenishmentAt
     }
 
     func needsUpdate(at date: Date) -> Bool {
