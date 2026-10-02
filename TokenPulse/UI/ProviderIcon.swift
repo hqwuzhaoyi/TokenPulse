@@ -43,6 +43,7 @@ extension Provider {
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
         case .moonshot: "ProviderMoonshot"
+        case .factory: "ProviderFactory"
         }
     }
 

@@ -16,6 +16,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case copilot
     case clinePass
     case moonshot
+    case factory
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot }
@@ -48,6 +49,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .copilot: "GitHub Copilot"
         case .clinePass: "ClinePass"
         case .moonshot: "Moonshot API 钱包"
+        case .factory: "Factory"
         }
     }
 }

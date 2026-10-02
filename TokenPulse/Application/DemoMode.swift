@@ -19,6 +19,7 @@ enum DemoMode {
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
+            (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -72,6 +73,14 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo, .clinePass: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .factory: accountID == accounts().first(where: { $0.name.contains("Standard / Premium") })?.id
+            ? [window("factory.legacy.standard", "每月额度", .monthly, 35, scope: "Standard"),
+               window("factory.legacy.premium", "每月额度", .monthly, 70, scope: "Premium")]
+            : [window("factory.rate.standard.fiveHour", "5 小时额度", .fiveHour, 35, scope: "Standard"),
+               window("factory.rate.standard.weekly", "每周额度", .weekly, 70, scope: "Standard"),
+               window("factory.rate.core.weekly", "每周额度", .weekly, 25, scope: "Core"),
+               QuotaWindow(id: "factory.extraUsage", name: "附加用量余额", scope: nil, usedPercentage: nil,
+                           remainingCount: 2500, totalCount: nil, resetsAt: nil, unit: "cents（币种未提供）")]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),
             window("copilot.chat", "Chat", .monthly, 30),
