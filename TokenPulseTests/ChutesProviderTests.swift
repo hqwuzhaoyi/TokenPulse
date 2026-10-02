@@ -139,6 +139,78 @@ final class ChutesProviderTests: XCTestCase {
         XCTAssertEqual(rejected.windows.map(\.id), ["chutes.monthly"])
     }
 
+    func testLegacyPositiveTinyRemainingCannotRoundIntoExhaustionOrHundredPercentAlert() throws {
+        let date = Date(timeIntervalSince1970: 1000)
+        for (total, remaining) in [("100000000000000000", "0.00000000000000000000001"), ("1000", "0.0000000000001")] {
+            for quoted in [false, true] {
+                let limitJSON = quoted ? "\"\(total)\"" : total
+                let remainingJSON = quoted ? "\"\(remaining)\"" : remaining
+                let data = Data("{\"subscription\":{\"active\":true},\"rolling_window\":{\"limit\":\(limitJSON),\"remaining\":\(remainingJSON),\"window_seconds\":3600,\"unit\":\"credits\"}}".utf8)
+                let id = UUID()
+                let snapshot = try ChutesProviderClient.snapshot(data, accountID: id, collectedAt: date)
+                let window = try XCTUnwrap(snapshot.windows.first)
+                XCTAssertEqual(window.exactCounts?.remaining, Decimal(string: remaining))
+                XCTAssertEqual(window.exactCounts?.total, Decimal(string: total))
+                XCTAssertNotEqual(window.isExhausted, true)
+                XCTAssertFalse(window.usedPercentage.map { $0 >= 100 } ?? false)
+                if total == "100000000000000000" {
+                    XCTAssertNil(window.exactCounts?.used, "An unrepresentable difference must remain unknown")
+                    XCTAssertNil(window.usedPercentage)
+                    XCTAssertNil(window.isExhausted)
+                } else {
+                    XCTAssertEqual(window.exactCounts?.used, Decimal(string: "999.9999999999999"))
+                    XCTAssertEqual(window.isExhausted, false)
+                }
+                let result = NotificationPlanner().planSuccessfulRefresh(accountID: id, accountName: "Chutes legacy",
+                    previousSnapshot: nil, newSnapshot: snapshot,
+                    settings: AccountReminderSettings(resetRemindersEnabled: false, thresholds: [100]),
+                    ledger: ReminderLedger(), now: date)
+                XCTAssertTrue(result.operations.isEmpty)
+            }
+        }
+    }
+
+    func testLegacyTypedDecimalPartialCountsAndWrappersPreserveKnownAmounts() throws {
+        let amount = "1.234567890123456789"
+        for field in ["used", "requests", "remaining", "limit"] {
+            for wrapper in ["data", "result"] {
+                let data = Data("{\"\(wrapper)\":{\"subscription\":{\"active\":true},\"monthly\":{\"\(field)\":\"\(amount)\",\"unit\":\"credits\"}}}".utf8)
+                let snapshot = try ChutesProviderClient.snapshot(data, accountID: UUID(), collectedAt: Date())
+                let counts = try XCTUnwrap(snapshot.windows.first?.exactCounts)
+                XCTAssertEqual(counts.used, field == "used" || field == "requests" ? Decimal(string: amount) : nil)
+                XCTAssertEqual(counts.remaining, field == "remaining" ? Decimal(string: amount) : nil)
+                XCTAssertEqual(counts.total, field == "limit" ? Decimal(string: amount) : nil)
+                XCTAssertNil(snapshot.windows[0].usedPercentage)
+                XCTAssertNil(snapshot.windows[0].isExhausted)
+                XCTAssertEqual(try JSONDecoder().decode(QuotaSnapshot.self, from: JSONEncoder().encode(snapshot)), snapshot)
+            }
+        }
+    }
+
+    func testLegacyPercentOnlyWithOptionalLimitKeepsDeclaredScale() throws {
+        for limit in ["", ",\"limit\":100"] {
+            let data = Data("{\"subscription\":{\"active\":true},\"monthly\":{\"percent_used\":0.5\(limit),\"unit\":\"credits\"}}".utf8)
+            let snapshot = try ChutesProviderClient.snapshot(data, accountID: UUID(), collectedAt: Date())
+            XCTAssertEqual(snapshot.windows[0].usedPercentage, 0.5)
+            XCTAssertEqual(snapshot.windows[0].isExhausted, false)
+            XCTAssertNil(snapshot.windows[0].exactCounts?.used)
+            XCTAssertNil(snapshot.windows[0].exactCounts?.remaining)
+        }
+    }
+
+    func testLegacyInactiveSubscriptionAndUnknownPeriodRetainTheirFailureSemantics() throws {
+        for field in ["\"active\":false", "\"status\":\"expired\"", "\"status\":\"free\""] {
+            let data = Data("{\"subscription\":{\(field)},\"monthly\":{\"limit\":100,\"remaining\":99}}".utf8)
+            XCTAssertThrowsError(try ChutesProviderClient.snapshot(data, accountID: UUID(), collectedAt: Date())) {
+                XCTAssertEqual($0 as? RefreshFailure, .subscriptionRequired)
+            }
+        }
+        let unknown = Data(#"{"subscription":{"active":true},"rolling_window":{"limit":100,"remaining":99}}"#.utf8)
+        XCTAssertThrowsError(try ChutesProviderClient.snapshot(unknown, accountID: UUID(), collectedAt: Date())) {
+            XCTAssertEqual($0 as? RefreshFailure, .noQuotaWindows)
+        }
+    }
+
     func testKnownDataAndResultWrapsKeepDecimalAndDoNotInventNumericResetUnits() throws {
         for key in ["data", "result"] {
             let data = Data("{\"\(key)\":\(body)}".utf8)

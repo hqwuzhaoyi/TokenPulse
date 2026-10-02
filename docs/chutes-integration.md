@@ -29,3 +29,13 @@
 已通过生产 module、9 项新增 `ChutesProviderTests`、7 项 Moonshot 和 9 项 Alibaba 测试的实际 Swift 6 iOS SDK typecheck，以及完整 App UI typecheck、PBX plist、diff 检查。脚本 `/tmp/tokenpulse-wave2-regional-static/check.py` 使用 Simulator26.5 SDK、arm64-apple-ios17.0-simulator 并执行新 XCTest 文件的 `-typecheck`，不是仅 parse。测试包含固定请求、Decimal USD 预算、uncapped、无订阅/缺限额/耗尽区分、未知字段和布尔/数字边界、旧 fixture 单位/百分比/时长、明确包装/不猜重置单位、HTTP/取消/跨 provider、widget/存档/提醒以及多账号恢复、失败保留、删除和另一个 monitor 自行刷新。
 
 待 root 串行运行 `TokenPulseTests/ChutesProviderTests` 与完整 unsigned TokenPulse target build，覆盖 App/Widgets/Watch。没有启动 xcodebuild/模拟器或访问真实凭证。真实订阅 Key、服务器部署形状、普通/自定义套餐、真实 Key 失效、iCloud/Keychain 到达、关闭 iCloud 的设备生命周期、手机离线后的物理 Watch 查询、实际通知和 UI/widget 均仍未验收。源码、合成数据和独立 monitor 测试不能代替这些证据。
+
+## Legacy Decimal regression repair (2026-10-03)
+
+Pi02 found that the subscription-object compatibility branch still subtracted Double counters. With limit=1e17 and positive remaining=1e-23 it produced 100%, exhausted=true and an immediate 100% quota alert. Decimal added after a JSONSerialization/Double intermediate could not recover the original amounts.
+
+The legacy branch now decodes only its known fields from original Data with typed Decimal values, including data/result wrappers. Used/remaining derivation reuses the primary branch's exactDifference inverse check. When Foundation cannot represent the difference exactly, reported total/remaining remain in partial exactCounts and derived usage, percentage and exhausted state stay unknown. Exhaustion compares Decimal used against total, rather than the Double percentage; the display-only near-100 guard is applied only after known exact used is less than total. No shared UI or reminder logic changed.
+
+Four new regression tests cover naked/quoted 1e17/1e-23 and 1000/1e-13, preservation of known partial used/requests/remaining/limit values and coding through both wrappers, percent-only 0.5% with/without a limit, invalid/unknown rolling periods and inactive/expired subscription failures. Native Swift6 production-code replay compiled the actual parser plus NotificationPlanner and verified the original failures before the fix (two failures), then zero 100% alerts after it. The larger case keeps exact positive remaining and unknown usage/exhaustion; the smaller case keeps used=999.9999999999999, exhausted=false and percentage below100. Existing wrapper/partial/percent/duration/subscription replay checks also pass.
+
+Artifacts: /tmp/tokenpulse-chutes-legacy-regression/before.log, after.log, run.py and main.swift. No xcodebuild or simulator was started; root performs integrated XCTest execution. Tests and replay use synthetic values only.

@@ -39,21 +39,20 @@ struct ChutesProviderClient: Sendable {
                let window = primaryWindow(payload, id: "fourHour", name: "4 小时固定额度", period: .other) { windows.append(window) }
             if let payload = reply.monthly,
                let window = primaryWindow(payload, id: "monthly", name: "账期额度", period: .monthly) { windows.append(window) }
-        } else if let subscription = body["subscription"] as? [String: Any] {
-            // Compatibility is limited to the explicit pinned Pulse fixture.
-            // Do not infer a percentage scale or search nested objects for quota.
-            if boolean(subscription["active"]) == false ||
-                (subscription["status"] as? String).map({ ["free", "inactive", "canceled", "cancelled", "expired", "none"].contains($0.lowercased()) }) == true {
-                throw RefreshFailure.subscriptionRequired
+        } else if body["subscription"] is [String: Any] {
+            // Only shape selection uses the dictionary. Decode every legacy
+            // quantity from original JSON bytes, just like the primary path.
+            let reply: LegacyReply
+            do { reply = try JSONDecoder().decode(LegacyReply.self, from: data) }
+            catch let failure as RefreshFailure { throw failure }
+            catch { throw RefreshFailure.unreadableResponse }
+            planName = reply.subscription.plan_name?.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let payload = reply.rolling_window, let seconds = payload.seconds,
+               let window = legacyWindow(payload, id: "rolling", name: "滚动额度（\(durationName(seconds))）", period: QuotaPeriod(seconds: seconds)) {
+                windows.append(window)
             }
-            planName = (subscription["plan_name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-            if let payload = body["rolling_window"] as? [String: Any],
-               let seconds = statedSeconds(payload),
-               let window = window(payload, id: "rolling", name: "滚动额度（\(durationName(seconds))）", period: QuotaPeriod(seconds: seconds),
-                                   unit: payload["unit"] as? String, primary: false) { windows.append(window) }
-            if let payload = body["monthly"] as? [String: Any],
-               let window = window(payload, id: "monthly", name: "账期额度", period: .monthly,
-                                   unit: payload["unit"] as? String, primary: false) { windows.append(window) }
+            if let payload = reply.monthly,
+               let window = legacyWindow(payload, id: "monthly", name: "账期额度", period: .monthly) { windows.append(window) }
         } else { throw RefreshFailure.unreadableResponse }
         guard !windows.isEmpty else { throw RefreshFailure.noQuotaWindows }
         return .init(accountID: accountID, windows: windows, collectedAt: collectedAt,
@@ -132,44 +131,106 @@ struct ChutesProviderClient: Sendable {
         return result
     }
 
-    private static func window(_ payload: [String: Any], id: String, name: String, period: QuotaPeriod,
-                               unit: String?, primary: Bool) -> QuotaWindow? {
-        if boolean(payload["uncapped"]) == true {
-            return .init(id: "chutes.\(id)", name: name, scope: nil, period: period,
-                         isUnlimited: true, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: unit)
+    private struct LegacyWindow: Decodable {
+        let used: Amount?
+        let total: Amount?
+        let remaining: Amount?
+        let percent: Amount?
+        let uncapped: Bool?
+        let unit: String?
+        let reset: Date?
+        let seconds: Int?
+        private enum CodingKeys: String, CodingKey {
+            case used, requests, limit, remaining, percent_used, uncapped, unit
+            case reset_at, resets_at, window_seconds, window_minutes, window_hours
         }
-        let limitKey = primary ? "cap" : "limit"
-        let reportedLimit = nonnegative(payload[limitKey])
-        // An explicitly zero allowance does not turn into a full green quota.
-        if reportedLimit == 0 { return nil }
-        let total = reportedLimit.flatMap { $0 > 0 ? $0 : nil }
-        let used = nonnegative(payload[primary ? "usage" : "used"])
-            ?? (primary ? nil : nonnegative(payload["requests"]))
-        let remaining = nonnegative(payload["remaining"])
-        let percent = primary ? nil : nonnegative(payload["percent_used"])
-        guard used != nil || remaining != nil || total != nil || percent != nil else { return nil }
-        let percentage: Double?
-        if let total, let used { percentage = used / total * 100 }
-        else if let total, let remaining { percentage = max(total - remaining, 0) / total * 100 }
-        else { percentage = percent }
-        let validPercentage = percentage.flatMap { $0.isFinite ? $0 : nil }
-        let left = remaining ?? total.flatMap { total in used.map { max(total - $0, 0) } }
-        return .init(id: "chutes.\(id)", name: name, scope: nil, period: period,
-                     isExhausted: validPercentage.map { $0 >= 100 }, usedPercentage: validPercentage,
-                     remainingCount: left, totalCount: total,
-                     resetsAt: date(payload["reset_at"] ?? payload["resets_at"]), unit: unit)
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            used = try c.decodeIfPresent(Amount.self, forKey: .used) ?? c.decodeIfPresent(Amount.self, forKey: .requests)
+            total = try c.decodeIfPresent(Amount.self, forKey: .limit)
+            remaining = try c.decodeIfPresent(Amount.self, forKey: .remaining)
+            percent = try c.decodeIfPresent(Amount.self, forKey: .percent_used)
+            uncapped = try? c.decodeIfPresent(Bool.self, forKey: .uncapped)
+            unit = try? c.decodeIfPresent(String.self, forKey: .unit)
+            let resetKey: CodingKeys = c.contains(.reset_at) ? .reset_at : .resets_at
+            reset = (try? c.decode(String.self, forKey: resetKey)).flatMap(ProviderHTTP.isoDate)
+            var duration: Int?
+            for (key, multiplier) in [(CodingKeys.window_seconds, Decimal(1)), (.window_minutes, 60), (.window_hours, 3600)] {
+                guard c.contains(key) else { continue }
+                // Unknown/invalid stated duration omits only this rolling
+                // window. It must not invalidate a readable monthly window.
+                if let value = try? c.decode(Amount.self, forKey: key), value.value > 0 {
+                    let scaled = NSDecimalNumber(decimal: value.value * multiplier).doubleValue
+                    if let count = Int(exactly: scaled), count > 0, count <= Int(Int32.max) { duration = count }
+                }
+                break
+            }
+            seconds = duration
+        }
     }
-
-    private static func statedSeconds(_ payload: [String: Any]) -> Int? {
-        for (key, multiplier) in [("window_seconds", 1.0), ("window_minutes", 60.0), ("window_hours", 3600.0)] {
-            if payload[key] != nil {
-                guard let value = nonnegative(payload[key]), value > 0,
-                      let seconds = Int(exactly: value * multiplier), seconds > 0, seconds <= Int(Int32.max) else { return nil }
-                return seconds
+    private struct LegacyReply: Decodable {
+        struct Subscription: Decodable {
+            let active: Bool?
+            let status: String?
+            let plan_name: String?
+            private enum CodingKeys: String, CodingKey { case active, status, plan_name }
+            init(from decoder: any Decoder) throws {
+                let c = try decoder.container(keyedBy: CodingKeys.self)
+                active = try? c.decodeIfPresent(Bool.self, forKey: .active)
+                status = try? c.decodeIfPresent(String.self, forKey: .status)
+                plan_name = try? c.decodeIfPresent(String.self, forKey: .plan_name)
             }
         }
-        return nil
+        let subscription: Subscription
+        let rolling_window: LegacyWindow?
+        let monthly: LegacyWindow?
+        private enum CodingKeys: String, CodingKey { case data, result, subscription, rolling_window, monthly }
+        init(from decoder: any Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            if c.contains(.data) { self = try c.decode(Self.self, forKey: .data); return }
+            if c.contains(.result) { self = try c.decode(Self.self, forKey: .result); return }
+            subscription = try c.decode(Subscription.self, forKey: .subscription)
+            if subscription.active == false || subscription.status.map({ ["free", "inactive", "canceled", "cancelled", "expired", "none"].contains($0.lowercased()) }) == true {
+                throw RefreshFailure.subscriptionRequired
+            }
+            rolling_window = try c.decodeIfPresent(LegacyWindow.self, forKey: .rolling_window)
+            monthly = try c.decodeIfPresent(LegacyWindow.self, forKey: .monthly)
+        }
     }
+    private static func legacyWindow(_ payload: LegacyWindow, id: String, name: String, period: QuotaPeriod) -> QuotaWindow? {
+        if payload.uncapped == true {
+            return .init(id: "chutes.\(id)", name: name, scope: nil, period: period, isUnlimited: true,
+                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: payload.unit)
+        }
+        let total = payload.total?.value
+        if total == 0 { return nil }
+        let remaining = payload.remaining?.value
+        let reportedUsed = payload.used?.value
+        let reportedPercent = payload.percent?.value
+        guard total != nil || remaining != nil || reportedUsed != nil || reportedPercent != nil else { return nil }
+        // Decimal itself can lose a tiny subtrahend. Use the existing inverse
+        // check instead of treating a rounded difference as reported usage.
+        let used = reportedUsed ?? total.flatMap { total in remaining.flatMap { exactDifference(total, $0) } }
+        let left = remaining ?? total.flatMap { total in used.flatMap { exactDifference(total, $0) } }
+        let percentage: Double?
+        let exhausted: Bool?
+        if let total, let used {
+            let computed = NSDecimalNumber(decimal: used / total * 100).doubleValue
+            percentage = computed.isFinite ? (used < total ? min(computed, Double(100).nextDown) : computed) : nil
+            exhausted = used >= total
+        } else if let reportedPercent, total == nil || remaining == nil {
+            let value = NSDecimalNumber(decimal: reportedPercent).doubleValue
+            percentage = value.isFinite ? value : nil
+            exhausted = percentage.map { $0 >= 100 }
+        } else { percentage = nil; exhausted = nil }
+        let counts = total != nil || used != nil || left != nil ? DecimalQuotaCounts(used: used, remaining: left, total: total) : nil
+        return .init(id: "chutes.\(id)", name: name, scope: nil, period: period,
+                     isExhausted: exhausted, usedPercentage: percentage,
+                     remainingCount: left.map { NSDecimalNumber(decimal: $0).doubleValue },
+                     totalCount: total.map { NSDecimalNumber(decimal: $0).doubleValue },
+                     resetsAt: payload.reset, unit: payload.unit, exactCounts: counts)
+    }
+
     private static func durationName(_ seconds: Int) -> String {
         if seconds % 3600 == 0 { return "\(seconds / 3600) 小时" }
         if seconds % 60 == 0 { return "\(seconds / 60) 分钟" }
@@ -178,17 +239,5 @@ struct ChutesProviderClient: Sendable {
     private static func boolean(_ value: Any?) -> Bool? {
         guard let number = value as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID() else { return nil }
         return number.boolValue
-    }
-    private static func number(_ value: Any?) -> Double? {
-        if let number = value as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID() { return nil }
-        guard let value = ProviderHTTP.number(value), value.isFinite else { return nil }
-        return value
-    }
-    private static func nonnegative(_ value: Any?) -> Double? { number(value).flatMap { $0 >= 0 ? $0 : nil } }
-    private static func date(_ value: Any?) -> Date? {
-        if let iso = ProviderHTTP.isoDate(value) { return iso }
-        // Numeric reset fields are not part of the verified backend contract.
-        // Leave an unknown representation missing rather than guess its unit.
-        return nil
     }
 }
