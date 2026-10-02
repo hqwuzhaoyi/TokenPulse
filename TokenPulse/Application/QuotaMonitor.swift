@@ -16,6 +16,8 @@ final class QuotaMonitor: ObservableObject {
     private let configurationStore: (any AccountConfigurationStoring)?
     private let providerClient: (@Sendable (Provider) -> any QuotaQuerying)?
     private var started = false
+    private var credentialRevisions: [UUID: Int] = [:]
+    private var pendingCredentialRefreshes: Set<UUID> = []
 
     var onChange: (@MainActor () async -> Void)?
     var onFreshSnapshot: (@MainActor (AccountQuotaState, AccountQuotaState?) async -> Void)?
@@ -60,6 +62,13 @@ final class QuotaMonitor: ObservableObject {
                 states.append(AccountQuotaState(account: configuration.account))
             }
             for accountID in deletedIDs { await cleanupCredential(for: accountID) }
+            for configuration in configurations where configuration.account.provider == .newAPI || configuration.credentialIdentity != nil {
+                if let credential = try await credentialStore.credential(for: configuration.id), credential != "demo" {
+                    try? bindScopedCredential(credential, accountID: configuration.id, replacing: false)
+                }
+            }
+            try await accountStore.save(states)
+            try await configurationStore?.save(synchronizedConfigurations)
             if refresh { await refreshAll() }
         } catch is CancellationError {
             return
@@ -79,6 +88,11 @@ final class QuotaMonitor: ObservableObject {
         guard !trimmedName.isEmpty, !trimmedCredential.isEmpty,
               !states.contains(where: { $0.id == accountID }) else { return }
 
+        if provider == .newAPI, trimmedCredential != "demo",
+           (try? ProviderCredentialEnvelope.decode(trimmedCredential, expectedProvider: .newAPI).gatewayIdentity) == nil {
+            storageMessage = "服务器地址与凭证无法绑定"
+            return
+        }
         let account = SubscriptionAccount(id: accountID, name: trimmedName, provider: provider)
         do {
             try await credentialStore.save(trimmedCredential, for: account.id)
@@ -101,6 +115,10 @@ final class QuotaMonitor: ObservableObject {
             return
         }
         synchronizedConfigurations.append(AccountConfiguration(account: account))
+        if sourceIdentity(trimmedCredential, provider: provider) != nil {
+            do { try bindScopedCredential(trimmedCredential, accountID: account.id, replacing: true) }
+            catch { storageMessage = "服务器地址与凭证无法绑定" }
+        }
         await persistConfigurations()
         await refresh(accountID: account.id)
     }
@@ -116,35 +134,57 @@ final class QuotaMonitor: ObservableObject {
         guard let previous = states.first(where: { $0.id == accountID }),
               !refreshingAccountIDs.contains(accountID) else { return }
 
+        let revision = credentialRevisions[accountID, default: 0]
         refreshingAccountIDs.insert(accountID)
-        defer { refreshingAccountIDs.remove(accountID) }
+        defer {
+            refreshingAccountIDs.remove(accountID)
+            if pendingCredentialRefreshes.remove(accountID) != nil {
+                Task { await self.refresh(accountID: accountID) }
+            }
+        }
 
         do {
             guard let credential = try await credentialStore.credential(for: accountID),
                   !credential.isEmpty else {
                 throw RefreshFailure.invalidCredential
             }
+            if credential != "demo", previous.account.provider == .newAPI || sourceIdentity(credential, provider: previous.account.provider) != nil || configuration(for: accountID)?.credentialIdentity != nil {
+                try bindScopedCredential(credential, accountID: accountID, replacing: false)
+            }
+            let scopedPrevious = states.first { $0.id == accountID }
             let client = providerClient?(previous.account.provider) ?? quotaClient
-            let snapshot = try await client.quota(for: accountID, credential: credential)
+            var snapshot = try await client.quota(for: accountID, credential: credential)
             guard let index = states.firstIndex(where: { $0.id == accountID }) else {
                 await cleanupCredential(for: accountID)
                 return
             }
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, credentialRevisions[accountID, default: 0] == revision else { return }
+            if let identity = states[index].credentialIdentity {
+                guard let latest = try await credentialStore.credential(for: accountID),
+                      sourceIdentity(latest, provider: previous.account.provider) == identity else { return }
+                guard snapshot.sourceCredentialFingerprint == nil || snapshot.sourceCredentialFingerprint == identity else {
+                    throw RefreshFailure.unreadableResponse
+                }
+                snapshot.sourceCredentialFingerprint = identity
+            }
+            guard credentialRevisions[accountID, default: 0] == revision,
+                  let currentIndex = states.firstIndex(where: { $0.id == accountID }) else { return }
             guard snapshot.accountID == accountID else { throw RefreshFailure.unreadableResponse }
-            states[index].snapshot = snapshot
-            states[index].lastFailure = nil
-            await onFreshSnapshot?(states[index], previous)
+            states[currentIndex].snapshot = snapshot
+            states[currentIndex].lastFailure = nil
+            await onFreshSnapshot?(states[currentIndex], scopedPrevious)
         } catch is CancellationError {
             if !states.contains(where: { $0.id == accountID }) { await cleanupCredential(for: accountID) }
             return
         } catch let failure as RefreshFailure {
+            guard credentialRevisions[accountID, default: 0] == revision else { return }
             guard let index = states.firstIndex(where: { $0.id == accountID }) else {
                 await cleanupCredential(for: accountID)
                 return
             }
             states[index].lastFailure = failure
         } catch {
+            guard credentialRevisions[accountID, default: 0] == revision else { return }
             guard let index = states.firstIndex(where: { $0.id == accountID }) else {
                 await cleanupCredential(for: accountID)
                 return
@@ -251,12 +291,28 @@ final class QuotaMonitor: ObservableObject {
     func replaceCredential(_ credential: String, accountID: UUID) async {
         guard states.contains(where: { $0.id == accountID }), !credential.isEmpty else { return }
         do {
+            if configuration(for: accountID)?.account.provider == .newAPI, credential != "demo",
+               (try? ProviderCredentialEnvelope.decode(credential, expectedProvider: .newAPI).gatewayIdentity) == nil {
+                throw RefreshFailure.invalidCredential
+            }
+            if let configuration = configuration(for: accountID), configuration.credentialIdentity != nil,
+               credential != "demo", sourceIdentity(credential, provider: configuration.account.provider) == nil {
+                throw RefreshFailure.invalidCredential
+            }
             try await credentialStore.save(credential, for: accountID)
             guard states.contains(where: { $0.id == accountID }) else {
                 await cleanupCredential(for: accountID)
                 return
             }
-            await refresh(accountID: accountID)
+            credentialRevisions[accountID, default: 0] += 1
+            if let provider = configuration(for: accountID)?.account.provider,
+               sourceIdentity(credential, provider: provider) != nil {
+                try bindScopedCredential(credential, accountID: accountID, replacing: true)
+                try await accountStore.save(states)
+                await persistConfigurations()
+            }
+            if refreshingAccountIDs.contains(accountID) { pendingCredentialRefreshes.insert(accountID) }
+            else { await refresh(accountID: accountID) }
         } catch { storageMessage = "无法安全保存凭证" }
     }
 
@@ -274,11 +330,24 @@ final class QuotaMonitor: ObservableObject {
         for configuration in configurations {
             if let index = states.firstIndex(where: { $0.id == configuration.id }) {
                 states[index].account = configuration.account
+                if (configuration.credentialIdentity != nil || states[index].credentialIdentity != nil),
+                   states[index].credentialIdentity != configuration.credentialIdentity {
+                    credentialRevisions[configuration.id, default: 0] += 1
+                    states[index].snapshot = nil
+                    states[index].lastFailure = nil
+                    states[index].credentialIdentity = configuration.credentialIdentity
+                }
             } else { states.append(AccountQuotaState(account: configuration.account)) }
         }
         for incomingState in incomingStates {
             guard let snapshot = incomingState.snapshot, snapshot.accountID == incomingState.id,
                   let index = states.firstIndex(where: { $0.id == incomingState.id }) else { continue }
+            if incomingState.account.provider == .newAPI || configuration(for: incomingState.id)?.credentialIdentity != nil {
+                guard let identity = configuration(for: incomingState.id)?.credentialIdentity,
+                      (incomingState.credentialIdentity ?? snapshot.sourceCredentialFingerprint) == identity,
+                      snapshot.sourceCredentialFingerprint == nil || snapshot.sourceCredentialFingerprint == identity else { continue }
+                states[index].credentialIdentity = identity
+            }
             if snapshot.collectedAt > (states[index].snapshot?.collectedAt ?? .distantPast) {
                 states[index].snapshot = snapshot
             }
@@ -288,6 +357,37 @@ final class QuotaMonitor: ObservableObject {
             try await accountStore.save(states)
         } catch { storageMessage = "无法保存同步数据" }
         for accountID in deletedIDs { await cleanupCredential(for: accountID) }
+    }
+
+    private func sourceIdentity(_ value: String, provider: Provider) -> String? {
+        (try? ProviderCredentialEnvelope.decode(value, expectedProvider: provider))?.sourceCredentialIdentity
+    }
+
+    private func bindScopedCredential(_ value: String, accountID: UUID, replacing: Bool) throws {
+        guard let provider = configuration(for: accountID)?.account.provider else { throw RefreshFailure.invalidCredential }
+        let envelope = try ProviderCredentialEnvelope.decode(value, expectedProvider: provider)
+        guard let identity = envelope.sourceCredentialIdentity,
+              let stateIndex = states.firstIndex(where: { $0.id == accountID }),
+              let configIndex = synchronizedConfigurations.firstIndex(where: { $0.id == accountID && $0.deletedAt == nil }) else {
+            throw RefreshFailure.invalidCredential
+        }
+        // iCloud configuration and Keychain can arrive separately. Never query an
+        // older Keychain item against a newly synchronized account binding.
+        if !replacing, let expected = synchronizedConfigurations[configIndex].credentialIdentity, expected != identity {
+            states[stateIndex].snapshot = nil
+            states[stateIndex].lastFailure = nil
+            throw RefreshFailure.invalidCredential
+        }
+        if states[stateIndex].credentialIdentity != identity {
+            states[stateIndex].snapshot = nil
+            states[stateIndex].lastFailure = nil
+        }
+        states[stateIndex].credentialIdentity = identity
+        if synchronizedConfigurations[configIndex].credentialIdentity != identity {
+            synchronizedConfigurations[configIndex].credentialIdentity = identity
+            synchronizedConfigurations[configIndex].serverAddress = envelope.gatewayAddress?.value
+            synchronizedConfigurations[configIndex].modifiedAt = Date()
+        }
     }
 
     func setSynchronizationMessage(_ message: String?) { synchronizationMessage = message }

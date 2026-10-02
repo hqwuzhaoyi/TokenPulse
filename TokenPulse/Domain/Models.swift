@@ -6,9 +6,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case qoderInternational, deepSeek, kimiCode, elevenLabs, poe, vercelAIGateway
     case zhipu, miniMaxInternational
     case stepFun
+    case newAPI
 
     var id: String { rawValue }
-    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway }
+    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
     var displayName: String {
         switch self {
@@ -27,6 +28,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .kimiCode: "Kimi Code 国内版"
         case .elevenLabs: "ElevenLabs"
         case .stepFun: "StepFun"
+        case .newAPI: "New API"
         }
     }
 }
@@ -232,6 +234,7 @@ struct AccountQuotaState: Codable, Equatable, Identifiable, Sendable {
     var account: SubscriptionAccount
     var snapshot: QuotaSnapshot?
     var lastFailure: RefreshFailure?
+    var credentialIdentity: String? = nil
 
     var id: UUID { account.id }
 }

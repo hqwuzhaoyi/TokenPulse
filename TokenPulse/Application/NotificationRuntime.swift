@@ -96,6 +96,9 @@ final class NotificationRuntime: ObservableObject {
         defer { release() }
         guard active else { return }
         guard let snapshot = reminderSnapshot(state.snapshot, provider: state.account.provider) else { return }
+        if let identity = state.credentialIdentity {
+            try await bindCredentialIdentity(identity, accountID: state.id)
+        }
         let result = planner.planSuccessfulRefresh(
             accountID: state.id, accountName: state.account.name,
             previousSnapshot: reminderSnapshot(previous?.snapshot, provider: state.account.provider),
@@ -118,6 +121,9 @@ final class NotificationRuntime: ObservableObject {
             try persist()
         }
         for configuration in configurations {
+            if let identity = configuration.credentialIdentity {
+                try await bindCredentialIdentity(identity, accountID: configuration.id)
+            }
             let result = planner.planSettingsChange(
                 accountID: configuration.id, accountName: configuration.account.name,
                 latestSnapshot: reminderSnapshot(
@@ -159,6 +165,13 @@ final class NotificationRuntime: ObservableObject {
             ))])
             return .enabled
         } catch { return .failed }
+    }
+
+    private func bindCredentialIdentity(_ identity: String, accountID: UUID) async throws {
+        var updated = ledger
+        let identifiers = updated.bindCredentialIdentity(identity, accountID: accountID)
+        if !identifiers.isEmpty { try await adapter.apply([.cancel(identifiers: identifiers)]) }
+        ledger = updated
     }
 
     private func persist() throws {

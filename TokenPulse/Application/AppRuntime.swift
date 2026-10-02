@@ -211,14 +211,13 @@ final class AppRuntime: ObservableObject {
         guard cloudSync.isEnabled, !isDemoMode, !isSwitchingMode else { return }
         let source = monitor
         let sourceNotifications = notifications
-        do { try await sourceNotifications.merge(payload.ledger) }
-        catch { source.setSynchronizationMessage("提醒记录同步失败") }
         guard !isDemoMode, !isSwitchingMode, monitor === source else { return }
         await source.mergeSynchronized(configurations: payload.configurations, states: payload.states)
         guard !isDemoMode, !isSwitchingMode, monitor === source else { return }
         if isExternalUpdate { cloudSync.received() }
         do {
             try await sourceNotifications.settingsChanged(configurations: source.configurations, states: source.states)
+            try await sourceNotifications.merge(payload.ledger)
         } catch { source.setSynchronizationMessage("提醒尚不可用，可检查通知权限。") }
         do {
             try await widgetStore.save(states: source.states, configurations: source.configurations)

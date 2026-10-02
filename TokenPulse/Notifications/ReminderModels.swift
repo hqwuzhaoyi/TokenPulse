@@ -59,16 +59,21 @@ struct ReminderLedger: Codable, Equatable, Sendable {
     private var windowCycles: [WindowCycleState] = []
     private var pendingResetSchedules: [PendingResetSchedule] = []
     private var walletAlerts: [WalletAlertState]?
+    private var credentialIdentities: [UUID: String]?
 
     init() {}
 
     func merging(_ remote: ReminderLedger) -> ReminderLedger {
         var result = self
-        result.quotaAlerts.formUnion(remote.quotaAlerts)
-        result.expectedResets.formUnion(remote.expectedResets)
-        result.confirmedResets.formUnion(remote.confirmedResets)
+        func compatible(_ accountID: UUID) -> Bool {
+            guard let identity = result.credentialIdentities?[accountID] else { return true }
+            return remote.credentialIdentities?[accountID] == identity
+        }
+        result.quotaAlerts.formUnion(remote.quotaAlerts.filter { compatible($0.accountID) })
+        result.expectedResets.formUnion(remote.expectedResets.filter { compatible($0.accountID) })
+        result.confirmedResets.formUnion(remote.confirmedResets.filter { compatible($0.accountID) })
 
-        for state in remote.windowCycles {
+        for state in remote.windowCycles where compatible(state.accountID) {
             guard let local = result.cycleState(accountID: state.accountID, windowID: state.windowID) else {
                 result.setCycleState(state)
                 continue
@@ -78,7 +83,7 @@ struct ReminderLedger: Codable, Equatable, Sendable {
             }
         }
 
-        for state in remote.walletAlerts ?? [] {
+        for state in remote.walletAlerts ?? [] where compatible(state.accountID) {
             let local = result.walletAlertState(accountID: state.accountID, currency: state.currency)
             if local == nil || state.observedAt > local!.observedAt
                 || (state.observedAt == local!.observedAt && state.isActive) {
@@ -88,6 +93,22 @@ struct ReminderLedger: Codable, Equatable, Sendable {
 
         // Pending requests belong to the local device. Only delivered/planned records merge.
         return result
+    }
+
+    /// Clears alert history when one account moves to another server or key.
+    /// Returns schedules to cancel before new-identity notifications are planned.
+    mutating func bindCredentialIdentity(_ identity: String, accountID: UUID) -> [String] {
+        guard credentialIdentities?[accountID] != identity else { return [] }
+        let obsolete = pendingSchedules(accountID: accountID).map(\.notificationID)
+        quotaAlerts = quotaAlerts.filter { $0.accountID != accountID }
+        expectedResets = expectedResets.filter { $0.accountID != accountID }
+        confirmedResets = confirmedResets.filter { $0.accountID != accountID }
+        windowCycles.removeAll { $0.accountID == accountID }
+        walletAlerts?.removeAll { $0.accountID == accountID }
+        pendingResetSchedules.removeAll { $0.accountID == accountID }
+        if credentialIdentities == nil { credentialIdentities = [:] }
+        credentialIdentities?[accountID] = identity
+        return obsolete
     }
 
     func containsQuotaAlert(accountID: UUID,

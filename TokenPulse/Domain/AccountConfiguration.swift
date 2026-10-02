@@ -6,6 +6,8 @@ struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var modifiedAt: Date
     var deletedAt: Date?
     var isWatchFavorite: Bool?
+    var serverAddress: String?
+    var credentialIdentity: String?
 
     var id: UUID { account.id }
 

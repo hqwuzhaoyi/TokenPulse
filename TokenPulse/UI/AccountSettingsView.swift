@@ -171,6 +171,7 @@ private struct AccountPreferencesView: View {
     @State private var walletThreshold = ""
     @State private var error: String?
     @State private var credential = ""
+    @State private var serverAddress = ""
     @State private var showingLogin = false
     @State private var showingDeleteConfirmation = false
 
@@ -252,6 +253,12 @@ private struct AccountPreferencesView: View {
                             Task { await monitor.replaceCredential("demo", accountID: accountID) }
                         }
                     } else if usesAPIKey(configuration.account.provider) {
+                        if configuration.account.provider == .newAPI {
+                            TextField("HTTPS 服务器地址", text: $serverAddress)
+                                .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
+                            Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。暂不支持 HTTP 私网地址。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {
@@ -260,12 +267,13 @@ private struct AccountPreferencesView: View {
                                     let encoded = usesAPIKey(configuration.account.provider)
                                         ? try ProviderAuthenticationController().credential(
                                             provider: configuration.account.provider,
-                                            apiKey: credential
+                                            apiKey: credential,
+                                            serverAddress: serverAddress
                                         )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
-                                } catch { self.error = "无法保存凭证" }
+                                } catch { self.error = configuration.account.provider == .newAPI ? "请输入有效的 HTTPS 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
                             }
                         }.disabled(credential.isEmpty)
                     } else {
@@ -278,6 +286,7 @@ private struct AccountPreferencesView: View {
             } else { Text("账号配置尚未同步") }
         }
         .navigationTitle(monitor.configuration(for: accountID)?.account.name ?? "账号")
+        .onAppear { serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? "" }
         .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
             Button("删除账号", role: .destructive) {
                 Task { if await monitor.deleteAccount(accountID: accountID) { dismiss() } }

@@ -335,7 +335,8 @@ private struct AccountSummaryView: View {
             if let snapshot = state.snapshot {
                 Divider()
                 let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
-                if state.account.provider.hasMonetaryWallet {
+                if state.account.provider.hasMonetaryWallet &&
+                    (state.account.provider != .newAPI || summaryWindows.contains(where: { $0.wallet?.isMonetary == true })) {
                     if let currency = selectedWalletCurrency(in: summaryWindows),
                        let window = summaryWindows.first(where: { $0.wallet?.currency == currency }) {
                         CompactQuotaWindowView(window: window)
@@ -521,6 +522,7 @@ private struct AddAccountView: View {
     @State private var newAccountID = UUID()
     @State private var name = ""
     @State private var key = ""
+    @State private var serverAddress = ""
     @State private var provider = Provider.miniMaxChina
     @State private var saving = false
     @State private var showingLogin = false
@@ -553,6 +555,16 @@ private struct AddAccountView: View {
                     Text("名称只用于区分你自己的多个服务账号。")
                 }
 
+                if provider == .newAPI && !isDemoMode {
+                    Section {
+                        TextField("https://gateway.example.com/v1", text: $serverAddress)
+                            .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
+                    } header: {
+                        Text("服务器地址")
+                    } footer: {
+                        Text("每个账号可使用不同网关。支持 HTTPS，末尾 /v1 会自动移除；请确认这是你信任的服务器。暂不支持 HTTP 私网地址。")
+                    }
+                }
                 Section {
                     if isDemoMode {
                         Label("使用示例数据，无需登录或 API Key。", systemImage: "play.circle")
@@ -594,7 +606,7 @@ private struct AddAccountView: View {
                         Task {
                             do {
                                 let credential = isDemoMode ? "demo" : usesAPIKey
-                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key)
+                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress)
                                     : key
                                 guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider, newAccountID) else {
                                     loginMessage = "账号未保存，请重试。"
@@ -602,7 +614,7 @@ private struct AddAccountView: View {
                                     return
                                 }
                             } catch {
-                                loginMessage = "无法保存登录凭证"
+                                loginMessage = provider == .newAPI ? "请输入有效的 HTTPS 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存登录凭证"
                                 saving = false
                                 return
                             }
@@ -617,7 +629,7 @@ private struct AddAccountView: View {
                     ToolbarItem(placement: .status) { ProgressView() }
                 }
             }
-            .onChange(of: provider) { _, _ in key = ""; loginMessage = nil }
+            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; loginMessage = nil }
             .sheet(isPresented: $showingLogin) {
                 ProviderSignInView(provider: provider, accountID: newAccountID) { credential in
                     key = credential

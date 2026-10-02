@@ -7,7 +7,7 @@ Provider icon assets live in `TokenPulse/Resources/ProviderIcons.xcassets`. Keep
 | Providers | Source |
 | --- | --- |
 | Claude, Codex/OpenAI, OpenCode, Z.ai, MiniMax, SuperGrok | [Lobe Icons](https://github.com/lobehub/lobe-icons), imported through `qunqin24/Pulse` commit `8d7fd60454ce383dd0a136a30790c1e277f8069b`, under the MIT License. |
-| Qoder, DeepSeek | [Lobe Icons](https://github.com/lobehub/lobe-icons) commit `a94750e3f5f8fc33757b839d85030e742284e43a`, under the MIT License. Their shapes were checked against the providers' official favicons. |
+| Qoder, DeepSeek, New API | [Lobe Icons](https://github.com/lobehub/lobe-icons) commit `a94750e3f5f8fc33757b839d85030e742284e43a`, under the MIT License. Qoder and DeepSeek shapes were checked against the providers' official favicons. New API uses `packages/static-svg/icons/newapi.svg` as a vector template source. |
 | Kimi Code | [Lobe Icons](https://github.com/lobehub/lobe-icons) commit `2e76c48721e91b9aaa40803a0fa2eb8aca7399c4`, file `packages/static-svg/icons/kimi.svg`, under the MIT License. |
 
 When adding or replacing a provider icon:

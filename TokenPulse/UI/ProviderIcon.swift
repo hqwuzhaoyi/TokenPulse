@@ -39,6 +39,7 @@ extension Provider {
         case .kimiCode: "ProviderKimiCode"
         case .elevenLabs: "ProviderElevenLabs"
         case .stepFun: "ProviderStepFun"
+        case .newAPI: "ProviderNewAPI"
         }
     }
 

@@ -16,6 +16,7 @@ enum DemoMode {
             (.poe, "Poe points"), (.vercelAIGateway, "Vercel AI Gateway 钱包"),
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
+            (.newAPI, "New API 钱包"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -98,11 +99,16 @@ enum DemoMode {
                         wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.3456789")!))
         ]
         case .stepFun:
-            accountID == accounts().last?.id ? [short, weekly] : [
+            accountID == accounts().last(where: { $0.provider == .stepFun })?.id ? [short, weekly] : [
                 QuotaWindow(id: "stepfun.credits", name: "Token Plan 积分额度", scope: nil, period: .other,
                             usedPercentage: 25, remainingCount: 1_200_000_000, totalCount: 1_600_000_000,
                             resetsAt: nil, unit: "积分", expiresAt: now.addingTimeInterval(3 * 86_400))
             ]
+        case .newAPI: [
+            QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
