@@ -1835,16 +1835,17 @@
     "criteria": [
       "上游只读 Gemini CLI 登录且不续期；核验合法可用的移动端授权客户端、账号和项目绑定。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/63-gemini.md",
-    "assignee": "sol_research",
-    "researchReport": "research/63-gemini.md"
+    "assignee": "sol_copilot",
+    "researchReport": "research/63-gemini.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   },
   {
     "number": 64,
@@ -1857,16 +1858,17 @@
     "criteria": [
       "上游依赖 CLI 原生 usage 方法；寻找有来源证据的远程认证与额度路径，不能把 ACP 本地接口当云端 API。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/64-kiro.md",
     "assignee": "sol_research",
-    "researchReport": "research/64-kiro.md"
+    "researchReport": "research/64-kiro.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   },
   {
     "number": 65,
@@ -1879,16 +1881,17 @@
     "criteria": [
       "上游仅通过运行中的本机语言服务器取数；若无法独立查询，应明确该架构下不可接入。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/65-antigravity.md",
     "assignee": "sol_research",
-    "researchReport": "research/65-antigravity.md"
+    "researchReport": "research/65-antigravity.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   },
   {
     "number": 66,
@@ -1901,16 +1904,17 @@
     "criteria": [
       "区分 Token Plan 与已排期的 Coding Plan；CLI 打印的额度不证明存在可供手机使用的认证入口。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/66-alibaba-token-plan.md",
-    "assignee": "sol_research",
-    "researchReport": "research/66-alibaba-token-plan.md"
+    "assignee": "sol_gateway",
+    "researchReport": "research/66-alibaba-token-plan.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   },
   {
     "number": 67,
@@ -1923,16 +1927,17 @@
     "criteria": [
       "上游借用 Hermes 的短期 OAuth token，重复使用一次性 refresh token 会撤销会话；验证独立授权及双端续期，不借用 Hermes 的刷新令牌。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/67-nous-portal.md",
-    "assignee": "sol_research",
-    "researchReport": "research/67-nous-portal.md"
+    "assignee": "sol_web",
+    "researchReport": "research/67-nous-portal.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   },
   {
     "number": 68,
@@ -1945,16 +1950,17 @@
     "criteria": [
       "若只有 IDE 保存的快照，则不满足设备独立刷新，不能把文件同步方案当作接入完成。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/68-jetbrains-ai.md",
-    "assignee": "sol_research",
-    "researchReport": "research/68-jetbrains-ai.md"
+    "assignee": "sol_copilot",
+    "researchReport": "research/68-jetbrains-ai.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   },
   {
     "number": 69,
@@ -1967,15 +1973,16 @@
     "criteria": [
       "旧 credit_grants 路由兼容范围有限；Admin costs 仅表示消费，不能推算出未知的余额、充值或套餐上限。",
       "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
-      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若公开证据给出可实施路径，完成原生认证或配置、远程查询和两端接入；以实现完成及图标存在验收。真实账号和实体设备观察单独记录，不作为关票前置条件。",
       "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
       "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
-      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "awaiting-validation",
+    "status": "in-progress",
     "file": "issues/69-openai-api.md",
-    "assignee": "sol_research",
-    "researchReport": "research/69-openai-api.md"
+    "assignee": "sol_wallet",
+    "researchReport": "research/69-openai-api.md",
+    "acceptanceBasis": "implementation-and-provider-icon-exists"
   }
 ]

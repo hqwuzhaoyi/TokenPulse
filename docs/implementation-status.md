@@ -4,7 +4,7 @@
 
 ## 提供商扩展最新快照（2026-10-02，0477a43文档基线）
 
-71个代码入口已集成：9原有+8首批+29第二批+25第三批。69票中62张integration全部done/current gate[x]，7张研究awaiting-validation、没有伪接入；最新关票以完整实现+图标存在为准，历史真实清单不伪勾。71图标无缺失，56资产映射/53 image sets与15 SF映射/8个有效系统符号，共18个明确通用图标，见[图标验收](../.scratch/provider-expansion/icon-acceptance.md)。
+71个代码入口已集成：9原有+8首批+29第二批+25第三批。69票中62张integration全部done/current gate[x]，7张研究已恢复in-progress，尚未计入接入数；最新关票以完整实现+图标存在为准，历史真实清单不伪勾。71图标无缺失，56资产映射/53 image sets与15 SF映射/8个有效系统符号，共18个明确通用图标，见[图标验收](../.scratch/provider-expansion/icon-acceptance.md)。
 
 最终代码4adb520通过638项完整XCTest（0 failures）及unsigned App/Watch/两端Widgets构建，日志/tmp/tokenpulse-wave3-final.log与/tmp/tokenpulse-wave3-final-unsigned.log。10组Pi报告全部交付，确认问题及采用的有界解析改进均已纳入最终测试，未采纳建议与许可观察纠正也有记录。见[71入口表](../README.md#提供商与登录方式)、[Pi回归](../.scratch/provider-expansion/pi-regression/README.md)、[第三批记录](../.scratch/provider-expansion/wave3-progress.md)和[统一验证记录](../.scratch/provider-expansion/validation-record.md)。真实生产、账号、物理Watch、iCloud及完整视觉观察缺口不改写为已实测。
 
