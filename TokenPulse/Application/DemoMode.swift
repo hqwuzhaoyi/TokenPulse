@@ -51,6 +51,7 @@ enum DemoMode {
             (.augmentCode, "Augment Code"), (.zed, "Zed"), (.grokBot, "Grok Bot"),
             (.openAIAPI, "OpenAI API Legacy 余额"),
             (.alibabaTokenPlan, "百炼 Personal Token Plan"),
+            (.gemini, "Gemini Code Assist"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -141,6 +142,7 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo, .clinePass: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .gemini: [window("gemini.gemini-2.5-pro", "gemini-2.5-pro", .other, 35), window("gemini.gemini-2.5-flash", "gemini-2.5-flash", .other, 20)]
         case .grokBot: [window("grokBot.weekly", "Grok Bot 每周额度", .weekly, 35)]
         case .zed: [
             QuotaWindow(id: "zed.editPredictions", name: "编辑预测", scope: nil, period: .monthly, isUnlimited: true,

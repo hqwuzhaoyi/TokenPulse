@@ -329,6 +329,9 @@
         C02400000000000000000012 /* GoogleNativeOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000010; };
         C02400000000000000000021 /* GoogleNativeOAuthLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000020; };
         C02400000000000000000031 /* GoogleNativeOAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000030; };
+        C02400000000000000000041 /* GeminiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000040; };
+        C02400000000000000000042 /* GeminiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000040; };
+        C02400000000000000000051 /* GeminiProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000050; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -611,6 +614,8 @@
         C02400000000000000000010 /* GoogleNativeOAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GoogleNativeOAuth.swift; sourceTree = SOURCE_ROOT; };
         C02400000000000000000020 /* GoogleNativeOAuthLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/GoogleNativeOAuthLoginView.swift; sourceTree = SOURCE_ROOT; };
         C02400000000000000000030 /* GoogleNativeOAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GoogleNativeOAuthTests.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000040 /* GeminiProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GeminiProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000050 /* GeminiProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GeminiProviderTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -714,6 +719,8 @@
                 C02400000000000000000010 /* GoogleNativeOAuth.swift */,
                 C02400000000000000000020 /* GoogleNativeOAuthLoginView.swift */,
                 C02400000000000000000030 /* GoogleNativeOAuthTests.swift */,
+                C02400000000000000000040 /* GeminiProvider.swift */,
+                C02400000000000000000050 /* GeminiProviderTests.swift */,
                 C02300000000000000000031 /* GrokBotProvider.swift */,
                 C02300000000000000000032 /* GrokBotProviderTests.swift */,
 
@@ -1129,6 +1136,7 @@
 				2E6300000000000000000413 /* XiaomiCodingPlanProvider.swift in Sources */,
                 C02400000000000000000011 /* GoogleNativeOAuth.swift in Sources */,
                 C02400000000000000000021 /* GoogleNativeOAuthLoginView.swift in Sources */,
+                C02400000000000000000041 /* GeminiProvider.swift in Sources */,
                 C02300000000000000000033 /* GrokBotProvider.swift in Sources */,
                 C02300000000000000000023 /* ZedProvider.swift in Sources */,
                 C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */,
@@ -1192,6 +1200,7 @@
 				2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */,
 				2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */,
                 C02400000000000000000031 /* GoogleNativeOAuthTests.swift in Sources */,
+                C02400000000000000000051 /* GeminiProviderTests.swift in Sources */,
                 C02300000000000000000035 /* GrokBotProviderTests.swift in Sources */,
                 C02300000000000000000025 /* ZedProviderTests.swift in Sources */,
                 C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */,
@@ -1324,6 +1333,7 @@
 				2E6300000000000000000424 /* QoderChinaProvider.swift in Sources */,
 				2E6300000000000000000414 /* XiaomiCodingPlanProvider.swift in Sources */,
                 C02400000000000000000012 /* GoogleNativeOAuth.swift in Sources */,
+                C02400000000000000000042 /* GeminiProvider.swift in Sources */,
                 C02300000000000000000034 /* GrokBotProvider.swift in Sources */,
                 C02300000000000000000024 /* ZedProvider.swift in Sources */,
                 C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */,

@@ -12,7 +12,12 @@ struct ProviderSignInView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if provider == .claude {
+                if provider == .gemini {
+                    GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, complete: { callback, pending, id, project in
+                        try await GeminiProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
+                            .authorize(callback: callback, session: pending, accountID: id, configuredProject: project)
+                    }, onCredential: completion)
+                } else if provider == .claude {
                     ClaudeSessionLoginView(accountID: accountID, onCredential: completion)
                 } else if provider == .cursor || provider == .grokBot {
                     CursorSessionLoginView(provider: provider, accountID: accountID, onCredential: completion)

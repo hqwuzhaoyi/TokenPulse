@@ -63,6 +63,7 @@ extension Provider {
         case .augmentCode: "ProviderAugmentCode"
         case .zed: "ProviderZed"
         case .grokBot: "ProviderGrokBot"
+        case .gemini: "ProviderGemini"
         case .commandCode: "ProviderCommandCode"
         case .amp: "ProviderAmp"
         case .gitKraken: "ProviderGitKraken"

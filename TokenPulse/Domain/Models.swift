@@ -25,7 +25,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case codebuff
     case moonshot
     case factory
-    case augmentCode, zed, grokBot
+    case augmentCode, zed, grokBot, gemini
     case venice
     case hyper
     case deepInfra
@@ -91,6 +91,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .augmentCode: "Augment Code"
         case .zed: "Zed"
         case .grokBot: "Grok Bot"
+        case .gemini: "Gemini Code Assist"
         case .venice: "Venice"
         case .hyper: "Hyper"
         case .deepInfra: "DeepInfra"
@@ -395,6 +396,8 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case noQuotaWindows
     case subscriptionRequired
     case insufficientPermissions
+    case googleClientUnsupported
+    case googleProjectRequired
     case consoleSessionRequired
 
     var displayName: String {
@@ -408,6 +411,8 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
         case .noQuotaWindows: "未返回套餐额度窗口"
         case .subscriptionRequired: "当前凭证没有可用的订阅套餐"
         case .insufficientPermissions: "Key 缺少所需的查询权限，请检查权限设置"
+        case .googleClientUnsupported: "Google quota 服务不支持此 OAuth client，请检查客户端注册"
+        case .googleProjectRequired: "Google quota 访问被拒绝或项目未就绪，请检查 client、项目权限与账户资格"
         case .consoleSessionRequired: "该接口要求控制台登录会话，当前 Key 无法查询；请在对应站点检查。"
         }
     }

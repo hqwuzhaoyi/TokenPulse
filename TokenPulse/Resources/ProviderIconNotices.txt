@@ -1762,3 +1762,10 @@ Copyright (c) 2023 LobeHub. MIT License (full text in Lobe Icons section).
 TokenPulse changes: currentColor to black, explicit24x24 template/vector asset; paths unchanged. Distinct asset and mark from ProviderSuperGrok; identifies Grok Bot, not a merged allowance.
 
 Alibaba Token Plan reuses the existing ProviderAlibabaCloud vector/template mark described above for Alibaba Coding Plan: Lobe Icons https://github.com/lobehub/lobe-icons, commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/alibabacloud.svg. Copyright (c) 2023 LobeHub; MIT License reproduced above. No new external artwork is imported.
+
+Gemini Code Assist
+Source: https://github.com/lobehub/lobe-icons
+Commit: a94750e3f5f8fc33757b839d85030e742284e43a
+Asset: packages/static-svg/icons/gemini.svg
+Copyright (c) 2023 LobeHub
+License: MIT (full text above). Monochrome template adaptation.

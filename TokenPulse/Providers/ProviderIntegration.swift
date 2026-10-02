@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider.requiresGatewayAddress { self.transport = GatewayProviderTransport() }
-        else if provider.webLoginProfile != nil || [.grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider.webLoginProfile != nil || [.gemini, .grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -154,6 +154,8 @@ struct ProviderQuotaClient: QuotaQuerying {
     func quotaResult(for accountID: UUID, credential: String) async throws -> ProviderQueryResult {
         let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
         switch provider {
+        case .gemini:
+            return try await GeminiProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .typeSafe:
             return try await TypeSafeProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .qwenCloud:
@@ -380,6 +382,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func loginConfiguration(for provider: Provider) -> ProviderLoginConfiguration {
         switch provider {
+        case .gemini:
+            return .init(provider: provider, method: .authorizationCode, credentialLabel: nil)
         case .miniMaxChina:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Coding Plan Key")
         case .miniMaxInternational:
@@ -518,6 +522,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func beginLogin(provider: Provider, callbackURL: URL? = nil) async throws -> ProviderLoginSession {
         switch provider {
+        case .gemini:
+            throw ProviderIntegrationError.unsupportedLogin("请配置自己的 Google iOS OAuth Client ID 后授权")
         case .copilot:
             return try await CopilotProviderAuthenticator(transport: transport, now: now).begin()
         case .kimiCode:
@@ -566,6 +572,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func continueLogin(_ session: ProviderLoginSession, callbackURL: URL? = nil) async throws -> ProviderLoginProgress {
         switch session.provider {
+        case .gemini:
+            throw ProviderIntegrationError.unsupportedLogin("请使用 Google 原生授权界面完成配置")
         case .replicate, .mistral, .sakana:
             throw ProviderIntegrationError.unsupportedLogin("Use the account-isolated web login view")
         case .copilot:
@@ -586,6 +594,8 @@ struct ProviderAuthenticationController: Sendable {
     func refreshCredentialIfNeeded(provider: Provider, credential: String) async throws -> ProviderCredentialRefresh {
         let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
         switch provider {
+        case .gemini:
+            return try await GeminiProviderClient(transport: transport, now: now).refreshIfNeeded(envelope)
         case .copilot:
             return try CopilotProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .kimiCode:
