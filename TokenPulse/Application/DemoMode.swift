@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
+            (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -114,6 +115,12 @@ enum DemoMode {
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
+        case .moonshot: [
+            QuotaWindow(id: "moonshot.demo.wallet", name: "API 钱包余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: accountID == accounts().last(where: { $0.provider == .moonshot })?.id ? "USD" : "CNY",
+                                              total: Decimal(50 - revision), granted: 10, toppedUp: 40))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,

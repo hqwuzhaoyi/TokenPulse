@@ -530,6 +530,7 @@ private struct AddAccountView: View {
     @State private var name = ""
     @State private var key = ""
     @State private var serverAddress = ""
+    @State private var region: ProviderRegion?
     @State private var provider = Provider.miniMaxChina
     @State private var saving = false
     @State private var showingLogin = false
@@ -562,6 +563,13 @@ private struct AddAccountView: View {
                     Text("名称只用于区分你自己的多个服务账号。")
                 }
 
+                if provider.requiresRegion && !isDemoMode {
+                    Section("服务地区") {
+                        ProviderRegionPicker(region: $region)
+                        Text("Moonshot 开放平台 API 钱包与 Kimi Code 套餐不同。Key 只发送至所选地区；更换地区需要重新输入对应 Key。")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
                 if provider == .newAPI && !isDemoMode {
                     Section {
                         TextField("https://gateway.example.com/v1", text: $serverAddress)
@@ -613,7 +621,7 @@ private struct AddAccountView: View {
                         Task {
                             do {
                                 let credential = isDemoMode ? "demo" : usesAPIKey
-                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress)
+                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress, region: region)
                                     : key
                                 guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider, newAccountID) else {
                                     loginMessage = "账号未保存，请重试。"
@@ -630,13 +638,15 @@ private struct AddAccountView: View {
                         }
                     }
                     .disabled(saving || name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                              || (!isDemoMode && key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
+                              || (!isDemoMode && (key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                                 || provider.requiresRegion && region == nil)))
                 }
                 if saving {
                     ToolbarItem(placement: .status) { ProgressView() }
                 }
             }
-            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; loginMessage = nil }
+            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; region = nil; loginMessage = nil }
+            .onChange(of: region) { _, _ in key = ""; loginMessage = nil }
             .sheet(isPresented: $showingLogin) {
                 ProviderSignInView(provider: provider, accountID: newAccountID) { credential in
                     key = credential
@@ -653,5 +663,17 @@ private struct AddAccountView: View {
 
     private var credentialLabel: String {
         ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
+    }
+}
+
+struct ProviderRegionPicker: View {
+    @Binding var region: ProviderRegion?
+    var body: some View {
+        Picker("地区", selection: $region) {
+            Text("请选择服务地区").tag(Optional<ProviderRegion>.none)
+            ForEach(ProviderRegion.allCases) { region in
+                Text(region.displayName).tag(Optional(region))
+            }
+        }
     }
 }

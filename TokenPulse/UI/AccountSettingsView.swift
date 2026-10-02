@@ -172,6 +172,7 @@ private struct AccountPreferencesView: View {
     @State private var error: String?
     @State private var credential = ""
     @State private var serverAddress = ""
+    @State private var region: ProviderRegion?
     @State private var showingLogin = false
     @State private var showingDeleteConfirmation = false
 
@@ -264,6 +265,11 @@ private struct AccountPreferencesView: View {
                             Task { await monitor.replaceCredential("demo", accountID: accountID) }
                         }
                     } else if usesAPIKey(configuration.account.provider) {
+                        if configuration.account.provider.requiresRegion {
+                            ProviderRegionPicker(region: $region)
+                            Text("地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         if configuration.account.provider == .newAPI {
                             TextField("服务器地址", text: $serverAddress)
                                 .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -279,14 +285,14 @@ private struct AccountPreferencesView: View {
                                         ? try ProviderAuthenticationController().credential(
                                             provider: configuration.account.provider,
                                             apiKey: credential,
-                                            serverAddress: serverAddress
+                                            serverAddress: serverAddress, region: region
                                         )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
                                 } catch { self.error = configuration.account.provider == .newAPI ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
                             }
-                        }.disabled(credential.isEmpty)
+                        }.disabled(credential.isEmpty || configuration.account.provider.requiresRegion && region == nil)
                     } else {
                         Button("重新登录 \(configuration.account.provider.displayName)") { showingLogin = true }
                     }
@@ -297,7 +303,11 @@ private struct AccountPreferencesView: View {
             } else { Text("账号配置尚未同步") }
         }
         .navigationTitle(monitor.configuration(for: accountID)?.account.name ?? "账号")
-        .onAppear { serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? "" }
+        .onAppear {
+            serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? ""
+            region = monitor.configuration(for: accountID)?.providerRegion
+        }
+        .onChange(of: region) { _, _ in credential = "" }
         .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
             Button("删除账号", role: .destructive) {
                 Task { if await monitor.deleteAccount(accountID: accountID) { dismiss() } }

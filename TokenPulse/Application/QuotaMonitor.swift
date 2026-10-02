@@ -400,6 +400,10 @@ final class QuotaMonitor: ObservableObject {
         if synchronizedConfigurations[configIndex].credentialIdentity != identity {
             synchronizedConfigurations[configIndex].credentialIdentity = identity
             synchronizedConfigurations[configIndex].serverAddress = envelope.gatewayAddress?.value
+            if provider.requiresRegion, synchronizedConfigurations[configIndex].providerRegion != envelope.providerRegion {
+                synchronizedConfigurations[configIndex].reminders.walletCurrency = nil
+            }
+            synchronizedConfigurations[configIndex].providerRegion = envelope.providerRegion
             synchronizedConfigurations[configIndex].modifiedAt = Date()
         }
     }
