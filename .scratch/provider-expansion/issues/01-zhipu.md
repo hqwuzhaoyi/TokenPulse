@@ -1,6 +1,6 @@
 # 01: 智谱国内版套餐额度接入
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -24,3 +24,11 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/zai.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+## Implementation and validation record (2026-10-02)
+
+Implemented on `sol/regional`: provider-bound regional Key login, explicit regional host routing, shared account persistence/Keychain/synchronization paths, device-side refresh routing, demo account, licensed existing brand icon, and all reported widget metrics. See [regional contracts and validation boundary](../../../docs/regional-provider-integration.md).
+
+Verified: Swift parser and provider/domain type checking; the 14 new `RegionalProviderTests` also type-check against a temporary macOS module. `git diff --check` passes. Tests use synthetic credentials and response fixtures.
+
+Pending: root's integrated XCTest run and full unsigned `TokenPulse` build (App, Widgets, Watch assets); actual regional subscription query and expired/revoked Key; real Keychain/iCloud credential arrival; iCloud-off app lifecycle on device; offline-phone Watch independent refresh; real widget/Watch UI and notification delivery. No real credentials were accessed, no physical-device acceptance was claimed, and all acceptance checkboxes remain open until their evidence is recorded.

@@ -170,8 +170,11 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .openCodeGo:
             return try await OpenCodeGoProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
-        case .zai:
-            return try await ZaiProviderClient(transport: transport, now: now)
+        case .miniMaxInternational:
+            return try await MiniMaxInternationalProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .zai, .zhipu:
+            return try await ZaiProviderClient(provider: provider, transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .superGrok:
             return try await SuperGrokProviderClient(transport: transport, now: now)
@@ -212,8 +215,12 @@ struct ProviderAuthenticationController: Sendable {
         switch provider {
         case .miniMaxChina:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Coding Plan Key")
+        case .miniMaxInternational:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "MiniMax 国际版 Coding Plan Key")
+        case .zhipu:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "智谱国内版 Coding Plan Key")
         case .zai:
-            return .init(provider: provider, method: .apiKey, credentialLabel: "Z.ai Coding Plan Key")
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Z.ai 国际版 Coding Plan Key")
         case .openCodeGo:
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
         case .deepSeek:
@@ -236,7 +243,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -268,7 +275,7 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -283,7 +290,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -299,7 +306,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu:
             return .init(credential: credential, changed: false)
         }
     }

@@ -14,6 +14,7 @@ enum DemoMode {
             (.qoderInternational, "Qoder 国际版"), (.deepSeek, "DeepSeek 钱包"),
             (.kimiCode, "Kimi Code 国内版"), (.elevenLabs, "ElevenLabs"),
             (.poe, "Poe points"), (.vercelAIGateway, "Vercel AI Gateway 钱包"),
+            (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -68,7 +69,7 @@ enum DemoMode {
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
         case .kimiCode: [short, weekly, window("kimiCode.monthly", "每月总额度", .monthly, 48)]
-        case .zai: [short, weekly]
+        case .zai, .zhipu, .miniMaxInternational: [short, weekly]
         case .superGrok: [window("superGrok.pool", "每周额度", .weekly, 62)]
         case .qoderInternational: [
             QuotaWindow(id: "qoder.userQuota", name: "个人额度", scope: nil,

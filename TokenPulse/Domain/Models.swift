@@ -4,6 +4,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
     case claude, codex, openCodeGo, zai, superGrok
     case qoderInternational, deepSeek, kimiCode, elevenLabs, poe, vercelAIGateway
+    case zhipu, miniMaxInternational
 
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway }
@@ -11,6 +12,8 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     var displayName: String {
         switch self {
         case .miniMaxChina: "MiniMax 国内版"
+        case .miniMaxInternational: "MiniMax 国际版"
+        case .zhipu: "智谱国内版"
         case .claude: "Claude"
         case .codex: "Codex"
         case .openCodeGo: "OpenCode Go"

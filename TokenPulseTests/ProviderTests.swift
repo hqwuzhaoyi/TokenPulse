@@ -467,3 +467,316 @@ private actor ProviderTransportStub: ProviderTransport {
 
     func requests() -> [URLRequest] { receivedRequests }
 }
+
+final class RegionalProviderTests: XCTestCase {
+    private let zhipuResponse = #"{"success":true,"code":200,"data":{"level":"lite","limits":[{"type":"CREDIT_LIMIT","unit":3,"number":5,"usage":2000,"remaining":2000},{"type":"CREDIT_LIMIT","unit":6,"number":1,"usage":10000,"remaining":2500,"nextResetTime":1789373585999}]}}"#
+    private let miniMaxResponse = #"{"base_resp":{"status_code":0},"model_remains":[{"model_name":"general","current_interval_status":1,"current_interval_total_count":"1000","current_interval_usage_count":"960","current_interval_remaining_percent":"96","start_time":1760000000000,"end_time":1760018000000,"current_weekly_status":1,"current_weekly_total_count":4000,"current_weekly_usage_count":3000,"weekly_end_time":1760600000000}]}"#
+
+    func testZhipuQueriesOnlyMainlandWithProviderBoundKeyAndReportedReset() async throws {
+        let transport = ProviderTransportStub([.response(200, zhipuResponse)])
+        let accountID = UUID()
+        let collectedAt = Date(timeIntervalSince1970: 500)
+        let credential = try ProviderAuthenticationController().credential(provider: .zhipu, apiKey: " mainland-fixture ")
+        let result = try await ProviderQuotaClient(provider: .zhipu, transport: transport, now: { collectedAt })
+            .quotaResult(for: accountID, credential: credential)
+        let requests = await transport.requests()
+        XCTAssertEqual(requests.map(\.url?.absoluteString), ["https://open.bigmodel.cn/api/monitor/usage/quota/limit"])
+        XCTAssertEqual(requests.first?.value(forHTTPHeaderField: "Authorization"), "Bearer mainland-fixture")
+        XCTAssertEqual(requests.first?.httpMethod, "GET")
+        XCTAssertEqual(requests.first?.cachePolicy, .reloadIgnoringLocalCacheData)
+        XCTAssertEqual(result.snapshot.accountID, accountID)
+        XCTAssertEqual(result.snapshot.collectedAt, collectedAt)
+        let short = try XCTUnwrap(result.snapshot.windows.first { $0.period == .fiveHour })
+        let weekly = try XCTUnwrap(result.snapshot.windows.first { $0.period == .weekly })
+        XCTAssertEqual(short.usedPercentage, 0)
+        XCTAssertNil(short.resetsAt)
+        XCTAssertEqual(weekly.usedPercentage, 75)
+        XCTAssertEqual(weekly.resetsAt, Date(timeIntervalSince1970: 1789373585.999))
+        XCTAssertTrue(result.snapshot.windows.allSatisfy { $0.id.hasPrefix("zhipu.") })
+    }
+
+    func testRegionMismatchesFailBeforeSendingAnyCredential() async throws {
+        for (source, destination) in [(Provider.zai, Provider.zhipu), (.zhipu, .zai), (.miniMaxInternational, .zhipu)] {
+            let credential = try ProviderAuthenticationController().credential(provider: source, apiKey: "fixture")
+            let transport = ProviderTransportStub([])
+            do {
+                _ = try await ProviderQuotaClient(provider: destination, transport: transport)
+                    .quota(for: UUID(), credential: credential)
+                XCTFail("Region mismatch must fail")
+            } catch { XCTAssertEqual(error as? ProviderIntegrationError, .invalidCredentialData) }
+            let requests = await transport.requests()
+            XCTAssertTrue(requests.isEmpty)
+        }
+        XCTAssertEqual(try ProviderAuthenticationController().credential(provider: .miniMaxChina, apiKey: " cn-fixture "), "cn-fixture")
+        XCTAssertThrowsError(try ProviderCredentialEnvelope.decode("cn-fixture", expectedProvider: .miniMaxInternational))
+    }
+
+    func testZhipuEnvelopeFailuresKeepAuthenticationAndSubscriptionDistinct() async throws {
+        let cases: [(String, RefreshFailure)] = [
+            (#"{"success":false,"code":1000,"msg":"身份验证失败。"}"#, .invalidCredential),
+            (#"{"success":false,"code":1001}"#, .invalidCredential),
+            (#"{"success":false,"code":401}"#, .invalidCredential),
+            (#"{"success":false,"code":429}"#, .rateLimited),
+            (#"{"success":false,"code":500,"msg":"当前用户不存在coding plan"}"#, .subscriptionRequired),
+            (#"{"success":false,"code":500,"msg":"service failure"}"#, .server),
+            (#"{"success":true,"code":true,"data":{"limits":[]}}"#, .server),
+        ]
+        let credential = try ProviderAuthenticationController().credential(provider: .zhipu, apiKey: "fixture")
+        for (body, expected) in cases {
+            let transport = ProviderTransportStub([.response(200, body)])
+            do {
+                _ = try await ProviderQuotaClient(provider: .zhipu, transport: transport).quota(for: UUID(), credential: credential)
+                XCTFail("Expected refusal")
+            } catch { XCTAssertEqual(error as? RefreshFailure, expected) }
+        }
+    }
+
+    func testZhipuRejectsUnknownOrMalformedDurationsAndPreservesMissingMetrics() {
+        let limits: [[String: Any]] = [
+            ["type": "CREDIT_LIMIT", "unit": 3, "number": 5],
+            ["type": "CREDIT_LIMIT", "unit": 77, "number": 1, "percentage": 10],
+            ["type": "CREDIT_LIMIT", "unit": 3, "number": 1.5, "percentage": 10],
+            ["type": "CREDIT_LIMIT", "unit": true, "number": 5, "percentage": 10],
+            ["type": "CREDIT_LIMIT", "unit": 3, "number": "inf", "percentage": 10],
+            ["type": "CREDIT_LIMIT", "unit": 6, "number": 1, "usage": "NaN", "remaining": true, "percentage": "inf", "nextResetTime": 0],
+            ["type": "UNKNOWN", "unit": 3, "number": 5, "percentage": 10],
+        ]
+        let windows = ZaiProviderClient.windows(limits, provider: .zhipu)
+        XCTAssertEqual(windows.count, 2)
+        XCTAssertTrue(windows.allSatisfy { $0.usedPercentage == nil && $0.remainingCount == nil && $0.totalCount == nil && $0.resetsAt == nil })
+    }
+
+    func testZhipuCountsTakePriorityAndMCPMarkerKeepsMonthlyIdentity() {
+        let windows = ZaiProviderClient.windows([
+            ["type": "CREDIT_LIMIT", "unit": 3, "number": 5, "usage": 1000, "remaining": 247, "percentage": 7],
+            ["type": "CREDIT_LIMIT", "unit": 6, "number": 1, "usage": 1000, "remaining": 247, "currentValue": 600],
+            ["type": "TIME_LIMIT", "unit": 5, "number": 1, "percentage": 10],
+        ], provider: .zhipu)
+        XCTAssertEqual(windows[0].usedPercentage ?? -1, 75.3, accuracy: 0.000001)
+        XCTAssertEqual(windows[1].usedPercentage, 60)
+        XCTAssertEqual(windows[2].period, .monthly)
+        XCTAssertEqual(windows[2].scope, "MCP")
+    }
+
+    func testMiniMaxInternationalQueriesItsHostAndParsesCurrentAndLegacyShapes() async throws {
+        for body in [miniMaxResponse, #"{"base_resp":{"status_code":"0"},"data":{"model_remains":[{"model_name":"general","current_weekly_total_count":"4000","current_weekly_usage_count":"3000"}]}}"#] {
+            let transport = ProviderTransportStub([.response(200, body)])
+            let credential = try ProviderAuthenticationController().credential(provider: .miniMaxInternational, apiKey: " international-fixture ")
+            let result = try await ProviderQuotaClient(provider: .miniMaxInternational, transport: transport)
+                .quotaResult(for: UUID(), credential: credential)
+            let weekly = try XCTUnwrap(result.snapshot.windows.first { $0.period == .weekly })
+            XCTAssertEqual(weekly.usedPercentage, 25)
+            XCTAssertEqual(weekly.remainingCount, 3000)
+            let requests = await transport.requests()
+            XCTAssertEqual(requests.count, 1)
+            XCTAssertEqual(requests.first?.url?.absoluteString, "https://api.minimax.io/v1/token_plan/remains")
+            XCTAssertEqual(requests.first?.value(forHTTPHeaderField: "Authorization"), "Bearer international-fixture")
+            XCTAssertEqual(requests.first?.cachePolicy, .reloadIgnoringLocalCacheData)
+        }
+    }
+
+    func testMiniMaxInternationalFallsBackOnlyFor404AndKeepsSameHost() async throws {
+        let transport = ProviderTransportStub([.response(404, ""), .response(200, miniMaxResponse)])
+        let credential = try ProviderAuthenticationController().credential(provider: .miniMaxInternational, apiKey: "fixture")
+        let snapshot = try await ProviderQuotaClient(provider: .miniMaxInternational, transport: transport)
+            .quota(for: UUID(), credential: credential)
+        XCTAssertEqual(snapshot.windows.first { $0.period == .fiveHour }?.usedPercentage, 4)
+        let requests = await transport.requests()
+        XCTAssertEqual(requests.map(\.url?.absoluteString), ["https://api.minimax.io/v1/token_plan/remains", "https://api.minimax.io/v1/api/openplatform/coding_plan/remains"])
+        XCTAssertTrue(requests.allSatisfy { $0.value(forHTTPHeaderField: "Authorization") == "Bearer fixture" })
+    }
+
+    func testMiniMaxInternationalNeverFallsBackForOtherFailures() async throws {
+        let cases: [(ProviderTransportStub.Outcome, RefreshFailure)] = [
+            (.response(401, ""), .invalidCredential), (.response(403, ""), .invalidCredential),
+            (.response(429, ""), .rateLimited), (.response(500, ""), .server),
+            (.failure(.notConnectedToInternet), .network),
+            (.response(200, "bad json"), .unreadableResponse),
+            (.response(200, #"{"base_resp":{"status_code":1004}}"#), .invalidCredential),
+            (.response(200, #"{"base_resp":{"status_code":2045}}"#), .rateLimited),
+            (.response(200, #"{"base_resp":{"status_code":true}}"#), .unreadableResponse),
+            (.response(200, #"{"base_resp":{"status_code":0}}"#), .noQuotaWindows),
+        ]
+        let credential = try ProviderAuthenticationController().credential(provider: .miniMaxInternational, apiKey: "fixture")
+        for (outcome, expected) in cases {
+            let transport = ProviderTransportStub([outcome, .response(200, miniMaxResponse)])
+            do {
+                _ = try await ProviderQuotaClient(provider: .miniMaxInternational, transport: transport).quota(for: UUID(), credential: credential)
+                XCTFail("Expected original failure")
+            } catch { XCTAssertEqual(error as? RefreshFailure, expected) }
+            let requests = await transport.requests()
+            XCTAssertEqual(requests.count, 1)
+        }
+    }
+
+    func testMiniMaxInternationalCancellationDoesNotMakeFallbackRequest() async throws {
+        let transport = ProviderTransportStub([.failure(.cancelled)])
+        let credential = try ProviderAuthenticationController().credential(provider: .miniMaxInternational, apiKey: "fixture")
+        do {
+            _ = try await ProviderQuotaClient(provider: .miniMaxInternational, transport: transport).quota(for: UUID(), credential: credential)
+            XCTFail("Expected cancellation")
+        } catch { XCTAssertTrue(error is CancellationError) }
+        let requests = await transport.requests()
+        XCTAssertEqual(requests.count, 1)
+    }
+
+    func testMiniMaxInternationalDropsOnlyExplicitlyUnallocatedPoolsAndNeverInventsMissingMetrics() throws {
+        let data = Data(#"{"base_resp":{"status_code":0},"model_remains":[{"model_name":"general","current_interval_status":1,"current_interval_remaining_percent":"NaN","current_interval_total_count":true,"current_weekly_status":3,"current_weekly_total_count":0,"current_weekly_remaining_percent":100},{"model_name":"video","current_interval_status":3,"current_interval_total_count":0,"current_interval_remaining_percent":100,"current_weekly_status":3,"current_weekly_total_count":0,"current_weekly_remaining_percent":100},{"model_name":"audio","current_weekly_status":3,"current_weekly_total_count":0}] }"#.utf8)
+        let snapshot = try MiniMaxQuotaClient.decode(data, accountID: UUID(), collectedAt: Date(), discardUnallocatedPools: true)
+        XCTAssertEqual(snapshot.windows.count, 2)
+        let general = try XCTUnwrap(snapshot.windows.first { $0.id == "general.interval" })
+        XCTAssertNil(general.usedPercentage)
+        XCTAssertNil(general.totalCount)
+        XCTAssertNil(general.resetsAt)
+        XCTAssertEqual(general.period, .other)
+        XCTAssertTrue(snapshot.windows.contains { $0.id == "audio.weekly" })
+        XCTAssertFalse(snapshot.windows.contains { $0.id.hasPrefix("video.") || $0.id == "general.weekly" })
+    }
+
+    func testRegionalWidgetMetricsRetainAllReturnedWindowsAndCollectionTime() throws {
+        for provider in [Provider.zhipu, .miniMaxInternational] {
+            let account = SubscriptionAccount(name: "fixture", provider: provider)
+            let snapshot = DemoMode.snapshot(accountID: account.id, provider: provider, now: Date(timeIntervalSince1970: 100))
+            let widget = WidgetAccountSnapshot(account: account, windows: snapshot.windows, collectedAt: snapshot.collectedAt, lastFailure: nil)
+            XCTAssertEqual(widget.displayMetrics.map(\.window), snapshot.windows.map(Optional.some))
+            XCTAssertEqual(widget.collectedAt, snapshot.collectedAt)
+            XCTAssertEqual(widget.needsUpdate(at: Date(timeIntervalSince1970: 100)), false)
+            XCTAssertEqual(widget.needsUpdate(at: .distantFuture), true)
+            XCTAssertEqual(provider.iconAssetName, provider == .zhipu ? "ProviderZai" : "ProviderMiniMax")
+        }
+    }
+}
+
+extension RegionalProviderTests {
+    @MainActor
+    func testRegionalAccountsRestoreKeepCredentialsAndCacheIsolatedThenDeleteOnlyOneAccount() async throws {
+        let suite = "com.tokenpulse.tests.regional.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let credentials = RegionalTestCredentialStore()
+        let transport = RegionalTestTransport([zhipuResponse, zhipuResponse, zhipuResponse, miniMaxResponse, miniMaxResponse])
+        let monitor = QuotaMonitor(accountStore: LocalAccountStateStore(suiteName: suite), credentialStore: credentials,
+                                   quotaClient: MiniMaxQuotaClient(transport: transport),
+                                   configurationStore: LocalAccountConfigurationStore(suiteName: suite),
+                                   providerClient: { provider in
+            if provider == .miniMaxChina { return MiniMaxQuotaClient(transport: transport) }
+            return ProviderQuotaClient(provider: provider, transport: transport)
+        })
+        await monitor.start(refresh: false)
+        let providers: [Provider] = [.zhipu, .zhipu, .zai, .miniMaxInternational, .miniMaxChina]
+        for (index, provider) in providers.enumerated() {
+            let credential = try ProviderAuthenticationController().credential(provider: provider, apiKey: "fixture-\(index)")
+            await monitor.addAccount(name: "fixture-\(index)", credential: credential, provider: provider)
+        }
+        XCTAssertEqual(monitor.states.map(\.account.provider), providers)
+        XCTAssertTrue(monitor.states.allSatisfy { $0.snapshot?.accountID == $0.id && $0.lastFailure == nil })
+        let requests = await transport.requests()
+        XCTAssertEqual(requests.map(\.url?.host), ["open.bigmodel.cn", "open.bigmodel.cn", "api.z.ai", "api.minimax.io", "api.minimaxi.com"])
+        XCTAssertEqual(requests.map { $0.value(forHTTPHeaderField: "Authorization") }, providers.indices.map { "Bearer fixture-\($0)" })
+        let original = try XCTUnwrap(monitor.states.first)
+        // The stub now rejects every request. A failed refresh must retain its
+        // previous collection time and leave all other account snapshots alone.
+        let otherStates = Array(monitor.states.dropFirst())
+        await monitor.refresh(accountID: original.id)
+        XCTAssertEqual(monitor.states.first?.snapshot, original.snapshot)
+        XCTAssertEqual(monitor.states.first?.lastFailure, .invalidCredential)
+        XCTAssertEqual(Array(monitor.states.dropFirst()), otherStates)
+        let restored = QuotaMonitor(accountStore: LocalAccountStateStore(suiteName: suite), credentialStore: credentials,
+                                    quotaClient: MiniMaxQuotaClient(transport: transport),
+                                    configurationStore: LocalAccountConfigurationStore(suiteName: suite))
+        await restored.start(refresh: false)
+        XCTAssertEqual(restored.states, monitor.states)
+        XCTAssertEqual(restored.configurations.map(\.account.provider), providers)
+        let firstCredential = await credentials.credential(for: original.id)
+        XCTAssertEqual(try ProviderCredentialEnvelope.decode(try XCTUnwrap(firstCredential), expectedProvider: .zhipu).accessToken, "fixture-0")
+        let didDelete = await restored.deleteAccount(accountID: original.id)
+        XCTAssertTrue(didDelete)
+        let deletedCredential = await credentials.credential(for: original.id)
+        XCTAssertNil(deletedCredential)
+        let secondCredential = await credentials.credential(for: otherStates[0].id)
+        XCTAssertNotNil(secondCredential)
+        XCTAssertEqual(restored.states.map(\.id), otherStates.map(\.id))
+        let persistedConfigurations = try await LocalAccountConfigurationStore(suiteName: suite).load()
+        XCTAssertNotNil(persistedConfigurations.first { $0.id == original.id && $0.deletedAt != nil })
+    }
+
+    @MainActor
+    func testReceivingRegionalConfigurationCanRefreshWithoutPhoneMonitor() async throws {
+        for provider in [Provider.zhipu, .miniMaxInternational] {
+            let phoneSuite = "com.tokenpulse.tests.phone.\(UUID().uuidString)"
+            let watchSuite = "com.tokenpulse.tests.watch.\(UUID().uuidString)"
+            defer {
+                UserDefaults(suiteName: phoneSuite)?.removePersistentDomain(forName: phoneSuite)
+                UserDefaults(suiteName: watchSuite)?.removePersistentDomain(forName: watchSuite)
+            }
+            let credentials = RegionalTestCredentialStore()
+            let body = provider == .zhipu ? zhipuResponse : miniMaxResponse
+            let phoneTransport = RegionalTestTransport([body])
+            var phone: QuotaMonitor? = QuotaMonitor(accountStore: LocalAccountStateStore(suiteName: phoneSuite), credentialStore: credentials,
+                quotaClient: ProviderQuotaClient(provider: provider, transport: phoneTransport),
+                configurationStore: LocalAccountConfigurationStore(suiteName: phoneSuite))
+            await phone?.start(refresh: false)
+            await phone?.addAccount(name: "fixture", credential: try ProviderAuthenticationController().credential(provider: provider, apiKey: "fixture"), provider: provider)
+            let configurations = try XCTUnwrap(phone?.configurations)
+            let states = try XCTUnwrap(phone?.states)
+            phone = nil
+            let watchTransport = RegionalTestTransport([body])
+            let collectedAt = Date(timeIntervalSince1970: 999)
+            let watch = QuotaMonitor(accountStore: LocalAccountStateStore(suiteName: watchSuite), credentialStore: credentials,
+                quotaClient: ProviderQuotaClient(provider: provider, transport: watchTransport, now: { collectedAt }),
+                configurationStore: LocalAccountConfigurationStore(suiteName: watchSuite))
+            await watch.start(refresh: false)
+            await watch.mergeSynchronized(configurations: configurations, states: states)
+            await watch.refreshAll()
+            let requests = await watchTransport.requests()
+            XCTAssertEqual(requests.count, 1)
+            XCTAssertEqual(requests.first?.url?.host, provider == .zhipu ? "open.bigmodel.cn" : "api.minimax.io")
+            XCTAssertEqual(watch.states.first?.snapshot?.collectedAt, collectedAt)
+            XCTAssertNil(watch.states.first?.lastFailure)
+        }
+    }
+
+    func testRegionalNotificationsDoNotConvertMissingUsageOrDueTimeIntoConfirmedRecovery() throws {
+        let accountID = UUID()
+        let now = Date(timeIntervalSince1970: 100)
+        let unknown = QuotaWindow(id: "unknown", name: "未知额度", scope: nil, period: .weekly,
+                                  usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(50))
+        let used = QuotaWindow(id: "used", name: "每周额度", scope: nil, period: .weekly,
+                               usedPercentage: 95, remainingCount: 5, totalCount: 100, resetsAt: now.addingTimeInterval(50))
+        let planner = NotificationPlanner()
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [unknown, used], collectedAt: now)
+        let first = planner.planSuccessfulRefresh(accountID: accountID, accountName: "fixture", previousSnapshot: nil,
+                                             newSnapshot: snapshot, settings: AccountReminderSettings(), ledger: ReminderLedger(), now: now)
+        let repeated = planner.planSuccessfulRefresh(accountID: accountID, accountName: "fixture", previousSnapshot: snapshot,
+                                                newSnapshot: snapshot, settings: AccountReminderSettings(), ledger: first.ledger, now: now.addingTimeInterval(100))
+        let delivered = first.operations.compactMap { operation -> ReminderNotification? in
+            if case let .deliver(notification) = operation { return notification }; return nil
+        }
+        XCTAssertEqual(delivered.count, 1)
+        XCTAssertEqual(delivered.first?.kind, .quotaAlert)
+        XCTAssertFalse(delivered.first?.body.contains("未知额度") ?? true)
+        XCTAssertFalse(repeated.operations.contains { operation in
+            if case let .deliver(notification) = operation { return notification.kind == .confirmedReset || notification.kind == .quotaAlert }; return false
+        })
+    }
+}
+
+private actor RegionalTestCredentialStore: CredentialStoring {
+    private var items: [UUID: String] = [:]
+    func save(_ credential: String, for accountID: UUID) { items[accountID] = credential }
+    func credential(for accountID: UUID) -> String? { items[accountID] }
+    func deleteCredential(for accountID: UUID) { items[accountID] = nil }
+}
+
+private actor RegionalTestTransport: ProviderTransport, HTTPTransport {
+    private var bodies: [String]
+    private var receivedRequests: [URLRequest] = []
+    init(_ bodies: [String]) { self.bodies = bodies }
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        receivedRequests.append(request)
+        let status = bodies.isEmpty ? 401 : 200
+        let body = bodies.isEmpty ? "" : bodies.removeFirst()
+        return (Data(body.utf8), HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!)
+    }
+    func requests() -> [URLRequest] { receivedRequests }
+}

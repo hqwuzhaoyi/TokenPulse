@@ -1,4 +1,5 @@
 import Foundation
+import CoreFoundation
 
 protocol HTTPTransport: Sendable {
     func data(for request: URLRequest) async throws -> (Data, URLResponse)
@@ -61,36 +62,41 @@ struct MiniMaxQuotaClient: QuotaQuerying {
         }
     }
 
-    static func decode(_ data: Data, accountID: UUID, collectedAt: Date) throws -> QuotaSnapshot {
+    static func decode(_ data: Data, accountID: UUID, collectedAt: Date,
+                       discardUnallocatedPools: Bool = false) throws -> QuotaSnapshot {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw RefreshFailure.unreadableResponse
         }
 
-        if let baseResponse = root["base_resp"] as? [String: Any],
-           let status = number(baseResponse["status_code"]), status != 0 {
-            switch status {
-            case 1002, 2045:
-                throw RefreshFailure.rateLimited
-            case 1004, 2049:
-                throw RefreshFailure.invalidCredential
-            default:
-                throw RefreshFailure.server
+        if let baseResponse = root["base_resp"] as? [String: Any] {
+            guard let status = number(baseResponse["status_code"]) else { throw RefreshFailure.unreadableResponse }
+            if status != 0 {
+                switch status {
+                case 1002, 2045:
+                    throw RefreshFailure.rateLimited
+                case 1004, 2049:
+                    throw RefreshFailure.invalidCredential
+                default:
+                    throw RefreshFailure.server
+                }
             }
         }
 
         let payload = (root["data"] as? [String: Any]) ?? root
         let models = payload["model_remains"] as? [[String: Any]] ?? []
         let parsedWindows = models.enumerated().flatMap { index, model in
-            Self.windows(from: model, index: index, collectedAt: collectedAt)
+            Self.windows(from: model, index: index, collectedAt: collectedAt,
+                         discardUnallocatedPools: discardUnallocatedPools)
         }.sorted { $0.name < $1.name }
 
         guard !parsedWindows.isEmpty else { throw RefreshFailure.noQuotaWindows }
         return QuotaSnapshot(accountID: accountID, windows: parsedWindows, collectedAt: collectedAt)
     }
 
-    private static func windows(from model: [String: Any], index: Int, collectedAt: Date) -> [QuotaWindow] {
+    private static func windows(from model: [String: Any], index: Int, collectedAt: Date,
+                                discardUnallocatedPools: Bool) -> [QuotaWindow] {
         let rawScope = (model["model_name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let scope = rawScope?.lowercased() == "general" ? nil : rawScope
+        let scope = rawScope?.lowercased() == "general" || rawScope?.isEmpty == true ? nil : rawScope
         let lane = (rawScope?.isEmpty == false ? rawScope! : "lane\(index)")
         var result: [QuotaWindow] = []
 
@@ -104,7 +110,7 @@ struct MiniMaxQuotaClient: QuotaQuerying {
             && weeklyStatus == 3
             && intervalTotal == 0
             && weeklyTotal == 0
-        if modelHasNoQuota { return [] }
+        if modelHasNoQuota && !discardUnallocatedPools { return [] }
 
         let hasIntervalWindow = [
             "current_interval_status",
@@ -116,11 +122,13 @@ struct MiniMaxQuotaClient: QuotaQuerying {
             "remains_time",
         ].contains { model[$0] != nil }
         let intervalUnlimited = intervalStatus == 3
-        if hasIntervalWindow {
+        let intervalUnallocated = intervalStatus == 3 && intervalTotal == 0 && intervalRemainingPercent == 100
+        if hasIntervalWindow && !(discardUnallocatedPools && intervalUnallocated) {
             let remaining = number(model["current_interval_usage_count"])
             let start = millisecondsDate(model["start_time"])
             let end = millisecondsDate(model["end_time"])
-            let hasValidTiming = start.flatMap { start in end.map { $0 > start } } == true
+            let duration = start.flatMap { start in end.map { $0.timeIntervalSince(start).rounded() } }
+            let hasValidTiming = duration.map { $0 >= 1 && $0 < Double(Int.max) } == true
             let resetsAt: Date?
             let name: String
             let period: QuotaPeriod
@@ -160,7 +168,8 @@ struct MiniMaxQuotaClient: QuotaQuerying {
             "weekly_remains_time",
         ].contains { model[$0] != nil }
         let weeklyUnlimited = weeklyStatus == 3
-        if hasWeeklyWindow {
+        let weeklyUnallocated = weeklyStatus == 3 && weeklyTotal == 0 && weeklyRemainingPercent == 100
+        if hasWeeklyWindow && !(discardUnallocatedPools && weeklyUnallocated) {
             let remaining = number(model["current_weekly_usage_count"])
             result.append(QuotaWindow(
                 id: "\(lane).weekly",
@@ -190,7 +199,7 @@ struct MiniMaxQuotaClient: QuotaQuerying {
     }
 
     private static func millisecondsDate(_ value: Any?) -> Date? {
-        number(value).map { Date(timeIntervalSince1970: $0 / 1000) }
+        number(value).flatMap { $0 > 0 ? Date(timeIntervalSince1970: $0 / 1000) : nil }
     }
 
     private static func remainingTimeDate(_ value: Any?, collectedAt: Date) -> Date? {
@@ -199,10 +208,51 @@ struct MiniMaxQuotaClient: QuotaQuerying {
     }
 
     private static func number(_ value: Any?) -> Double? {
-        if let number = value as? NSNumber { return number.doubleValue }
+        if let number = value as? NSNumber {
+            guard CFGetTypeID(number) != CFBooleanGetTypeID(), number.doubleValue.isFinite else { return nil }
+            return number.doubleValue
+        }
         if let text = value as? String {
-            return Double(text.trimmingCharacters(in: .whitespacesAndNewlines))
+            guard let number = Double(text.trimmingCharacters(in: .whitespacesAndNewlines)), number.isFinite else { return nil }
+            return number
         }
         return nil
+    }
+}
+
+/// International accounts always use their own host and a provider-bound Key.
+/// Mainland legacy raw Key storage and query behavior remain compatible.
+struct MiniMaxInternationalProviderClient: Sendable {
+    let transport: any ProviderTransport
+    let now: @Sendable () -> Date
+
+    func quota(accountID: UUID, credential: ProviderCredentialEnvelope) async throws -> ProviderQueryResult {
+        guard credential.provider == .miniMaxInternational, credential.kind == .apiKey else {
+            throw RefreshFailure.invalidCredential
+        }
+        do {
+            let current = try await request(path: "/v1/token_plan/remains", credential: credential)
+            // The documented compatibility condition is a missing current
+            // route. Other failures must not be masked by a second request.
+            let result = current.1.statusCode == 404
+                ? try await request(path: "/v1/api/openplatform/coding_plan/remains", credential: credential)
+                : current
+            if let failure = ProviderHTTP.queryFailure(status: result.1.statusCode) { throw failure }
+            let snapshot = try MiniMaxQuotaClient.decode(result.0, accountID: accountID, collectedAt: now(),
+                                                        discardUnallocatedPools: true)
+            return ProviderQueryResult(snapshot: snapshot, updatedCredential: nil)
+        } catch {
+            throw ProviderHTTP.refreshFailure(error)
+        }
+    }
+
+    private func request(path: String, credential: ProviderCredentialEnvelope) async throws -> (Data, HTTPURLResponse) {
+        var request = URLRequest(url: URL(string: "https://api.minimax.io\(path)")!)
+        request.httpMethod = "GET"
+        request.cachePolicy = .reloadIgnoringLocalCacheData
+        request.timeoutInterval = 15
+        request.setValue("Bearer \(credential.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        return try await ProviderHTTP.send(request, transport: transport)
     }
 }

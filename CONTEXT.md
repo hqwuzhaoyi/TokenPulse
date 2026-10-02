@@ -7,7 +7,7 @@
 **独立刷新**：设备自行获取服务端最新数据，无需另一台设备在线代查。iPhone 不依赖 Mac，Watch 不依赖 iPhone。
 _Avoid_：独立显示（只描述展示能力，不能说明是否可以获取新数据）
 
-**提供商**：被查询的 AI 服务来源；已纳入接入范围的服务为 Claude、Codex、OpenCode Go、Z.ai、MiniMax 国内版、Grok、Qoder 国际版、DeepSeek、Poe、Vercel AI Gateway 和 Kimi Code 国内版。
+**提供商**：被查询的 AI 服务来源；已纳入接入范围的服务为 Claude、Codex、OpenCode Go、Z.ai 国际版、智谱国内版、MiniMax 国内版、MiniMax 国际版、Grok、Qoder 国际版、DeepSeek、Poe、Vercel AI Gateway、ElevenLabs 和 Kimi Code 国内版。地区提供商具有独立账号与凭证；相同品牌不意味着 Key 或套餐可以跨地区使用。
 _Avoid_：账号（账号属于某个提供商，不等于提供商本身）
 
 **服务账号**：用户在某个提供商下配置的账号，可承载套餐额度或 API 钱包余额。同一个提供商可以配置多个服务账号。
