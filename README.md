@@ -29,13 +29,19 @@
 | SuperGrok | 设备码授权 | 每周已用与重置时间 |
 | Qoder 国际版 | 浏览器设备授权 | 个人额度与组织资源包，分别展示 |
 | DeepSeek | API Key | 所选币种的 API 钱包余额 |
+| 智谱国内版 | 国内 Coding Plan Key | 服务返回的额度窗口，含 MCP |
+| MiniMax 国际版 | 国际 Coding Plan Key | 服务返回的短周期与每周额度 |
+| Kimi Code 国内版 | 设备码授权 | 5 小时、每周、每月及加量余额 |
+| Poe | API Key | 剩余 points，非货币积分 |
+| Vercel AI Gateway | AI Gateway API Key | USD 可用余额 |
+| StepFun | 应用内网页登录，选择国内／国际站 | Token Plan 积分或 Coding Plan 窗口 |
 | ElevenLabs | 具备 user_read 权限的 API Key | 账期字符额度与重置时间 |
-| New API | 每账号 HTTPS 服务器地址与网关 Key | 明确币种的钱包余额；无限 Key、Token 或未知单位按原意展示 |
+| New API | 每账号服务器地址与网关 Key（公网 HTTPS／私网 HTTP） | 明确币种的钱包余额；无限 Key、Token 或未知单位按原意展示 |
 | GitHub Copilot | GitHub 设备码授权（read:user） | Premium requests、Chat、Completions，按实际套餐分别显示 |
 
 DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情包含总可用、赠送和充值余额。账号设置可选择概览及提醒币种，低余额默认阈值为 CNY 10 元或 USD 2 美元，可修改。持续低余额只提醒一次，余额恢复后再次降低才重新提醒；余额不足以调用 API 时也会提醒，并合并同次通知。钱包不显示已用百分比或周期重置时间。
 
-New API 每个账号可配置不同的 HTTPS 网关，地址末尾的 `/v1` 会自动移除；更新地址或 Key 后会清除旧余额和提醒身份。公共 `/api/status` 请求不携带 Key。USD/CNY 余额支持低余额提醒，TOKENS、CUSTOM 或未知币种不会被当作货币；不会用历史充值总量推断套餐百分比。HTTP 私网地址目前拒绝，iPhone/Watch 实机、iCloud Keychain 到达和真实 Key 失效尚待验收。
+New API 每个账号可配置不同的网关（公网 HTTPS，明确的私网地址可用 HTTP），地址末尾的 `/v1` 会自动移除；更新地址或 Key 后会清除旧余额和提醒身份。公共 `/api/status` 请求不携带 Key。USD/CNY 余额支持低余额提醒，TOKENS、CUSTOM 或未知币种不会被当作货币；不会用历史充值总量推断套餐百分比。私网连接的系统权限、iPhone/Watch 实机可达性、iCloud Keychain 到达和真实 Key 失效尚待验收。
 
 Qoder 采用参考项目的非公开接口。设备凭证的自动续期不可用，源码核验与真实账号验证边界见 [提供商接入说明](docs/provider-integration.md)。到期时间只表示到期，不推断额度已重置。
 
@@ -98,10 +104,10 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 已有 **103 项自动测试**，覆盖账号隔离、删除与排序、展开布局、持久化、提供商契约、授权恢复、同步控制、提醒规则、小组件数据选择，以及演示模式的数据与通知隔离。
-- 完整 iOS/watchOS 签名构建、iPhone 真机安装与启动已通过。
+- 已有 **238 项自动测试**，覆盖账号隔离、删除与排序、展开布局、持久化、提供商契约、授权恢复、同步控制、提醒规则、小组件数据选择，以及演示模式的数据与通知隔离。
+- 本轮 unsigned App / Watch / Widgets 完整构建及 iPhone 模拟器测试通过；既有版本的 iOS/watchOS 签名构建、iPhone 真机安装与启动曾通过。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
-- 其余提供商真实接入、双端凭证续期、iCloud 到达、后台通知及各类小组件仍需完整实机验收。
+- 新增 8 个提供商及其余未验证接入的真实账号、双端凭证续期、iCloud 到达、后台通知与各类小组件仍需完整实机验收；本轮记录见 [provider 扩展验证](.scratch/provider-expansion/validation-record.md)。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 
@@ -117,7 +123,7 @@ Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_S
 
 除单独标注许可的第三方资源外，TokenPulse 的代码采用 **[Apache License 2.0](LICENSE)**。
 
-版权及来源说明见 [NOTICE](NOTICE)。渠道图标保留 Lobe Icons 的 MIT 许可，完整条款见 [ProviderIconNotices.txt](TokenPulse/Resources/ProviderIconNotices.txt)。
+版权及来源说明见 [NOTICE](NOTICE)。渠道图标分别保留 Lobe Icons 的 MIT 许可与 Vercel 官方资源的 Apache-2.0 许可，完整条款见 [ProviderIconNotices.txt](TokenPulse/Resources/ProviderIconNotices.txt)。
 
 ## 致谢与参考
 

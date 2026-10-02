@@ -1,6 +1,6 @@
 # 12: New API 自定义地址与余额查询
 
-**Status:** implemented-awaiting-integrated-validation (bounded private HTTP implemented; real-account/device acceptance pending)
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 
@@ -19,7 +19,7 @@
 - [ ] iPhone 与 Watch 分别直连提供商查询；Watch 已取得配置和凭证后，不依赖手机或 Mac 在线。
 - [ ] 账号卡片、详情、iPhone 小组件和 Watch 展示保持数值、单位、采集时间与过期状态一致；支持演示数据并保持演示与真实账号隔离。
 - [ ] 适用的额度告警、重置提醒或低余额提醒沿用现有规则；失败保留旧数据，缺失指标不补零，预计重置不等同于确认恢复。
-- [ ] 增加有意义的请求契约、解析边界、账号隔离和提醒行为验证；运行相关测试和完整 unsigned TokenPulse target 构建，覆盖 App、Widgets 与 Watch 资源。
+- [x] 增加有意义的请求契约、解析边界、账号隔离和提醒行为验证；运行相关测试和完整 unsigned TokenPulse target 构建，覆盖 App、Widgets 与 Watch 资源。
 - [ ] 新增图标优先官方资产或既有 Lobe Icons 来源，固定来源版本、记录版权许可，并验证模板渲染与矢量资产。
 - [ ] 记录实际账号查询、凭证失效和双端独立刷新证据；没有凭证或设备时准确保留未验收项，模拟响应通过不能代替真实验收。
 - [ ] 更新提供商支持范围、登录说明、领域用语与验证边界。
@@ -72,3 +72,7 @@
 - [NSAllowsLocalNetworking](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity/nsallowslocalnetworking): local names and IPv4/IPv6; iOS 17 IP default restriction and local-network declaration of intent.
 - [NSExceptionDomains](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity/nsexceptiondomains): iOS 17 supports IP and CIDR dictionary keys, with per-domain insecure HTTP settings.
 - [TN3179 Understanding local network privacy](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy): iPhone usage description, permission handling and `waitsForConnectivity`; watchOS has no local-network privacy feature. These docs justify the bounded declarations but do not substitute for runtime verification.
+
+## 集成验证（2026-10-02，root）
+
+本轮完整 238 项 XCTest 全部通过，unsigned TokenPulse target 构建成功，覆盖 App、两端 Widgets 和 Watch；iPhone 模拟器演示卡片完成查看。分组提交时记录的“待中央构建/测试”已由本次结果补齐，详见[统一验证记录](../validation-record.md)。真实提供商登录/查询、物理 Watch 独立刷新和跨设备 iCloud 到达尚未验收，因此未标完成。

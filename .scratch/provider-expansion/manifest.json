@@ -7,9 +7,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "glmCoding",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/01-zhipu.md",
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 2,
@@ -19,9 +20,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "minimax",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/02-minimax-international.md",
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 3,
@@ -31,9 +33,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "copilot",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/03-copilot.md",
-    "assignee": "sol_copilot"
+    "assignee": "sol_copilot",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 4,
@@ -98,9 +101,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "poe",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/09-poe.md",
-    "assignee": "sol_wallet"
+    "assignee": "sol_wallet",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 10,
@@ -110,9 +114,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "vercelAIGateway",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/10-vercel-ai-gateway.md",
-    "assignee": "sol_wallet"
+    "assignee": "sol_wallet",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 11,
@@ -122,9 +127,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "elevenLabs",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/11-elevenlabs.md",
-    "assignee": "root"
+    "assignee": "root",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 12,
@@ -134,9 +140,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "newAPI",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/12-new-api.md",
-    "assignee": "sol_gateway"
+    "assignee": "sol_gateway",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 13,
@@ -752,9 +759,10 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/40-stepfun.md",
-    "assignee": "sol_web"
+    "assignee": "sol_web",
+    "validationRecord": "validation-record.md"
   },
   {
     "number": 41,
@@ -1343,9 +1351,10 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/63-gemini.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/63-gemini.md"
   },
   {
     "number": 64,
@@ -1364,9 +1373,10 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/64-kiro.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/64-kiro.md"
   },
   {
     "number": 65,
@@ -1385,9 +1395,10 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/65-antigravity.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/65-antigravity.md"
   },
   {
     "number": 66,
@@ -1406,9 +1417,10 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/66-alibaba-token-plan.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/66-alibaba-token-plan.md"
   },
   {
     "number": 67,
@@ -1427,9 +1439,10 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/67-nous-portal.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/67-nous-portal.md"
   },
   {
     "number": 68,
@@ -1448,9 +1461,10 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/68-jetbrains-ai.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/68-jetbrains-ai.md"
   },
   {
     "number": 69,
@@ -1469,8 +1483,9 @@
       "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "awaiting-validation",
     "file": "issues/69-openai-api.md",
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "researchReport": "research/69-openai-api.md"
   }
 ]

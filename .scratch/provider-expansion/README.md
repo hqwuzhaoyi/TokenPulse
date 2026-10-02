@@ -1,6 +1,6 @@
 # TokenPulse provider 扩展 tickets
 
-状态：用户于 2026-10-02 以“可以”批准完整拆分；69 张 tickets 已正式发布至本地 tracker，每票单独成文，初始状态为 `ready-for-agent`。2026-10-02 已创建 6 人 Sol 团队，首批 7 张接入票与 7 张可行性票进入实施；进度见 [团队执行记录](team-progress.md)。
+状态：用户于 2026-10-02 批准 69 张本地 tickets，并启动 6 人 Sol 团队。首批 8 张接入票已实现并通过自动验证，7 张可行性票已完成源码调研；这些票仍待真实账号/设备验证，尚未关闭。详见[团队执行记录](team-progress.md)与[统一验证记录](validation-record.md)。
 
 范围：按 Pulse 固定版本的 77 个内置 provider 对照本地 9 个已接入项，覆盖全部 68 个未接入 provider，并补充 Qoder 国内站。已有 Claude、Codex、OpenCode Go、Kimi Code、Z.ai、MiniMax 国内版、SuperGrok、DeepSeek、Qoder 国际版不重复建接入票。
 
@@ -8,7 +8,7 @@
 
 每张接入票均覆盖账号配置、凭证、双端独立刷新、展示、小组件、适用提醒、演示数据、图标、测试和真实验收。金额余额、积分、token、GPU 时长与套餐配额使用各自单位。无真实凭证时保留未验收状态。
 
-发布方式：沿用仓库已确认的本地 tracker，正式工单位于 `issues/`。`ready-for-agent` 表示工单已准备好；只有所有阻塞票完成后才可领取，不代表实现或真实验收已完成。
+发布方式：沿用仓库已确认的本地 tracker，正式工单位于 `issues/`。`ready-for-agent` 表示工单已准备好；只有所有阻塞票完成后才可领取，不代表实现或真实验收已完成。当前 8 张为 `implemented-awaiting-real-validation`，7 张为 `awaiting-validation`，其余 54 张保持 `ready-for-agent`（其中 29 张当前无阻塞）。
 
 依赖只表达计划中明确复用的能力：12 随 New API 交付按账号配置地址；40 随 StepFun 交付隔离的网页登录与 Cookie 路径；44 随 Devin 交付网页存储凭证提取；60 随 Cursor 交付 Cursor 授权。共享能力与首个真实 provider 一同验收，不另开空壳基础设施票。
 
