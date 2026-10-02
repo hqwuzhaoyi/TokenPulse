@@ -337,6 +337,8 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
         return result
     }
     var isNoPlan: Bool? = nil
+    /// Static provider-confirmed categorical status; never relay arbitrary server HTML.
+    var quotaStatusText: String? = nil
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)
