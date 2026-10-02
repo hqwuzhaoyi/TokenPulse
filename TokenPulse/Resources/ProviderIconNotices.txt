@@ -1695,3 +1695,11 @@ Bifrost: built-in SF Symbol puzzlepiece.extension.fill, supplied by Apple SDK (X
 LiteLLM: Apple SDK SF Symbol puzzlepiece.extension.fill, generic gateway mark supplied by SDK under its SF Symbols terms; no branded bitmap imported. BerriAI/litellm 615ed7900f3bcfd09b324c38c5123eb6ed4769da and Lobe Icons a94750e3/79b551cf were checked; no suitable LiteLLM template mark in the existing vector source.
 
 LLM API Key Proxy: Apple SDK SF Symbol puzzlepiece.extension.fill, generic gateway mark supplied by SDK/SF Symbols terms, no third-party artwork imported. Primary Mirrowel/LLM-API-Key-Proxy adef2d696024f6525887e032c92947581593659b tree has no suitable provider vector; existing Lobe tree no mark.
+
+Xiaomi Coding Plan uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/xiaomimimo.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets explicit dimensions; vector paths remain unchanged.
+
+Qoder mainland reuses ProviderQoder, sourced from Lobe Icons commit a94750e3f5f8fc33757b839d85030e742284e43a as recorded above, under the same Copyright/MIT notice. No replacement or new asset was imported.
+
+Ollama Cloud uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/ollama.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets explicit dimensions, without changing vector paths.
+
+LongCat uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/longcat.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets explicit dimensions, without changing vector paths.

@@ -219,6 +219,26 @@ extension Provider {
         case .replicate: ReplicateProviderClient.loginProfile
         case .mistral: MistralProviderClient.loginProfile
         case .sakana: SakanaProviderClient.loginProfile
+        case .longCat:
+            .init(loginURL: LongCatProviderClient.loginURL, allowedOrigins: [LongCatProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "longcat", title: "LongCat 平台账号", credential: try LongCatProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
+        case .ollamaCloud:
+            .init(loginURL: OllamaCloudProviderClient.loginURL, allowedOrigins: [OllamaCloudProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "ollama", title: "Ollama Cloud 账号", credential: try OllamaCloudProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
+        case .qoderChina:
+            .init(loginURL: QoderChinaProviderClient.loginURL, allowedOrigins: [QoderChinaProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "qoder-cn", title: "Qoder 国内网页账号", credential: try QoderChinaProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
+        case .xiaomiCodingPlan:
+            .init(loginURL: XiaomiCodingPlanProviderClient.loginURL, allowedOrigins: [XiaomiCodingPlanProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "xiaomi", title: "MiMo 控制台账号", credential: try XiaomiCodingPlanProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
         default: nil
         }
     }

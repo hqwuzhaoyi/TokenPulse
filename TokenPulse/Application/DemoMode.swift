@@ -44,6 +44,7 @@ enum DemoMode {
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
             (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"),
+            (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"), (.ollamaCloud, "Ollama Cloud"), (.longCat, "LongCat Token 与燃料包"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -102,6 +103,34 @@ enum DemoMode {
         case .zoomMate: [.init(id: "zoommate.credits", name: "credits 预算", scope: nil, period: .other,
             usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400), unit: "credits",
             exactCounts: .init(used: 400, remaining: 600, total: 1000))]
+        case .longCat: [
+            QuotaWindow(id: "longcat.tokens", name: "当前 Token 包", scope: nil, period: .other,
+                        usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "tokens", exactCounts: .init(used: 1_000_000, remaining: 4_000_000, total: 5_000_000), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "longcat.fuel", name: "补充燃料包总额", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "tokens", exactCounts: .init(used: 250_000, remaining: 750_000, total: 1_000_000), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "longcat.fuel.expiring", name: "即将到期燃料包（补充包子集）", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "tokens", expiresAt: now.addingTimeInterval(10 * 86400), exactCounts: .init(remaining: 100_000), resetSemantics: .nonResettingAllowance)
+        ]
+        case .ollamaCloud: [short, weekly]
+        case .qoderChina: [
+            QuotaWindow(id: "qoderChina.personal", name: "个人额度（含资源包）", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 125, remaining: 375, total: 500), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "qoderChina.team", name: "团队额度", scope: nil, period: .other,
+                        usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "credits", exactCounts: .init(used: 200, remaining: 800, total: 1000), resetSemantics: .nonResettingAllowance)
+        ]
+        case .xiaomiCodingPlan: [
+            QuotaWindow(id: "xiaomi.plan.0", name: "月度 Token 额度", scope: nil, period: .monthly,
+                        usedPercentage: 37.5, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "tokens", exactCounts: .init(used: 3_750_000, remaining: 6_250_000, total: 10_000_000)),
+            QuotaWindow(id: "xiaomi.wallet.CNY", name: "API 钱包余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: .init(currency: "CNY", total: 42.75, granted: 2.75, toppedUp: 40))
+        ]
         case .miniMaxChina: [short]
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]

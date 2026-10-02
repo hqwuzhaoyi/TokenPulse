@@ -40,15 +40,16 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case raycastAI, t3Chat, zoomMate, qwenCloud, typeSafe
     case devin, manus, windsurf
     case replicate, mistral, sakana
+    case xiaomiCodingPlan, qoderChina, ollamaCloud, longCat
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.xiaomiCodingPlan, .sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper, .manus].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .replicate, .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI, .typeSafe: .walletOnly
-        case .sub2api, .sakana, .mistral, .manus, .devin, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
+        case .xiaomiCodingPlan, .sub2api, .sakana, .mistral, .manus, .devin, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -115,6 +116,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .replicate: "Replicate"
         case .mistral: "Mistral"
         case .sakana: "Sakana AI"
+        case .xiaomiCodingPlan: "小米 Coding Plan"
+        case .qoderChina: "Qoder 国内版"
+        case .ollamaCloud: "Ollama Cloud"
+        case .longCat: "LongCat"
         }
     }
 }
