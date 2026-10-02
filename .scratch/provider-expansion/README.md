@@ -1,6 +1,6 @@
 # TokenPulse provider 扩展 tickets
 
-状态：用户于 2026-10-02 以“可以”批准完整拆分；69 张 tickets 已正式发布至本地 tracker，每票单独成文，状态为 `ready-for-agent`。任务尚未开始实现。
+状态：用户于 2026-10-02 以“可以”批准完整拆分；69 张 tickets 已正式发布至本地 tracker，每票单独成文，初始状态为 `ready-for-agent`。2026-10-02 已创建 6 人 Sol 团队，首批 7 张接入票与 7 张可行性票进入实施；进度见 [团队执行记录](team-progress.md)。
 
 范围：按 Pulse 固定版本的 77 个内置 provider 对照本地 9 个已接入项，覆盖全部 68 个未接入 provider，并补充 Qoder 国内站。已有 Claude、Codex、OpenCode Go、Kimi Code、Z.ai、MiniMax 国内版、SuperGrok、DeepSeek、Qoder 国际版不重复建接入票。
 
