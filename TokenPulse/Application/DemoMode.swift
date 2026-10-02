@@ -17,6 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
+            (.raycastAI, "Raycast AI"), (.t3Chat, "T3 Chat"), (.zoomMate, "ZoomMate"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
             (.clawRouter, "ClawRouter"),
             (.aixy, "Aixy"),
@@ -86,6 +87,13 @@ enum DemoMode {
         let short = window("demo.five-hour", "5 小时额度", .fiveHour, 36)
         let weekly = window("demo.weekly", "每周额度", .weekly, 71)
         let windows: [QuotaWindow] = switch provider {
+        case .raycastAI: [.init(id: "raycast.ai_credits", name: "AI credits", scope: nil, period: .other,
+            usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400), unit: "credits",
+            exactCounts: .init(used: 250, remaining: 750, total: 1000))]
+        case .t3Chat: [window("t3chat.four_hour", "4 小时额度", .other, 12.5), window("t3chat.monthly", "每月额度", .monthly, 34.25)]
+        case .zoomMate: [.init(id: "zoommate.credits", name: "credits 预算", scope: nil, period: .other,
+            usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400), unit: "credits",
+            exactCounts: .init(used: 400, remaining: 600, total: 1000))]
         case .miniMaxChina: [short]
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]

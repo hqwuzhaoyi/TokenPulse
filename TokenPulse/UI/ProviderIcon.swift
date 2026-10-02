@@ -35,6 +35,7 @@ extension Provider {
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
         case .venice: "ProviderVenice"
+        case .raycastAI, .t3Chat, .zoomMate: nil
         case .hyper: nil
         case .deepInfra: "ProviderDeepInfra"
         case .kiloCode: "ProviderKiloCode"
@@ -73,6 +74,9 @@ extension Provider {
 
     var systemIconName: String? {
         switch self {
+        case .raycastAI: "sparkles"
+        case .t3Chat: "bubble.left.and.bubble.right.fill"
+        case .zoomMate: "video.fill"
         case .codebuff: "terminal"
         case .neuralwatt: "bolt.circle"
         case .aixy: "network"

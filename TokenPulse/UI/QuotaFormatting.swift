@@ -76,9 +76,9 @@ enum QuotaFormatting {
     }
 
     static func overageDescription(_ window: QuotaWindow) -> String? {
-        guard !window.isUnlimited, window.overagePermitted == true,
+        guard !window.isUnlimited, window.isExhausted != true, window.overagePermitted == true,
               (window.usedPercentage ?? 0) >= 100 || (window.overageCount ?? 0) > 0 else { return nil }
-        if let count = window.overageCount, count > 0 { return "超额付费 \(Self.count(count)) 次" }
+        if let count = window.overageCount, count > 0 { return "超额付费 \(Self.count(count)) \(window.unit ?? "次")" }
         return "可超额付费"
     }
 

@@ -825,3 +825,5 @@ License: Apache License 2.0; full terms reproduced in Factory Droid section.
 Copyright: qunqin24/Pulse contributors; no asset-specific year is asserted.
 TokenPulse changes: currentColor replaced with black, explicit 24x24 dimensions; vector geometry unchanged.
 Official warpdotdev/Warp assets were inspected at 3f37d69ff3e87818d24f803c16b2e045fa4bd95e. README licenses app/assets under AGPLv3; only the UI framework crates use MIT. This generic Apache2 alternative avoids importing that brand asset.
+
+Raycast AI, T3 Chat and ZoomMate: use Apple SF Symbols sparkles, bubble.left.and.bubble.right.fill and video.fill respectively as generic service illustrations, not official brand marks. No third-party artwork is imported. The fixed Lobe Icons catalogue at 79b551cf26aab9ea4ac701fb807160950a5b860f contains no matching static-SVG entries. This follows the generic integration-icon approach of qunqin24/Pulse 397c8fc4f1bd52180a452d2f3f0c099def97cf69, Sources/Pulse/Providers/Profiled/{RaycastAI,T3Chat,ZoomMate}UsageService.swift; no Pulse artwork is copied.
