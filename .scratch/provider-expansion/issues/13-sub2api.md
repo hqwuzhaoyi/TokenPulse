@@ -1,6 +1,6 @@
 # 13: sub2api 分组额度与余额接入
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,8 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/sub2api.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+
+## 2026-10-02 wave3 evidence
+
+`.sub2api` 完整注册，账号地址/Key安全保存和同步、scope/cache/reminder隔离、独立设备GET、四模式Decimal解析、正文凭证拒绝、App/Watch/widget/demo、只适用指标的提醒已实现。官方SVG源glyph资产存在，模板/矢量参数和LGPL来源许可已记录。新增Sub2APIProviderTests及必要小模块Swift6语义检查通过，parse/PBX/diff检查通过；未执行xcodebuild/模拟器/真实Key/真实设备验证，历史清单仍准确保留。root统一运行实际测试和构建。主源固定及全部字段、验证边界见[专属说明](../../../docs/sub2api-provider-integration.md)。

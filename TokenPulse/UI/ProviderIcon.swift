@@ -45,6 +45,7 @@ extension Provider {
         case .elevenLabs: "ProviderElevenLabs"
         case .stepFun: "ProviderStepFun"
         case .newAPI: "ProviderNewAPI"
+        case .sub2api: "ProviderSub2API"
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
         case .clawRouter: "ProviderClawRouter"

@@ -16,7 +16,7 @@ enum DemoMode {
             (.poe, "Poe points"), (.vercelAIGateway, "Vercel AI Gateway 钱包"),
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
-            (.newAPI, "New API 钱包"),
+            (.newAPI, "New API 钱包"), (.sub2api, "sub2api 分组"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
             (.clawRouter, "ClawRouter"),
             (.aixy, "Aixy"),
@@ -224,6 +224,10 @@ enum DemoMode {
                             usedPercentage: 25, remainingCount: 1_200_000_000, totalCount: 1_600_000_000,
                             resetsAt: nil, unit: "积分", expiresAt: now.addingTimeInterval(3 * 86_400))
             ]
+        case .sub2api: [
+            QuotaWindow(id: "sub2api.balance", name: "API 钱包余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD", wallet: WalletBalance(currency: "USD", total: 16.33538288)),
+            QuotaWindow(id: "sub2api.rate.5h", name: "5h 限流额度", scope: "限流", period: .fiveHour, usedPercentage: 91, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3600), unit: "USD", exactCounts: .init(used: 91, remaining: 9, total: 100))
+        ]
         case .newAPI: [
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

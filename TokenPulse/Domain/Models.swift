@@ -13,6 +13,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case zhipu, miniMaxInternational
     case stepFun
     case newAPI
+    case sub2api
     case copilot
     case clinePass
     case clawRouter
@@ -36,12 +37,12 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.sub2api, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI: .walletOnly
-        case .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
+        case .sub2api, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -63,6 +64,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .elevenLabs: "ElevenLabs"
         case .stepFun: "StepFun"
         case .newAPI: "New API"
+        case .sub2api: "sub2api"
         case .copilot: "GitHub Copilot"
         case .clinePass: "ClinePass"
         case .clawRouter: "ClawRouter"

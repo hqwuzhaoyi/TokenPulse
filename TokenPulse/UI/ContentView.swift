@@ -605,7 +605,7 @@ private struct AddAccountView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                if provider == .newAPI && !isDemoMode {
+                if provider.requiresGatewayAddress && !isDemoMode {
                     Section {
                         TextField("https://gateway.example.com/v1", text: $serverAddress)
                             .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -684,7 +684,7 @@ private struct AddAccountView: View {
                                     return
                                 }
                             } catch {
-                                loginMessage = provider == .newAPI ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存登录凭证"
+                                loginMessage = provider.requiresGatewayAddress ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存登录凭证"
                                 saving = false
                                 return
                             }

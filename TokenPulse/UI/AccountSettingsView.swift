@@ -279,7 +279,7 @@ private struct AccountPreferencesView: View {
                                  : "地区与凭证绑定。Key 查询兼容性待验证；要求控制台会话时不会显示零额度。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
-                        if configuration.account.provider == .newAPI {
+                        if configuration.account.provider.requiresGatewayAddress {
                             TextField("服务器地址", text: $serverAddress)
                                 .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
                             Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
@@ -317,7 +317,7 @@ private struct AccountPreferencesView: View {
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
-                                } catch { self.error = configuration.account.provider == .newAPI ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
+                                } catch { self.error = configuration.account.provider.requiresGatewayAddress ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
                             }
                         }.disabled(credential.isEmpty || configuration.account.provider.requiresRegion && region == nil)
                     } else {
