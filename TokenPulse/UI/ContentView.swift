@@ -199,6 +199,9 @@ private struct AccountQuotaView: View {
                             if let plan = snapshot.providerPlanName {
                                 LabeledContent("套餐", value: plan)
                             }
+                            if let status = snapshot.quotaStatusText {
+                                Text(status).font(.subheadline).foregroundStyle(.secondary)
+                            }
                             let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
                             ForEach(detailWindows) { window in
                                 if window.scope == nil || window.hasDetailValues {
@@ -340,7 +343,9 @@ private struct AccountSummaryView: View {
 
             if let snapshot = state.snapshot {
                 Divider()
-                if snapshot.isNoPlan == true {
+                if let status = snapshot.quotaStatusText {
+                    Text(status).font(.subheadline).foregroundStyle(.secondary)
+                } else if snapshot.isNoPlan == true {
                     Text("当前按量计费，没有套餐或 Key 用量上限").font(.subheadline).foregroundStyle(.secondary)
                 }
                 if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.billing" }) {
