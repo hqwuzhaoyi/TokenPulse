@@ -138,5 +138,46 @@
     "commit": "79b551cf26aab9ea4ac701fb807160950a5b860f",
     "path": "packages/static-svg/icons/kiro.svg",
     "sha256": "1e56073e35799b0d7075d5376ca2d99c3d3bbf51a000a1ec3d4b0df7612c91d6"
+  },
+  {
+    "repo": "google-antigravity/antigravity-cli",
+    "commit": "ae27bff644d78ed0c759b4d8a6b79506f1bed96d",
+    "path": "README.md",
+    "sha256": "b92e6a7dfd8b0db2238ad3a31d781a2edc062985baaa4e531f62c8a2bf1f42f2"
+  },
+  {
+    "repo": "google-antigravity/antigravity-cli",
+    "commit": "ae27bff644d78ed0c759b4d8a6b79506f1bed96d",
+    "path": "CHANGELOG.md",
+    "sha256": "7b100c90d46863fc51bc630b968adc6ff054fcfa2d95a0e2ac498a13dbd96ac3"
+  },
+  {
+    "repo": "google-antigravity/antigravity-sdk-python",
+    "commit": "12f9a4c3becf487302dc799b0f59054f01f3ddb9",
+    "path": "README.md",
+    "sha256": "d714441343f6e1404ac6f8aaf35e5ddd30b5af5fbccf91891ab5937e16000b27"
+  },
+  {
+    "repo": "google-antigravity/antigravity-sdk-python",
+    "commit": "12f9a4c3becf487302dc799b0f59054f01f3ddb9",
+    "path": "google/antigravity/models.py",
+    "sha256": "f1d9adc1ed47c8b44622552008f56c9ba7d8975722f93553cdb8b55462b3088c"
+  },
+  {
+    "repo": "google-antigravity/antigravity-sdk-python",
+    "commit": "12f9a4c3becf487302dc799b0f59054f01f3ddb9",
+    "path": "google/antigravity/connections/local/local_connection.py",
+    "sha256": "db0a610331679963761b5c16a7b18f992d18fd6a876fc1e4bbb24f8e0b4c3c18"
+  },
+  {
+    "repo": "antigravity-cli-release",
+    "commit": "1.2.15-5434575321694208",
+    "path": "darwin-arm/cli_mac_arm64.tar.gz",
+    "url": "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.15-5434575321694208/darwin-arm/cli_mac_arm64.tar.gz",
+    "sha512": "1b75da1501ee3e877fa708116f31bd88fabc7f25d8a4b29ef7948b9647d7ad8549b98f6c23418756a38fa210a1a25a526739005ea7b178e50847b67b967cfc7d",
+    "largeArtifact": true,
+    "manifest_url": "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/darwin_arm64.json",
+    "observed_manifest_version": "1.2.15",
+    "observed_manifest_sha256": "77342945c5cc25837c8ff2254620185f955f6b805fe8227bd7ae9f0d9f11250b"
   }
 ]
