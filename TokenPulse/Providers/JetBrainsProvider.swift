@@ -76,8 +76,9 @@ struct JetBrainsProviderClient: Sendable {
     struct JBAMint: Decodable { let access_token: String; let id_token: String; let refresh_token: String? }
     struct AIMint: Decodable { let token: String; let expiresAt: Int64? }
     static func mintExpiry(_ mint: AIMint, now: Date) throws -> Date {
-        guard let milliseconds = mint.expiresAt else { return now.addingTimeInterval(86_400) }
-        guard milliseconds > 0, milliseconds <= 32_503_680_000_000 else { throw RefreshFailure.unreadableResponse }
+        // Fixed official ProvideAccess initializes a 24h client lifetime, using it for absent/nonpositive values.
+        guard let milliseconds = mint.expiresAt, milliseconds > 0 else { return now.addingTimeInterval(86_400) }
+        guard milliseconds <= 32_503_680_000_000 else { throw RefreshFailure.unreadableResponse }
         let expiry = Date(timeIntervalSince1970: Double(milliseconds) / 1_000)
         guard expiry > now else { throw RefreshFailure.unreadableResponse }
         return expiry

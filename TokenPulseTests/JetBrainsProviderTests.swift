@@ -129,11 +129,13 @@ final class JetBrainsProviderTests: XCTestCase {
         XCTAssertThrowsError(try JetBrainsCredential.identity(idToken(subject: "")))
         XCTAssertThrowsError(try JetBrainsCredential.identity(idToken(expiry: -1)))
     }
-    func testMintExpiryRejectsPresentNonpositiveStaleOrOverflowAndOnlyMissingUsesKnownDefault() throws {
-        for milliseconds: Int64 in [-1, 0, 999_999, Int64.max] {
+    func testMintExpiryUsesOfficialNonpositiveSentinelAndRejectsPositiveStaleOrOverflow() throws {
+        for milliseconds: Int64 in [999_999, Int64.max] {
             XCTAssertThrowsError(try JetBrainsProviderClient.mintExpiry(.init(token: "fixture", expiresAt: milliseconds), now: now))
         }
-        XCTAssertEqual(try JetBrainsProviderClient.mintExpiry(.init(token: "fixture", expiresAt: nil), now: now), now.addingTimeInterval(86_400))
+        for milliseconds: Int64? in [nil, 0, -1] {
+            XCTAssertEqual(try JetBrainsProviderClient.mintExpiry(.init(token: "fixture", expiresAt: milliseconds), now: now), now.addingTimeInterval(86_400))
+        }
         XCTAssertEqual(try JetBrainsProviderClient.mintExpiry(.init(token: "fixture", expiresAt: 3_600_123), now: now), Date(timeIntervalSince1970: 3_600.123))
     }
     func testInitialImportExactRoutesPublicClientAndCheckpointBeforeSigning() async throws {
