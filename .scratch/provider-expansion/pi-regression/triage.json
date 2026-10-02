@@ -4,14 +4,16 @@
     "finding": "Claude legacy session lacks source identity; new logins unbound",
     "status": "fixed",
     "commit": "7f9061e",
-    "validation": "619-test full run passed including seven new scope tests"
+    "validation": "619-test full run passed including seven new scope tests",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI01-2",
     "finding": "WK representable keeps old browser after same-site restart",
     "status": "fixed",
     "commit": "0477a43",
-    "validation": "source identity fix; simulator/unsigned build passed, no live login UI claim"
+    "validation": "source identity fix; simulator/unsigned build passed, no live login UI claim",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI02-1",
@@ -19,42 +21,48 @@
     "status": "fixed",
     "owner": "sol_wallet",
     "commit": "a09e810 + 816e422",
-    "validation": "629-test full run passed; preserves cycles, schedules, empty frames, separate wallet ordering and binding cleanup"
+    "validation": "629-test full run passed; preserves cycles, schedules, empty frames, separate wallet ordering and binding cleanup",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI02-2",
     "finding": "legacy Chutes floating-point false exhaustion",
     "status": "fixed",
     "commit": "1ea96f2",
-    "validation": "native red/green and 619-test full run passed"
+    "validation": "native red/green and 619-test full run passed",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI02-3",
     "finding": "tiny nonzero balances rendered as zero",
     "status": "fixed",
     "commit": "378dae7",
-    "validation": "shared formatting regression passed"
+    "validation": "shared formatting regression passed",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI03-1",
     "finding": "T3 null primary reset does not use valid fallback",
     "status": "fixed",
     "commit": "f0c198f",
-    "validation": "14 hosted/Qwen regression tests passed"
+    "validation": "14 hosted/Qwen regression tests passed",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI03-2",
     "finding": "Qwen no-plan response receives possibly historical tier label",
     "status": "fixed",
     "commit": "f0c198f",
-    "validation": "14 hosted/Qwen regression tests passed"
+    "validation": "14 hosted/Qwen regression tests passed",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "ROOT-1",
     "finding": "ZoomMate alternate-host retry also includes non-auth HTTP 4xx",
     "status": "fixed",
     "commit": "46c8aee",
-    "validation": "three failing request-count assertions reproduced then 10 related tests passed"
+    "validation": "three failing request-count assertions reproduced then 10 related tests passed",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI05",
@@ -73,7 +81,8 @@
     "finding": "Manus derives zero used when remaining exceeds nominal allowance",
     "status": "fixed",
     "commit": "e6e6932",
-    "validation": "Keeps reported quantities and leaves inferred usage unknown; covered in 629-test full run"
+    "validation": "Keeps reported quantities and leaves inferred usage unknown; covered in 629-test full run",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI07",
@@ -84,9 +93,10 @@
   {
     "id": "PI08-F1-F2",
     "finding": "Mistral multi-argument flight push and Sakana inline-title variants",
-    "status": "fixed-pending-final-test",
+    "status": "fixed",
     "commit": "1863fec",
-    "validation": "Bounded offline robustness improvement, not a claimed live outage; parser tests passed within last full run, which separately found an API-kind guard regression"
+    "validation": "Bounded offline robustness improvement, not a claimed live outage; parser tests passed within last full run, which separately found an API-kind guard regression",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
   },
   {
     "id": "PI08-F3",
@@ -115,8 +125,16 @@
   {
     "id": "ROOT-2",
     "finding": "Legacy API-key envelopes without identity can retain the previous Key cache on replacement failure",
-    "status": "fixed-pending-final-test",
+    "status": "fixed",
     "commit": "e0f45d2 + 66778f3",
-    "validation": "Native red/green reproduced stale cache/cloud merge; new tests passed; original wrong-kind guard restored after full-suite failure"
+    "validation": "Native red/green reproduced stale cache/cloud merge; new tests passed; original wrong-kind guard restored after full-suite failure",
+    "finalValidation": "638 XCTest, zero failures; unsigned all-target build at 4adb520"
+  },
+  {
+    "id": "ROOT-3",
+    "finding": "Legacy MiniMax raw Key replacement can retain old cache and accept old cloud data",
+    "status": "fixed",
+    "commit": "4adb520",
+    "validation": "Raw Key storage/wire representation and demo compatibility preserved; native red/green plus 638-test full run"
   }
 ]

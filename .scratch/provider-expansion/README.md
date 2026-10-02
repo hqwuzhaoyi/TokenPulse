@@ -1,6 +1,6 @@
 # TokenPulse provider 扩展 tickets
 
-状态（0477a43文档快照）：全部25张第三批接入票已集成，原有9个+首批8个+第二批29个+第三批25个=71个provider。71个图标均存在，62张integration已按用户“完整实现+图标存在”标准done；7张feasibility研究票仍未完成，也未伪加为入口。root实跑71入口完整XCTest607项、0 failures；unsigned71构建正在进行，后续Pi修复/构建结果由root补充。真实账号/设备事实保留，不再作为接入关票条件。见[图标验收](icon-acceptance.md)、[第三批记录](wave3-progress.md)及[统一验证记录](validation-record.md)。
+状态（2026-10-03最终记录）：第三批25张接入票与回归修复已完成，项目共71个provider。全部71个图标存在，62张integration按用户“实现完成+图标存在”标准done；7张feasibility研究票未完成，未冒充正式接入。最终638项XCTest零失败，unsigned App/Watch/两端Widgets构建通过；10组Pi报告已归档并逐项处理。真实账号/设备事实独立保留，不作为接入关票门槛。见[图标验收](icon-acceptance.md)、[Pi回归](pi-regression/README.md)、[第三批记录](wave3-progress.md)和[统一验证记录](validation-record.md)。
 
 范围：按 Pulse 固定版本的 77 个内置 provider 对照本地 9 个已接入项，覆盖全部 68 个未接入 provider，并补充 Qoder 国内站。已有 Claude、Codex、OpenCode Go、Kimi Code、Z.ai、MiniMax 国内版、SuperGrok、DeepSeek、Qoder 国际版不重复建接入票。
 
@@ -23,7 +23,7 @@
 
 原blockers保留作为依赖溯源。按用户新验收标准，12/40/60先done后已进入相关后继，44 Devin完成后62 Windsurf已继续并完成；61 Grok Bot也已实现独立范围。它们的真实会话/双端兼容仍未凭代码自动验证。7份研究报告的候选路径或旧本地架构限制不是正式接入结论，63–69继续awaiting-validation。
 
-10个Pi冻结快照任务仍在执行：zcode/glm-5.3-flash因503改为cch/glm-5.3、4并发，目前仅01报告完成。发现Claude旧会话scope及WK重启问题，root于0477a43修WK，sol_web处理Claude；未宣称全部审查通过。607项全量通过与后续Pi结果/修复分开记录，不动root管理的报告目录。
+10个Pi冻结快照任务已全部交付报告。初始路由503后改用cch/glm-5.3并按4并发完成；上游超时与已产出报告分别记录，未将CLI退出码0当作测试通过。确认修复及未采纳建议见[Pi处理记录](pi-regression/triage.json)，最终代码4adb520已完成638项全测和unsigned构建。
 
 修正先前调研：Aixy、ClawRouter 的上游实现仅使用固定托管地址，不依赖 12；GitKraken 使用会话 access token，需要明确失效与重新配置。
 

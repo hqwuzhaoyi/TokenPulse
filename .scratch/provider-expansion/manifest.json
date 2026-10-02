@@ -228,7 +228,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/sub2api-provider-integration.md"
+    "implementationRecord": "../../docs/sub2api-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 14,
@@ -247,7 +249,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/bifrost-provider-integration.md"
+    "implementationRecord": "../../docs/bifrost-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 15,
@@ -266,7 +270,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/litellm-provider-integration.md"
+    "implementationRecord": "../../docs/litellm-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 16,
@@ -969,7 +975,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/llm-proxy-provider-integration.md"
+    "implementationRecord": "../../docs/llm-proxy-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 38,
@@ -1094,7 +1102,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/xiaomi-coding-plan-integration.md"
+    "implementationRecord": "../../docs/xiaomi-coding-plan-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 42,
@@ -1126,7 +1136,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/qoder-mainland-integration.md"
+    "implementationRecord": "../../docs/qoder-mainland-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 43,
@@ -1158,7 +1170,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/ollama-cloud-integration.md"
+    "implementationRecord": "../../docs/ollama-cloud-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 44,
@@ -1190,7 +1204,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/devin-provider-integration.md"
+    "implementationRecord": "../../docs/devin-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 45,
@@ -1222,7 +1238,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/abacus-integration.md"
+    "implementationRecord": "../../docs/abacus-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 46,
@@ -1254,7 +1272,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/augment-code-provider-integration.md"
+    "implementationRecord": "../../docs/augment-code-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 47,
@@ -1286,7 +1306,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/longcat-integration.md"
+    "implementationRecord": "../../docs/longcat-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 48,
@@ -1318,7 +1340,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/manus-provider-integration.md"
+    "implementationRecord": "../../docs/manus-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 49,
@@ -1350,7 +1374,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/mistral-provider-integration.md"
+    "implementationRecord": "../../docs/mistral-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 50,
@@ -1382,7 +1408,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/notion-ai-integration.md"
+    "implementationRecord": "../../docs/notion-ai-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 51,
@@ -1414,7 +1442,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/perplexity-integration.md"
+    "implementationRecord": "../../docs/perplexity-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 52,
@@ -1447,7 +1477,9 @@
     "implementationRecord": "../../docs/qwen-cloud-integration.md",
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
-    "integrationBaseline": "0477a43"
+    "integrationBaseline": "0477a43",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 53,
@@ -1480,7 +1512,9 @@
     "implementationRecord": "../../docs/raycast-ai-integration.md",
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
-    "integrationBaseline": "0477a43"
+    "integrationBaseline": "0477a43",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 54,
@@ -1512,7 +1546,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/replicate-provider-integration.md"
+    "implementationRecord": "../../docs/replicate-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 55,
@@ -1544,7 +1580,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/sakana-provider-integration.md"
+    "implementationRecord": "../../docs/sakana-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 56,
@@ -1577,7 +1615,9 @@
     "implementationRecord": "../../docs/t3-chat-integration.md",
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
-    "integrationBaseline": "0477a43"
+    "integrationBaseline": "0477a43",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 57,
@@ -1610,7 +1650,9 @@
     "implementationRecord": "../../docs/typesafe-integration.md",
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
-    "integrationBaseline": "0477a43"
+    "integrationBaseline": "0477a43",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 58,
@@ -1642,7 +1684,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/zed-provider-integration.md"
+    "implementationRecord": "../../docs/zed-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 59,
@@ -1675,7 +1719,9 @@
     "implementationRecord": "../../docs/zoommate-integration.md",
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
-    "integrationBaseline": "0477a43"
+    "integrationBaseline": "0477a43",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 60,
@@ -1740,7 +1786,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/grok-bot-provider-integration.md"
+    "implementationRecord": "../../docs/grok-bot-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 62,
@@ -1772,7 +1820,9 @@
     "iconAcceptance": "icon-acceptance.md",
     "validationRecord": "validation-record.md",
     "integrationBaseline": "0477a43",
-    "implementationRecord": "../../docs/windsurf-provider-integration.md"
+    "implementationRecord": "../../docs/windsurf-provider-integration.md",
+    "validationCommit": "4adb520",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 63,

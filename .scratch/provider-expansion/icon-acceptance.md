@@ -2,7 +2,7 @@
 
 2026-10-02，按用户最新要求：完整接入实现且图标存在即可验收，不再以真实账号/设备作为接入关票条件。此记录依据0477a43的71个provider映射，全部已集成且无缺图；不包括7家仍在可行性研究的来源，不以图标假称它们已接入。
 
-71映射实查：56个provider映射到53个SVG image sets（MiniMax、Z.ai/智谱、Qoder地区复用），15个使用8种SF Symbol。53套映射资源文件都存在且XML可解析、明确尺寸、无currentColor，image sets开启vector preservation和template rendering。root已实际查询8种系统符号均存在；本次文档工作者仅静态复核映射、资源与metadata，没有运行Xcode/模拟器或改变资源。新71入口unsigned构建仍由root执行，不能以旧46入口构建推为全部新资源已编译。
+71映射实查：56个provider映射到53个SVG image sets（MiniMax、Z.ai/智谱、Qoder地区复用），15个使用8种SF Symbol。53套映射资源文件都存在且XML可解析、明确尺寸、无currentColor，image sets开启vector preservation和template rendering。root已实际查询8种系统符号均存在；本次文档工作者仅静态复核映射、资源与metadata，没有运行Xcode/模拟器或改变资源。最终71入口unsigned构建已实际通过（代码4adb520，/tmp/tokenpulse-wave3-final-unsigned.log），覆盖App、Watch、两端Widgets与资产目录。
 
 许可来源主要为Lobe Icons及各官方仓库，固定提交/路径/版权/许可见 `TokenPulse/Resources/ProviderIconNotices.txt`，本次未修改notices或图形。通用图标共18个：15个SF映射加DevPass/Warp/Zed的3套通用SVG。它们满足图标存在，但通用符号不称官方品牌logo；GitKraken使用已许可官方GitLens客户端符号，也不冒称未有许可的站点mark。
 

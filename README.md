@@ -166,12 +166,12 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 全部71个入口整合后，root实际运行完整iPhone模拟器XCTest **607项通过，0 failures**，日志 `/tmp/tokenpulse-wave3-all71-v2.log`、结果包 `/tmp/tokenpulse-wave3-all71-v2.xcresult`。此前第二批465项是历史基线；607项不等于后续Pi发现/修复已全部复测。
-- 71入口unsigned App/Watch/两端Widgets构建正在由root统一执行，结果待[统一验证记录](.scratch/provider-expansion/validation-record.md)补齐。历史版本的unsigned/签名构建、iPhone真机安装与启动属于各自版本证据。
+- 最终代码 `4adb520` 的完整 iPhone 模拟器 XCTest **638 项通过，0 failures**，日志 `/tmp/tokenpulse-wave3-final.log`、结果包 `/tmp/tokenpulse-wave3-final.xcresult`。包含第三批实现与采用的 Pi 回归修复。
+- 同一源码的 unsigned App／Watch／两端 Widgets 构建通过，日志 `/tmp/tokenpulse-wave3-final-unsigned.log`；71个图标映射、53个image sets与15个SF映射均已核验。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
-- root 已抽查新增账号卡片的可访问性信息，重点截图核对混合钱包、单位、持续补充、日期、IBM 未提供预算和 Warp 到期，添加表单菜单可打开。完整 UI/各尺寸组件、真实授权流程与物理设备仍未验收；首批截图也不替代本批完整视觉验收。
+- 第二批46入口版本曾做演示卡片截图/可访问性抽查；本次71入口验证包含图标、注册、自动化测试和完整构建，没有把此前截图作为新增25家真实登录或全尺寸视觉验收。
 - 62张接入票已按最新图标存在标准关闭；真实账号、生产接口/权限/单位、凭证生命周期、iCloud到达、物理Watch手机离线直查及完整组件/通知仍保留实际未验证说明，已不阻塞关票。7张研究票仍未完成，也没有伪列为已接入提供商。
-- 10个Pi冻结快照审查仍在运行：最初zcode/glm-5.3-flash出现503，现改为cch/glm-5.3、4并发；只有报告01已完成。该报告发现Claude旧会话scope及WK重启问题，root在0477a43修复WK重建，Claude修复由sol_web进行；不宣称Pi全通过或这些后续变更已包含在607项结果中。报告和最终回归由root维护。
+- **10组Pi回归报告已全部交付并审阅**。确认的问题及有界解析改进已处理并进入最终638项测试；Replicate部分枚举建议未采纳，许可缺失观察已纠正。见[Pi报告与处理记录](.scratch/provider-expansion/pi-regression/README.md)及[统一验证记录](.scratch/provider-expansion/validation-record.md)。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 

@@ -18,15 +18,15 @@
 
 表中各组全部交付已整合。root完成52 Qwen/53 Raycast/56 T3/57 TypeSafe/59 ZoomMate；research完成49 Mistral/54 Replicate/55 Sakana（57在实现前转给root）。44 Devin完成后62 Windsurf继续并完成，原依赖关系保留溯源，未替换成真实授权通过声明。
 
-## 自动验证与图标验收
+## 最终验证
 
-- 公共框架/局部整合的473项、Qwen等9项定向测试属于历史中间结果。71入口完整XCTest已实际执行607项、0 failures，日志 `/tmp/tokenpulse-wave3-all71-v2.log`、结果包 `/tmp/tokenpulse-wave3-all71-v2.xcresult`。
-- unsigned71多目标构建正在root串行执行，结果待root记录，不能用旧46入口build推作本轮通过。
-- root实查71图标无缺失，56资产映射使用53个image sets，15 SF映射使用8个已存在的系统符号；18个通用图标明确标注，见[icon-acceptance](icon-acceptance.md)。当前25票Status统一done/current gate[x]，历史真实清单不伪勾。
-- 私有查询/登录兼容、真实字段单位/权利范围、Cookie/Token生命周期、iCloud/物理Watch、后台通知与全部UI仍保留未验证边界。根本没有加入7个research provider，不以icon或stub关研究票。
+- 代码提交4adb520：638项完整XCTest通过、0 failures；日志 `/tmp/tokenpulse-wave3-final.log`，结果包 `/tmp/tokenpulse-wave3-final.xcresult`。
+- 同源码unsigned TokenPulse target构建通过，包含App、Watch、两端Widgets和资产目录：`/tmp/tokenpulse-wave3-final-unsigned.log`。
+- root实查71图标，56资产映射使用53个image sets，15个SF映射使用8个存在的系统符号；18个通用图标明确标注。25张第三批票done/current gate[x]；加此前37张共62张接入票关闭，7张研究票独立保留。
+- 公共/阶段性473、607、619、629项等记录属于中间状态，最终以638项结果为准。真实账号、物理Watch和完整界面观察不因代码测试而被改写为已实测，也不再作为当前接入关票门槛。
 
-## Pi冻结快照审查（尚未全部完成）
+## Pi批量回归
 
-用户要求10个独立审查任务。最初zcode/glm-5.3-flash发生503后，改用cch/glm-5.3、4并发；当前仅报告01完成，不能宣称Pi10全过。Pi不运行Xcode/模拟器、不修改工作分支，root复现、分派和管理报告。
+10个冻结快照任务均已交付并审阅。最初默认zcode/glm-5.3-flash返回503，改用已有cch/glm-5.3、4并发；部分代理524保留记录，已产出且审阅的完整报告不因收尾模型超时重复执行。Pi仅做本地源码、静态/脚本和独立生产代码harness，不执行Xcode/模拟器，不读取真实账号。root统一运行完整XCTest。
 
-报告01发现Claude旧会话scope及WK重启问题。root在0477a43重建登录浏览器，sol_web正在修Claude范围；这些后续修复不自动包含在607项结果中。其余报告、复现修复、最终全量和unsigned结果由root补到[统一验证记录](validation-record.md)。本次文档整理不改Pi报告目录或validation-record。
+采用的修复包括Claude及API Key/原始MiniMax来源隔离、WK浏览器重建、乱序额度与计划保护、Chutes legacy Decimal、微小余额显示、T3空reset回退、Qwen无套餐标签、Manus未知推导、有界Mistral/Sakana解析。root另用红→绿回归修复ZoomMate仅网络/5xx才能换主机的边界。完整报告、未采纳建议及验证状态见[Pi记录](pi-regression/README.md)。
