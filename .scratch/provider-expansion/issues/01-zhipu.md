@@ -1,6 +1,6 @@
 # 01: 智谱国内版套餐额度接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderZai`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 国内与国际服务明确区分；Key、缓存和查询地址按服务账号绑定，国内 Key 不发送到国际站。
 - [ ] 显示服务实际返回的各额度窗口与重置时间；复用解析前验证国内响应的状态码、单位与缺失字段语义。

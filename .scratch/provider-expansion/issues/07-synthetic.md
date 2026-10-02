@@ -1,6 +1,6 @@
 # 07: Synthetic 多窗口额度接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`puzzlepiece.extension.fill`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 解析不同窗口各自的计数或比例语义，搜索额度保留独立标识和单位。
 - [ ] 滚动恢复的下一次补充时间不作为完整额度重置时间，不据此预排重置提醒或反复触发窗口翻转。

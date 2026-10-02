@@ -1,6 +1,6 @@
 # 35: Aixy 托管网关预算
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`network`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 使用上游已核实的固定托管地址，本票不添加未验证的自定义部署能力。
 - [ ] 硬预算的已花费加预留与监控预算的支出分开解释；过滤其他 Key 或项目，不混用周期。

@@ -1,6 +1,6 @@
 # 29: Neuralwatt 订阅与钱包
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`bolt.circle`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 三个计量系统保持独立单位和身份；只对明确提供的总额绘制使用率。
 - [ ] 账期结束仅用于相应套餐，钱包没有重置；缺失数值不补零。

@@ -141,7 +141,7 @@ Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_S
 - 同一提交的 unsigned TokenPulse target 完整构建通过，覆盖 App、Watch、两端 Widgets 与资产目录。日志为本机 `/tmp/tokenpulse-sol-wave2-verified.log` 和 `/tmp/tokenpulse-sol-wave2-verified-unsigned.log`；既有版本的签名构建、iPhone 真机安装与启动属于历史证据。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - root 已抽查新增账号卡片的可访问性信息，重点截图核对混合钱包、单位、持续补充、日期、IBM 未提供预算和 Warp 到期，添加表单菜单可打开。完整 UI/各尺寸组件、真实授权流程与物理设备仍未验收；首批截图也不替代本批完整视觉验收。
-- 新增 37 个入口的真实账号、当前接口兼容、凭证生命周期、iCloud 到达、物理 Watch 手机离线直查、后台通知与组件仍待验收。7 张研究票和 25 张依赖票均未完成；审查修复与最终验证详见[扩展进度](.scratch/provider-expansion/README.md)及由 root 维护的[统一验证记录](.scratch/provider-expansion/validation-record.md)。
+- 按用户最新“图标存在即可”验收标准，46个provider均通过图标检查，37张接入票已关闭。9个provider采用通用图标，详见[图标验收](.scratch/provider-expansion/icon-acceptance.md)。真实账号/设备验证记录保留，不再阻塞关票；另有7张研究票与25张未实施接入票（24张已解除依赖）。审查修复与最终验证详见[扩展进度](.scratch/provider-expansion/README.md)及由 root 维护的[统一验证记录](.scratch/provider-expansion/validation-record.md)。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 

@@ -7,10 +7,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "glmCoding",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/01-zhipu.md",
     "assignee": "sol_regional",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 2,
@@ -20,10 +22,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "minimax",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/02-minimax-international.md",
     "assignee": "sol_regional",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 3,
@@ -33,10 +37,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "copilot",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/03-copilot.md",
     "assignee": "sol_copilot",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 4,
@@ -46,14 +52,16 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "moonshot",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/04-moonshot.md",
     "assignee": "sol_regional",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/moonshot-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 5,
@@ -63,14 +71,16 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "alibabaCodingPlan",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/05-alibaba-coding-plan.md",
     "assignee": "sol_regional",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/alibaba-coding-plan-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 6,
@@ -80,14 +90,16 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "factory",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/06-factory.md",
     "assignee": "sol_copilot",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/factory-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 7,
@@ -97,14 +109,16 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "synthetic",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/07-synthetic.md",
     "assignee": "sol_web",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/synthetic-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 8,
@@ -114,14 +128,16 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "v2ex",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/08-v2ex.md",
     "assignee": "sol_web",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/v2ex-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 9,
@@ -131,10 +147,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "poe",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/09-poe.md",
     "assignee": "sol_wallet",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 10,
@@ -144,10 +162,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "vercelAIGateway",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/10-vercel-ai-gateway.md",
     "assignee": "sol_wallet",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 11,
@@ -157,10 +177,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "elevenLabs",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/11-elevenlabs.md",
     "assignee": "root",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 12,
@@ -170,10 +192,12 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "newAPI",
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/12-new-api.md",
     "assignee": "sol_gateway",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 13,
@@ -234,14 +258,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/16-command-code.md",
     "assignee": "sol_research",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/command-code-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 17,
@@ -263,14 +289,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/17-amp.md",
     "assignee": "sol_research",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/amp-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 18,
@@ -292,14 +320,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/18-atlas-cloud.md",
     "assignee": "sol_wallet",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/atlas-cloud-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 19,
@@ -321,14 +351,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/19-chutes.md",
     "assignee": "sol_regional",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/chutes-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 20,
@@ -350,14 +382,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/20-clinepass.md",
     "assignee": "root",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/clinepass-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 21,
@@ -379,14 +413,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/21-codebuff.md",
     "assignee": "root",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/codebuff-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 22,
@@ -408,14 +444,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/22-deepinfra.md",
     "assignee": "sol_wallet",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/deepinfra-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 23,
@@ -437,14 +475,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/23-devpass.md",
     "assignee": "sol_copilot",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/devpass-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 24,
@@ -466,14 +506,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/24-gitkraken.md",
     "assignee": "sol_research",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/gitkraken-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 25,
@@ -495,14 +537,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/25-hugging-face.md",
     "assignee": "sol_research",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/hugging-face-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 26,
@@ -524,14 +568,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/26-hyper.md",
     "assignee": "sol_wallet",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/hyper-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 27,
@@ -553,14 +599,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/27-ibm-bob.md",
     "assignee": "sol_gateway",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/ibm-bob-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 28,
@@ -582,14 +630,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/28-kilo-code.md",
     "assignee": "sol_wallet",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/kilo-code-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 29,
@@ -611,14 +661,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/29-neuralwatt.md",
     "assignee": "root",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/neuralwatt-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 30,
@@ -640,14 +692,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/30-v0.md",
     "assignee": "sol_copilot",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/v0-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 31,
@@ -669,14 +723,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/31-venice.md",
     "assignee": "sol_wallet",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/venice-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 32,
@@ -698,14 +754,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/32-warp.md",
     "assignee": "sol_copilot",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/warp-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 33,
@@ -727,14 +785,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/33-xkiro.md",
     "assignee": "sol_web",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/xkiro-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 34,
@@ -756,14 +816,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/34-zenmux.md",
     "assignee": "sol_web",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/zenmux-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 35,
@@ -785,14 +847,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/35-aixy.md",
     "assignee": "root",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/aixy-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 36,
@@ -814,14 +878,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/36-clawrouter.md",
     "assignee": "root",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/clawrouter-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 37,
@@ -868,14 +934,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/38-xai-api.md",
     "assignee": "sol_gateway",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/xai-api-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 39,
@@ -897,14 +965,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/39-volcengine.md",
     "assignee": "sol_gateway",
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/volcengine-provider-integration.md",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 40,
@@ -927,10 +997,12 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/40-stepfun.md",
     "assignee": "sol_web",
-    "validationRecord": "validation-record.md"
+    "validationRecord": "validation-record.md",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 41,
@@ -1447,14 +1519,16 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "implemented-awaiting-real-validation",
+    "status": "done",
     "file": "issues/60-cursor.md",
     "validationRecord": "validation-record.md",
     "wave": 2,
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/cursor-mobile-integration.md",
     "assignee": "sol_regional",
-    "validationCommit": "c5e3382"
+    "validationCommit": "c5e3382",
+    "acceptanceBasis": "provider-icon-exists",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 61,

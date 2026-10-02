@@ -4,7 +4,7 @@
 
 ## 提供商扩展最新快照（2026-10-02，c5e3382）
 
-46个提供商代码入口已集成：原有9个、首批8个、第二批29个。扩展tracker共69票，其中37张代码票待真实验收、7张研究票待实际可行性验证、25张依赖票未实施；均未关闭。root已实际执行465项完整XCTest、0 failures，并完成unsigned App/Watch/两端Widgets目标构建。新增卡片AX/重点截图及添加菜单已抽查，完整UI和真实账号/物理Watch/iCloud/生产接口与通知未因此通过；审查修复和最终重新验证已完成。当前范围见[提供商表](../README.md#提供商与登录方式)和[第二批记录](../.scratch/provider-expansion/wave2-progress.md)，最终证据由root维护[统一验证记录](../.scratch/provider-expansion/validation-record.md)。
+46个提供商代码入口已集成：原有9个、首批8个、第二批29个。扩展tracker共69票，其中37张代码票已按用户最新“图标存在”标准关闭，7张研究票待验证，25张接入票未实施（24张依赖已解除）。图标检查见[验收记录](../.scratch/provider-expansion/icon-acceptance.md)。root已实际执行465项完整XCTest、0 failures，并完成unsigned App/Watch/两端Widgets目标构建。新增卡片AX/重点截图及添加菜单已抽查，完整UI和真实账号/物理Watch/iCloud/生产接口与通知未因此通过；审查修复和最终重新验证已完成。当前范围见[提供商表](../README.md#提供商与登录方式)和[第二批记录](../.scratch/provider-expansion/wave2-progress.md)，最终证据由root维护[统一验证记录](../.scratch/provider-expansion/validation-record.md)。
 
 下方原始功能Ticket编号与历史验证保持原意，和provider-expansion的01–69编号不是同一票据集。
 

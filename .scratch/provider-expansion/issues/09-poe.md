@@ -1,6 +1,6 @@
 # 09: Poe points 余额接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderPoe`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] points 使用明确的非货币单位，不套用人民币或美元格式，不虚构套餐总额、使用率与重置时间。
 - [ ] 支持数值与数字字符串、零余额及缺失字段；缺少余额时明确报错或显示未提供。

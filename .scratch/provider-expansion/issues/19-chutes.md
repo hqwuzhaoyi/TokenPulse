@@ -1,6 +1,6 @@
 # 19: Chutes 订阅额度
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderChutes`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 确认真实响应字段和使用率尺度；未知字段不通过递归搜索或比例猜测产生额度。
 - [ ] 窗口长度仅采用接口给出的值；无订阅、未提供限额和耗尽分别显示。

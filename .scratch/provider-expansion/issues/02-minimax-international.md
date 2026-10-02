@@ -1,6 +1,6 @@
 # 02: MiniMax 国际版套餐额度接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderMiniMax`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 国际版与国内版独立配置，现有国内账号和凭证兼容；国际请求仅发送至对应服务。
 - [ ] 正确处理剩余比例、字符串或数字字段、未包含的额度池和真实重置时间；当前接口仅在明确支持的条件下回退旧接口。

@@ -1,6 +1,6 @@
 # 17: Amp 套餐额度与余额
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderAmp`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [x] 只解析已核实的响应文本形态；ANSI 和 Markdown 清理不改变数值，陌生文本明确报错。
 - [x] 逐小时补充与每日重置区分；Orb 使用小时单位，周期结束日期保留其日期精度。

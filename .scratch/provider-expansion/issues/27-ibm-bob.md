@@ -1,6 +1,6 @@
 # 27: IBM Bob 团队 Bobcoins 预算
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderIBMBob`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 识别 API Key 与登录 token 的认证差异；动态区域地址仅允许已核实的 IBM 服务域名。
 - [ ] 每个实例与团队的额度单独标识，不将不同预算池或重置周期相加；无预算与查询失败明确区分。

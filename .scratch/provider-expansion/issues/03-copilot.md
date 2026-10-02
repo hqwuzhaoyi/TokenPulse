@@ -1,6 +1,6 @@
 # 03: GitHub Copilot 设备授权与额度查询
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderCopilot`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 设备授权支持等待、取消、过期和重新授权；验证所用客户端身份、scope 与内部额度接口的兼容性。
 - [ ] 按账号套餐分别呈现 premium interactions、chat、completions；未发放、无限、超额付费与耗尽状态不混淆。

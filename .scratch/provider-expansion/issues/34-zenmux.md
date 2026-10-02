@@ -1,6 +1,6 @@
 # 34: ZenMux 管理额度与余额
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderZenMux`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 明确需要管理 Key，推理 Key 无权查询时提示对应原因。
 - [ ] 余额查询失败不覆盖成功的套餐额度，分别记录数据可用性和时间；保留服务声明的币种。

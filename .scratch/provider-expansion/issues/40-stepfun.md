@@ -1,6 +1,6 @@
 # 40: StepFun 套餐与网页登录
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderStepFun`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 以本票建立最小可复用的按提供商和账号隔离的网页登录、Cookie 提取及重新登录路径；保留现有 Claude 行为。
 - [ ] 区分国内与国际站；会话与设备标识相匹配，Token Plan 和 Coding Plan 分别解析；到期时间不当成重置。

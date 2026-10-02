@@ -8,7 +8,13 @@
 
 **Blocked by:** 40 — StepFun 套餐与网页登录
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+
+下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 账号 Cookie、CSRF 及目标站点绑定；正确编码请求字段中的特殊字符。
 - [ ] 仅按已核实比例尺度解析，套餐名称查询失败不抹去额度；不混同百炼 Coding Plan 或 CLI Token Plan。

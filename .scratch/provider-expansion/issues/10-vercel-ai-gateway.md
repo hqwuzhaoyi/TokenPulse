@@ -1,6 +1,6 @@
 # 10: Vercel AI Gateway 钱包余额接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderVercel`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 使用精确十进制解析余额，保留零与负余额；累计花费不作为额度上限。
 - [ ] 完善仅返回总余额的钱包展示：赠送或充值明细缺失时显示未提供，不填零；验证现有 DeepSeek 明细和提醒不回归。

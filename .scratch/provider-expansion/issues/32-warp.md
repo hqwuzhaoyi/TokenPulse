@@ -1,6 +1,6 @@
 # 32: Warp 套餐与附加 credits
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderWarp`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 核验移动端直连的只读 GraphQL 请求和必需客户端头；平台约束必须形成真实验证结论。
 - [ ] 个人与工作区的附加额度来源保持清晰，不能把无统一周期的 grants 相加形成套餐百分比。

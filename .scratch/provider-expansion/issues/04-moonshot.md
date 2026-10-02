@@ -1,6 +1,6 @@
 # 04: Moonshot API 钱包余额接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderMoonshot`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] Moonshot 开放平台与 Kimi Code 在添加入口中明确区分；地区绑定凭证与请求地址，不自动跨地区试 Key。
 - [ ] 保留可用、赠送、充值余额的原始含义和十进制精度；币种依据已核实的服务契约，负余额保留，不做换汇。

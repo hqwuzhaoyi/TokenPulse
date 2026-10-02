@@ -1,6 +1,6 @@
 # 60: Cursor 移动端授权与额度
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderCursor`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 实现并验证无需读取桌面数据库的授权路径；建立可供 Grok Bot 复用的 Cursor 账号授权能力。
 - [ ] 分别展示两个模型池和有依据的额外支出限额；使用服务返回的百分比尺度，不把货币套餐价格作为池总额。

@@ -1,6 +1,6 @@
 # 23: DevPass 套餐与 Key 限额
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderDevPass`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 三个窗口独立标识和提醒，十进制字符串精确解析。
 - [ ] 无套餐、无 Key 上限及未知计划类型明确处理，非周期限额不创建重置提醒。

@@ -1,6 +1,6 @@
 # 16: Command Code 美元余额与限额
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderCommandCode`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [x] 余额与滚动或组织限额分别展示；不使用上游按套餐价格推算的月度总额。
 - [ ] 确认 Key 可以独立查询；按服务返回的金额与单位解析，不将积分数推算为美元。

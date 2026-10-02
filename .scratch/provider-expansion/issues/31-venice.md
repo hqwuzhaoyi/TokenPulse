@@ -1,6 +1,6 @@
 # 31: Venice USD 与 DIEM 余额
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderVenice`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 优先采用服务指定的消费单位；DIEM 作为非货币单位，不做换汇或美元低余额提醒。
 - [ ] USD 接入货币低余额规则，切换计量单位后提醒状态和小组件保持一致。

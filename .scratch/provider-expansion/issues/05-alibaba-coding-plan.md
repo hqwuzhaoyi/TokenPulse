@@ -1,6 +1,6 @@
 # 05: 阿里百炼 Coding Plan 额度接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderAlibabaCloud`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 实施前核验选定站点的 Key 查询是否可用；遇到要求控制台会话时明确提示，不把登录失败显示成零额度或无套餐。
 - [ ] 显示有效套餐的 5 小时、每周与账期额度；多个套餐中不选择已过期套餐的数据。

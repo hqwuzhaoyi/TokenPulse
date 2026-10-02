@@ -1,6 +1,6 @@
 # 25: Hugging Face ZeroGPU 额度
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderHuggingFace`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [x] 以秒或可读时长显示 GPU 配额，不称为模型 token 或 API 钱包。
 - [x] 使用接口返回的重置时间，额度为零或未提供时不伪造日窗口；不包含 Inference Providers 账单。

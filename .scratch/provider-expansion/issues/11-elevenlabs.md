@@ -1,6 +1,6 @@
 # 11: ElevenLabs 字符额度接入
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderElevenLabs`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 明确说明所需只读权限，区分无效 Key 与缺少权限，使用服务要求的认证头。
 - [ ] 显示字符已用、字符上限和实际重置时间；零上限不显示伪造百分比，不将 voice slots 当成消耗型额度。

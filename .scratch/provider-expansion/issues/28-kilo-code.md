@@ -1,6 +1,6 @@
 # 28: Kilo Code 钱包与 Kilo Pass
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderKiloCode`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 微美元金额精确换算；套餐基础和奖励额度仅按明确契约合并。
 - [ ] 余额块各自的到期不当成套餐重置；tRPC 子请求失败与未订阅状态正确处理。

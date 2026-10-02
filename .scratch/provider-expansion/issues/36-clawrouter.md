@@ -1,6 +1,6 @@
 # 36: ClawRouter 托管预算
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderClawRouter`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 使用固定托管服务路径；微美元整数精确换算，无预算不显示为耗尽。
 - [ ] 月份标识不证明重置的时刻和时区，因此不自行生成重置倒计时。

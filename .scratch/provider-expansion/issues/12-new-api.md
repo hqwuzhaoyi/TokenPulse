@@ -1,6 +1,6 @@
 # 12: New API 自定义地址与余额查询
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderNewAPI`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 地址按服务账号持久化和同步，Watch 获得配置后可独立请求；地址或 Key 改变后旧缓存和提醒状态不能冒充新账号的数据。
 - [ ] 规范处理常见带 /v1 的地址；拒绝含用户信息、查询或片段的地址；公网使用 HTTPS，私网 HTTP 遵循项目平台限制并实测；拒绝把凭证随跨域重定向发送。

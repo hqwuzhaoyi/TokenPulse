@@ -1,6 +1,6 @@
 # 38: xAI API 团队预付余额
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderXAIAPI`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [ ] 团队身份与凭证绑定并安全同步；团队参数严格验证，不能改变请求域名或路径结构。
 - [ ] 与 SuperGrok、Grok Bot 独立识别；使用十进制和已核实的金额单位，不把推理 Key 当管理 Key。

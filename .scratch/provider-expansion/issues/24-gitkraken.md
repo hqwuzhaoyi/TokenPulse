@@ -1,6 +1,6 @@
 # 24: GitKraken AI 个人与组织额度
 
-**Status:** implemented-awaiting-real-validation
+**Status:** done
 
 **Type:** integration
 
@@ -8,7 +8,13 @@
 
 **Blocked by:** None (can start immediately)
 
-## Acceptance criteria
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 图标存在：`ProviderGitKraken`，映射及资源已核对，见[图标验收记录](../icon-acceptance.md)。本票已关闭。
+
+以下原检查表保留为历史实现/验证记录，不再作为本票关票条件；未勾选项不改写为已实测。
+
+## 原 Acceptance criteria（历史）
 
 - [x] 该凭证属于会话 token，不标成永久 API Key；到期后提供重新配置入口。
 - [x] 两种额度分开显示，标明所查询组织；无限和零配额不生成虚假百分比。
