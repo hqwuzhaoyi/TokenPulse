@@ -3,7 +3,8 @@ import Foundation
 
 extension ProviderCredentialEnvelope {
     var apiKeySourceFingerprint: String? {
-        guard kind == .apiKey, !accessToken.isEmpty else { return nil }
+        guard kind == .apiKey, !accessToken.isEmpty,
+              accessToken.unicodeScalars.allSatisfy({ $0.value > 32 && $0.value < 127 }) else { return nil }
         return SHA256.hash(data: Data("\(provider.rawValue)\n\(accessToken)".utf8))
             .map { String(format: "%02x", $0) }.joined()
     }
@@ -15,7 +16,8 @@ struct SyntheticProviderClient: Sendable {
 
     func quota(accountID: UUID, credential: ProviderCredentialEnvelope) async throws -> ProviderQueryResult {
         guard credential.provider == .synthetic, credential.kind == .apiKey,
-              credential.metadata["sourceCredentialFingerprint"] == credential.apiKeySourceFingerprint else {
+              let fingerprint = credential.apiKeySourceFingerprint,
+              credential.metadata["sourceCredentialFingerprint"] == fingerprint else {
             throw RefreshFailure.invalidCredential
         }
         var request = URLRequest(url: URL(string: "https://api.synthetic.new/v2/quotas")!)

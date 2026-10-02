@@ -6,7 +6,8 @@ struct V2EXProviderClient: Sendable {
 
     func quota(accountID: UUID, credential: ProviderCredentialEnvelope) async throws -> ProviderQueryResult {
         guard credential.provider == .v2ex, credential.kind == .apiKey,
-              credential.metadata["sourceCredentialFingerprint"] == credential.apiKeySourceFingerprint else { throw RefreshFailure.invalidCredential }
+              let fingerprint = credential.apiKeySourceFingerprint,
+              credential.metadata["sourceCredentialFingerprint"] == fingerprint else { throw RefreshFailure.invalidCredential }
         var request = URLRequest(url: URL(string: "https://edge.v2ex.com/api/v2/chat/quota")!)
         request.httpMethod = "GET"
         request.timeoutInterval = 20

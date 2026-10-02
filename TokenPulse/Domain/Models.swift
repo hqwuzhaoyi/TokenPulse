@@ -14,15 +14,15 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
-    case synthetic, v2ex, xKiro
+    case synthetic, v2ex, xKiro, zenMux
 
     var id: String { rawValue }
-    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .xKiro }
+    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .xKiro || self == .zenMux }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .deepSeek, .vercelAIGateway, .newAPI, .poe: .walletOnly
-        case .xKiro: .mixed
+        case .xKiro, .zenMux: .mixed
         default: .none
         }
     }
@@ -48,6 +48,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .synthetic: "Synthetic"
         case .v2ex: "V2EX"
         case .xKiro: "xKiro"
+        case .zenMux: "ZenMux"
         }
     }
 }
@@ -264,6 +265,7 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
 
 enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case invalidCredential
+    case managementKeyRequired
     case network
     case rateLimited
     case server
@@ -275,6 +277,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     var displayName: String {
         switch self {
         case .invalidCredential: "凭证无效或已过期，请重新登录"
+        case .managementKeyRequired: "Management Key 无效或权限不足；普通推理 Key 无权查询"
         case .network: "网络连接失败"
         case .rateLimited: "请求过于频繁"
         case .server: "提供商服务异常"

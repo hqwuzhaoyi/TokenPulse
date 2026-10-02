@@ -1,6 +1,6 @@
 # 34: ZenMux 管理额度与余额
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,9 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/zenmux.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation evidence (2026-10-02)
+
+Provider.zenMux direct Management Bearer endpoints, distinct 5h/7d fractions and Decimal named-currency wallet added. Ordinary inference key denial has Management Key reason. Shared partial-wallet identity/time/failure API retains only same-identity old balances without firing/rearming low-balance; fresh quotas remain usable. Mixed UI and separate reminders, add/store/update/sync/delete, demo/widget and pinned MIT Lobe ZenMux vector asset implemented. See docs/zenmux-provider-integration.md.
+
+9 new tests plus shared partial-wallet regressions authored; Swift6 full App module and full new test semantic typechecks, PBX/diff checks, SVG/JSON static validation passed. No worker xcodebuild/simulator/real Key access; root must execute tests and unsigned all-target build. Real Management/inference-key responses, partial-failure/device/UI/notifications/sync and runtime catalog rendering remain unverified.

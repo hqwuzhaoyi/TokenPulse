@@ -6,7 +6,8 @@ struct XKiroProviderClient: Sendable {
 
     func quota(accountID: UUID, credential: ProviderCredentialEnvelope) async throws -> ProviderQueryResult {
         guard credential.provider == .xKiro, credential.kind == .apiKey,
-              credential.metadata["sourceCredentialFingerprint"] == credential.apiKeySourceFingerprint else { throw RefreshFailure.invalidCredential }
+              let fingerprint = credential.apiKeySourceFingerprint,
+              credential.metadata["sourceCredentialFingerprint"] == fingerprint else { throw RefreshFailure.invalidCredential }
         var request = URLRequest(url: URL(string: "https://api.xkiro.com/v1/usage")!)
         request.httpMethod = "GET"
         request.timeoutInterval = 20

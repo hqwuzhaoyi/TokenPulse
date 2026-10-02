@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"),
+            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,14 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .zenMux: [
+            QuotaWindow(id: "zenmux.five_hour", name: "5 小时额度", scope: nil, period: .fiveHour, usedPercentage: 7.15,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(7200)),
+            QuotaWindow(id: "zenmux.seven_day", name: "每周额度", scope: nil, period: .weekly, usedPercentage: 6.73,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(172800)),
+            QuotaWindow(id: "zenmux.wallet", name: "按量钱包余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "482.74")!))
+        ]
         case .xKiro: [
             QuotaWindow(id: "xkiro.short", name: "5 小时额度", scope: nil, period: .fiveHour,
                         usedPercentage: 25, remainingCount: 150, totalCount: 200, resetsAt: now.addingTimeInterval(5005), unit: "USD 预算额度"),

@@ -42,6 +42,7 @@ extension Provider {
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
         case .synthetic, .v2ex, .xKiro: nil
+        case .zenMux: "ProviderZenMux"
         }
     }
 
