@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E6300000000000000000433 /* OllamaCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000431; };
+		2E6300000000000000000434 /* OllamaCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000431; };
+		2E6300000000000000000435 /* OllamaCloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000432; };
+
 		2E6300000000000000000423 /* QoderChinaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000421; };
 		2E6300000000000000000424 /* QoderChinaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000421; };
 		2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000422; };
@@ -320,6 +324,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2E6300000000000000000431 /* OllamaCloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/OllamaCloudProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6300000000000000000432 /* OllamaCloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/OllamaCloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
 		2E6300000000000000000421 /* QoderChinaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderChinaProvider.swift; sourceTree = SOURCE_ROOT; };
 		2E6300000000000000000422 /* QoderChinaProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderChinaProviderTests.swift; sourceTree = SOURCE_ROOT; };
 
@@ -570,6 +577,7 @@
 				A220020000000000000001 /* AtlasCloudProvider.swift */,
 				A220010000000000000001 /* WalletExpansionHTTP.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
+				2E6300000000000000000431 /* OllamaCloudProvider.swift */,
 				2E6300000000000000000421 /* QoderChinaProvider.swift */,
 				2E6300000000000000000411 /* XiaomiCodingPlanProvider.swift */,
 				E23600000000000000000001 /* ClawRouterProvider.swift */,
@@ -618,6 +626,7 @@
                 C01100000000000000000001 /* CopilotProvider.swift */,
                 C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+				2E6300000000000000000432 /* OllamaCloudProviderTests.swift */,
 				2E6300000000000000000422 /* QoderChinaProviderTests.swift */,
 				2E6300000000000000000412 /* XiaomiCodingPlanProviderTests.swift */,
 				E23600000000000000000002 /* ClawRouterProviderTests.swift */,
@@ -922,6 +931,7 @@
                 6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+				2E6300000000000000000433 /* OllamaCloudProvider.swift in Sources */,
 				2E6300000000000000000423 /* QoderChinaProvider.swift in Sources */,
 				2E6300000000000000000413 /* XiaomiCodingPlanProvider.swift in Sources */,
 				E23600000000000000000003 /* ClawRouterProvider.swift in Sources */,
@@ -969,6 +979,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+				2E6300000000000000000435 /* OllamaCloudProviderTests.swift in Sources */,
 				2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */,
 				2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */,
 				E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */,
@@ -1066,6 +1077,7 @@
                 6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+				2E6300000000000000000434 /* OllamaCloudProvider.swift in Sources */,
 				2E6300000000000000000424 /* QoderChinaProvider.swift in Sources */,
 				2E6300000000000000000414 /* XiaomiCodingPlanProvider.swift in Sources */,
 				E23600000000000000000004 /* ClawRouterProvider.swift in Sources */,

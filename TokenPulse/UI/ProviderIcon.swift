@@ -67,6 +67,7 @@ extension Provider {
         case .ibmBob: "ProviderIBMBob"
         case .warp: "ProviderWarp"
         case .xiaomiCodingPlan: "ProviderXiaomiMiMo"
+        case .ollamaCloud: "ProviderOllama"
         case .v0: "ProviderV0"
         case .devPass: "ProviderDevPass"
         }

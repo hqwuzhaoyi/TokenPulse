@@ -1,6 +1,6 @@
 # 43: Ollama Cloud 账户额度
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/ollama-cloud.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+Complete scoped WK/Cookie login, direct account-page query, iOS/watchOS-compatible bounded two-meter HTML parser, account/source validation, registration, card/widget/Watch/demo/reminders and licensed vector icon. Seven tests prepared, parse and necessary Swift6 parser/client/session typecheck pass, PBX/diff pass. Root performs merged test/build validation; no real user session or physical-device result is claimed. See [Ollama integration](../../../docs/ollama-cloud-integration.md).

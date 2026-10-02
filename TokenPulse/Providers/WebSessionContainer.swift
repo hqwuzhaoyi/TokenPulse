@@ -197,6 +197,11 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .ollamaCloud:
+            .init(loginURL: OllamaCloudProviderClient.loginURL, allowedOrigins: [OllamaCloudProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "ollama", title: "Ollama Cloud 账号", credential: try OllamaCloudProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
         case .qoderChina:
             .init(loginURL: QoderChinaProviderClient.loginURL, allowedOrigins: [QoderChinaProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in
