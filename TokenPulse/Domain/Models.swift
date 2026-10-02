@@ -21,7 +21,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case codebuff
     case moonshot
     case factory
-    case augmentCode, zed
+    case augmentCode, zed, grokBot
     case venice
     case hyper
     case deepInfra
@@ -74,6 +74,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .factory: "Factory"
         case .augmentCode: "Augment Code"
         case .zed: "Zed"
+        case .grokBot: "Grok Bot"
         case .venice: "Venice"
         case .hyper: "Hyper"
         case .deepInfra: "DeepInfra"

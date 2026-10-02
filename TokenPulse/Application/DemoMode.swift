@@ -36,7 +36,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
-            (.warp, "Warp"), (.augmentCode, "Augment Code"), (.zed, "Zed"), (.v0, "v0"), (.devPass, "DevPass"),
+            (.warp, "Warp"), (.augmentCode, "Augment Code"), (.zed, "Zed"), (.grokBot, "Grok Bot"), (.v0, "v0"), (.devPass, "DevPass"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -90,6 +90,7 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo, .clinePass: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .grokBot: [window("grokBot.weekly", "Grok Bot 每周额度", .weekly, 35)]
         case .zed: [
             QuotaWindow(id: "zed.editPredictions", name: "编辑预测", scope: nil, period: .monthly, isUnlimited: true,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "次"),

@@ -6,8 +6,13 @@ import CoreFoundation
 /// The protocol is independent of an editor installation and may be reused by a
 /// later Cursor-account provider after that provider passes real-account gates.
 struct CursorAccountAuthenticator: Sendable {
+    let provider: Provider
     let transport: any ProviderTransport
     let now: @Sendable () -> Date
+
+    init(provider: Provider = .cursor, transport: any ProviderTransport, now: @escaping @Sendable () -> Date) {
+        self.provider = provider; self.transport = transport; self.now = now
+    }
 
     func begin(accountID: UUID) -> ProviderLoginSession {
         let verifier = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }.base64URL
@@ -19,13 +24,14 @@ struct CursorAccountAuthenticator: Sendable {
             .init(name: "mode", value: "login"), .init(name: "redirectTarget", value: "sand"),
             .init(name: "supportsSelectedTeamLogin", value: "true")
         ]
-        return .init(provider: .cursor, authorizationURL: components.url!, userCode: nil, deviceCode: nil,
+        return .init(provider: provider, authorizationURL: components.url!, userCode: nil, deviceCode: nil,
                      state: nonce, codeVerifier: verifier, callbackURL: nil, pollingInterval: 2,
                      expiresAt: now().addingTimeInterval(300), metadata: ["localAccountID": accountID.uuidString])
     }
 
     func poll(_ session: ProviderLoginSession) async throws -> ProviderLoginProgress {
-        guard session.provider == .cursor, session.expiresAt.map({ $0 > now() }) == true else { throw ProviderIntegrationError.loginExpired }
+        guard [.cursor, .grokBot].contains(provider), session.provider == provider else { throw ProviderIntegrationError.invalidCredentialData }
+        guard session.expiresAt.map({ $0 > now() }) == true else { throw ProviderIntegrationError.loginExpired }
         guard let nonce = session.state, UUID(uuidString: nonce) != nil,
               let verifier = session.codeVerifier, verifier.count == 43,
               verifier.unicodeScalars.allSatisfy({ CursorAccountSession.tokenCharacters.contains($0) }),
@@ -49,7 +55,7 @@ struct CursorAccountAuthenticator: Sendable {
                   let refresh = root["refreshToken"] as? String, !refresh.isEmpty else { throw ProviderIntegrationError.unreadableResponse }
             // Refresh is returned by the native protocol, but no supported
             // refresh exchange is known. Store only the query's access token.
-            return .completed(credential: try CursorAccountSession.credential(accessToken: access, accountID: account, now: now()))
+            return .completed(credential: try CursorAccountSession.credential(accessToken: access, provider: provider, accountID: account, now: now()))
         } catch let error as RefreshFailure {
             if error == .invalidCredential { throw ProviderIntegrationError.invalidCredential }
             throw error
@@ -81,22 +87,23 @@ enum CursorAccountSession {
 
     private static func fingerprint(_ credential: ProviderCredentialEnvelope) -> String? {
         guard let account = credential.accountID, let localID = credential.metadata["localAccountID"],
-              let bytes = try? JSONEncoder().encode(["cursor", localID, account, credential.accessToken]) else { return nil }
+              let bytes = try? JSONEncoder().encode([credential.provider.rawValue, localID, account, credential.accessToken]) else { return nil }
         return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
     }
 
-    static func credential(accessToken: String, accountID: UUID, now: Date) throws -> String {
+    static func credential(accessToken: String, provider: Provider = .cursor, accountID: UUID, now: Date) throws -> String {
+        guard [.cursor, .grokBot].contains(provider) else { throw RefreshFailure.invalidCredential }
         let claims = try claims(accessToken, now: now)
-        var envelope = ProviderCredentialEnvelope(provider: .cursor, kind: .session, accessToken: accessToken,
+        var envelope = ProviderCredentialEnvelope(provider: provider, kind: .session, accessToken: accessToken,
             expiresAt: claims.expiresAt, accountID: claims.account,
             metadata: ["localAccountID": accountID.uuidString, "host": "cursor.com", "authFlow": "loginDeepControl"])
         envelope.metadata["sourceCredentialFingerprint"] = fingerprint(envelope)
         return try envelope.encoded()
     }
 
-    static func validate(_ credential: ProviderCredentialEnvelope, accountID: UUID, now: Date) throws {
+    static func validate(_ credential: ProviderCredentialEnvelope, expectedProvider: Provider = .cursor, accountID: UUID, now: Date) throws {
         let claims = try claims(credential.accessToken, now: now)
-        guard credential.provider == .cursor, credential.kind == .session,
+        guard [.cursor, .grokBot].contains(expectedProvider), credential.provider == expectedProvider, credential.kind == .session,
               credential.accountID == claims.account,
               credential.metadata["localAccountID"] == accountID.uuidString,
               credential.metadata["host"] == "cursor.com", credential.metadata["authFlow"] == "loginDeepControl",
@@ -104,8 +111,8 @@ enum CursorAccountSession {
               credential.metadata["sourceCredentialFingerprint"] == fingerprint(credential) else { throw RefreshFailure.invalidCredential }
     }
 
-    static func cookie(_ credential: ProviderCredentialEnvelope, accountID: UUID, now: Date) throws -> String {
-        try validate(credential, accountID: accountID, now: now)
+    static func cookie(_ credential: ProviderCredentialEnvelope, expectedProvider: Provider = .cursor, accountID: UUID, now: Date) throws -> String {
+        try validate(credential, expectedProvider: expectedProvider, accountID: accountID, now: now)
         let allowed = tokenCharacters.union(CharacterSet(charactersIn: ".~"))
         guard let account = credential.accountID?.addingPercentEncoding(withAllowedCharacters: allowed) else { throw RefreshFailure.invalidCredential }
         return "WorkosCursorSessionToken=\(account)%3A%3A\(credential.accessToken)"

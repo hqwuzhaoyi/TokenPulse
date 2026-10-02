@@ -14,8 +14,8 @@ struct ProviderSignInView: View {
             Group {
                 if provider == .claude {
                     ClaudeSessionLoginView(accountID: accountID, onCredential: completion)
-                } else if provider == .cursor {
-                    CursorSessionLoginView(accountID: accountID, onCredential: completion)
+                } else if provider == .cursor || provider == .grokBot {
+                    CursorSessionLoginView(provider: provider, accountID: accountID, onCredential: completion)
                 } else if provider == .stepFun {
                     StepFunSessionLoginView(accountID: accountID, onCredential: completion)
                 } else if let profile = provider.webLoginProfile {
