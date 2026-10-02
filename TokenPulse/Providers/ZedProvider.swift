@@ -64,7 +64,7 @@ struct ZedProviderClient: Sendable {
             }
         }
         if let spend = root.current_usage.token_spend, let cents = spend.spend_in_cents?.value {
-            let used = try usd(cents), total = try spend.limit_in_cents?.value.map(usd)
+            let used = try usd(cents), total = try (spend.limit_in_cents?.value).map(usd)
             windows.append(try window(id: "zed.tokenSpend", name: "AI 支出预算", used: used, total: total, unit: "USD 预算"))
             if total == nil { notes.append("未返回支出预算上限，仅显示已花金额") }
             else if total == 0 { notes.append("已设置零支出预算") }
