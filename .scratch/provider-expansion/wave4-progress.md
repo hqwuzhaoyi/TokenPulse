@@ -10,8 +10,8 @@
 | 64 Kiro | sol_research | `4e76e19` 已合入；官方 Portal HTTPS/CBOR，组合测试中 |
 | 65 Antigravity | sol_wallet | `1b2e9bb` 已合入；官方 quota summary，组合测试中 |
 | 66 Alibaba Token Plan | sol_gateway | 已合入 `c230bc6`，Widget 类型共享修复 `8c6427b`；9 项 XCTest 通过；Pi 运行中 |
-| 67 Nous Portal | sol_web | 独立设备 OAuth 链与账户 credits 查询 |
-| 68 JetBrains AI | sol_gateway | `bb2cab3` 追加官方发布包静态证据；仍缺完整原生签发/fallback，protocol-gap |
+| 67 Nous Portal | sol_web | `b93a367` 已合入，`2b530a3` 续期轮询路由修复；unsigned 构建通过，专项测试/Pi 进行中 |
+| 68 JetBrains AI | sol_research | `bb2cab3` 官方发布包证据后继续补齐 TokenTransfer 导入/签发/独立续期方案，进行中 |
 | 69 OpenAI API | sol_wallet | 已合入 `444a1ba`；Legacy 余额，7 项 XCTest 通过；Pi 运行中 |
 
 sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root 负责集成、中央清单和串行 Xcode 验证。新增实现稳定后安排针对性的 Pi 回归，前一批 10 组结果保留。
@@ -29,3 +29,11 @@ sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root
 - `5dd15e5`、`274fbbd` 修正新增测试对实际模型 API 的引用；`ca87270` 补齐 Kiro Widget 分支。独立小模块检查不等于 App XCTest 编译通过，组合回归将验证这些接合点。
 
 - `274fbbd`：Gemini 12 + Google OAuth 12 + Antigravity 7 + Kiro 24，共 55 项 XCTest，0 失败。日志 `/tmp/tokenpulse-wave4-cloud-providers-run.log`，结果 `/tmp/tokenpulse-wave4-cloud-providers-run.xcresult`。包括 Pi 03 后的 bounded userinfo 重试和取消提示修复（`5c3e5e6`）。
+
+- `312b742`（76 provider）：709 项全量 XCTest，0 失败，运行日志 `/tmp/tokenpulse-wave4-pre-nous.log`，结果 `/tmp/tokenpulse-wave4-pre-nous.xcresult`。图标只读检查为 76 映射、61 SVG 映射/56 image sets、15 SF 映射/8 种已知系统符号，缺失 0。Nous 尚未合入，此项不是最终全量结果。
+
+- `2b530a3`（77 provider）：unsigned TokenPulse target App/Watch/Widgets 构建成功，日志 `/tmp/tokenpulse-wave4-nous-unsigned-fixed.log`。首次发现 Nous continueLogin 漏 poll 分支，已补齐；Nous 专项测试仍在补充，不混同为已跑完。
+
+- `1a7716f`（77 provider，Nous专项尚未加入）：713 项全量 XCTest，0 失败，日志 `/tmp/tokenpulse-wave4-77-integration.log`，结果 `/tmp/tokenpulse-wave4-77-integration.xcresult`。涵盖 Antigravity/Google 输入与标签的4项新增回归。
+
+- `f5f4678`：Kiro Pi修复后的29项XCTest，0失败，日志 `/tmp/tokenpulse-wave4-kiro-pi-fix.log`。同刻到期多笔credits保留其他池并显示未知分项cohort，试用到期缺失明确标注；不采纳与官方映射相悖的ARN改动。

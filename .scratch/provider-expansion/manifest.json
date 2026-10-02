@@ -1935,10 +1935,10 @@
   {
     "number": 67,
     "slug": "nous-portal",
-    "title": "Nous Portal 独立会话可行性",
-    "behavior": "验证用户可为 TokenPulse 建立独立 Nous 会话并查询授予及购买的 credits。",
+    "title": "Nous Portal 独立设备授权与 credits 接入",
+    "behavior": "手机和 Watch 建立各自设备授权链，直接查询经确认账号/组织的 credits；共享配置与额度快照，旋转秘密留本机。",
     "blockers": [],
-    "kind": "feasibility",
+    "kind": "integration",
     "upstream": "nousPortal",
     "criteria": [
       "上游借用 Hermes 的短期 OAuth token，重复使用一次性 refresh token 会撤销会话；验证独立授权及双端续期，不借用 Hermes 的刷新令牌。",
@@ -1949,11 +1949,15 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/67-nous-portal.md",
     "assignee": "sol_web",
     "researchReport": "research/67-nous-portal.md",
-    "acceptanceBasis": "implementation-and-provider-icon-exists"
+    "acceptanceBasis": "implementation-and-provider-icon-exists",
+    "implementationRecord": "../../docs/nous-portal-provider.md",
+    "integrationCommit": "b93a367",
+    "validationRecord": "wave4-progress.md",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 68,
@@ -1972,12 +1976,12 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "protocol-gap",
+    "status": "in-progress",
     "file": "issues/68-jetbrains-ai.md",
-    "assignee": "sol_gateway",
+    "assignee": "sol_research",
     "researchReport": "research/68-jetbrains-ai.md",
     "acceptanceBasis": "implementation-and-provider-icon-exists",
-    "protocolGap": "原生初始 TokenTransfer 导入后的 JBA 签发/Register/ProvideAccess 与完整认证 fallback 组合未闭合；quota/schema/单位/direct-refresh 已固定。"
+    "protocolGap": "正在补齐官方 TokenTransfer 原生导入→JBA refresh→Register/ProvideAccess 与设备本地续期链；未合入正式provider。"
   },
   {
     "number": 69,

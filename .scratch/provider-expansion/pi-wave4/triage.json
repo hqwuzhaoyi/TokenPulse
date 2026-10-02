@@ -37,5 +37,86 @@
     "task": "04-gemini",
     "status": "reviewed-no-findings",
     "decision": "Independent parser/project/identity/refresh probes passed. Root corrected a test API typo separately (5dd15e5); all 12 Gemini XCTest pass."
+  },
+  {
+    "task": "05-antigravity",
+    "finding": "Project input validation runs after OAuth and produces response error for bad input",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Validate user project before opening OAuth and before direct authorize exchange; use provider-specific validation and a useful input message.",
+    "commit": "1a7716f",
+    "validation": "713 full XCTest zero failures, including four new input/label regressions."
+  },
+  {
+    "task": "05-antigravity",
+    "finding": "Empty group displayName becomes empty scope and leading-space label",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Normalize empty/whitespace optional labels to nil or bucket ID fallback.",
+    "commit": "1a7716f",
+    "validation": "713 full XCTest zero failures, including four new input/label regressions."
+  },
+  {
+    "task": "06-kiro",
+    "finding": "Widget exhaustive switch missing Kiro",
+    "status": "already-fixed-and-tested",
+    "commit": "ca87270",
+    "decision": "Root compilation found and fixed independently; subsequent 24 Kiro and 709 full XCTest pass."
+  },
+  {
+    "task": "06-kiro",
+    "finding": "Same-expiry overage credit entries rejected",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Official schema has no pack ID or aggregation contract. Keep other quota pools and expose a stable unknown cohort with real expiry; do not add counts or fabricate per-pack identity.",
+    "commit": "92fff7b",
+    "validation": "29 Kiro XCTest pass, zero failures, /tmp/tokenpulse-wave4-kiro-pi-fix.log"
+  },
+  {
+    "task": "06-kiro",
+    "finding": "ACTIVE trial without expiry displayed without end date",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Keep valid ACTIVE quota and label expiry as unknown. Non-resetting does not imply never expires; reject/drop suggestion not adopted.",
+    "commit": "92fff7b",
+    "validation": "29 Kiro XCTest pass, zero failures, /tmp/tokenpulse-wave4-kiro-pi-fix.log"
+  },
+  {
+    "task": "06-kiro",
+    "finding": "Hardcoded service profile ARNs rather than metadata",
+    "status": "not-adopted",
+    "decision": "Locked official portal uses these same personal IdP profile mappings. Current supported IdPs match; unused meta value is not authoritative."
+  },
+  {
+    "task": "07-nous-vault",
+    "finding": "Expired pending/uncertain token retains unusable refresh secret",
+    "status": "fix-in-progress",
+    "decision": "CAS terminal transition clears no-longer-usable refresh token; preserve no-replay and generation guards."
+  },
+  {
+    "task": "07-nous-vault",
+    "finding": "iPhone may rebind identity on re-login unlike Watch",
+    "status": "not-adopted",
+    "decision": "Intentional account-owner behavior consistent with other providers: phone rebind clears old scope/cache; Watch authorizes against shared selected scope. Pi itself confirmed no old-scope reuse."
+  },
+  {
+    "task": "08-nous-quota-login",
+    "finding": "Device-code begin WAF response classified as invalid credentials",
+    "status": "fix-in-progress",
+    "decision": "Treat mitigated/rate-limited startup consistently with other Nous endpoints."
+  },
+  {
+    "task": "08-nous-quota-login",
+    "finding": "Transient identity GET after successful device grant loses login",
+    "status": "fix-in-progress",
+    "decision": "Bounded read-only account retry without replaying successful device grant POST or storing unverified identity."
+  },
+  {
+    "task": "08-nous-quota-login",
+    "finding": "Phone rebind leaves Watch silently showing old account indefinitely",
+    "status": "not-reproduced-control-flow-contradiction",
+    "decision": "Monitor binds credential against current config before network query; mismatch clears wrong-scope cache and fails explicitly. Add real merge/rebind regression; do not adopt static trace that skipped this guard."
+  },
+  {
+    "task": "root-nous-review",
+    "finding": "Rollover remaining above nominal monthly allowance inferred as zero used; zero partial count omitted; missing monthly reset marked non-resetting",
+    "status": "fix-in-progress",
+    "decision": "Preserve unknown used/percentage, explicit zero counts, and unknown reset time rather than inventing usage or no-reset semantics."
   }
 ]
