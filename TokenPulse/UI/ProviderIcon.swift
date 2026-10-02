@@ -42,6 +42,7 @@ extension Provider {
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
+        case .clawRouter: "ProviderClawRouter"
         case .aixy: nil
         case .neuralwatt: nil
         case .codebuff: nil

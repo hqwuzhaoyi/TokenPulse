@@ -471,3 +471,5 @@ Codebuff: no reusable licensed provider SVG was found in the inspected official 
 Neuralwatt: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol bolt.circle as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.
 
 Aixy: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol network as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.
+
+ClawRouter uses the OpenClaw parent mark from official openclaw/openclaw commit 0c75aa96f8419fc7570f3b679b28cc855db94741, apps/linux/src-tauri/icons/tray-template.svg. Copyright (c) 2026 OpenClaw Foundation; MIT License (full permission text above). Changes: explicit 18x18 dimensions and Xcode vector/template packaging; paths and alpha mask unchanged.

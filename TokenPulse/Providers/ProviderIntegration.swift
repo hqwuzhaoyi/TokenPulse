@@ -209,6 +209,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .aixy:
             return try await AixyProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .clawRouter:
+            return try await ClawRouterProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .clinePass:
             return try await ClinePassProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -254,6 +257,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Neuralwatt API Key")
         case .aixy:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Aixy API Key")
+        case .clawRouter:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ClawRouter API Key")
         case .clinePass:
             return .init(provider: provider, method: .apiKey, credentialLabel: "ClinePass API Key")
         case .moonshot:
@@ -278,7 +283,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -321,7 +326,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -338,7 +343,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -356,7 +361,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter:
             return .init(credential: credential, changed: false)
         }
     }

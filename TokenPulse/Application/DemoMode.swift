@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
+            (.clawRouter, "ClawRouter"),
             (.aixy, "Aixy"),
             (.neuralwatt, "Neuralwatt"),
             (.codebuff, "Codebuff"),
@@ -159,6 +160,11 @@ enum DemoMode {
             QuotaWindow(id: "aixy.key", name: "每月监控预算", scope: "Key", period: .monthly,
                 usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400),
                 unit: "USD", exactCounts: .init(used: 12, remaining: 8, total: 20))
+        ]
+        case .clawRouter: [
+            QuotaWindow(id: "clawRouter.monthly", name: "每月预算", scope: nil, period: .monthly,
+                usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                cycleID: "demo-claw-budget", unit: "USD", exactCounts: .init(used: 7, remaining: 13, total: 20))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
