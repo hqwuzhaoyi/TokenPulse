@@ -134,5 +134,39 @@
     "settled": true,
     "lastStopReason": "stop",
     "errors": []
+  },
+  {
+    "task": "09-jetbrains-protocol",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "dece27b74aab5d9c613088fd09dce8e902e402db",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T02:59:59.416812"
+    },
+    "report": "09-jetbrains-protocol.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T02:59:59.455856",
+    "endedAt": "2026-10-03T03:07:57.854381",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
+  },
+  {
+    "task": "10-jetbrains-lifecycle",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "commit": "dece27b74aab5d9c613088fd09dce8e902e402db",
+      "workingChanges": "",
+      "frozenAt": "2026-10-03T02:59:59.416201"
+    },
+    "report": "10-jetbrains-lifecycle.md",
+    "reportState": "completed",
+    "startedAt": "2026-10-03T02:59:59.457336",
+    "endedAt": "2026-10-03T03:13:13.498732",
+    "settled": true,
+    "lastStopReason": "stop",
+    "errors": []
   }
 ]

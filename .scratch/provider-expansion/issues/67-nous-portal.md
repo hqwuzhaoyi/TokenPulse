@@ -43,3 +43,7 @@
 root2b530a3已完成77-provider App/Watch/widget unsigned target build。新增23项NousPortalTests涵盖实际controller、AccountQuotaClient、Monitor同步换绑、独立设备vault/CAS/unknown refresh、Watch取消和精确额度边界。worker parser/PBX/diff及对root真实App module的Swift6测试源码typecheck通过；XCTest运行交root，未把静态检查写成测试执行成功。device grant成功后的账户瞬态失败只进行最多3次GET重试，不重放grant POST或持久化未核实身份；过期pending/uncertain以CAS清不可重用refresh；WAF保持rateLimited；zero partial/rollover/无明确monthly reset不会推断错误状态。
 
 账户GET重试耗尽或成功grant后的验证失败会终止已消费session并要求新授权；成功device code在本进程记到其明确expiry，取消／手动继续不能再POST它。新增真实iPhone DeviceLoginModel两次尝试回归：第一次验证失败清session，下一次必须先请求新device code。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。

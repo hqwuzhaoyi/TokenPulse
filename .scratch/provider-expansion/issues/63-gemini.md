@@ -1,8 +1,8 @@
 # 63: Gemini Code Assist 原生授权与模型额度
 
-**Status:** implemented — awaiting root aggregate tests/build
+**Status:** done
 
-**Type:** provider implementation
+**Type:** integration
 
 **What to build:** 自备 Google iOS OAuth client 的原生 PKCE 授权、离线刷新、项目发现和各模型 quota；不借用 CLI token/client/secret。
 
@@ -25,3 +25,7 @@
 [实施与来源报告](../research/63-gemini.md)。固定 Pulse `397c8fc4f1bd52180a452d2f3f0c099def97cf69` 和官方 Gemini CLI `fb972b2f87fe7d5b06d37eac711490162d98de2c`。
 
 真实 Google 自备 client 注册、授权同意、quota entitlement、手机/Watch 跨 token 到期刷新、撤销和面板对照均未观察。服务可拒绝第三方 client，UI显示权限/支持错误；这些结果不能由合成 fixtures 证明。用户当前验收无需这些真实账号观察，不单独阻塞实现。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。

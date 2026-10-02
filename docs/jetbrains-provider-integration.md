@@ -12,4 +12,4 @@ quota.current是已用，maximum是分母，CLI展示运算直接证明。100000
 
 初始和direct mint统一处理expiresAt：正数按毫秒且拒过期/超界，nil/非正沿固定CLI的24h默认；这是客户端默认，不声称服务器精确期限。真实rotation/撤销/长期双端独立行为尚未观察。
 
-App/Watch/widget/demo/provider注册齐备，通用SF terminal图标与Notices记录存在；官方JetBrains mark许可不适合template染色，未导入外部标志。31项本地实际XCTest0fail，主线程工程组合54/0fail是此前dece27b基线；最终全量、unsigned及Pi由主线程记录。用户当前完成门槛为实现+图标，真实账号缺失不再是关票阻塞。
+App/Watch/widget/demo/provider注册齐备，通用SF terminal图标与Notices记录存在；官方JetBrains mark许可不适合template染色，未导入外部标志。31项本地实际XCTest0fail；root最终源码379d5dd的完整XCTest773项零失败（含32项JetBrains），unsigned App/Watch/Widgets通过。Pi协议/生命周期两组完成，期限处理建议已采用并验证，见[第四批结果](../.scratch/provider-expansion/wave4-progress.md)。用户当前完成门槛为实现+图标，真实账号缺失不再是关票阻塞。

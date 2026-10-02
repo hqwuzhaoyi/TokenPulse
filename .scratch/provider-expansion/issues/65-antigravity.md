@@ -34,3 +34,7 @@
 ## Pi05 follow-up — 2026-10-03
 
 非法配置项目现在在共享原生浏览器准备和AG直接authorize入口前校验并显示输入提示；Gemini相同入口同步修正，provider原规则保持独立。空白group scope归一nil、bucket名trim后fallback稳定ID。补四项回归：AG零请求+提示、名称边界、Gemini直接/发现零请求、共享准备顺序/归一值/不同provider规则。实际Foundation回归执行零请求与名称fallback通过；Swift parse、小module和共享准备XCTest语义检查通过。完整XCTest交root串行，不运行Xcode。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。

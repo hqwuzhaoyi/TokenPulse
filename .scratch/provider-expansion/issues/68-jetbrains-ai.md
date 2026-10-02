@@ -27,3 +27,7 @@
 用户需自行登录官方Central并选择license、主动复制export；每设备分别新登录的授权，TokenPulse不替用户运行Central或读取其凭证。手机表单保存前candidate不会成为active，未保存候选一小时内可激活、超期访问清除且spent marker保留。
 
 历史真实验收未执行：未建立真实外部登录、没有与实际credit页面/IDE对照、没有实体Watch跨token expiry/revoke观察。默认24h仅沿用官方CLI客户端策略，不称服务端精确期限。企业workspace/shared pool/Central Server/staging不在本实施范围。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。

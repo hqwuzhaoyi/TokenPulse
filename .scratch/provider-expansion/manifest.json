@@ -1849,7 +1849,8 @@
     "implementationRecord": "research/63-gemini.md",
     "integrationCommit": "c87507b",
     "validationRecord": "wave4-progress.md",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "validationCommit": "379d5dd"
   },
   {
     "number": 64,
@@ -1876,7 +1877,8 @@
     "implementationRecord": "../../docs/kiro-provider-integration.md",
     "integrationCommit": "4e76e19",
     "validationRecord": "wave4-progress.md",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "validationCommit": "379d5dd"
   },
   {
     "number": 65,
@@ -1903,7 +1905,8 @@
     "implementationRecord": "../../docs/antigravity-integration.md",
     "integrationCommit": "1b2e9bb",
     "validationRecord": "wave4-progress.md",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "validationCommit": "379d5dd"
   },
   {
     "number": 66,
@@ -1928,7 +1931,7 @@
     "researchReport": "research/66-alibaba-token-plan.md",
     "acceptanceBasis": "implementation-and-provider-icon-exists",
     "implementationRecord": "../../docs/alibaba-token-plan-integration.md",
-    "validationCommit": "8c6427b",
+    "validationCommit": "379d5dd",
     "validationRecord": "wave4-progress.md",
     "acceptanceRecord": "icon-acceptance.md"
   },
@@ -1957,15 +1960,16 @@
     "implementationRecord": "../../docs/nous-portal-provider.md",
     "integrationCommit": "b93a367",
     "validationRecord": "wave4-progress.md",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "validationCommit": "379d5dd"
   },
   {
     "number": 68,
     "slug": "jetbrains-ai",
-    "title": "JetBrains AI 远程额度可行性",
-    "behavior": "验证是否存在不依赖 IDE 本地额度文件的账户级查询。",
+    "title": "JetBrains AI 原生独立授权与额度接入",
+    "behavior": "用户为每台设备独立导入官方 Central export，原生续期并读取个人 license 的 AI credits；确认保存后才接管本地授权。",
     "blockers": [],
-    "kind": "feasibility",
+    "kind": "integration",
     "upstream": "jetBrainsAI",
     "criteria": [
       "若只有 IDE 保存的快照，则不满足设备独立刷新，不能把文件同步方案当作接入完成。",
@@ -1976,12 +1980,16 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/68-jetbrains-ai.md",
     "assignee": "sol_research",
     "researchReport": "research/68-jetbrains-ai.md",
     "acceptanceBasis": "implementation-and-provider-icon-exists",
-    "protocolGap": "正在补齐官方 TokenTransfer 原生导入→JBA refresh→Register/ProvideAccess 与设备本地续期链；未合入正式provider。"
+    "implementationRecord": "../../docs/jetbrains-provider-integration.md",
+    "integrationCommit": "dece27b",
+    "validationCommit": "379d5dd",
+    "validationRecord": "wave4-progress.md",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 69,
@@ -2006,7 +2014,7 @@
     "researchReport": "research/69-openai-api.md",
     "acceptanceBasis": "implementation-and-provider-icon-exists",
     "implementationRecord": "../../docs/openai-api-integration.md",
-    "validationCommit": "444a1ba",
+    "validationCommit": "379d5dd",
     "validationRecord": "wave4-progress.md",
     "acceptanceRecord": "icon-acceptance.md"
   }

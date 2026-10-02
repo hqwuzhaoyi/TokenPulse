@@ -11,6 +11,13 @@
 - [07 Nous vault](07-nous-vault.md)：已完成，安全不变量复现通过；不可再续期秘密清理已补，23 项 Nous 实际 XCTest 通过。
 - [08 Nous quota/login](08-nous-quota-login.md)：已完成；风控分类、身份 GET 有限重试及已消费授权码防重放均已修复并通过实际 XCTest。Watch 漂移静态推断漏掉查询前的账号绑定校验，未按缺陷采纳。
 
+- [09 JetBrains protocol](09-jetbrains-protocol.md)：已完成；报告的续期期限问题已由统一mint处理修复，保留官方非正sentinel默认行为。
+- [10 JetBrains lifecycle](10-jetbrains-lifecycle.md)：已完成；生产代码独立场景未发现可复现缺陷。
+
 日期更正：05 原报告误写 2026-10-05、06 误写 2025-10-03；两组真实冻结/运行日期均为 2026-10-03，以各任务 snapshot-info.json/status.json 为准。报告原文保留，不能采用其错误日期。
 
 各任务原始状态以运行目录 status.json 和 JSON events 为准，CLI exit 0 不单独作为成功依据。完整 XCTest 由 root 串行运行，Pi 没有代为执行。
+
+## 最终验证
+
+10组均完成，真实运行元数据见[reports.json](reports.json)。源码379d5dd通过773项完整XCTest（0失败）和unsigned App/Watch/两端Widgets构建；这两个完整验证由root运行，Pi没有运行Xcode。采用项已修复；未采纳建议、误报、更正和Decimal表示范围限制保留于[triage.json](triage.json)。上一批10组回归另存pi-regression，不重复计成本批。

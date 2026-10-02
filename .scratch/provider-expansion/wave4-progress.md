@@ -1,4 +1,4 @@
-# 第四批：剩余研究票推进
+# 第四批：7 项接入与回归完成
 
 2026-10-03，从 `5c0fb99` 开始。起点为 71 个 provider、62 张已完成接入票，638 项测试通过。
 
@@ -6,15 +6,26 @@
 
 | 票 | 负责 | 当前工作 |
 | --- | --- | --- |
-| 63 Gemini | sol_copilot | `c87507b` 已合入；自配 iOS OAuth，组合测试中 |
-| 64 Kiro | sol_research | `4e76e19` 已合入；官方 Portal HTTPS/CBOR，组合测试中 |
-| 65 Antigravity | sol_wallet | `1b2e9bb` 已合入；官方 quota summary，组合测试中 |
-| 66 Alibaba Token Plan | sol_gateway | 已合入 `c230bc6`，Widget 类型共享修复 `8c6427b`；9 项 XCTest 通过；Pi 运行中 |
-| 67 Nous Portal | sol_web | `b93a367` 已合入，`2b530a3` 续期轮询路由修复；unsigned 构建通过，专项测试/Pi 进行中 |
-| 68 JetBrains AI | sol_research | `bb2cab3` 官方发布包证据后继续补齐 TokenTransfer 导入/签发/独立续期方案，进行中 |
-| 69 OpenAI API | sol_wallet | 已合入 `444a1ba`；Legacy 余额，7 项 XCTest 通过；Pi 运行中 |
+| 63 Gemini | sol_copilot | `c87507b` 已合入；自配 iOS OAuth，已通过最终全量验证 |
+| 64 Kiro | sol_research | `4e76e19` 已合入；官方 Portal HTTPS/CBOR，已通过最终全量验证 |
+| 65 Antigravity | sol_wallet | `1b2e9bb` 已合入；官方 quota summary，已通过最终全量验证 |
+| 66 Alibaba Token Plan | sol_gateway | 已合入 `c230bc6`，Widget 类型共享修复 `8c6427b`；9 项专项通过，最终全量/Pi完成 |
+| 67 Nous Portal | sol_web | `b93a367` 已合入，`2b530a3` 续期轮询路由修复；unsigned 构建通过，23 项专项及最终全量/Pi完成 |
+| 68 JetBrains AI | sol_research | 官方 TokenTransfer 原生导入/签发/独立续期完成；32 项专项及最终全量/Pi通过 |
+| 69 OpenAI API | sol_wallet | 已合入 `444a1ba`；Legacy 余额，7 项专项通过，最终全量/Pi完成 |
 
-sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root 负责集成、中央清单和串行 Xcode 验证。新增实现稳定后安排针对性的 Pi 回归，前一批 10 组结果保留。
+sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root 负责集成、中央清单和串行 Xcode 验证。本批10组Pi回归已完成，前一批10组结果保留。
+
+## 最终结果
+
+源码 `379d5dd`：78 个 provider，69 张接入票全部 done；773 项完整 XCTest，0 失败，unsigned App/Watch/两端 Widgets 构建成功。图标检查 78/78：62 SVG 映射/57 image sets、16 SF 映射/8 种系统符号，缺失 0；PBX 全部560个定义ID唯一。
+
+- 测试：`/tmp/tokenpulse-wave4-final.log`、`/tmp/tokenpulse-wave4-final.xcresult`。
+- 构建：`/tmp/tokenpulse-wave4-final-unsigned.log`；生产 target 未移除 Watch 或 Widgets。
+- [10组Pi报告与逐项处理](pi-wave4/README.md)：全部完成。采用的问题经实际 XCTest 验证，误报/不采纳/Decimal超精度限制分别记录；没有把Pi脚本或建议测试当完整XCTest。
+- [图标验收](icon-acceptance.md)；真实账号、物理Watch、iCloud及生产兼容观察未由自动检查推定通过。
+
+下方保留开发期间各次检查的时间顺序，早期“进行中”或WIP结果不是最终状态。
 
 ## 已执行验证
 
@@ -41,3 +52,7 @@ sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root
 - `ac6c429`：Nous专项23项XCTest，0失败，日志 `/tmp/tokenpulse-wave4-nous-tests.log`，结果 `/tmp/tokenpulse-wave4-nous-tests.xcresult`。覆盖Pi07/08采用问题、身份GET耗尽后禁止再次POST已消费device code、手机换绑后旧Watch本地链查询前拒绝、rollover/zero/未知月重置。
 
 - JetBrains WIP `916d539` 首次工程编译发现PBX克隆错误（重复占用XKiro引用），已由 `4417993` 为各源文件分配独立A442 IDs并检查全部定义唯一；`fc388bb` 修正测试Widget构造器。24项JetBrains XCTest已通过（`/tmp/tokenpulse-wave4-jetbrains-wip-tests.log`、同名 `.xcresult`）。此为WIP验证，独立candidate/receipt保存语义仍在完善，第68票未关闭。
+
+- `dece27b`：JetBrains candidate/receipt修复后31项 + Nous23项，共54项真实XCTest，0失败。日志 `/tmp/tokenpulse-wave4-jetbrains-candidate.log`，结果同名 `.xcresult`。最后两组Pi已基于该源码快照启动（09协议、10生命周期），本批共10组。
+
+- 最终收束：源码 `379d5dd` 全量773项XCTest零失败，unsigned App/Watch/Widgets成功；10组Pi全部完成并核对。78个provider、69张integration票done，无剩余票。后续提交仅同步最终文档和报告。

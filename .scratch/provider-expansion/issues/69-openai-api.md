@@ -31,3 +31,7 @@
 固定 [Pulse source](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/Profiled/OpenAIPlatformUsageService.swift) 与 [synthetic fixture](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Tests/PulseTests/Fixtures/openai-api-credit-grants.json)。上游明确 shape 为二手，不能用其旧 Key 注释保证所有账号兼容。
 
 官方 [Costs reference](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) 仅用于证明组织消费 API 的语义边界。完整边界与设备验证步骤见 [research](../research/69-openai-api.md) 和 [接入说明](../../../docs/openai-api-integration.md)。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。

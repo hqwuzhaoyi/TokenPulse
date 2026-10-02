@@ -134,5 +134,17 @@
     "status": "fixed-and-xctest-verified",
     "commit": "ac6c429",
     "decision": "Remember consumed code until session expiry; exhausted post-grant validation clears login session. Actual DeviceLoginModel retry starts new grant and cannot replay previous code."
+  },
+  {
+    "task": "09-jetbrains-protocol",
+    "finding": "Direct AI mint renewal ignored positive server expiresAt and always used 24 hours",
+    "status": "already-fixed-and-xctest-verified",
+    "commit": "379d5dd",
+    "decision": "Both initial and direct mint now share expiry handling. Positive milliseconds are validated; missing/nonpositive sentinel retains pinned official CLI 24h client default. The default is not a claim of precise server expiry. Verified in 773 full XCTest."
+  },
+  {
+    "task": "10-jetbrains-lifecycle",
+    "status": "reviewed-no-findings",
+    "decision": "Independent production-code actor/vault/Monitor scenarios confirm candidate-only prepare, save-time activation, old active preservation, checkpoint/CAS/tombstones, no local RT replay and no stale UI rollback. Three harness failures were identified as fixture/assertion mistakes, not reported as product defects. Root actual JetBrains XCTest includes 32 cases."
   }
 ]

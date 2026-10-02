@@ -2,19 +2,19 @@
 
 用户于 2026-09-08 指示“先把其他的一起都实现了”，允许先开发全部功能，随后做真实账号与实机验收。早期任务索引和下方历史记录的复选框仍保留原完整验收含义；2026-10-03 提供商扩展按最新“完整实现+图标存在”标准验收，两种范围不混写。
 
-## 提供商扩展最新快照（2026-10-03，2b530a3 文档基线）
+## 提供商扩展最终快照（2026-10-03）
 
-**本轮集成验证进行中。** 当前 77 个代码入口：此前 71 个，加 OpenAI API Legacy、阿里百炼 Token Plan、Gemini Code Assist、Antigravity、Kiro 与 Nous Portal。69 张扩展票中 68 张接入按“完整实现+图标存在”标准完成，JetBrains AI 仍在最后协议实施调查，尚未计入入口数。真实账号及设备观察缺口保留原意，不伪勾旧历史清单。
+78个代码入口已集成，69张扩展票全部按“实现完成+图标存在”标准完成。原7张研究票已依据固定官方协议转入实际原生接入，未以调查或图标单独冒充实现。
 
-| 验证基线 | 已执行结果 | 范围边界 |
+| 版本 | 已执行验证 | 边界 |
 | --- | --- | --- |
-| `312b742`，76 个入口 | 完整 iPhone 模拟器 XCTest 709 项通过，0 failures；`/tmp/tokenpulse-wave4-pre-nous.log` 与 `.xcresult` | 不包含随后加入 Nous 的专项回归，不代表真实账号／设备观察 |
-| `2b530a3`，77 个入口 | unsigned App、Watch App 与两端 Widgets 完整构建成功；`/tmp/tokenpulse-wave4-nous-unsigned-fixed.log` | Nous 专项 tests 仍在补充，77 入口全测尚未完成 |
-| `4adb520`，此前 71 个入口 | 638 项完整 XCTest（0 failures）及 unsigned 全目标构建 | 历史结果；日志 `/tmp/tokenpulse-wave3-final.log`、`/tmp/tokenpulse-wave3-final-unsigned.log` |
+| `379d5dd`，78入口 | 773项完整XCTest零失败；unsigned App、Watch、两端Widgets构建成功 | 真实账号、生产兼容、物理Watch、iCloud及完整视觉观察仍单独记录 |
+| 第四批10组Pi | 冻结源码独立回归全部交付；采用问题已修复并经实际XCTest验证 | Pi的脚本/静态审读不称作完整XCTest；误报、未采纳建议和Decimal表示上限有记录 |
+| 图标78/78 | 62个SVG映射/57套资产、16个SF映射/8种系统符号，缺失0；PBX560个定义ID唯一 | 19个通用图标不冒称官方品牌logo |
 
-新增六入口的登录、单位及兼容边界见 [77 入口表](../README.md#提供商与登录方式)。Google 两入口需要自备 iOS OAuth client 与服务许可；OpenAI Legacy 仅查询旧余额接口，不承诺所有 Key 通用兼容；Nous 两端独立设备码授权，本地旋转秘密不经 iCloud 传送，配置／快照／提醒记录仍可共享。Nous 专项回归与最终全测结果由 root 集成后更新，不以构建成功替代。
+日志 `/tmp/tokenpulse-wave4-final.log`，结果 `/tmp/tokenpulse-wave4-final.xcresult`，构建 `/tmp/tokenpulse-wave4-final-unsigned.log`。见[78入口表](../README.md#提供商与登录方式)、[本批Pi](../.scratch/provider-expansion/pi-wave4/README.md)、[图标验收](../.scratch/provider-expansion/icon-acceptance.md)和[统一验证记录](../.scratch/provider-expansion/validation-record.md)。
 
-所有入口图标均已接入，当前完整构建编译了 App、Watch 与两端 Widget 的资源；来源／许可见 [ProviderIconNotices.txt](../TokenPulse/Resources/ProviderIconNotices.txt)。此前 71 入口分类核验、10 组 Pi 回归及已采用修复见[图标验收](../.scratch/provider-expansion/icon-acceptance.md)、[Pi 回归](../.scratch/provider-expansion/pi-regression/README.md)、[第三批记录](../.scratch/provider-expansion/wave3-progress.md)和[统一验证记录](../.scratch/provider-expansion/validation-record.md)。真实生产接口、授权、物理 Watch、iCloud 和完整视觉观察没有由这些自动结果推定通过。
+Google两入口需要自配iOS OAuth client与服务资格；OpenAI Legacy仅兼容旧余额接口。Nous每设备独立device grant，JetBrains每设备独立导入官方export，两者旋转秘密留本机；共享账号配置、额度与提醒记录。此前71入口638项测试及上一批10组Pi保留为历史，不混同最新结果。
 
 下方原始功能Ticket编号与历史验证保持原意，和provider-expansion的01–69编号不是同一票据集。
 

@@ -1,4 +1,10 @@
-# Sol 首批集成验证
+# Provider 集成验证记录
+
+最新（2026-10-03，源码379d5dd）：78个provider、69张接入票全部完成。773项完整XCTest零失败；unsigned TokenPulse target包含App、Watch与两端Widgets构建成功；78个图标映射存在。日志 `/tmp/tokenpulse-wave4-final.log`、结果 `/tmp/tokenpulse-wave4-final.xcresult`、构建 `/tmp/tokenpulse-wave4-final-unsigned.log`。第四批10组Pi已完成并逐项处理，见[第四批记录](wave4-progress.md)与[Pi报告](pi-wave4/README.md)。真实账号/实体设备观察不伪称已完成。
+
+以下按批次保留历史过程与当时标准。
+
+## 历史：Sol 首批集成验证
 
 > 最新决定（2026-10-02）：用户将接入票验收简化为图标存在。46个现有provider均通过，37张实现票已关闭，解除24张后继票的依赖。下文保留此前测试及真实验证事实；其中“真实验证阻塞关票”的旧口径已被本决定替代。见[图标验收](icon-acceptance.md)。
 

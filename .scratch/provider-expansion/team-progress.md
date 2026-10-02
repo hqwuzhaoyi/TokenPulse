@@ -1,6 +1,6 @@
 # Sol 团队执行记录
 
-> 最新状态（2026-10-02，0477a43文档快照）：用户按完整实现+图标存在验收。全部71个provider无缺图，62张integration已done，7张research仍awaiting-validation。下文历史46入口/37票及旧真实门槛不代表当前状态；真实观测事实保留，Pi与后续构建结果不伪称完成。见[图标验收](icon-acceptance.md)。
+> 最新状态（2026-10-03）：78个provider与69张接入票全部完成。源码379d5dd通过773项XCTest和unsigned App/Watch/Widgets构建；图标78/78存在，第四批10组Pi已交付并处理。下文为各批历史记录，当前结果见[第四批记录](wave4-progress.md)。
 
 启动日期：2026-10-02。用户要求创建 Sol teams 开始实施；6 个工作者使用 gpt-6.1-sol，独立 worktree 开发，root 统一集成。集成分支：feature/provider-expansion-sol。
 
@@ -62,3 +62,7 @@
 - root实查71个图标无缺失：56映射/53套image sets，15个SF映射/8种存在的系统符号。15个SF加DevPass/Warp/Zed3个通用SVG共18通用图标；兼容符号不冒称品牌logo，详[图标验收](icon-acceptance.md)。
 - 第三批加入受限Cookie/localStorage会话、显式组织/工作区选择、scope/hash/expiry复核、明确空额度文案和各类单位，详[wave3记录](wave3-progress.md)。这些代码和合成测试不证明所有生产账户可用。
 - Pi10任务从503的zcode/glm-5.3-flash改用cch/glm-5.3，4并发，仅01报告完成；报告发现Claude旧scope/WK重启，WK在0477a43修复，Claude由sol_web修复。其余报告、修复复现与重新验证由root继续管理，不写全过。
+
+## 第四批收束
+
+剩余7项全部实现，69票无剩余。用户验收为实现完成+图标存在；773项完整XCTest零失败，unsigned全部target构建通过。两批共20组Pi报告分别归档，第四批10组的确认问题已修复，未采纳/限制有明确处理。详见[第四批记录](wave4-progress.md)。

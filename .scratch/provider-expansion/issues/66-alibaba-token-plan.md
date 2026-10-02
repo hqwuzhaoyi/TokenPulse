@@ -26,3 +26,7 @@
 生产实现 AlibabaTokenPlanProvider.swift；回归 AlibabaTokenPlanProviderTests.swift 覆盖签名、form 请求、DataV2/ratio/reset、retry/permission、scope与失败换绑、配置兼容、演示/widget/图标与提醒。本次 isolated Swift6 typecheck 和合成离线 probe 实际通过，未启动 Xcode/模拟器；完整 XCTest及多 target build 由 root 集中验证。
 
 未进行真实账号 RAM 权限/TTL、双端 token 互不撤销、真实面板数值、iCloud 和实体 Watch 观察。不宣称这些观察已通过；它们按当前用户验收标准不阻塞本票 done。长期 AK/SK 被撤销需用户重新配置；STS自动续期、switchAgent团队身份和月额度不在本实现范围。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。

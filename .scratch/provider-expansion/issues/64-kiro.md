@@ -33,3 +33,7 @@
 ## Pi06后续 — 2026-10-03
 
 root已确认原24项iOS XCTest与77providers unsigned全目标构建通过。F2接受并修复为同resource/expiry无计数cohort，不冒单packID、不相加；F3保留ACTIVE quota并补未知到期文案；F4与锁定官方Md/profile常量一致，不采纳盲改。5项新回归已加入，生产小module真实macOS XCTest28项0fail（含cohort实际NotificationPlanner不告警），iOS新补丁留root统一执行。详见研究报告末尾。F1已有ca87270修复，未重复改widget。
+
+## Root 最终集成验证 — 2026-10-03
+
+源码 `379d5dd` 已通过773项完整XCTest（0失败）及unsigned App/Watch/两端Widgets构建，本票图标映射存在。此前工作者“未跑完整Xcode”的描述是其交付时事实；本段记录root后续实际验证。当前实现+图标验收完成，真实账号/物理设备观察仍未伪勾。详见[第四批结果](../wave4-progress.md)与[Pi处理](../pi-wave4/README.md)。
