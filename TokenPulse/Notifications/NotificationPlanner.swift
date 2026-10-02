@@ -13,10 +13,10 @@ struct NotificationPlanner: Sendable {
         var quotaMessages: [String] = []
         var confirmedResetWindows: [String] = []
         let previousWindows = Dictionary(uniqueKeysWithValues: (previousSnapshot?.windows ?? []).map { ($0.id, $0) })
+        let quotaIsFresh = ledger.quotaObservedAt(accountID: accountID).map { newSnapshot.collectedAt > $0 } ?? true
 
-        for window in newSnapshot.windows where window.wallet == nil {
-            if window.resetSemantics != nil,
-               let existing = ledger.cycleState(accountID: accountID, windowID: window.id),
+        for window in newSnapshot.windows where window.wallet == nil && quotaIsFresh {
+            if let existing = ledger.cycleState(accountID: accountID, windowID: window.id),
                newSnapshot.collectedAt <= existing.observedAt { continue }
             let previousWindow = previousWindows[window.id]
             let cycle = resolveCycle(
@@ -111,14 +111,19 @@ struct NotificationPlanner: Sendable {
             )))
         }
 
-        operations.append(contentsOf: reconcileResetSchedules(
-            accountID: accountID,
-            accountName: accountName,
-            snapshot: newSnapshot,
-            settings: settings,
-            ledger: &ledger,
-            now: now
-        ))
+        if quotaIsFresh {
+            operations.append(contentsOf: reconcileResetSchedules(
+                accountID: accountID,
+                accountName: accountName,
+                snapshot: newSnapshot,
+                settings: settings,
+                ledger: &ledger,
+                now: now
+            ))
+            // Empty successful frames also advance the clock, so old frames
+            // cannot resurrect windows or plans removed by newer observations.
+            ledger.recordQuotaObservation(newSnapshot.collectedAt, accountID: accountID)
+        }
 
         return NotificationPlanningResult(operations: operations, ledger: ledger)
     }
@@ -138,6 +143,10 @@ struct NotificationPlanner: Sendable {
             ledger: &ledger,
             now: now
         )
+        if let snapshot = latestSnapshot,
+           snapshot.collectedAt >= (ledger.quotaObservedAt(accountID: accountID) ?? .distantPast) {
+            ledger.recordQuotaObservation(snapshot.collectedAt, accountID: accountID)
+        }
         return NotificationPlanningResult(operations: operations, ledger: ledger)
     }
 
@@ -193,6 +202,9 @@ struct NotificationPlanner: Sendable {
                               ledger: ReminderLedger,
                               minimumThreshold: Double?) -> CycleResolution {
         let existing = ledger.cycleState(accountID: accountID, windowID: currentWindow.id)
+        let previousWindow = existing.map { state in
+            previousCollectedAt.map { $0 > state.observedAt } == true ? previousWindow : nil
+        } ?? previousWindow
 
         if currentWindow.resetSemantics != nil {
             let previousCounts: DecimalQuotaCounts?
@@ -307,6 +319,10 @@ struct NotificationPlanner: Sendable {
                                          settings: AccountReminderSettings,
                                          ledger: inout ReminderLedger,
                                          now: Date) -> [NotificationOperation] {
+        // Settings may explicitly disable reminders, but stale/missing data
+        // cannot remove or rearrange schedules established by a newer frame.
+        if settings.resetRemindersEnabled, let latest = ledger.quotaObservedAt(accountID: accountID),
+           snapshot.map({ $0.collectedAt >= latest }) != true { return [] }
         let existing = ledger.pendingSchedules(accountID: accountID)
         let desired = desiredResetSchedules(
             accountID: accountID,

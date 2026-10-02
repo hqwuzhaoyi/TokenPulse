@@ -1025,8 +1025,11 @@ final class NotificationTests: XCTestCase {
         XCTAssertTrue(delivered(watch.operations, kind: .confirmedReset).isEmpty)
     }
 
+    private var nextObservationOffset: TimeInterval = 0
     private func snapshot(collectedAt: Date? = nil, windows: [QuotaWindow]) -> QuotaSnapshot {
-        QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt ?? now)
+        let observedAt = collectedAt ?? now.addingTimeInterval(nextObservationOffset)
+        nextObservationOffset = max(nextObservationOffset, observedAt.timeIntervalSince(now) + 1)
+        return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: observedAt)
     }
 
     private func window(id: String,
@@ -1242,5 +1245,111 @@ final class PreciseQuotaThresholdTests: XCTestCase {
         result.operations.compactMap {
             if case .deliver(let notification) = $0, notification.kind == .quotaAlert { return notification }; return nil
         }
+    }
+}
+
+final class OrderedQuotaObservationTests: XCTestCase {
+    private let id = UUID()
+    private let planner = NotificationPlanner()
+    private func snap(_ at: Double, cycle: String = "A", used: Double = 50, reset: Double = 1000, empty: Bool = false) -> QuotaSnapshot {
+        .init(accountID: id, windows: empty ? [] : [.init(id: "w", name: "main", scope: nil, usedPercentage: used,
+              remainingCount: nil, totalCount: nil, resetsAt: Date(timeIntervalSince1970: reset), cycleID: cycle)],
+              collectedAt: Date(timeIntervalSince1970: at))
+    }
+    private func apply(_ snapshot: QuotaSnapshot, previous: QuotaSnapshot? = nil, ledger: ReminderLedger = ReminderLedger()) -> NotificationPlanningResult {
+        planner.planSuccessfulRefresh(accountID: id, accountName: "X", previousSnapshot: previous, newSnapshot: snapshot,
+                                       settings: AccountReminderSettings(), ledger: ledger, now: Date(timeIntervalSince1970: 400))
+    }
+    private func kinds(_ result: NotificationPlanningResult) -> [ReminderNotificationKind] {
+        result.operations.compactMap { if case .deliver(let value) = $0 { return value.kind }; return nil }
+    }
+    func testStaleAndEqualProviderCyclesCannotRefireResetThresholdOrRollbackLedger() {
+        let a = snap(100, used: 80), b = snap(200, cycle: "B", used: 20, reset: 2000)
+        let first = apply(a), second = apply(b, previous: a, ledger: first.ledger)
+        XCTAssertTrue(kinds(second).contains(.confirmedReset))
+        for at in [150.0, 200.0] {
+            let replay = apply(snap(at, used: 95), previous: b, ledger: second.ledger)
+            XCTAssertTrue(replay.operations.isEmpty)
+            XCTAssertEqual(replay.ledger, second.ledger)
+        }
+        let c = apply(snap(300, cycle: "C", used: 5, reset: 3000), previous: snap(150), ledger: second.ledger)
+        XCTAssertTrue(kinds(c).contains(.confirmedReset), "The next genuine cycle must still reset")
+        let upgraded = apply(snap(350, cycle: "C", used: 95, reset: 3000), ledger: c.ledger)
+        XCTAssertTrue(kinds(upgraded).contains(.quotaAlert))
+    }
+    func testOldMissingWindowCannotCancelNewPlanAndFreshEmptyFramePreventsResurrection() {
+        let first = apply(snap(100)), latest = apply(snap(200, cycle: "B", used: 20, reset: 2000), ledger: first.ledger)
+        for at in [150.0, 200.0] {
+            let stale = apply(snap(at, empty: true), ledger: latest.ledger)
+            XCTAssertTrue(stale.operations.isEmpty)
+            XCTAssertEqual(stale.ledger, latest.ledger)
+        }
+        let removed = apply(snap(250, empty: true), ledger: latest.ledger)
+        XCTAssertTrue(removed.operations.contains { if case .cancel = $0 { return true }; return false })
+        XCTAssertTrue(removed.ledger.pendingSchedules(accountID: id).isEmpty)
+        XCTAssertEqual(removed.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 250))
+        let resurrected = apply(snap(225, cycle: "B", used: 95, reset: 2500), ledger: removed.ledger)
+        XCTAssertTrue(resurrected.operations.isEmpty)
+        XCTAssertEqual(resurrected.ledger, removed.ledger)
+    }
+    func testStaleSettingsDataPreservesPlansButExplicitDisableAndLatestEnableStillWork() {
+        let latestSnapshot = snap(200, used: 20, reset: 2000), latest = apply(latestSnapshot)
+        for stale in [Optional(snap(150, empty: true)), nil] {
+            let result = planner.planSettingsChange(accountID: id, accountName: "X", latestSnapshot: stale,
+                settings: AccountReminderSettings(), ledger: latest.ledger, now: Date(timeIntervalSince1970: 400))
+            XCTAssertTrue(result.operations.isEmpty)
+            XCTAssertEqual(result.ledger, latest.ledger)
+        }
+        let disabled = planner.planSettingsChange(accountID: id, accountName: "X", latestSnapshot: snap(150),
+            settings: AccountReminderSettings(resetRemindersEnabled: false), ledger: latest.ledger, now: Date(timeIntervalSince1970: 400))
+        XCTAssertTrue(disabled.ledger.pendingSchedules(accountID: id).isEmpty)
+        let enabled = planner.planSettingsChange(accountID: id, accountName: "X", latestSnapshot: latestSnapshot,
+            settings: AccountReminderSettings(), ledger: disabled.ledger, now: Date(timeIntervalSince1970: 400))
+        XCTAssertEqual(enabled.ledger.pendingSchedules(accountID: id).map(\.resetAt), [Date(timeIntervalSince1970: 2000)])
+    }
+    func testOlderPreviousSnapshotCannotManufactureResetOnFreshSameProviderCycle() {
+        let a = snap(100), b = snap(200, cycle: "B", used: 20, reset: 2000)
+        let first = apply(a), latest = apply(b, previous: a, ledger: first.ledger)
+        let sameCycle = apply(snap(250, cycle: "B", used: 95, reset: 2000), previous: a, ledger: latest.ledger)
+        XCTAssertFalse(kinds(sameCycle).contains(.confirmedReset))
+        XCTAssertTrue(kinds(sameCycle).contains(.quotaAlert))
+    }
+    func testQuotaFenceDoesNotSuppressIndependentNewWalletObservation() {
+        var ledger = apply(snap(200)).ledger
+        ledger.setWalletAlertState(.init(accountID: id, currency: "USD", isActive: false, observedAt: Date(timeIntervalSince1970: 100)))
+        var mixed = snap(150, used: 95)
+        let wallet = QuotaWindow(id: "wallet", name: "wallet", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                                 resetsAt: nil, wallet: .init(currency: "USD", total: 0))
+        mixed = .init(accountID: id, windows: mixed.windows + [wallet], collectedAt: mixed.collectedAt)
+        let result = apply(mixed, ledger: ledger)
+        XCTAssertEqual(kinds(result), [.walletAlert])
+        XCTAssertEqual(result.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 200))
+        XCTAssertEqual(result.ledger.cycleState(accountID: id, windowID: "w"), ledger.cycleState(accountID: id, windowID: "w"))
+        XCTAssertEqual(result.ledger.pendingSchedules(accountID: id), ledger.pendingSchedules(accountID: id))
+    }
+    func testQuotaFenceRoundTripLegacyFallbackAndNewestMergeAreAccountIsolated() throws {
+        let latest = apply(snap(200)).ledger
+        XCTAssertEqual(try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(latest)), latest)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(latest)) as? [String: Any])
+        object.removeValue(forKey: "quotaObservationTimes")
+        let legacy = try JSONDecoder().decode(ReminderLedger.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertEqual(legacy.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 200))
+        var newer = latest; newer.recordQuotaObservation(Date(timeIntervalSince1970: 300), accountID: id)
+        let otherID = UUID(); newer.recordQuotaObservation(Date(timeIntervalSince1970: 50), accountID: otherID)
+        let merged = legacy.merging(newer)
+        XCTAssertEqual(merged.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 300))
+        XCTAssertEqual(merged.quotaObservedAt(accountID: otherID), Date(timeIntervalSince1970: 50))
+        XCTAssertEqual(newer.merging(legacy).quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 300))
+    }
+    func testCredentialReplacementClearsFenceAndIncompatibleMergeCannotBlockNewScope() {
+        var old = ReminderLedger(); _ = old.bindCredentialIdentity("old", accountID: id)
+        old = apply(snap(300), ledger: old).ledger
+        var new = old; _ = new.bindCredentialIdentity("new", accountID: id)
+        XCTAssertNil(new.quotaObservedAt(accountID: id))
+        let merged = new.merging(old)
+        XCTAssertNil(merged.quotaObservedAt(accountID: id))
+        let refreshed = apply(snap(50, cycle: "new", used: 95), ledger: merged)
+        XCTAssertTrue(kinds(refreshed).contains(.quotaAlert))
+        XCTAssertEqual(refreshed.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 50))
     }
 }

@@ -74,6 +74,7 @@ struct ReminderLedger: Codable, Equatable, Sendable {
     private var pendingResetSchedules: [PendingResetSchedule] = []
     private var walletAlerts: [WalletAlertState]?
     private var credentialIdentities: [UUID: String]?
+    private var quotaObservationTimes: [UUID: Date]?
 
     init() {}
 
@@ -105,6 +106,10 @@ struct ReminderLedger: Codable, Equatable, Sendable {
             }
         }
 
+        for (accountID, observedAt) in remote.quotaObservationTimes ?? [:] where compatible(accountID) {
+            result.recordQuotaObservation(observedAt, accountID: accountID)
+        }
+
         // Pending requests belong to the local device. Only delivered/planned records merge.
         return result
     }
@@ -118,11 +123,24 @@ struct ReminderLedger: Codable, Equatable, Sendable {
         expectedResets = expectedResets.filter { $0.accountID != accountID }
         confirmedResets = confirmedResets.filter { $0.accountID != accountID }
         windowCycles.removeAll { $0.accountID == accountID }
+        quotaObservationTimes?.removeValue(forKey: accountID)
         walletAlerts?.removeAll { $0.accountID == accountID }
         pendingResetSchedules.removeAll { $0.accountID == accountID }
         if credentialIdentities == nil { credentialIdentities = [:] }
         credentialIdentities?[accountID] = identity
         return obsolete
+    }
+
+    /// Includes legacy window timestamps when the account-level field is absent.
+    func quotaObservedAt(accountID: UUID) -> Date? {
+        ([quotaObservationTimes?[accountID]] + windowCycles.filter { $0.accountID == accountID }.map { Optional($0.observedAt) })
+            .compactMap { $0 }.max()
+    }
+
+    mutating func recordQuotaObservation(_ observedAt: Date, accountID: UUID) {
+        guard observedAt > (quotaObservationTimes?[accountID] ?? .distantPast) else { return }
+        if quotaObservationTimes == nil { quotaObservationTimes = [:] }
+        quotaObservationTimes?[accountID] = observedAt
     }
 
     func containsQuotaAlert(accountID: UUID,
