@@ -150,6 +150,13 @@ struct WalletBalance: Codable, Equatable, Sendable {
     }
 }
 
+/// Exact reported quantities. Percentages remain Double for UI gauges, never for stored counts.
+struct DecimalQuotaCounts: Codable, Equatable, Sendable {
+    let used: Decimal
+    let remaining: Decimal
+    let total: Decimal
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -168,6 +175,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let wallet: WalletBalance?
     let overagePermitted: Bool?
     let overageCount: Double?
+    let exactCounts: DecimalQuotaCounts?
 
     init(id: String,
          name: String,
@@ -184,7 +192,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          expiresAt: Date? = nil,
          wallet: WalletBalance? = nil,
          overagePermitted: Bool? = nil,
-         overageCount: Double? = nil) {
+         overageCount: Double? = nil,
+         exactCounts: DecimalQuotaCounts? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -201,6 +210,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.wallet = wallet
         self.overagePermitted = overagePermitted
         self.overageCount = overageCount
+        self.exactCounts = exactCounts
     }
 
     func needsUpdate(at date: Date) -> Bool {
