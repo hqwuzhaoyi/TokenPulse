@@ -35,6 +35,7 @@ extension Provider {
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
         case .venice: "ProviderVenice"
+        case .qwenCloud: "ProviderQwenCloud"
         case .raycastAI, .t3Chat, .zoomMate: nil
         case .hyper: nil
         case .deepInfra: "ProviderDeepInfra"

@@ -33,7 +33,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case xaiAPI
     case ibmBob
     case warp, v0, devPass
-    case raycastAI, t3Chat, zoomMate
+    case raycastAI, t3Chat, zoomMate, qwenCloud
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
@@ -91,6 +91,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .volcengine: "火山方舟"
         case .xaiAPI: "xAI API"
         case .ibmBob: "IBM Bob"
+        case .qwenCloud: "Qwen Cloud"
         case .raycastAI: "Raycast AI"
         case .t3Chat: "T3 Chat"
         case .zoomMate: "ZoomMate"

@@ -197,6 +197,7 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .qwenCloud: QwenCloudSession.profile
         case .raycastAI, .t3Chat, .zoomMate: HostedWebProfiles.profile(self)
         default: nil
         }

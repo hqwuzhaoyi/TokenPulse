@@ -1343,10 +1343,12 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/52-qwen-cloud.md",
     "wave": 3,
-    "assignee": "sol_wallet"
+    "assignee": "root",
+    "acceptanceBasis": "provider-icon-exists",
+    "implementationRecord": "../../docs/qwen-cloud-integration.md"
   },
   {
     "number": 53,
