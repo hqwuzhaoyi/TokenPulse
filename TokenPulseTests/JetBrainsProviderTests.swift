@@ -358,7 +358,7 @@ final class JetBrainsProviderTests: XCTestCase {
         XCTAssertNil(state.lastFailure); XCTAssertEqual(snapshot.windows.count, 2)
         XCTAssertEqual(snapshot.sourceCredentialFingerprint, state.credentialIdentity)
         let synchronizedSecret = await synced.credential(for: id); XCTAssertNil(synchronizedSecret)
-        let widget = WidgetAccountSnapshot(state: state, refreshedAt: now)
+        let widget = WidgetAccountSnapshot(account: state.account, windows: snapshot.windows, collectedAt: snapshot.collectedAt, lastFailure: state.lastFailure)
         XCTAssertEqual(widget.displayMetrics.count, 2)
         XCTAssertEqual(ProviderAuthenticationController().loginConfiguration(for: .jetBrainsAI).method, .webSession)
         XCTAssertEqual(Provider.jetBrainsAI.systemIconName, "terminal")
