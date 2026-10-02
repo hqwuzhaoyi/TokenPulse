@@ -111,9 +111,9 @@ struct ChutesProviderClient: Sendable {
         let used = reportedUsed ?? total.flatMap { total in remaining.map { max(total - $0, 0) } }
         let left = remaining ?? total.flatMap { total in used.map { max(total - $0, 0) } }
         let exact = total.flatMap { total in used.flatMap { used in left.map { DecimalQuotaCounts(used: used, remaining: $0, total: total) } } }
-        let percentage = exact.map { NSDecimalNumber(decimal: $0.used / $0.total * 100).doubleValue }.flatMap { $0.isFinite ? $0 : nil }
+        let percentage = total.flatMap { total in used.map { NSDecimalNumber(decimal: $0 / total * 100).doubleValue } }.flatMap { $0.isFinite ? $0 : nil }
         return .init(id: "chutes.\(id)", name: name, scope: nil, period: period,
-                     isExhausted: exact.map { $0.used >= $0.total }, usedPercentage: percentage,
+                     isExhausted: total.flatMap { total in used.map { $0 >= total } }, usedPercentage: percentage,
                      remainingCount: left.map { NSDecimalNumber(decimal: $0).doubleValue },
                      totalCount: total.map { NSDecimalNumber(decimal: $0).doubleValue },
                      resetsAt: payload.reset, unit: "USD 预算", exactCounts: exact)
