@@ -13,3 +13,5 @@ ProviderManus图标已存在：Lobe Icons commit `2df73b8899ec387eb94b96ecb6b87b
 7个Manus测试覆盖Cookie域名/expiry/token-value、wrapper形状、计数和单位、numeric时间不猜epoch、missing/bad字段不补零、Connect请求头、账号scope和错误、non-money无低余额、demo/widget/icon。parser、PBX、diff和图标存在/XML/JSON静态检查通过；root统一编译／执行测试。按用户新标准，接入全链路与图标存在已实现，ticket done。
 
 未读取真实session_id、未运行Xcode或模拟器，未执行真实Manus账号／设备刷新；这些真实验证仍明确未做，依据用户2026-10-02标准不阻塞关票。
+
+数值防御补充：size-left使用NSDecimalSubtract并逆减法验证恢复原left；若不能精确表示，只让used／percentage保持nil，原始remaining／total仍完整展示。极值1e17容量与1e-22残额不得被舍入为100%已用，也不能触发100%告警；该回归计入第8个Manus测试。

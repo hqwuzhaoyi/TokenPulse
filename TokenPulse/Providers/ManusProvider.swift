@@ -100,10 +100,9 @@ struct ManusProviderClient: Sendable {
              credits.periodicCredits?.amount, nil, .nonResettingAllowance)
         ] {
             guard let size, size > 0, let left else { continue }
-            let used = max(size - left, 0)
-            guard !used.isNaN else { throw RefreshFailure.unreadableResponse }
+            let used = exactUsage(size: size, left: left)
             windows.append(QuotaWindow(id: id, name: name, scope: nil, period: period, isExhausted: left == 0,
-                usedPercentage: try WalletDecimalArithmetic.percentage(used: used, total: size), remainingCount: nil,
+                usedPercentage: try used.map { try WalletDecimalArithmetic.percentage(used: $0, total: size) }, remainingCount: nil,
                 totalCount: nil, resetsAt: reset, unit: "credits",
                 exactCounts: DecimalQuotaCounts(used: used, remaining: left, total: size), resetSemantics: semantics))
         }
@@ -114,5 +113,15 @@ struct ManusProviderClient: Sendable {
         }
         guard !windows.isEmpty else { throw RefreshFailure.noQuotaWindows }
         return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt)
+    }
+
+    /// NSDecimalSubtract can silently round and still return noError. Verify by subtracting back.
+    private static func exactUsage(size: Decimal, left: Decimal) -> Decimal? {
+        guard left <= size else { return 0 }
+        var size = size, left = left, used = Decimal(), recoveredLeft = Decimal()
+        guard NSDecimalSubtract(&used, &size, &left, .plain) == .noError, !used.isNaN,
+              NSDecimalSubtract(&recoveredLeft, &size, &used, .plain) == .noError,
+              recoveredLeft == left else { return nil }
+        return used
     }
 }

@@ -106,6 +106,21 @@ final class ManusProviderTests: XCTestCase {
         XCTAssertFalse(Provider.manus.hasMonetaryWallet)
         XCTAssertEqual(Provider.manus.iconAssetName, "ProviderManus")
     }
+
+    func testInexactDecimalDifferenceDoesNotInventUsedCountOrOneHundredPercentAlert() throws {
+        let id = UUID(), date = Date(timeIntervalSince1970: 100)
+        let raw = #"{"refreshCredits":"0.0000000000000000000001","maxRefreshCredits":"100000000000000000","refreshInterval":"daily"}"#
+        let snapshot = try ManusProviderClient.snapshot(Data(raw.utf8), accountID: id, collectedAt: date)
+        let window = try XCTUnwrap(snapshot.windows.first)
+        XCTAssertEqual(window.exactCounts?.remaining, Decimal(string: "0.0000000000000000000001"))
+        XCTAssertEqual(window.exactCounts?.total, Decimal(string: "100000000000000000"))
+        XCTAssertNil(window.exactCounts?.used)
+        XCTAssertNil(window.usedPercentage)
+        XCTAssertEqual(window.isExhausted, false)
+        let planned = NotificationPlanner().planSuccessfulRefresh(accountID: id, accountName: "Manus", previousSnapshot: nil,
+            newSnapshot: snapshot, settings: AccountReminderSettings(thresholds: [100]), ledger: ReminderLedger(), now: date)
+        XCTAssertFalse(planned.operations.contains { if case .deliver(let message) = $0 { return message.kind == .quotaAlert }; return false })
+    }
 }
 
 private actor ManusTransport: ProviderTransport {
