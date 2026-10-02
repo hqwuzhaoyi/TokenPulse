@@ -33,7 +33,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case xaiAPI
     case ibmBob
     case warp, v0, devPass
-    case xiaomiCodingPlan
+    case xiaomiCodingPlan, qoderChina
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
@@ -95,6 +95,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .v0: "v0"
         case .devPass: "DevPass"
         case .xiaomiCodingPlan: "小米 Coding Plan"
+        case .qoderChina: "Qoder 国内版"
         }
     }
 }

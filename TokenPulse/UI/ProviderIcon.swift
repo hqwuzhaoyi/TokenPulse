@@ -32,7 +32,7 @@ extension Provider {
         case .zai, .zhipu: "ProviderZai"
         case .miniMaxChina, .miniMaxInternational: "ProviderMiniMax"
         case .superGrok: "ProviderSuperGrok"
-        case .qoderInternational: "ProviderQoder"
+        case .qoderInternational, .qoderChina: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
         case .venice: "ProviderVenice"
         case .hyper: nil

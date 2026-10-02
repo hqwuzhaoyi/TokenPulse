@@ -37,7 +37,7 @@ enum DemoMode {
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
             (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
-            (.xiaomiCodingPlan, "小米月度套餐与余额"),
+            (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -87,6 +87,14 @@ enum DemoMode {
         let short = window("demo.five-hour", "5 小时额度", .fiveHour, 36)
         let weekly = window("demo.weekly", "每周额度", .weekly, 71)
         let windows: [QuotaWindow] = switch provider {
+        case .qoderChina: [
+            QuotaWindow(id: "qoderChina.personal", name: "个人额度（含资源包）", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 125, remaining: 375, total: 500), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "qoderChina.team", name: "团队额度", scope: nil, period: .other,
+                        usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "credits", exactCounts: .init(used: 200, remaining: 800, total: 1000), resetSemantics: .nonResettingAllowance)
+        ]
         case .xiaomiCodingPlan: [
             QuotaWindow(id: "xiaomi.plan.0", name: "月度 Token 额度", scope: nil, period: .monthly,
                         usedPercentage: 37.5, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),

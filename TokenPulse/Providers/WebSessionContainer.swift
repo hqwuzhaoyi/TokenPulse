@@ -197,6 +197,11 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .qoderChina:
+            .init(loginURL: QoderChinaProviderClient.loginURL, allowedOrigins: [QoderChinaProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "qoder-cn", title: "Qoder 国内网页账号", credential: try QoderChinaProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
         case .xiaomiCodingPlan:
             .init(loginURL: XiaomiCodingPlanProviderClient.loginURL, allowedOrigins: [XiaomiCodingPlanProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in
