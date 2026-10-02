@@ -1,6 +1,6 @@
 # 28: Kilo Code 钱包与 Kilo Pass
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

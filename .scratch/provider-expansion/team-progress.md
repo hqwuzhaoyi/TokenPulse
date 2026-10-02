@@ -28,7 +28,7 @@
 
 ## 状态含义
 
-in-progress 表示正在开发。实现通过自动检查后仍需保留真实账号、物理设备验证缺口；依赖票没有完成前不自动领取后继票。
+`implemented-awaiting-real-validation` 表示代码已集成但整票未通过真实验收；`awaiting-validation` 表示研究已交付但实际可行性未通过。`ready-for-agent` 是票据准备状态，有未完成 blockers 时仍不可领取。自动测试、unsigned build、静态语义检查和真实账号/物理设备证据分别记录，不互相替代。
 
 ## 基线及首批集成
 
@@ -38,9 +38,17 @@ in-progress 表示正在开发。实现通过自动检查后仍需保留真实�
 - 集成时补齐 New API widget switch；三处 Swift 6 测试值跨 actor 传递／捕获已调整。未用 unchecked Sendable 绕过检查。
 - 跨凭证身份 iCloud 合并／缓存保留、StepFun 畸形响应与登录取消修复已合入；私网 HTTP 的代码、ATS 和本机 fixture 已通过集成测试。
 
-## 首批收束
+## 首批收束（历史基线 6c12386）
 
 - 238 项 XCTest 全部通过，0 failures；最终 unsigned 全 target 构建成功。
 - iPhone 17 Pro / iOS 26.5 演示模式卡片已做原生截图/可访问性检查，真实账号与物理 Watch 验收未执行。
-- 首批 8 张为 implemented-awaiting-real-validation；7 张研究票为 awaiting-validation；剩余 54 张保持 ready-for-agent，其中 29 张无阻塞。
+- 当时首批 8 张为 implemented-awaiting-real-validation；7 张研究票为 awaiting-validation；剩余 54 张未实施，其中 29 张无前置阻塞。这29张随后进入第二批，不能继续沿用该历史剩余数描述当前状态。
 - 工作者首批交付与交叉检查已结束；后继票保留原依赖门槛。完整命令、发现和限制见[统一验证记录](validation-record.md)。
+
+## 第二批集成快照（c082bba）
+
+- 已集成第二批29票，含后续交付的60 Cursor；加首批8票共37张代码票，9个原有入口加37个新增入口共46个。
+- root 已实际执行完整 XCTest：457 tests、0 failures，日志 `/tmp/tokenpulse-sol-wave2-full46.log`；unsigned全目标构建成功，日志 `/tmp/tokenpulse-sol-wave2-unsigned.log`。这是c082bba基线，后续审查修复可能增加测试。
+- 新增卡片AX与重点截图（混合钱包、单位、持续补充、日期、IBM未知分母、Warp到期）已由root抽查，添加菜单可打开；完整UI/组件与真实账号/权限/生产契约、凭证生命周期、iCloud到达、手机离线后的物理Watch直查、真实通知未因此完成。后续review修复与回归结果由root记录，不用457基线冒充新修改已验证。
+- 37张代码票统一 `implemented-awaiting-real-validation`，7张研究票继续 `awaiting-validation`，25张依赖票未实施并保留blockers。没有completed票；自动验证未放行依赖验收门槛。
+- 共享改动覆盖混合额度/钱包与独立提醒、持续补充/非周期额度、只给日期的边界、Decimal精确计数、部分余额失败的旧观测时间和身份隔离；详细交付见[第二批记录](wave2-progress.md)。最终命令/结果/UI与限制由root继续写入[统一验证记录](validation-record.md)。

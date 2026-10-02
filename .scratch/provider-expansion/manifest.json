@@ -46,10 +46,13 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "moonshot",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/04-moonshot.md",
     "assignee": "sol_regional",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/moonshot-integration.md"
   },
   {
     "number": 5,
@@ -59,10 +62,13 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "alibabaCodingPlan",
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/05-alibaba-coding-plan.md",
     "assignee": "sol_regional",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/alibaba-coding-plan-integration.md"
   },
   {
     "number": 6,
@@ -72,10 +78,13 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "factory",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/06-factory.md",
     "assignee": "sol_copilot",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/factory-provider-integration.md"
   },
   {
     "number": 7,
@@ -85,10 +94,13 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "synthetic",
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/07-synthetic.md",
     "assignee": "sol_web",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/synthetic-provider-integration.md"
   },
   {
     "number": 8,
@@ -98,10 +110,13 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "v2ex",
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/08-v2ex.md",
     "assignee": "sol_web",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/v2ex-provider-integration.md"
   },
   {
     "number": 9,
@@ -214,10 +229,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/16-command-code.md",
     "assignee": "sol_research",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/command-code-provider-integration.md"
   },
   {
     "number": 17,
@@ -239,10 +257,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/17-amp.md",
     "assignee": "sol_research",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/amp-provider-integration.md"
   },
   {
     "number": 18,
@@ -264,10 +285,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/18-atlas-cloud.md",
     "assignee": "sol_wallet",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/atlas-cloud-integration.md"
   },
   {
     "number": 19,
@@ -289,10 +313,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/19-chutes.md",
     "assignee": "sol_regional",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/chutes-integration.md"
   },
   {
     "number": 20,
@@ -314,10 +341,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/20-clinepass.md",
     "assignee": "root",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/clinepass-integration.md"
   },
   {
     "number": 21,
@@ -339,10 +369,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/21-codebuff.md",
     "assignee": "root",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/codebuff-integration.md"
   },
   {
     "number": 22,
@@ -364,10 +397,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/22-deepinfra.md",
     "assignee": "sol_wallet",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/deepinfra-integration.md"
   },
   {
     "number": 23,
@@ -389,10 +425,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/23-devpass.md",
     "assignee": "sol_copilot",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/devpass-provider-integration.md"
   },
   {
     "number": 24,
@@ -414,10 +453,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/24-gitkraken.md",
     "assignee": "sol_research",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/gitkraken-provider-integration.md"
   },
   {
     "number": 25,
@@ -439,10 +481,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/25-hugging-face.md",
     "assignee": "sol_research",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/hugging-face-provider-integration.md"
   },
   {
     "number": 26,
@@ -464,10 +509,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/26-hyper.md",
     "assignee": "sol_wallet",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/hyper-integration.md"
   },
   {
     "number": 27,
@@ -489,10 +537,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/27-ibm-bob.md",
     "assignee": "sol_gateway",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/ibm-bob-provider-integration.md"
   },
   {
     "number": 28,
@@ -514,10 +565,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/28-kilo-code.md",
     "assignee": "sol_wallet",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/kilo-code-integration.md"
   },
   {
     "number": 29,
@@ -539,10 +593,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/29-neuralwatt.md",
     "assignee": "root",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/neuralwatt-integration.md"
   },
   {
     "number": 30,
@@ -564,10 +621,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/30-v0.md",
     "assignee": "sol_copilot",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/v0-provider-integration.md"
   },
   {
     "number": 31,
@@ -589,10 +649,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/31-venice.md",
     "assignee": "sol_wallet",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/venice-integration.md"
   },
   {
     "number": 32,
@@ -614,10 +677,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/32-warp.md",
     "assignee": "sol_copilot",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/warp-provider-integration.md"
   },
   {
     "number": 33,
@@ -639,10 +705,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/33-xkiro.md",
     "assignee": "sol_web",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/xkiro-provider-integration.md"
   },
   {
     "number": 34,
@@ -664,10 +733,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/34-zenmux.md",
     "assignee": "sol_web",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/zenmux-provider-integration.md"
   },
   {
     "number": 35,
@@ -689,10 +761,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/35-aixy.md",
     "assignee": "root",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/aixy-integration.md"
   },
   {
     "number": 36,
@@ -714,10 +789,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/36-clawrouter.md",
     "assignee": "root",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/clawrouter-integration.md"
   },
   {
     "number": 37,
@@ -764,10 +842,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/38-xai-api.md",
     "assignee": "sol_gateway",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/xai-api-provider-integration.md"
   },
   {
     "number": 39,
@@ -789,10 +870,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "implemented-awaiting-real-validation",
     "file": "issues/39-volcengine.md",
     "assignee": "sol_gateway",
-    "wave": 2
+    "wave": 2,
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/volcengine-provider-integration.md"
   },
   {
     "number": 40,
@@ -1335,8 +1419,13 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
-    "file": "issues/60-cursor.md"
+    "status": "implemented-awaiting-real-validation",
+    "file": "issues/60-cursor.md",
+    "validationRecord": "validation-record.md",
+    "wave": 2,
+    "integrationBaseline": "c082bba",
+    "implementationRecord": "../../docs/cursor-mobile-integration.md",
+    "assignee": "sol_regional"
   },
   {
     "number": 61,

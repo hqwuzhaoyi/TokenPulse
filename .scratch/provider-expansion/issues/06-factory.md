@@ -1,6 +1,6 @@
 # 06: Factory 套餐额度接入
 
-**Status:** implemented; static checks passed; central build/test and real-account validation pending
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

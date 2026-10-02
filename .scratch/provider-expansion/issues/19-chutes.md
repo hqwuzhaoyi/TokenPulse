@@ -1,6 +1,6 @@
 # 19: Chutes 订阅额度
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

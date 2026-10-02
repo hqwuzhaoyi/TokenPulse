@@ -1,6 +1,6 @@
 # 23: DevPass 套餐与 Key 限额
 
-**Status:** implemented; static verification passed; central build/test and real-account acceptance pending
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

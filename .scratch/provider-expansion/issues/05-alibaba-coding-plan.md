@@ -1,6 +1,6 @@
 # 05: 阿里百炼 Coding Plan 额度接入
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

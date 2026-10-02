@@ -1,6 +1,6 @@
 # 32: Warp 套餐与附加 credits
 
-**Status:** implemented; static contract verified; central build/test and mobile/real-account validation pending
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

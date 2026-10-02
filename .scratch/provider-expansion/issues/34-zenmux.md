@@ -1,6 +1,6 @@
 # 34: ZenMux 管理额度与余额
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

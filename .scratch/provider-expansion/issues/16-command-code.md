@@ -1,6 +1,6 @@
 # 16: Command Code 美元余额与限额
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

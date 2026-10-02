@@ -1,23 +1,25 @@
 # TokenPulse
 
-在 iPhone 和 Apple Watch 上查看多个 AI 服务账号的套餐额度与 API 钱包余额，支持设备独立刷新、额度与低余额提醒、桌面小组件。
+在 iPhone 和 Apple Watch 上查看多个 AI 服务账号的套餐额度、预算、积分、GPU 时长和钱包余额，支持设备独立刷新、额度与低余额提醒、桌面小组件。
 
 > **原参考仓库：[qunqin24/Pulse](https://github.com/qunqin24/Pulse)**
 >
-> TokenPulse 的产品设计、提供商接入研究及渠道图标参考了 Pulse，并实现了面向 iOS / watchOS 的原生应用。接入研究的参考版本为 [8d7fd60](https://github.com/qunqin24/Pulse/tree/8d7fd60454ce383dd0a136a30790c1e277f8069b)。
+> TokenPulse 的产品设计、提供商接入研究及渠道图标参考了 Pulse，并实现了面向 iOS / watchOS 的原生应用。原始参考版本为 [8d7fd60](https://github.com/qunqin24/Pulse/tree/8d7fd60454ce383dd0a136a30790c1e277f8069b)；本次提供商扩展以 [397c8fc4](https://github.com/qunqin24/Pulse/tree/397c8fc4f1bd52180a452d2f3f0c099def97cf69) 和各接入文档固定的官方来源为契约线索。
 
 ## 功能
 
-- **多提供商、多账号**：Claude、ChatGPT/Codex、OpenCode Go、Z.ai 国际版、智谱国内版、MiniMax 国内／国际版、SuperGrok、Qoder 国际版、DeepSeek、Kimi Code 国内版、Poe、Vercel AI Gateway、ElevenLabs、StepFun、New API 与 GitHub Copilot。
+- **多提供商、多账号**：46 个代码入口，涵盖订阅、API 钱包和托管网关；同一提供商可配置多个账号。入口落地与真实账号可用性分别验收，完整范围见下表。
 - **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 获取配置及凭证后，无需手机代查额度。
 - **账号管理**：首页通过 Edit 拖动账号卡片排序；左滑卡片或进入账号设置可删除账号，清理凭证、额度和提醒，并通过 iCloud 同步删除结果。Watch 同步全部账号，每个账号保留独立额度窗口。
 - **同步控制**：iCloud 同步开关、手动同步、最近同步时间、失败提示；点击同步时图标旋转反馈。
 - **额度告警**：提供应用级通知开关；默认阈值为 80%、95%、100%，按提供商和套餐的可通知窗口判断，多个窗口同时触发时合并提醒。
-- **重置提醒**：仅为已有实际用量的可通知窗口预排系统通知；到时后旧数据标记“待更新”。
+- **重置与补充**：只有服务给出精确重置时刻、且已有实际用量的窗口才预排通知；持续补充不当成重置。仅给日期的账期保持日期精度，不按午夜推断恢复。
 - **额度小组件与表盘入口**：iPhone 主屏幕使用文字与横向进度条展示额度；锁屏及 Watch 表盘四角、圆形、矩形、行内复杂功能和智能叠放保留原有展示，均保留渠道图标。
-- **数据状态**：保留上次成功数据、采集时间和查询失败提示，重置时间按设备地区与时区显示。
+- **数据状态**：保留上次成功数据、采集时间和查询失败提示；混合账号保留各自额度与余额状态，余额查询失败时不会把旧余额标成新观测。精确时间按设备时区显示，仅给日期的边界保持原日期。
 
 ## 提供商与登录方式
+
+下表列出 **46 个已落地代码入口**，不表示每家真实账号或手机/Watch 授权已通过。原有 9 个入口之外，首批 8 个、第二批 29 个均保留真实验收边界；第二批特别包括百炼 Key 查询兼容性、Cursor 嵌入授权及 Warp 移动客户端约束。详见各行说明和[第二批记录](.scratch/provider-expansion/wave2-progress.md)。
 
 | 提供商 | 登录方式 | 桌面小组件主要内容 |
 | --- | --- | --- |
@@ -38,8 +40,39 @@
 | ElevenLabs | 具备 user_read 权限的 API Key | 账期字符额度与重置时间 |
 | New API | 每账号服务器地址与网关 Key（公网 HTTPS／私网 HTTP） | 明确币种的钱包余额；无限 Key、Token 或未知单位按原意展示 |
 | GitHub Copilot | GitHub 设备码授权（read:user） | Premium requests、Chat、Completions，按实际套餐分别显示 |
+| [Moonshot API 钱包](docs/moonshot-integration.md) | 明确国内/国际地区与对应 API Key | 国内 CNY／国际 USD 余额；与 Kimi Code 套餐分开 |
+| [阿里百炼 Coding Plan](docs/alibaba-coding-plan-integration.md) | 国内/国际 Coding Plan Key，控制台兼容性待验 | 5 小时、每周、账期额度；要求会话时明确报错 |
+| [Factory](docs/factory-provider-integration.md) | Factory API Key | 新 Standard/Core 或旧 Standard/Premium 池；附加 cents 不推断币种 |
+| [Synthetic](docs/synthetic-provider-integration.md) | Synthetic API Key | 持续补充的短周期/每周池与独立 Search 请求额度 |
+| [V2EX](docs/v2ex-provider-integration.md) | Personal Access Token | AI Chat tokens 窗口与永久补充包，未开始状态不造重置 |
+| [Command Code](docs/command-code-provider-integration.md) | Command Code API Key | 真实美元余额与独立滚动/组织限额，不按套餐价格推算总额 |
+| [Amp](docs/amp-provider-integration.md) | Amp Access Token | Free 持续补充、Agent 美元预算、Orb 小时与个人 USD 余额 |
+| [Atlas Cloud](docs/atlas-cloud-integration.md) | 有账户余额读取权限的 API Key | 按服务返回币种显示账户余额 |
+| [Chutes](docs/chutes-integration.md) | Chutes API Key | 当前契约的 4 小时固定与账期 USD 预算，保留明确无限状态 |
+| [ClinePass](docs/clinepass-integration.md) | ClinePass API Key | 5 小时、每周与每月窗口 |
+| [Codebuff](docs/codebuff-integration.md) | Codebuff API Key | Key 可见的 credits 额度及非货币剩余余额 |
+| [DeepInfra](docs/deepinfra-integration.md) | DeepInfra API Key | USD 钱包与实际给出的独立支出上限 |
+| [DevPass](docs/devpass-provider-integration.md) | 普通 LLM Gateway API Key | Premium、账期 USD credits 与 Key 累计限额；非钱包 |
+| [GitKraken AI](docs/gitkraken-provider-integration.md) | 会过期的账户会话 Token，可指定组织 ID | 个人与对应组织共享 credits，未提供组织名时明确标注 |
+| [Hugging Face](docs/hugging-face-provider-integration.md) | 具备账单读取权限的用户 Token | ZeroGPU GPU 秒；不含 Inference Providers 账单或钱包 |
+| [Hyper](docs/hyper-integration.md) | Hyper API Key | 非货币 Hypercredits（HC）余额 |
+| [IBM Bob](docs/ibm-bob-provider-integration.md) | General API Key 或登录 JWT | 各实例/团队 Bobcoins 用量与预算，未知预算不补分母 |
+| [Kilo Code](docs/kilo-code-integration.md) | Kilo Code 个人 API Key | USD 钱包与 Kilo Pass 账期额度，分别展示 |
+| [Neuralwatt](docs/neuralwatt-integration.md) | Neuralwatt API Key | kWh 订阅量、USD Key 限额及 USD 钱包 |
+| [v0](docs/v0-provider-integration.md) | v0 Platform API Key | 账期 credits 与独立消息限流，不推断美元钱包 |
+| [Venice](docs/venice-integration.md) | Venice API Key | 服务指定的 USD 或 DIEM/其他非货币 credits，不合计或换汇 |
+| [Warp](docs/warp-provider-integration.md) | Warp API Key；移动兼容待真实验证 | 套餐与按个人/工作区来源区分的 grants，到期不作重置 |
+| [xKiro](docs/xkiro-provider-integration.md) | xKiro API Key | USD 预算、免费 tokens 与 USD 钱包；与 AWS Kiro 无关 |
+| [ZenMux](docs/zenmux-provider-integration.md) | Management Key，非推理 Key | 套餐额度与按量钱包；旧余额保留独立采集时间 |
+| [Aixy](docs/aixy-integration.md) | 托管项目 Key | 适用的硬预算与监控预算，不当钱包资金 |
+| [ClawRouter](docs/clawrouter-integration.md) | OpenClaw 托管 Key | 托管微美元预算；不混同 BlockRun x402 钱包 |
+| [xAI API](docs/xai-api-provider-integration.md) | Team ID 与有账单权限的 Management Key | 已入账 USD 团队预付余额，可能不同于实时余额；与 SuperGrok 分开 |
+| [火山方舟](docs/volcengine-provider-integration.md) | AccessKey ID 与 SecretAccessKey | Coding Plan 与 Agent Plan（AFP）分别展示，设备独立签名 |
+| [Cursor](docs/cursor-mobile-integration.md) | 账号隔离的手机网页登录/原生轮询路线；到期重登 | Cursor Models、Other Models 与实际额外 USD 支出预算；非钱包 |
 
 DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情包含总可用、赠送和充值余额。账号设置可选择概览及提醒币种，低余额默认阈值为 CNY 10 元或 USD 2 美元，可修改。持续低余额只提醒一次，余额恢复后再次降低才重新提醒；余额不足以调用 API 时也会提醒，并合并同次通知。钱包不显示已用百分比或周期重置时间。
+
+混合账号的额度与钱包分别显示、分别设置提醒；只有服务明确给出的分母才产生使用率。货币金额与精确预算保留 Decimal，points、HC、Bobcoins、GPU 秒、小时和 kWh 不按名称或价格兑换为美元。部分查询失败时，成功的额度与保留的旧余额显示各自状态和采集时间，不用新时间掩盖旧数据。
 
 New API 每个账号可配置不同的网关（公网 HTTPS，明确的私网地址可用 HTTP），地址末尾的 `/v1` 会自动移除；更新地址或 Key 后会清除旧余额和提醒身份。公共 `/api/status` 请求不携带 Key。USD/CNY 余额支持低余额提醒，TOKENS、CUSTOM 或未知币种不会被当作货币；不会用历史充值总量推断套餐百分比。私网连接的系统权限、iPhone/Watch 实机可达性、iCloud Keychain 到达和真实 Key 失效尚待验收。
 
@@ -67,7 +100,7 @@ Apple Watch 首次启动会自动请求系统通知权限；允许后额度告�
 
 ## 构建与真机安装
 
-环境：**iOS 17+、watchOS 10+、Xcode 26.2 / Swift 6**。工程包含 iPhone App、Watch App、两端 Widget 和 XCTest 五个 targets。
+环境：**iOS 17+、watchOS 10+、Xcode 26.x / Swift 6**。本轮验收使用 Xcode 26.6。工程包含 iPhone App、Watch App、两端 Widget 和 XCTest 五个 targets。
 
 ```sh
 git clone https://github.com/hqwuzhaoyi/TokenPulse.git
@@ -104,10 +137,11 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 已有 **238 项自动测试**，覆盖账号隔离、删除与排序、展开布局、持久化、提供商契约、授权恢复、同步控制、提醒规则、小组件数据选择，以及演示模式的数据与通知隔离。
-- 本轮 unsigned App / Watch / Widgets 完整构建及 iPhone 模拟器测试通过；既有版本的 iOS/watchOS 签名构建、iPhone 真机安装与启动曾通过。
+- 截至集成提交 **c082bba**，完整 iPhone 模拟器 XCTest **457 项通过，0 failures**，覆盖原有功能及 46 个入口的契约/边界、身份隔离、精确数量、混合提醒与演示。该数值是此提交的已执行结果，后续审查修复须按新的结果更新。
+- 同一提交的 unsigned TokenPulse target 完整构建通过，覆盖 App、Watch、两端 Widgets 与资产目录。日志为本机 `/tmp/tokenpulse-sol-wave2-full46.log` 和 `/tmp/tokenpulse-sol-wave2-unsigned.log`；既有版本的签名构建、iPhone 真机安装与启动属于历史证据。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
-- 新增 8 个提供商及其余未验证接入的真实账号、双端凭证续期、iCloud 到达、后台通知与各类小组件仍需完整实机验收；本轮记录见 [provider 扩展验证](.scratch/provider-expansion/validation-record.md)。
+- root 已抽查新增账号卡片的可访问性信息，重点截图核对混合钱包、单位、持续补充、日期、IBM 未提供预算和 Warp 到期，添加表单菜单可打开。完整 UI/各尺寸组件、真实授权流程与物理设备仍未验收；首批截图也不替代本批完整视觉验收。
+- 新增 37 个入口的真实账号、当前接口兼容、凭证生命周期、iCloud 到达、物理 Watch 手机离线直查、后台通知与组件仍待验收。7 张研究票和 25 张依赖票均未完成；review 修复和重新验证正在进行，最终计数见[扩展进度](.scratch/provider-expansion/README.md)及由 root 维护的[统一验证记录](.scratch/provider-expansion/validation-record.md)。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 

@@ -1,6 +1,6 @@
 # 25: Hugging Face ZeroGPU 额度
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

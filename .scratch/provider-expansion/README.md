@@ -1,6 +1,6 @@
 # TokenPulse provider 扩展 tickets
 
-状态：用户于 2026-10-02 批准 69 张本地 tickets，并启动 6 人 Sol 团队。首批 8 张接入票已实现并通过自动验证，7 张可行性票已完成源码调研；这些票仍待真实账号/设备验证，尚未关闭。第二批正在实施，见[第二批执行记录](wave2-progress.md)。首批详见[团队执行记录](team-progress.md)与[统一验证记录](validation-record.md)。
+状态（已验证基线 c082bba）：用户于 2026-10-02 批准 69 张本地 tickets，6 个 Sol 工作者与 root 已集成首批 8 张、第二批 29 张代码票。原有 9 个入口加新增 37 个，共 46 个提供商入口。完整 XCTest 457 项、0 failures 与 unsigned 全目标构建已由 root 实际执行通过；新增卡片/重点单位与混合展示已有 UI 抽查，完整视觉与真实账号/物理设备验收尚未完成。后续 review 修复及重新验证仍在进行，最终计数由 root 更新。7 张可行性票有研究报告但未通过实际验证，25 张依赖票尚未实施。见[第二批记录](wave2-progress.md)、[团队记录](team-progress.md)及由 root 维护最终结果的[统一验证记录](validation-record.md)。
 
 范围：按 Pulse 固定版本的 77 个内置 provider 对照本地 9 个已接入项，覆盖全部 68 个未接入 provider，并补充 Qoder 国内站。已有 Claude、Codex、OpenCode Go、Kimi Code、Z.ai、MiniMax 国内版、SuperGrok、DeepSeek、Qoder 国际版不重复建接入票。
 
@@ -8,9 +8,20 @@
 
 每张接入票均覆盖账号配置、凭证、双端独立刷新、展示、小组件、适用提醒、演示数据、图标、测试和真实验收。金额余额、积分、token、GPU 时长与套餐配额使用各自单位。无真实凭证时保留未验收状态。
 
-发布方式：沿用仓库已确认的本地 tracker，正式工单位于 `issues/`。`ready-for-agent` 表示工单已准备好；只有所有阻塞票完成后才可领取，不代表实现或真实验收已完成。当前 8 张为 `implemented-awaiting-real-validation`，7 张为 `awaiting-validation`，其余 54 张保持 `ready-for-agent`（其中 29 张当前无阻塞）。
+发布方式：沿用本地 tracker，正式工单位于 `issues/`，中央状态在 `manifest.json`。37 张代码票为 `implemented-awaiting-real-validation`；7 张研究票为 `awaiting-validation`；25 张未实施依赖票保留 `ready-for-agent` 与原 blockers。`ready-for-agent` 只表示票据准备好，依赖门槛未通过时不能领取；没有任何票因合成测试或构建通过被标为完成。
+
+| 范围 | 票数 | 代码/报告状态 | 仍待验收 |
+| --- | --- | --- | --- |
+| 首批 01、02、03、09、10、11、12、40 | 8 | 已集成代码 | 当前真实账号/凭证、物理双端/iCloud |
+| 第二批 04–08、16–36、38、39、60 | 29 | 已集成代码 | 接口/授权兼容、真实单位/身份、物理设备与本轮 UI |
+| 研究 63–69 | 7 | 源码/文档研究已交付，未正式接入 | 合法移动端认证、真实读取及续期/Watch 验证 |
+| 13–15、37、41–59、61、62 | 25 | 未实施，保留依赖 | 前置能力真实验收通过后才可进入 |
+
+上述分组互斥，总计 69 票；代码票 37 + 未实施接入票 25 = 62 张 integration，另有 7 张 feasibility。地区选择（如 Moonshot）不额外计作提供商枚举入口。
 
 依赖只表达计划中明确复用的能力：12 随 New API 交付按账号配置地址；40 随 StepFun 交付隔离的网页登录与 Cookie 路径；44 随 Devin 交付网页存储凭证提取；60 随 Cursor 交付 Cursor 授权。共享能力与首个真实 provider 一同验收，不另开空壳基础设施票。
+
+Cursor 60 的代码已落地，但手机真实登录/双端兼容尚未验收，不能据此放行 Grok Bot 61；Devin 44 仍未实现，Windsurf 62 仍由 44 阻塞。New API 12 与 StepFun 40 的代码/自动检查也不等于后继共享能力已获真实验收。7 份研究报告的“候选可行”或“旧本地架构不适用”都不是完成结论。
 
 修正先前调研：Aixy、ClawRouter 的上游实现仅使用固定托管地址，不依赖 12；GitKraken 使用会话 access token，需要明确失效与重新配置。
 

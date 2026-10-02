@@ -1,6 +1,6 @@
 # 29: Neuralwatt 订阅与钱包
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

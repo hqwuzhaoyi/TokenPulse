@@ -1,6 +1,6 @@
 # 07: Synthetic 多窗口额度接入
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

@@ -1,6 +1,6 @@
 # 27: IBM Bob 团队 Bobcoins 预算
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

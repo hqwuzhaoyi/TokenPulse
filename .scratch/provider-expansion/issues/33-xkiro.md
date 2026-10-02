@@ -1,6 +1,6 @@
 # 33: xKiro 配额与钱包
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

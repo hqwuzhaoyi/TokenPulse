@@ -1,6 +1,6 @@
 # 26: Hyper Hypercredits 余额
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

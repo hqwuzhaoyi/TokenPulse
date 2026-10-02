@@ -1,6 +1,6 @@
 # 38: xAI API 团队预付余额
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

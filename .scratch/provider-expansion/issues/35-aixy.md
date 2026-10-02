@@ -1,6 +1,6 @@
 # 35: Aixy 托管网关预算
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

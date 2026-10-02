@@ -1,6 +1,6 @@
 # 18: Atlas Cloud 钱包余额
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

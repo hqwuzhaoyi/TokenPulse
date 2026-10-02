@@ -1,6 +1,6 @@
 # 17: Amp 套餐额度与余额
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

@@ -1,6 +1,6 @@
 # 21: Codebuff Key 模式 credits
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

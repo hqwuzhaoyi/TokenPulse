@@ -1,6 +1,6 @@
 # 60: Cursor 移动端授权与额度
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

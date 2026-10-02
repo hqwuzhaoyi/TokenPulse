@@ -1,6 +1,6 @@
 # 24: GitKraken AI 个人与组织额度
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

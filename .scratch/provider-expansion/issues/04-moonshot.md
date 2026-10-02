@@ -1,6 +1,6 @@
 # 04: Moonshot API 钱包余额接入
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

@@ -1,6 +1,6 @@
 # 20: ClinePass 多周期额度
 
-**Status:** implemented-awaiting-integrated-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 

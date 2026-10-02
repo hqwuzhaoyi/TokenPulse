@@ -1,6 +1,6 @@
 # 22: DeepInfra 钱包与支出上限
 
-**Status:** implemented-awaiting-validation
+**Status:** implemented-awaiting-real-validation
 
 **Type:** integration
 
