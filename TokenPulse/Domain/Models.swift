@@ -33,7 +33,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case atlasCloud
     case commandCode, amp, gitKraken, huggingFace
     case synthetic, v2ex, xKiro, zenMux
-    case alibabaCodingPlan, chutes, cursor
+    case alibabaCodingPlan, alibabaTokenPlan, chutes, cursor
     case volcengine
     case xaiAPI
     case ibmBob
@@ -48,7 +48,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case openAIAPI
 
     var id: String { rawValue }
-    var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
+    var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan || self == .alibabaTokenPlan }
     var hasMonetaryWallet: Bool { [.openAIAPI, .perplexity, .xiaomiCodingPlan, .sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper, .manus].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
@@ -105,6 +105,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .xKiro: "xKiro"
         case .zenMux: "ZenMux"
         case .alibabaCodingPlan: "阿里百炼 Coding Plan"
+        case .alibabaTokenPlan: "阿里百炼 Token Plan"
         case .chutes: "Chutes"
         case .cursor: "Cursor"
         case .volcengine: "火山方舟"

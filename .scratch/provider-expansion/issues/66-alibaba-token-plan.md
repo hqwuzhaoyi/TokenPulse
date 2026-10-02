@@ -1,31 +1,28 @@
-# 66: Alibaba Token Plan 移动端可行性
+# 66: Alibaba Token Plan 原生 HTTPS 接入
 
-**Status:** awaiting-validation
+**Status:** done
 
-**Type:** feasibility
+**Type:** integration
 
-**What to build:** 验证无需 bl CLI 的登录、地区绑定与 Token Plan 查询。
+**What to build:** 无 bl CLI 的 AK/SK console token 生成、明确地区/站点绑定和 Personal Token Plan 查询。
 
-**Blocked by:** 测试账号明确允许的 AK/SK 权限与地区/site；iPhone/Watch 双端直连、过期重取及真实数值对照。
+**Blocked by:** 无。本票按用户最新“实际实现+图标存在”验收；真实账号/实体设备观察不作关票门槛。
 
 ## Acceptance criteria
 
-- [x] 区分 Token Plan 与已排期的 Coding Plan；CLI 打印的额度不证明存在可供手机使用的认证入口。
-- [x] 交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。
-- [ ] 若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。
-- [x] 若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。
-- [x] 不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。
-- [ ] 验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。
-- [x] 测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。
+- [x] Token Plan 单独注册，与 Coding Plan 及 sk-sp 推理 Key 区分；App/Watch 本设备直接 HTTPS，不运行 CLI/代查服务。
+- [x] 固定官方 modelstudioai/cli 证据：ACS3 空 body 签名生成 cliAccessToken，随后个人 usage gateway；NotLogined 最多重取/重读一次。
+- [x] AK:SK secure composite、北京/新加坡与国内/国际站均显式选择；四组固定 host/action，拒绝重定向。凭证和目标进入实际 identity，账号配置/缓存/提醒隔离。
+- [x] 正确解析官方 DataV2/data envelope、已用比例 [0,1] 和毫秒 reset，仅 5h/week；缺失未知、无月窗/Team预算/钱包假值。
+- [x] 认证 UI、展示、Watch/widget 注册、PBX、演示、独立窗口提醒及相关回归源码完成。
+- [x] 图标存在：复用 ProviderAlibabaCloud vector/template SVG；固定源/许可 Notices 保留并注明复用。
+- [x] 实际 Swift6 Foundation 语义检查及 synthetic 离线请求链通过；签名 golden 由固定官方 Node 源码独立生成。完整 XCTest/unsigned build 由 root 统一执行。
+- [x] 未读取真实凭证、未创建外部真实登录、不保存 synthetic 以外的测试凭证。
 
-## Evidence
+## Evidence — 2026-10-03
 
-参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/alibaba-token-plan.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+[专属实现说明](../../../docs/alibaba-token-plan-integration.md)记录生产接口、四地区/站点组合、数据语义、签名 golden 来源及验证边界。[固定官方研究](../research/66-alibaba-token-plan.md)保留原调查证据并更新当前验收。
 
-## Research result — 2026-10-02
+生产实现 AlibabaTokenPlanProvider.swift；回归 AlibabaTokenPlanProviderTests.swift 覆盖签名、form 请求、DataV2/ratio/reset、retry/permission、scope与失败换绑、配置兼容、演示/widget/图标与提醒。本次 isolated Swift6 typecheck 和合成离线 probe 实际通过，未启动 Xcode/模拟器；完整 XCTest及多 target build 由 root 集中验证。
 
-官方 CLI 云端 token 生成、gateway usage 与重取契约已核对；普通推理 Key 不能代替 console 凭证，候选路径未实测。
-
-研究报告：[认证、查询、生命周期、平台限制与最小验证](../research/66-alibaba-token-plan.md)。只进行公开文档/固定源码研究，未读取用户凭证、未建立外部登录、未完成真实账号或 Watch 验收。
-
-状态 `awaiting-validation` 表示研究交付已产出，整票未完成。第3项真实纵向验收和第6项通过后实施票仍未满足；已勾选的否定/缺口项仅代表报告清楚区分既有架构限制与实际未验证项。
+未进行真实账号 RAM 权限/TTL、双端 token 互不撤销、真实面板数值、iCloud 和实体 Watch 观察。不宣称这些观察已通过；它们按当前用户验收标准不阻塞本票 done。长期 AK/SK 被撤销需用户重新配置；STS自动续期、switchAgent团队身份和月额度不在本实现范围。

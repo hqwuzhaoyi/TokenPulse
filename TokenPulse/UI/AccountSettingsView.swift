@@ -174,6 +174,7 @@ private struct AccountPreferencesView: View {
     @State private var serverAddress = ""
     @State private var region: ProviderRegion?
     @State private var organizationID = ""
+    @State private var tokenPlanSite: AlibabaTokenPlanSite?
     @State private var showingLogin = false
     @State private var showingDeleteConfirmation = false
 
@@ -276,8 +277,13 @@ private struct AccountPreferencesView: View {
                         }
                     } else if usesAPIKey(configuration.account.provider) {
                         if configuration.account.provider.requiresRegion {
-                            ProviderRegionPicker(region: $region)
-                            Text(configuration.account.provider == .moonshot
+                            ProviderRegionPicker(region: $region, usesCloudRegionNames: configuration.account.provider == .alibabaTokenPlan)
+                            if configuration.account.provider == .alibabaTokenPlan {
+                                AlibabaTokenPlanSitePicker(site: $tokenPlanSite)
+                            }
+                            Text(configuration.account.provider == .alibabaTokenPlan
+                                 ? "选择北京或新加坡及账号所属站点。输入 AK:SK，不是 sk-sp 推理 Key；仅查询个人 Token Plan。更换地区或站点需要重新输入凭证。"
+                                 : configuration.account.provider == .moonshot
                                  ? "地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。"
                                  : "地区与凭证绑定。Key 查询兼容性待验证；要求控制台会话时不会显示零额度。")
                                 .font(.caption).foregroundStyle(.secondary)
@@ -319,14 +325,14 @@ private struct AccountPreferencesView: View {
                                         ? try ProviderAuthenticationController().credential(
                                             provider: configuration.account.provider,
                                             apiKey: credential,
-                                            serverAddress: serverAddress, region: region, organizationID: organizationID
+                                            serverAddress: serverAddress, region: region, organizationID: organizationID, tokenPlanSite: tokenPlanSite
                                         )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
                                 } catch { self.error = configuration.account.provider.requiresGatewayAddress ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
                             }
-                        }.disabled(credential.isEmpty || configuration.account.provider.requiresRegion && region == nil)
+                        }.disabled(credential.isEmpty || configuration.account.provider.requiresRegion && region == nil || configuration.account.provider == .alibabaTokenPlan && tokenPlanSite == nil)
                     } else {
                         Button("重新登录 \(configuration.account.provider.displayName)") { showingLogin = true }
                     }
@@ -341,7 +347,9 @@ private struct AccountPreferencesView: View {
             serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? ""
             region = monitor.configuration(for: accountID)?.providerRegion
             organizationID = monitor.configuration(for: accountID)?.organizationID ?? ""
+            tokenPlanSite = monitor.configuration(for: accountID)?.tokenPlanSite
         }
+        .onChange(of: tokenPlanSite) { _, _ in credential = "" }
         .onChange(of: region) { _, _ in credential = "" }
         .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
             Button("删除账号", role: .destructive) {

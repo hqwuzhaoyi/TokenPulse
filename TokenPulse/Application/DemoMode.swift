@@ -50,6 +50,7 @@ enum DemoMode {
             (.notionAI, "Notion AI"),
             (.augmentCode, "Augment Code"), (.zed, "Zed"), (.grokBot, "Grok Bot"),
             (.openAIAPI, "OpenAI API Legacy 余额"),
+            (.alibabaTokenPlan, "百炼 Personal Token Plan"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -427,6 +428,7 @@ enum DemoMode {
                         resetsAt: now.addingTimeInterval(12 * 86400), unit: "USD 预算",
                         exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100))
         ]
+        case .alibabaTokenPlan: [window("alibabaTokenPlan.fiveHour", "5 小时额度", .fiveHour, 25, scope: "Personal Token Plan"), window("alibabaTokenPlan.weekly", "每周额度", .weekly, 62, scope: "Personal Token Plan")]
         case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
         case .sakana: [
             QuotaWindow(id: "sakana.five-hour", name: "5-hour allowance", scope: nil, period: .fiveHour,

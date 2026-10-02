@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider.requiresGatewayAddress { self.transport = GatewayProviderTransport() }
-        else if provider.webLoginProfile != nil || [.grokBot, .elevenLabs, .cursor, .volcengine, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider.webLoginProfile != nil || [.grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -346,6 +346,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .chutes:
             return try await ChutesProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .alibabaTokenPlan:
+            return try await AlibabaTokenPlanProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .alibabaCodingPlan:
             return try await AlibabaCodingPlanProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -445,6 +448,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Venice API Key")
         case .chutes:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Chutes API Key")
+        case .alibabaTokenPlan:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "AccessKeyID:AccessKeySecret（AK/SK）")
         case .alibabaCodingPlan:
             return .init(provider: provider, method: .apiKey, credentialLabel: "百炼 Coding Plan Key（Key 查询兼容性待验证）")
         case .deepSeek:
@@ -474,11 +479,12 @@ struct ProviderAuthenticationController: Sendable {
         }
     }
 
-    func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil, organizationID: String? = nil) throws -> String {
+    func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil, organizationID: String? = nil, tokenPlanSite: AlibabaTokenPlanSite? = nil) throws -> String {
         if provider.requiresGatewayAddress { return try GatewayCredentials.make(provider: provider, key: apiKey, server: serverAddress ?? "").encoded() }
         if provider == .ibmBob { return try IBMBobCredential(apiKey).envelope().encoded() }
         if provider == .xaiAPI { return try XAIManagementCredential(apiKey).envelope().encoded() }
         if provider == .volcengine { return try VolcengineAccessKeys(apiKey).envelope().encoded() }
+        if provider == .alibabaTokenPlan { return try AlibabaTokenPlanCredential(key: apiKey, region: region, site: tokenPlanSite).envelope().encoded() }
         if provider == .gitKraken {
             var envelope = try GitKrakenSessionCredential.envelope(token: apiKey, organizationID: organizationID)
             let identityData = try JSONEncoder().encode([provider.rawValue, envelope.accessToken, envelope.metadata["organizationID"] ?? ""])
@@ -553,7 +559,7 @@ struct ProviderAuthenticationController: Sendable {
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成登录")
         case .replicate, .mistral, .sakana, .stepFun, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .openAIAPI, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
+        case .openAIAPI, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -572,7 +578,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -590,7 +596,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(credential: credential, changed: false)
         }
     }

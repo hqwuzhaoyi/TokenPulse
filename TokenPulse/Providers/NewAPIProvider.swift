@@ -117,6 +117,7 @@ extension ProviderCredentialEnvelope {
         if provider == .ibmBob { return (try? IBMBobCredential(envelope: self))?.fingerprint }
         if provider == .xaiAPI { return (try? XAIManagementCredential(envelope: self))?.fingerprint }
         if provider == .volcengine { return (try? VolcengineAccessKeys(accessToken))?.fingerprint }
+        if provider == .alibabaTokenPlan { return (try? AlibabaTokenPlanCredential(envelope: self))?.fingerprint }
         if provider.requiresRegion { return regionalIdentity }
         if kind == .apiKey {
             // Preserve the published fingerprint used by these existing clients.

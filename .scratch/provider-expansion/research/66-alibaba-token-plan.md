@@ -1,6 +1,6 @@
 # 66 Alibaba Token Plan：独立云端路径研究
 
-调查日期：2026-10-02。结论：**官方源码建立了无需 bl 进程的云端认证、续期和 Personal Token Plan 查询候选；移动端账号/权限、地区与双端实测仍未验证**。这是七票中最具体的实施前验证候选，尚不能宣称 provider 可用。
+调查日期：2026-10-02；实现更新：2026-10-03。结论：**已按固定官方源码完成原生 AK/SK→CLI console token→Personal Token Plan 接入，按用户当前“实现+图标存在”验收 done**。移动端真实账号权限、地区与双端设备观察尚未执行，不作为本票门槛；不宣称真实账号/设备验收。
 
 ## 来源与版本
 
@@ -22,7 +22,7 @@
 
 Bearer + form POST `/cli/api.json?action=<action>&product=sfm_bailian&api=<encoded API>`；API 为 `zeldaHttp.apikeyMgr./tokenplan/personal/api/v2/usage`。form 有 `region` 与 JSON `params`，包含 `Api`、`V=1.0`、`Data.cornerstoneParam`（protocol V2、console ONE_CONSOLE、productCode p_efm、switchUserType 3、consoleSite BAILIAN_ALIYUN；如账号需要 switchAgent，应明确绑定）。data 无业务参数。outer HTTP 200 仍可能内层 `success=false/errorCode=NotLogined`，须先展开 envelope/JSON 字符串，不直接解析百分比。
 
-当前官方 command 输出 `per5HourPercentage/per5HourResetTime`、`per1WeekPercentage/per1WeekResetTime`；Pulse 另支持 month 字段，但此次官方 command 没输出 month，因此不能承诺三窗口。Pulse 假设比例 0…1，数值超 1 丢弃；真实单位必须与控制台核对，不能按字段名随意乘除 100。reset 按上游毫秒 epoch，但也缺实际回包确认。该 personal route 不证明 Team shared credits 可用，不读/改套餐、成员、购买或创建 key。
+当前官方 command 输出 `per5HourPercentage/per5HourResetTime`、`per1WeekPercentage/per1WeekResetTime`；Pulse 另支持 month 字段，但此次官方 command 没输出 month，因此不能承诺三窗口。本次补核官方 [quota-box.ts](https://github.com/modelstudioai/cli/blob/8bbbbc722d70fb200641ef22b6f6d033aeae9f74/packages/commands/src/commands/usage/quota-box.ts)：明确比例 [0,1]、显示乘 100、reset 按毫秒 epoch。生产实现拒绝越界/Boolean/数值字符串，缺失不补零或断言无限；真实回包与控制台对照仍属待观察。该 personal route 不证明 Team shared credits 可用，不读/改套餐、成员、购买或创建 key。
 
 ## ADR 与最小验证（本次未执行账号步骤）
 
@@ -31,6 +31,6 @@ Bearer + form POST `/cli/api.json?action=<action>&product=sfm_bailian&api=<encod
 1. 在允许此移动端使用的测试账号明确配置地区/site、可用 AK/SK 权限；不要执行 `bl auth login --console`，该流程可能创建普通 API key。本验证只生成自己明确授权的 console session 并读取 usage。
 2. iPhone 最小客户端按固定官方签名/token/gateway 契约查询，记录 HTTP/内层 code、5h/week 数值、reset、采样时间及官方面板对照，凭证不进日志。
 3. 同步配置给 Watch，由它自己生成 token；手机离线、CLI 不运行时查询。再测 token 过期/NotLogined 后双端各自生成与重读，检查会否互相失效。
-4. 对权限不足、STS 过期、AK 撤销、region/site 错配、无 plan、month 缺失、account switch 保存脱敏结论。RAM 最小权限及生成动作是否开放给此账号是实际阻塞项。
+4. 对权限不足、STS 过期、AK 撤销、region/site 错配、无 plan、month 缺失、account switch 保存脱敏结论。RAM 最小权限及生成动作是否开放给此账号仍需实际观察，按当前验收不是关票阻塞项。
 
-已确认云端协议候选，**可用性仍未验证，票未完成**。通过后才立实施票，范围包括地区/site/身份配置、AK 与 console token 保护/同步、受限续期、比例与 reset 实值、双端 direct fetch、multiaccount、缓存/失效、UI/组件/提醒与真实验收；不能与 Coding Plan 合并或自动扩大到 Team plan。
+按用户更新的验收，已实施并完成本票；不再依赖另立实施票或真实设备门槛。生产实现包括四组合地区/site与实际凭证身份、AK/SK secure envelope、安全同步、一次重取、官方比例/reset语义、App/Watch/widget/PBX/UI/演示/提醒回归。图标复用已有阿里 vector/template资产。详见[专属实现说明](../../../docs/alibaba-token-plan-integration.md)与[当前票状态](../issues/66-alibaba-token-plan.md)。实际 isolated Foundation Swift6 typecheck、官方Node golden和synthetic请求链通过；完整XCTest/build由root集中验证。真实权限/TTL/设备互不撤销/面板对照仍未观察，不能混写为已验证，也不作为done门槛。

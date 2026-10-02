@@ -9,6 +9,7 @@ struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var serverAddress: String?
     var providerRegion: ProviderRegion?
     var organizationID: String?
+    var tokenPlanSite: AlibabaTokenPlanSite?
     var credentialIdentity: String?
 
     var id: UUID { account.id }

@@ -416,6 +416,7 @@ final class QuotaMonitor: ObservableObject {
             }
             synchronizedConfigurations[configIndex].providerRegion = envelope.providerRegion
             if provider == .gitKraken { synchronizedConfigurations[configIndex].organizationID = envelope.metadata["organizationID"] }
+            if provider == .alibabaTokenPlan { synchronizedConfigurations[configIndex].tokenPlanSite = envelope.metadata["consoleSite"].flatMap(AlibabaTokenPlanSite.init(rawValue:)) }
             synchronizedConfigurations[configIndex].modifiedAt = Date()
         }
     }

@@ -69,7 +69,7 @@ extension Provider {
         case .huggingFace: "ProviderHuggingFace"
         case .synthetic, .v2ex, .xKiro: nil
         case .zenMux: "ProviderZenMux"
-        case .alibabaCodingPlan: "ProviderAlibabaCloud"
+        case .alibabaCodingPlan, .alibabaTokenPlan: "ProviderAlibabaCloud"
         case .chutes: "ProviderChutes"
         case .cursor: "ProviderCursor"
         case .volcengine: "ProviderVolcengine"

@@ -569,6 +569,7 @@ private struct AddAccountView: View {
     @State private var serverAddress = ""
     @State private var region: ProviderRegion?
     @State private var organizationID = ""
+    @State private var tokenPlanSite: AlibabaTokenPlanSite?
     @State private var provider = Provider.miniMaxChina
     @State private var saving = false
     @State private var showingLogin = false
@@ -603,8 +604,13 @@ private struct AddAccountView: View {
 
                 if provider.requiresRegion && !isDemoMode {
                     Section("服务地区") {
-                        ProviderRegionPicker(region: $region)
-                        Text(provider == .moonshot
+                        ProviderRegionPicker(region: $region, usesCloudRegionNames: provider == .alibabaTokenPlan)
+                            if provider == .alibabaTokenPlan {
+                                AlibabaTokenPlanSitePicker(site: $tokenPlanSite)
+                            }
+                        Text(provider == .alibabaTokenPlan
+                                 ? "选择北京或新加坡及账号所属站点。输入 AK:SK，不是 sk-sp 推理 Key；仅查询个人 Token Plan。更换地区或站点需要重新输入凭证。"
+                                 : provider == .moonshot
                              ? "Moonshot 开放平台 API 钱包与 Kimi Code 套餐不同。Key 只发送至所选地区；更换地区需要重新输入对应 Key。"
                              : "Key 只发送至所选百炼地区。部分账号的接口要求控制台登录会话；此版本仅支持 Key 路线，真实 Key 兼容性仍待验证。")
                             .font(.caption).foregroundStyle(.secondary)
@@ -685,7 +691,7 @@ private struct AddAccountView: View {
                         Task {
                             do {
                                 let credential = isDemoMode ? "demo" : usesAPIKey
-                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress, region: region, organizationID: organizationID)
+                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress, region: region, organizationID: organizationID, tokenPlanSite: tokenPlanSite)
                                     : key
                                 guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider, newAccountID) else {
                                     loginMessage = "账号未保存，请重试。"
@@ -703,14 +709,16 @@ private struct AddAccountView: View {
                     }
                     .disabled(saving || name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                               || (!isDemoMode && (key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                                                 || provider.requiresRegion && region == nil)))
+                                                 || provider.requiresRegion && region == nil
+                                                 || provider == .alibabaTokenPlan && tokenPlanSite == nil)))
                 }
                 if saving {
                     ToolbarItem(placement: .status) { ProgressView() }
                 }
             }
-            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; region = nil; organizationID = ""; loginMessage = nil }
+            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; region = nil; organizationID = ""; tokenPlanSite = nil; loginMessage = nil }
             .onChange(of: region) { _, _ in key = ""; loginMessage = nil }
+            .onChange(of: tokenPlanSite) { _, _ in key = ""; loginMessage = nil }
             .sheet(isPresented: $showingLogin) {
                 ProviderSignInView(provider: provider, accountID: newAccountID) { credential in
                     key = credential
@@ -732,11 +740,24 @@ private struct AddAccountView: View {
 
 struct ProviderRegionPicker: View {
     @Binding var region: ProviderRegion?
+    var usesCloudRegionNames = false
     var body: some View {
         Picker("地区", selection: $region) {
             Text("请选择服务地区").tag(Optional<ProviderRegion>.none)
             ForEach(ProviderRegion.allCases) { region in
-                Text(region.displayName).tag(Optional(region))
+                Text(usesCloudRegionNames ? (region == .china ? "北京（cn-beijing）" : "新加坡（ap-southeast-1）") : region.displayName).tag(Optional(region))
+            }
+        }
+    }
+}
+
+struct AlibabaTokenPlanSitePicker: View {
+    @Binding var site: AlibabaTokenPlanSite?
+    var body: some View {
+        Picker("账号站点", selection: $site) {
+            Text("请选择账号站点").tag(Optional<AlibabaTokenPlanSite>.none)
+            ForEach(AlibabaTokenPlanSite.allCases) { site in
+                Text(site.displayName).tag(Optional(site))
             }
         }
     }
