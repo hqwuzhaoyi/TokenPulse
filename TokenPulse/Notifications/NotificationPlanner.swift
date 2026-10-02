@@ -259,7 +259,7 @@ struct NotificationPlanner: Sendable {
         } ?? false
         let previousUsedPercentage: Double?
         if let existing,
-           previousCollectedAt.map({ existing.observedAt > $0 }) ?? true {
+           previousCollectedAt.map({ existing.observedAt >= $0 }) ?? true {
             previousUsedPercentage = existing.usedPercentage
         } else {
             previousUsedPercentage = previousWindow?.usedPercentage
