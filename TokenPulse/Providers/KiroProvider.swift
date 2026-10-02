@@ -233,7 +233,7 @@ enum KiroProviderParser {
                 if try text(trial, "freeTrialStatus") == "ACTIVE" {
                     let expiry = try date(trial, "freeTrialExpiry")
                     if expiry.map({ $0 > collectedAt }) != false,
-                       let window = try window(trial, id: "kiro.\(resource).trial", name: label + "（试用）", unit: unit, reset: nil, expiry: expiry, period: nil) { windows.append(window) }
+                       let window = try window(trial, id: "kiro.\(resource).trial", name: label + (expiry == nil ? "（试用，到期时间未提供）" : "（试用）"), unit: unit, reset: nil, expiry: expiry, period: nil) { windows.append(window) }
                 }
             }
             if let bonuses = item["bonuses"], bonuses != .null {
@@ -250,11 +250,27 @@ enum KiroProviderParser {
             }
             if let credits = item["overageCredits"], credits != .null {
                 guard let credits = credits.list, credits.count <= 64 else { throw RefreshFailure.unreadableResponse }
-                var expiries: Set<Date> = []
+                var cohorts: [Date: [[String: KiroCBOR.Value]]] = [:]
                 for credit in credits {
-                    guard let credit = credit.object, let expiry = try date(credit, "expiresAt"), expiries.insert(expiry).inserted else { throw RefreshFailure.unreadableResponse }
-                    if expiry > collectedAt, let window = try window(credit, id: "kiro.\(resource).credit.\(expiry.timeIntervalSince1970)",
-                        name: label + "（额外 credits）", unit: unit, reset: nil, expiry: expiry, period: nil) { windows.append(window) }
+                    guard let credit = credit.object, let expiry = try date(credit, "expiresAt") else { throw RefreshFailure.unreadableResponse }
+                    if expiry > collectedAt { cohorts[expiry, default: []].append(credit) }
+                }
+                for expiry in cohorts.keys.sorted() {
+                    let entries = cohorts[expiry]!
+                    let id = "kiro.\(resource).credit.\(expiry.timeIntervalSince1970)"
+                    // Official OverageCredit has no pack identifier. Validate all
+                    // entries, but do not fabricate identities from array offsets,
+                    // mutable usage, or assume these balances are additive.
+                    let decoded = try entries.compactMap { credit in
+                        try window(credit, id: id, name: label + "（额外 credits）", unit: unit,
+                            reset: nil, expiry: expiry, period: nil)
+                    }
+                    if entries.count == 1 { windows.append(contentsOf: decoded) }
+                    else {
+                        windows.append(QuotaWindow(id: id + ".unidentified", name: label + "（多笔同刻到期，单池标识未提供）",
+                            scope: nil, period: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                            resetsAt: nil, unit: unit, expiresAt: expiry, resetSemantics: .nonResettingAllowance))
+                    }
                 }
             }
         }

@@ -130,6 +130,81 @@ final class KiroProviderTests: XCTestCase {
         XCTAssertTrue(windows.dropFirst().allSatisfy { $0.period == nil && $0.resetsAt == nil && $0.resetSemantics == .nonResettingAllowance && $0.wallet == nil })
     }
 
+    func testSameExpiryPurchasedCreditsKeepMonthlyQuotaAndExposeUnknownCohortWithoutFakeCounts() throws {
+        var item = base
+        item["overageCredits"] = .array([
+            .map(["currentUsage": .integer(4), "usageLimit": .integer(200), "expiresAt": .timestamp(4_000)]),
+            .map(["currentUsage": .integer(5), "usageLimit": .integer(300), "expiresAt": .timestamp(4_000)])])
+        let result = try snapshot([item])
+        XCTAssertEqual(result.windows.count, 2)
+        XCTAssertEqual(result.windows[0].usedPercentage!, 10.125 / 100.5 * 100, accuracy: 0.000001)
+        let cohort = try XCTUnwrap(result.windows.last)
+        XCTAssertEqual(cohort.id, "kiro.CREDIT.credit.4000.0.unidentified")
+        XCTAssertEqual(cohort.name, "credits（多笔同刻到期，单池标识未提供）")
+        XCTAssertEqual(cohort.expiresAt, Date(timeIntervalSince1970: 4_000))
+        XCTAssertNil(cohort.usedPercentage); XCTAssertNil(cohort.remainingCount); XCTAssertNil(cohort.totalCount)
+        XCTAssertNil(cohort.exactCounts); XCTAssertNil(cohort.isExhausted); XCTAssertNil(cohort.wallet)
+        XCTAssertFalse(cohort.isUnlimited); XCTAssertNil(cohort.resetsAt)
+        XCTAssertEqual(cohort.resetSemantics, .nonResettingAllowance)
+        let planning = NotificationPlanner().planSuccessfulRefresh(accountID: result.accountID, accountName: "Kiro",
+            previousSnapshot: nil, newSnapshot: QuotaSnapshot(accountID: result.accountID, windows: [cohort], collectedAt: time),
+            settings: AccountReminderSettings(), ledger: ReminderLedger(), now: time)
+        XCTAssertTrue(planning.operations.isEmpty, "Unknown cohort usage/expiry must not cause quota alerts or periodic reset schedules")
+    }
+
+    func testCreditCohortIdentityDoesNotDependOnArrayOrderMutableUsageOrPackCount() throws {
+        let first: KiroCBOR.Value = .map(["currentUsage": .integer(4), "usageLimit": .integer(200), "expiresAt": .timestamp(4_000)])
+        let second: KiroCBOR.Value = .map(["currentUsage": .integer(5), "usageLimit": .integer(300), "expiresAt": .timestamp(4_000)])
+        var item = base; item["overageCredits"] = .array([first, second])
+        let original = try snapshot([item]).windows.last!
+        item["overageCredits"] = .array([second, first])
+        XCTAssertEqual(try snapshot([item]).windows.last, original)
+        let updated: KiroCBOR.Value = .map(["currentUsage": .integer(150), "usageLimit": .integer(200), "expiresAt": .timestamp(4_000)])
+        item["overageCredits"] = .array([updated, second, first])
+        XCTAssertEqual(try snapshot([item]).windows.last, original)
+        item["overageCredits"] = .array([first, .map(["currentUsage": .integer(5), "usageLimit": .integer(300), "expiresAt": .timestamp(4_050)])])
+        let distinct = try snapshot([item]).windows.dropFirst()
+        XCTAssertEqual(distinct.count, 2)
+        XCTAssertEqual(distinct.map(\.totalCount), [200, 300])
+        XCTAssertEqual(distinct.map(\.expiresAt), [Date(timeIntervalSince1970: 4_000), Date(timeIntervalSince1970: 4_050)])
+    }
+
+    func testMalformedSameExpiryCreditStillFailsAndExpiredCohortIsNotShown() throws {
+        var item = base
+        let valid: KiroCBOR.Value = .map(["currentUsage": .integer(4), "usageLimit": .integer(200), "expiresAt": .timestamp(4_000)])
+        for bad: KiroCBOR.Value in [.bool(true), .number(-1), .string("300")] {
+            item["overageCredits"] = .array([valid, .map(["currentUsage": .integer(5), "usageLimit": bad, "expiresAt": .timestamp(4_000)])])
+            XCTAssertThrowsError(try snapshot([item])) { XCTAssertEqual($0 as? RefreshFailure, .unreadableResponse) }
+        }
+        item["overageCredits"] = .array(Array(repeating: .map(["currentUsage": .integer(4), "usageLimit": .integer(200), "expiresAt": .timestamp(900)]), count: 2))
+        XCTAssertEqual(try snapshot([item]).windows.count, 1)
+    }
+
+    func testActiveTrialWithUnknownExpiryPreservesQuotaAndExplicitUnknownDateText() throws {
+        var item = base
+        item["freeTrialInfo"] = .map(["freeTrialStatus": .string("ACTIVE"), "currentUsage": .integer(1), "usageLimit": .integer(9)])
+        let trial = try snapshot([item]).windows.last!
+        XCTAssertEqual(trial.id, "kiro.CREDIT.trial")
+        XCTAssertTrue(trial.displayName.contains("到期时间未提供"))
+        XCTAssertEqual(trial.totalCount, 9); XCTAssertEqual(trial.remainingCount, 8)
+        XCTAssertEqual(trial.usedPercentage!, 100.0 / 9, accuracy: 0.000001)
+        XCTAssertNil(trial.expiresAt); XCTAssertNil(trial.resetsAt); XCTAssertFalse(trial.isUnlimited)
+        XCTAssertEqual(trial.resetSemantics, .nonResettingAllowance)
+        XCTAssertEqual(QuotaFormatting.nextEventValue(trial), "无周期重置")
+        XCTAssertEqual(QuotaFormatting.nextEventLabel(trial), "额度类型")
+    }
+
+    func testPersonalProfileARNUsesOfficialIdpMappingEvenWhenPageMetaDiffers() throws {
+        let withMeta = page.replacingOccurrences(of: "</head>", with: #"<meta name="profile-arn" content="arn:fixture:ignored"></head>"#)
+        for idp in ["Google", "Github", "BuilderId"] {
+            let identity = try KiroPortalIdentity.parse(Data(withMeta.replacingOccurrences(of: "Google", with: idp).utf8))
+            XCTAssertEqual(identity.profileArn, idp == "BuilderId"
+                ? "arn:aws:codewhisperer:us-east-1:638616132270:profile/AAAACCCCXXXX" : profile)
+        }
+        XCTAssertThrowsError(try KiroPortalIdentity.parse(Data(withMeta.replacingOccurrences(of: "Google", with: "AWSIdC").utf8)))
+        XCTAssertThrowsError(try KiroPortalIdentity.parse(Data(withMeta.replacingOccurrences(of: "Google", with: "Internal").utf8)))
+    }
+
     func testExpiredOrInactivePoolsAreNotDisplayedAndDuplicatesAreRejected() throws {
         var item = base
         item["freeTrialInfo"] = .map(["freeTrialStatus": .string("EXPIRED"), "currentUsage": .integer(1), "usageLimit": .integer(2)])
