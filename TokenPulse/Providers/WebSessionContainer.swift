@@ -199,6 +199,7 @@ extension Provider {
         switch self {
         case .replicate: ReplicateProviderClient.loginProfile
         case .mistral: MistralProviderClient.loginProfile
+        case .sakana: SakanaProviderClient.loginProfile
         default: nil
         }
     }

@@ -33,16 +33,16 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case xaiAPI
     case ibmBob
     case warp, v0, devPass
-    case replicate, mistral
+    case replicate, mistral, sakana
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.mistral, .replicate, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.sakana, .mistral, .replicate, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .replicate, .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI: .walletOnly
-        case .mistral, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
+        case .sakana, .mistral, .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -96,6 +96,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .devPass: "DevPass"
         case .replicate: "Replicate"
         case .mistral: "Mistral"
+        case .sakana: "Sakana AI"
         }
     }
 }

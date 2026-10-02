@@ -54,7 +54,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
         let weekly = visible.filter { $0.period == .weekly }
         let fiveHour = visible.filter { $0.period == .fiveHour }
         switch account.provider {
-        case .mistral:
+        case .mistral, .sakana:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .codex:
             let weeklyMetric = WidgetQuotaMetric(
