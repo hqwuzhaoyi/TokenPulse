@@ -46,8 +46,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "moonshot",
-    "status": "ready-for-agent",
-    "file": "issues/04-moonshot.md"
+    "status": "in-progress",
+    "file": "issues/04-moonshot.md",
+    "assignee": "sol_regional",
+    "wave": 2
   },
   {
     "number": 5,
@@ -58,7 +60,9 @@
     "kind": "integration",
     "upstream": "alibabaCodingPlan",
     "status": "ready-for-agent",
-    "file": "issues/05-alibaba-coding-plan.md"
+    "file": "issues/05-alibaba-coding-plan.md",
+    "assignee": "sol_regional",
+    "wave": 2
   },
   {
     "number": 6,
@@ -68,8 +72,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "factory",
-    "status": "ready-for-agent",
-    "file": "issues/06-factory.md"
+    "status": "in-progress",
+    "file": "issues/06-factory.md",
+    "assignee": "sol_copilot",
+    "wave": 2
   },
   {
     "number": 7,
@@ -79,8 +85,10 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "synthetic",
-    "status": "ready-for-agent",
-    "file": "issues/07-synthetic.md"
+    "status": "in-progress",
+    "file": "issues/07-synthetic.md",
+    "assignee": "sol_web",
+    "wave": 2
   },
   {
     "number": 8,
@@ -91,7 +99,9 @@
     "kind": "integration",
     "upstream": "v2ex",
     "status": "ready-for-agent",
-    "file": "issues/08-v2ex.md"
+    "file": "issues/08-v2ex.md",
+    "assignee": "sol_web",
+    "wave": 2
   },
   {
     "number": 9,
@@ -204,8 +214,10 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
-    "file": "issues/16-command-code.md"
+    "status": "in-progress",
+    "file": "issues/16-command-code.md",
+    "assignee": "sol_research",
+    "wave": 2
   },
   {
     "number": 17,
@@ -228,7 +240,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/17-amp.md"
+    "file": "issues/17-amp.md",
+    "assignee": "sol_research",
+    "wave": 2
   },
   {
     "number": 18,
@@ -250,8 +264,10 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
-    "file": "issues/18-atlas-cloud.md"
+    "status": "in-progress",
+    "file": "issues/18-atlas-cloud.md",
+    "assignee": "sol_wallet",
+    "wave": 2
   },
   {
     "number": 19,
@@ -274,7 +290,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/19-chutes.md"
+    "file": "issues/19-chutes.md",
+    "assignee": "sol_regional",
+    "wave": 2
   },
   {
     "number": 20,
@@ -296,8 +314,10 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
-    "file": "issues/20-clinepass.md"
+    "status": "in-progress",
+    "file": "issues/20-clinepass.md",
+    "assignee": "root",
+    "wave": 2
   },
   {
     "number": 21,
@@ -320,7 +340,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/21-codebuff.md"
+    "file": "issues/21-codebuff.md",
+    "assignee": "root",
+    "wave": 2
   },
   {
     "number": 22,
@@ -343,7 +365,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/22-deepinfra.md"
+    "file": "issues/22-deepinfra.md",
+    "assignee": "sol_wallet",
+    "wave": 2
   },
   {
     "number": 23,
@@ -366,7 +390,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/23-devpass.md"
+    "file": "issues/23-devpass.md",
+    "assignee": "sol_copilot",
+    "wave": 2
   },
   {
     "number": 24,
@@ -389,7 +415,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/24-gitkraken.md"
+    "file": "issues/24-gitkraken.md",
+    "assignee": "sol_research",
+    "wave": 2
   },
   {
     "number": 25,
@@ -412,7 +440,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/25-hugging-face.md"
+    "file": "issues/25-hugging-face.md",
+    "assignee": "sol_research",
+    "wave": 2
   },
   {
     "number": 26,
@@ -435,7 +465,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/26-hyper.md"
+    "file": "issues/26-hyper.md",
+    "assignee": "sol_wallet",
+    "wave": 2
   },
   {
     "number": 27,
@@ -458,7 +490,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/27-ibm-bob.md"
+    "file": "issues/27-ibm-bob.md",
+    "assignee": "sol_gateway",
+    "wave": 2
   },
   {
     "number": 28,
@@ -481,7 +515,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/28-kilo-code.md"
+    "file": "issues/28-kilo-code.md",
+    "assignee": "sol_wallet",
+    "wave": 2
   },
   {
     "number": 29,
@@ -504,7 +540,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/29-neuralwatt.md"
+    "file": "issues/29-neuralwatt.md",
+    "assignee": "root",
+    "wave": 2
   },
   {
     "number": 30,
@@ -527,7 +565,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/30-v0.md"
+    "file": "issues/30-v0.md",
+    "assignee": "sol_copilot",
+    "wave": 2
   },
   {
     "number": 31,
@@ -550,7 +590,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/31-venice.md"
+    "file": "issues/31-venice.md",
+    "assignee": "sol_wallet",
+    "wave": 2
   },
   {
     "number": 32,
@@ -573,7 +615,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/32-warp.md"
+    "file": "issues/32-warp.md",
+    "assignee": "sol_copilot",
+    "wave": 2
   },
   {
     "number": 33,
@@ -596,7 +640,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/33-xkiro.md"
+    "file": "issues/33-xkiro.md",
+    "assignee": "sol_web",
+    "wave": 2
   },
   {
     "number": 34,
@@ -619,7 +665,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/34-zenmux.md"
+    "file": "issues/34-zenmux.md",
+    "assignee": "sol_web",
+    "wave": 2
   },
   {
     "number": 35,
@@ -642,7 +690,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/35-aixy.md"
+    "file": "issues/35-aixy.md",
+    "assignee": "root",
+    "wave": 2
   },
   {
     "number": 36,
@@ -665,7 +715,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/36-clawrouter.md"
+    "file": "issues/36-clawrouter.md",
+    "assignee": "root",
+    "wave": 2
   },
   {
     "number": 37,
@@ -713,7 +765,9 @@
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
     "status": "ready-for-agent",
-    "file": "issues/38-xai-api.md"
+    "file": "issues/38-xai-api.md",
+    "assignee": "sol_gateway",
+    "wave": 2
   },
   {
     "number": 39,
@@ -735,8 +789,10 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
-    "file": "issues/39-volcengine.md"
+    "status": "in-progress",
+    "file": "issues/39-volcengine.md",
+    "assignee": "sol_gateway",
+    "wave": 2
   },
   {
     "number": 40,
