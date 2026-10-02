@@ -335,7 +335,7 @@ private struct AccountSummaryView: View {
             if let snapshot = state.snapshot {
                 Divider()
                 let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
-                if state.account.provider == .deepSeek {
+                if state.account.provider.hasMonetaryWallet {
                     if let currency = selectedWalletCurrency(in: summaryWindows),
                        let window = summaryWindows.first(where: { $0.wallet?.currency == currency }) {
                         CompactQuotaWindowView(window: window)
@@ -411,7 +411,7 @@ private struct CompactQuotaWindowView: View {
 
     private var usedValue: String {
         if let wallet = window.wallet {
-            return QuotaFormatting.money(wallet.total, currency: wallet.currency)
+            return QuotaFormatting.balance(wallet.total, wallet: wallet)
         }
         return QuotaFormatting.usage(window)
     }
@@ -502,9 +502,12 @@ struct WalletBalanceView: View {
     let balance: WalletBalance
 
     var body: some View {
-        LabeledContent("总可用余额", value: QuotaFormatting.money(balance.total, currency: balance.currency))
-        LabeledContent("赠送余额", value: QuotaFormatting.money(balance.granted, currency: balance.currency))
-        LabeledContent("充值余额", value: QuotaFormatting.money(balance.toppedUp, currency: balance.currency))
+        LabeledContent(balance.isMonetary ? "总可用余额" : "剩余 points",
+                       value: QuotaFormatting.balance(balance.total, wallet: balance))
+        if balance.isMonetary {
+            LabeledContent("赠送余额", value: QuotaFormatting.balance(balance.granted, wallet: balance))
+            LabeledContent("充值余额", value: QuotaFormatting.balance(balance.toppedUp, wallet: balance))
+        }
     }
 }
 

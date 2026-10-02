@@ -13,6 +13,7 @@ enum DemoMode {
             (.openCodeGo, "OpenCode Go"), (.zai, "Z.ai"), (.superGrok, "SuperGrok"),
             (.qoderInternational, "Qoder 国际版"), (.deepSeek, "DeepSeek 钱包"),
             (.kimiCode, "Kimi Code 国内版"), (.elevenLabs, "ElevenLabs"),
+            (.poe, "Poe points"), (.vercelAIGateway, "Vercel AI Gateway 钱包"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -82,6 +83,17 @@ enum DemoMode {
                         usedPercentage: 36 + Double(revision % 5) * 9,
                         remainingCount: 64_000 - Double(revision % 5) * 9_000, totalCount: 100_000,
                         resetsAt: now.addingTimeInterval(12 * 86_400), unit: "字符")
+        ]
+        case .poe: [
+            QuotaWindow(id: "poe.points", name: "剩余 points", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "points", total: Decimal(125_000 - revision * 100),
+                                              isMonetary: false))
+        ]
+        case .vercelAIGateway: [
+            QuotaWindow(id: "vercelAIGateway.wallet.USD", name: "API 钱包余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.3456789")!))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,

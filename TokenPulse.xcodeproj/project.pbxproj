@@ -17,9 +17,12 @@
 		F20000000000000000000005 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000006 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000007 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
+		FA0900000000000000000002 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
 		F20000000000000000000008 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
+		FA0900000000000000000003 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
 		F20000000000000000000009 /* QoderProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003; };
 		F2000000000000000000000A /* WalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000004; };
+		FA0900000000000000000005 /* WalletProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000004; };
 		DE0000000000000000000003 /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0000000000000000000001; };
 		DE0000000000000000000004 /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0000000000000000000001; };
 		DE0000000000000000000005 /* DemoModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0000000000000000000002; };
@@ -200,8 +203,10 @@
 		F2000000000000000000000B /* WalletPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletPresentationTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000001 /* QoderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000002 /* DeepSeekProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepSeekProvider.swift; sourceTree = SOURCE_ROOT; };
+		FA0900000000000000000001 /* WalletProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WalletProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000003 /* QoderProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000004 /* WalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletTests.swift; sourceTree = SOURCE_ROOT; };
+		FA0900000000000000000004 /* WalletProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		DE0000000000000000000001 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/DemoMode.swift; sourceTree = SOURCE_ROOT; };
 		DE0000000000000000000002 /* DemoModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DemoModeTests.swift; sourceTree = SOURCE_ROOT; };
 		D00000000000000000000001 /* ProviderIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ProviderIcon.swift; sourceTree = SOURCE_ROOT; };
@@ -347,12 +352,14 @@
 				F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */,
 				F20000000000000000000001 /* QoderProvider.swift */,
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
+				FA0900000000000000000001 /* WalletProvider.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
+				FA0900000000000000000004 /* WalletProviderTests.swift */,
 				F2000000000000000000000B /* WalletPresentationTests.swift */,
 				B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */,
 				B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */,
@@ -609,6 +616,7 @@
 				F10000000000000000000002 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
+				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */,
@@ -629,6 +637,7 @@
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
+				FA0900000000000000000005 /* WalletProviderTests.swift in Sources */,
 				F2000000000000000000000C /* WalletPresentationTests.swift in Sources */,
 				B00000000000000000000057 /* TokenPulseTests/AccountConfigurationTests.swift in Sources */,
 				B00000000000000000000058 /* TokenPulseTests/KeychainCredentialStoreTests.swift in Sources */,
@@ -672,6 +681,7 @@
 				F10000000000000000000003 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
+				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */,

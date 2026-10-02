@@ -3,9 +3,11 @@ import Foundation
 enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
     case claude, codex, openCodeGo, zai, superGrok
-    case qoderInternational, deepSeek, kimiCode, elevenLabs
+    case qoderInternational, deepSeek, kimiCode, elevenLabs, poe, vercelAIGateway
 
     var id: String { rawValue }
+    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway }
+    var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
     var displayName: String {
         switch self {
         case .miniMaxChina: "MiniMax 国内版"
@@ -16,6 +18,8 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .superGrok: "SuperGrok"
         case .qoderInternational: "Qoder 国际版"
         case .deepSeek: "DeepSeek"
+        case .poe: "Poe"
+        case .vercelAIGateway: "Vercel AI Gateway"
         case .kimiCode: "Kimi Code 国内版"
         case .elevenLabs: "ElevenLabs"
         }

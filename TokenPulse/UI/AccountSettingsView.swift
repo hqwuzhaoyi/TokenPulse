@@ -210,26 +210,28 @@ private struct AccountPreferencesView: View {
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
                     }
                 }
-                Section("提醒") {
-                    Toggle(configuration.account.provider == .deepSeek ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
-                        var settings = configuration.reminders; settings.quotaAlertsEnabled = value
-                        Task { await monitor.updateReminders(settings, accountID: accountID) }
-                    }))
-                    if configuration.account.provider == .deepSeek {
-                        walletReminderControls(configuration: configuration)
-                    } else {
-                        if configuration.account.provider != .qoderInternational {
-                            Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
-                                var settings = configuration.reminders; settings.resetRemindersEnabled = value
-                                Task { await monitor.updateReminders(settings, accountID: accountID) }
-                            }))
+                if configuration.account.provider != .poe {
+                    Section("提醒") {
+                        Toggle(configuration.account.provider.hasMonetaryWallet ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
+                            var settings = configuration.reminders; settings.quotaAlertsEnabled = value
+                            Task { await monitor.updateReminders(settings, accountID: accountID) }
+                        }))
+                        if configuration.account.provider.hasMonetaryWallet {
+                            walletReminderControls(configuration: configuration)
+                        } else {
+                            if configuration.account.provider != .qoderInternational {
+                                Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
+                                    var settings = configuration.reminders; settings.resetRemindersEnabled = value
+                                    Task { await monitor.updateReminders(settings, accountID: accountID) }
+                                }))
+                            }
+                            TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
+                            Button("保存阈值") { saveQuotaThresholds(configuration) }
                         }
-                        TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
-                        Button("保存阈值") { saveQuotaThresholds(configuration) }
+                        if let error { Text(error).foregroundStyle(.red) }
+                        Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
-                    if let error { Text(error).foregroundStyle(.red) }
-                    Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
-                        .font(.caption).foregroundStyle(.secondary)
                 }
                 Section("Apple Watch") {
                     Toggle("在 Watch 显示", isOn: Binding(

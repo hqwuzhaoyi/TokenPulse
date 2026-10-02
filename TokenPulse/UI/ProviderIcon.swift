@@ -34,6 +34,8 @@ extension Provider {
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
+        case .poe: "ProviderPoe"
+        case .vercelAIGateway: "ProviderVercel"
         case .kimiCode: "ProviderKimiCode"
         case .elevenLabs: "ProviderElevenLabs"
         }

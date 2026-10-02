@@ -1,6 +1,6 @@
 # 09: Poe points 余额接入
 
-**Status:** ready-for-agent
+**Status:** implementation-ready-for-integration-validation
 
 **Type:** integration
 
@@ -25,3 +25,12 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/poe.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+## Implementation progress (2026-10-02)
+
+- Provider API Key envelope、固定 GET/Bearer 请求、App/Watch 共用直连 client、演示账号、widget 与详情展示已实现。
+- Poe 使用非货币 points，隐藏提醒设置并在 planner 中排除货币/百分比/重置告警；Vercel 使用精确 USD，余额明细可缺失并显示“未提供”。
+- WalletBalance 新字段缺失时按旧 DeepSeek 存档默认货币；未提供明细不补零。新增 WalletProviderTests 覆盖边界、错误、请求、多账号离线重开/失败保留/删除及提醒规则。
+- 图标来源版本、资产路径、版权和许可已记录；模板渲染与矢量保留已声明。
+- Swift 6 domain/providers typecheck、Swift parse、PBX plist 静态检查通过。unsigned 全目标构建与 XCTest 待统一构建槽验证，真实账号/凭证失效/设备独立刷新/iCloud 同步仍未验收，因此上述验收清单保留待勾选。
+- 登录说明、单位语义、来源与验证边界见 `docs/poe-vercel-integration.md`。

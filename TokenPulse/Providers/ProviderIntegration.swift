@@ -185,6 +185,12 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .elevenLabs:
             return try await ElevenLabsProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .poe:
+            return try await PoeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .vercelAIGateway:
+            return try await VercelAIGatewayProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -214,6 +220,10 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "DeepSeek API Key")
         case .elevenLabs:
             return .init(provider: provider, method: .apiKey, credentialLabel: "ElevenLabs API Key（需 user_read 权限）")
+        case .poe:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Poe API Key")
+        case .vercelAIGateway:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
         case .claude:
@@ -226,7 +236,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -258,7 +268,7 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -273,7 +283,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -289,7 +299,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway:
             return .init(credential: credential, changed: false)
         }
     }

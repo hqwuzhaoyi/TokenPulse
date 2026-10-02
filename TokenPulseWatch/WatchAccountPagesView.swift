@@ -168,9 +168,12 @@ private struct WatchAccountPage: View {
                         if let wallet = window.wallet {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(wallet.currency).font(.caption.bold())
-                                LabeledContent("总可用", value: QuotaFormatting.money(wallet.total, currency: wallet.currency))
-                                LabeledContent("赠送", value: QuotaFormatting.money(wallet.granted, currency: wallet.currency))
-                                LabeledContent("充值", value: QuotaFormatting.money(wallet.toppedUp, currency: wallet.currency))
+                                LabeledContent(wallet.isMonetary ? "总可用" : "剩余 points",
+                                               value: QuotaFormatting.balance(wallet.total, wallet: wallet))
+                                if wallet.isMonetary {
+                                    LabeledContent("赠送", value: QuotaFormatting.balance(wallet.granted, wallet: wallet))
+                                    LabeledContent("充值", value: QuotaFormatting.balance(wallet.toppedUp, wallet: wallet))
+                                }
                             }
                             .font(.caption2)
                         } else if window.scope == nil || state.account.provider == .qoderInternational {
