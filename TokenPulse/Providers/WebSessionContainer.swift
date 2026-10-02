@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 struct WebSessionCookieSelection {
     let header: String
@@ -119,6 +120,55 @@ struct CookieWebSessionPolicy: Sendable {
         !name.isEmpty && name.utf8.count <= 256 && name.utf8.allSatisfy {
             (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0)
                 || Array("!#$%&'*+-.^_`|~".utf8).contains($0)
+        }
+    }
+}
+
+/// Common account binding for provider-specific web credentials and workspace scopes.
+enum WebProviderSession {
+    static func credential(provider: Provider, origin: String, accountID: UUID, accessToken: String,
+                           expiresAt: Date? = nil, remoteAccountID: String? = nil,
+                           metadata: [String: String] = [:]) throws -> ProviderCredentialEnvelope {
+        var metadata = metadata
+        metadata["origin"] = origin
+        metadata["localAccountID"] = accountID.uuidString
+        metadata["webSessionFormat"] = "v1"
+        var envelope = ProviderCredentialEnvelope(provider: provider, kind: .session, accessToken: accessToken,
+            expiresAt: expiresAt, accountID: remoteAccountID, metadata: metadata)
+        envelope.metadata["sourceCredentialFingerprint"] = try fingerprint(envelope)
+        return envelope
+    }
+
+    static func cookieCredential(cookies: [HTTPCookie], policy: CookieWebSessionPolicy,
+                                 provider: Provider, origin: String, accountID: UUID, now: Date,
+                                 metadata: [String: String] = [:]) throws -> ProviderCredentialEnvelope {
+        let selection = try policy.select(cookies, now: now)
+        return try credential(provider: provider, origin: origin, accountID: accountID, accessToken: selection.header,
+            expiresAt: selection.expiresByName.values.min(), metadata: metadata)
+    }
+
+    static func fingerprint(_ envelope: ProviderCredentialEnvelope) throws -> String {
+        guard envelope.kind == .session, envelope.metadata["webSessionFormat"] == "v1",
+              let account = envelope.metadata["localAccountID"], UUID(uuidString: account) != nil,
+              let origin = envelope.metadata["origin"], let url = URL(string: origin), url.scheme == "https",
+              let host = url.host, origin == "https://" + host.lowercased(),
+              !envelope.accessToken.isEmpty, envelope.accessToken.utf8.count <= 65_536,
+              envelope.accessToken.unicodeScalars.allSatisfy({ $0.value >= 32 && $0.value < 127 }) else {
+            throw RefreshFailure.invalidCredential
+        }
+        let metadata = envelope.metadata.filter { $0.key != "sourceCredentialFingerprint" }
+            .sorted { $0.key < $1.key }.flatMap { [$0.key, $0.value] }
+        let data = try JSONEncoder().encode([envelope.provider.rawValue, envelope.accessToken, envelope.accountID ?? ""] + metadata)
+        return SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+    }
+
+    static func validate(_ envelope: ProviderCredentialEnvelope, provider: Provider, accountID: UUID,
+                         origins: Set<String>, now: Date) throws {
+        guard envelope.provider == provider, envelope.metadata["localAccountID"] == accountID.uuidString,
+              origins.contains(envelope.metadata["origin"] ?? ""),
+              envelope.expiresAt.map({ $0 > now }) != false,
+              try fingerprint(envelope) == envelope.metadata["sourceCredentialFingerprint"] else {
+            throw RefreshFailure.invalidCredential
         }
     }
 }
