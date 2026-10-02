@@ -12,7 +12,7 @@ enum DemoMode {
             (.codex, "Codex Pro"), (.codex, "Codex Plus"),
             (.openCodeGo, "OpenCode Go"), (.zai, "Z.ai"), (.superGrok, "SuperGrok"),
             (.qoderInternational, "Qoder 国际版"), (.deepSeek, "DeepSeek 钱包"),
-            (.kimiCode, "Kimi Code 国内版"),
+            (.kimiCode, "Kimi Code 国内版"), (.elevenLabs, "ElevenLabs"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -76,6 +76,12 @@ enum DemoMode {
             QuotaWindow(id: "qoder.orgResourcePackage", name: "组织资源包", scope: nil,
                         usedPercentage: 40, remainingCount: 600, totalCount: 1000, resetsAt: nil,
                         unit: "credits")
+        ]
+        case .elevenLabs: [
+            QuotaWindow(id: "elevenlabs.characters", name: "账期字符额度", scope: nil,
+                        usedPercentage: 36 + Double(revision % 5) * 9,
+                        remainingCount: 64_000 - Double(revision % 5) * 9_000, totalCount: 100_000,
+                        resetsAt: now.addingTimeInterval(12 * 86_400), unit: "字符")
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,

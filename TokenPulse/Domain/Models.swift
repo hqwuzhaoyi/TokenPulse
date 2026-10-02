@@ -3,7 +3,7 @@ import Foundation
 enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case miniMaxChina
     case claude, codex, openCodeGo, zai, superGrok
-    case qoderInternational, deepSeek, kimiCode
+    case qoderInternational, deepSeek, kimiCode, elevenLabs
 
     var id: String { rawValue }
     var displayName: String {
@@ -17,6 +17,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .qoderInternational: "Qoder 国际版"
         case .deepSeek: "DeepSeek"
         case .kimiCode: "Kimi Code 国内版"
+        case .elevenLabs: "ElevenLabs"
         }
     }
 }
@@ -175,6 +176,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case unreadableResponse
     case noQuotaWindows
     case subscriptionRequired
+    case insufficientPermissions
 
     var displayName: String {
         switch self {
@@ -185,6 +187,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
         case .unreadableResponse: "无法读取额度响应"
         case .noQuotaWindows: "未返回套餐额度窗口"
         case .subscriptionRequired: "当前凭证没有可用的订阅套餐"
+        case .insufficientPermissions: "Key 缺少所需的查询权限，请检查权限设置"
         }
     }
 }

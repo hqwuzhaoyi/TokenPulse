@@ -35,6 +35,7 @@ extension Provider {
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
         case .kimiCode: "ProviderKimiCode"
+        case .elevenLabs: "ProviderElevenLabs"
         }
     }
 

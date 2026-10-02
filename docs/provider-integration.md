@@ -117,3 +117,7 @@ Implemented:
 Authentication endpoints are published by [xAI OpenID discovery](https://auth.x.ai/.well-known/openid-configuration). The billing route is not public documentation; its interpretation follows the pinned [Pulse Grok provider notes](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Docs/providers/grok.md) and [implementation](https://github.com/qunqin24/Pulse/blob/8d7fd60454ce383dd0a136a30790c1e277f8069b/Sources/Pulse/GrokUsageService.swift). That reference identifies the response as the account-wide shared weekly pool used across Grok products and obtains the plan label from the same CLI proxy. It is not the Cursor Grok Bot endpoint and is not an ordinary pay-as-you-go API balance.
 
 Not yet verified: a real SuperGrok subscription, whether the billing response still corresponds to that plan for the current account, real device login and refresh, multi-account separation, and cross-device refresh-token rotation. Until that validation occurs, the source evidence is a contract candidate rather than proof of a working SuperGrok integration.
+
+## ElevenLabs
+
+API Key 需 user_read 权限；直接查询官方 user/subscription 接口，采用 xi-api-key 头且拒绝重定向。仅使用服务返回的字符用量、总量与重置时间，不将 voice slots 当额度，不推断固定月度周期。缺少查询权限与凭证无效分别提示。手机与 Watch 使用各自 HTTP 客户端查询。当前使用合成响应测试，真实账号与物理设备尚未验收。

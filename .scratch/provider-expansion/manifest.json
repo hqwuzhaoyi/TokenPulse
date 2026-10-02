@@ -122,8 +122,9 @@
     "blockers": [],
     "kind": "integration",
     "upstream": "elevenLabs",
-    "status": "ready-for-agent",
-    "file": "issues/11-elevenlabs.md"
+    "status": "in-progress",
+    "file": "issues/11-elevenlabs.md",
+    "assignee": "root"
   },
   {
     "number": 12,

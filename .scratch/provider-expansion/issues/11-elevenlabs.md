@@ -1,6 +1,6 @@
 # 11: ElevenLabs 字符额度接入
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/elevenlabs.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+## 实施记录（2026-10-02，root）
+
+已实现 API Key 配置、字符额度解析、独立双端查询路由、小组件与演示数据、查询权限错误提示及固定来源图标。自定义 xi-api-key 请求拒绝重定向。已添加五项测试，覆盖账户隔离、认证头、字段与权限边界、通知和 Widget；Swift 语法检查与 PBX plist 校验通过。完整构建与 XCTest 等待匹配的 iOS 运行时安装；真实账号和物理 Watch 尚未验证，验收项保留未勾选。

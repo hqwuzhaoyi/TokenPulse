@@ -9,6 +9,7 @@
 | sol_copilot | sol/copilot | 03 | Copilot 设备授权及额度 |
 | sol_gateway | sol/gateway | 12 | New API 与账号级网关地址 |
 | sol_web | sol/web | 40 | StepFun 与隔离的网页登录 |
+| root | feature/provider-expansion-sol | 11 | ElevenLabs、共享集成与串行验证 |
 | sol_research | sol/research | 63–69 | 七家移动端独立查询可行性 |
 
 工作树位于工作区旁的 TokenPulse-sol 目录。各组可在自己的工作树修改共享 switch，由 root 集成；Xcode 构建、模拟器测试串行调度，避免平台服务与输出目录冲突。

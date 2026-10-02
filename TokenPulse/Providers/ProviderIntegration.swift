@@ -118,8 +118,23 @@ struct URLSessionProviderTransport: ProviderTransport {
         self.session = session
     }
 
+    static func rejectingRedirects() -> Self {
+        .init(session: URLSession(configuration: .ephemeral,
+                                  delegate: ProviderRejectRedirectDelegate(), delegateQueue: nil))
+    }
+
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         try await session.data(for: request)
+    }
+}
+
+/// Custom authentication headers, unlike Authorization, may follow redirects.
+private final class ProviderRejectRedirectDelegate: NSObject, URLSessionTaskDelegate, Sendable {
+    func urlSession(_ session: URLSession, task: URLSessionTask,
+                    willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest,
+                    completionHandler: @escaping @Sendable (URLRequest?) -> Void) {
+        completionHandler(nil)
     }
 }
 
@@ -129,10 +144,11 @@ struct ProviderQuotaClient: QuotaQuerying {
     private let now: @Sendable () -> Date
 
     init(provider: Provider,
-         transport: any ProviderTransport = URLSessionProviderTransport(),
+         transport: (any ProviderTransport)? = nil,
          now: @escaping @Sendable () -> Date = Date.init) {
         self.provider = provider
-        self.transport = transport
+        self.transport = transport ?? (provider == .elevenLabs
+            ? URLSessionProviderTransport.rejectingRedirects() : URLSessionProviderTransport())
         self.now = now
     }
 
@@ -166,6 +182,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .kimiCode:
             return try await KimiCodeProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .elevenLabs:
+            return try await ElevenLabsProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -193,6 +212,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
         case .deepSeek:
             return .init(provider: provider, method: .apiKey, credentialLabel: "DeepSeek API Key")
+        case .elevenLabs:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ElevenLabs API Key（需 user_read 权限）")
         case .codex, .kimiCode:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
         case .claude:
@@ -205,7 +226,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -237,7 +258,7 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -252,7 +273,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -268,7 +289,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs:
             return .init(credential: credential, changed: false)
         }
     }
