@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        6A8E00000000000000000013 /* XAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000011; };
+        6A8E00000000000000000014 /* XAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000011; };
+        6A8E00000000000000000015 /* XAIAPIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000012; };
         6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000001; };
         6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000001; };
         6A8E00000000000000000005 /* VolcengineProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000002; };
@@ -213,6 +216,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        6A8E00000000000000000011 /* XAIAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XAIAPIProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000012 /* XAIAPIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XAIAPIProviderTests.swift; sourceTree = SOURCE_ROOT; };
         6A8E00000000000000000001 /* VolcengineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/VolcengineProvider.swift; sourceTree = SOURCE_ROOT; };
         6A8E00000000000000000002 /* VolcengineProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/VolcengineProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000001 /* ElevenLabsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ElevenLabsProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -388,6 +393,8 @@
 				57EF00000000000000000007 /* WebSessionContainer.swift */,
 				57EF00000000000000000004 /* ProviderRedirectPolicy.swift */,
 				57EF00000000000000000001 /* StepFunProvider.swift */,
+                6A8E00000000000000000011 /* XAIAPIProvider.swift */,
+                6A8E00000000000000000012 /* XAIAPIProviderTests.swift */,
                 6A8E00000000000000000001 /* VolcengineProvider.swift */,
                 6A8E00000000000000000002 /* VolcengineProviderTests.swift */,
                 6A7E00000000000000000001 /* NewAPIProvider.swift */,
@@ -656,6 +663,7 @@
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
+                6A8E00000000000000000013 /* XAIAPIProvider.swift in Sources */,
                 6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
@@ -683,6 +691,7 @@
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */,
+                6A8E00000000000000000015 /* XAIAPIProviderTests.swift in Sources */,
                 6A8E00000000000000000005 /* VolcengineProviderTests.swift in Sources */,
                 6A7E00000000000000000005 /* NewAPIProviderTests.swift in Sources */,
                 C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
@@ -732,6 +741,7 @@
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
+                6A8E00000000000000000014 /* XAIAPIProvider.swift in Sources */,
                 6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,

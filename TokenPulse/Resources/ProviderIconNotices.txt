@@ -252,3 +252,5 @@ Vercel asset license
    limitations under the License.
 
 Volcengine vector mark: https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, packages/static-svg/icons/volcengine.svg. Copyright (c) 2023 LobeHub; MIT License reproduced above. Official Volcengine SDK repositories did not provide an appropriate vector service mark; existing Lobe Icons source used. TokenPulse sets black fill and explicit 24x24 dimensions and preserves vector/template rendering.
+
+xAI API vector mark: https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, packages/static-svg/icons/xai.svg. Copyright (c) 2023 LobeHub, MIT License reproduced above. Uses the existing Lobe source; vector paths preserved with black 24x24 template rendering.

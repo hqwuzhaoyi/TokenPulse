@@ -266,6 +266,10 @@ private struct AccountPreferencesView: View {
                             Text("输入 AccessKeyID:SecretAccessKey，使用英文冒号。两个套餐分别查询；AK/SK 仅保存在系统安全存储中。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
+                        if configuration.account.provider == .xaiAPI {
+                            Text("输入 TeamID:ManagementKey，使用英文冒号。需要管理 Key 和账单读取权限，推理 Key 无效。余额是已入账值，账期内可能高于控制台实时余额。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {

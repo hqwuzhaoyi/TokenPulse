@@ -111,6 +111,7 @@ extension ProviderCredentialEnvelope {
 
     var sourceCredentialIdentity: String? {
         if provider == .newAPI { return gatewayIdentity }
+        if provider == .xaiAPI { return (try? XAIManagementCredential(envelope: self))?.fingerprint }
         if provider == .volcengine { return (try? VolcengineAccessKeys(accessToken))?.fingerprint }
         return metadata["sourceCredentialFingerprint"]
     }

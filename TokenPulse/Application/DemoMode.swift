@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"), (.volcengine, "火山方舟"),
+            (.copilot, "GitHub Copilot Free"), (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,11 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .xaiAPI: [
+            QuotaWindow(id: "xaiAPI.team.demo.wallet.USD", name: "已入账预付余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "USD", wallet: WalletBalance(currency: "USD", total: 12.34))
+        ]
         case .volcengine: [
             window("volcengine.coding.fiveHour", "5 小时额度", .fiveHour, 12, scope: "Coding Plan"),
             window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
