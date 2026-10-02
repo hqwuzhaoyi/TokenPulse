@@ -75,3 +75,15 @@ xcodebuild build -project TokenPulse.xcodeproj -target TokenPulse \
 ## 验收边界
 
 29 张票均保留 `implemented-awaiting-real-validation`。没有读取真实 Key/Cookie，没有验证实际套餐、续期、当前网页接口可用性、跨设备 iCloud 凭证到达、手机离线时物理 Watch 独立查询。尤其百炼 Key 与控制台会话兼容性、Cursor 移动授权以及 Warp macOS 兼容请求头仍需要真实账号证据。其余 25 张依赖票未绕过前置验收启动；7 张研究票保持待验证。
+
+
+## 第二批最终复核结果（c5e3382）
+
+- 完整 XCTest **465 项通过，0 failures**，日志 `/tmp/tokenpulse-sol-wave2-verified.log`，结果包 `/tmp/tokenpulse-sol-wave2-verified.xcresult`。
+- 同一源码 unsigned `TokenPulse` target build **BUILD SUCCEEDED**，覆盖 App、Watch、两端 Widgets 与资产目录；日志 `/tmp/tokenpulse-sol-wave2-verified-unsigned.log`。
+- 检查37个provider image sets：均有明确SVG尺寸、无currentColor、开启vector preservation和template rendering。
+- 新增回归覆盖混合账号旧nil设置第一次关闭额度告警时钱包偏好独立、Chutes部分计数持久化、Decimal极小余量、DevPass缺字段/零限额保留旧数据。DevPass仅明确JSON null限额才能显示无上限，矩形complication优先显示状态文案。
+- `/tmp/tokenpulse-sol-wave2-final.log`记录复核中间失败：465项中同一Chutes极小余量回归有3个断言失败。实测Apple Foundation在对齐相距很远的小数指数后可能返回noError却丢弃减数；最终加入逆减法一致性检查，不修改回归断言，重跑全量已通过。未把中间失败隐藏为成功。
+- 界面抽查仍对应c082bba演示版；之后的开关、非周期额度文案与矩形complication小改动通过回归、代码检查和最终多目标构建，未补充物理Watch或系统级各尺寸组件的视觉验收。
+
+最终代码均提交于 `feature/provider-expansion-sol`。票据总计69张：37张实现待真实验收、7张研究待验证、25张依赖票未实施；没有将真实验收勾选为完成。

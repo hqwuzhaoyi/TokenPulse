@@ -1,6 +1,6 @@
 # TokenPulse provider 扩展 tickets
 
-状态（已验证基线 c082bba）：用户于 2026-10-02 批准 69 张本地 tickets，6 个 Sol 工作者与 root 已集成首批 8 张、第二批 29 张代码票。原有 9 个入口加新增 37 个，共 46 个提供商入口。完整 XCTest 457 项、0 failures 与 unsigned 全目标构建已由 root 实际执行通过；新增卡片/重点单位与混合展示已有 UI 抽查，完整视觉与真实账号/物理设备验收尚未完成。后续 review 修复及重新验证仍在进行，最终计数由 root 更新。7 张可行性票有研究报告但未通过实际验证，25 张依赖票尚未实施。见[第二批记录](wave2-progress.md)、[团队记录](team-progress.md)及由 root 维护最终结果的[统一验证记录](validation-record.md)。
+状态（已验证基线 c5e3382）：用户于 2026-10-02 批准 69 张本地 tickets，6 个 Sol 工作者与 root 已集成首批 8 张、第二批 29 张代码票。原有 9 个入口加新增 37 个，共 46 个提供商入口。完整 XCTest 465 项、0 failures 与 unsigned 全目标构建已由 root 实际执行通过；新增卡片/重点单位与混合展示已有 UI 抽查，完整视觉与真实账号/物理设备验收尚未完成。审查发现的边界问题已修复并重新通过验证。7 张可行性票有研究报告但未通过实际验证，25 张依赖票尚未实施。见[第二批记录](wave2-progress.md)、[团队记录](team-progress.md)及由 root 维护最终结果的[统一验证记录](validation-record.md)。
 
 范围：按 Pulse 固定版本的 77 个内置 provider 对照本地 9 个已接入项，覆盖全部 68 个未接入 provider，并补充 Qoder 国内站。已有 Claude、Codex、OpenCode Go、Kimi Code、Z.ai、MiniMax 国内版、SuperGrok、DeepSeek、Qoder 国际版不重复建接入票。
 

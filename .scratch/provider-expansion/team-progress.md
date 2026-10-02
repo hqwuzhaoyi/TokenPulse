@@ -48,7 +48,7 @@
 ## 第二批集成快照（c082bba）
 
 - 已集成第二批29票，含后续交付的60 Cursor；加首批8票共37张代码票，9个原有入口加37个新增入口共46个。
-- root 已实际执行完整 XCTest：457 tests、0 failures，日志 `/tmp/tokenpulse-sol-wave2-full46.log`；unsigned全目标构建成功，日志 `/tmp/tokenpulse-sol-wave2-unsigned.log`。这是c082bba基线，后续审查修复可能增加测试。
-- 新增卡片AX与重点截图（混合钱包、单位、持续补充、日期、IBM未知分母、Warp到期）已由root抽查，添加菜单可打开；完整UI/组件与真实账号/权限/生产契约、凭证生命周期、iCloud到达、手机离线后的物理Watch直查、真实通知未因此完成。后续review修复与回归结果由root记录，不用457基线冒充新修改已验证。
+- root 已实际执行完整 XCTest：457 tests、0 failures，日志 `/tmp/tokenpulse-sol-wave2-full46.log`；unsigned全目标构建成功，日志 `/tmp/tokenpulse-sol-wave2-unsigned.log`。这是初始c082bba基线；最终c5e3382已完成465项测试（0失败）及unsigned全目标构建，结果见统一验证记录。
+- 新增卡片AX与重点截图（混合钱包、单位、持续补充、日期、IBM未知分母、Warp到期）已由root抽查，添加菜单可打开；完整UI/组件与真实账号/权限/生产契约、凭证生命周期、iCloud到达、手机离线后的物理Watch直查、真实通知未因此完成。审查发现的提醒开关联动、部分数量、DevPass无上限状态及Decimal静默舍入已修复并重新验证。
 - 37张代码票统一 `implemented-awaiting-real-validation`，7张研究票继续 `awaiting-validation`，25张依赖票未实施并保留blockers。没有completed票；自动验证未放行依赖验收门槛。
 - 共享改动覆盖混合额度/钱包与独立提醒、持续补充/非周期额度、只给日期的边界、Decimal精确计数、部分余额失败的旧观测时间和身份隔离；详细交付见[第二批记录](wave2-progress.md)。最终命令/结果/UI与限制由root继续写入[统一验证记录](validation-record.md)。

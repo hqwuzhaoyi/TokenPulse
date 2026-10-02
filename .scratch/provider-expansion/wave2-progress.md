@@ -1,6 +1,6 @@
 # Sol 第二批执行记录
 
-用户于 2026-10-02 要求继续。基线为首批最终提交6c12386（238项测试与完整构建通过）；当前集成快照为c082bba，第二批29张代码票均已落地，原有9个+首批8个+第二批29个=46个提供商入口。六个工作者与root使用独立wave2分支，保留首批历史分支。
+用户于 2026-10-02 要求继续。基线为首批最终提交6c12386（238项测试与完整构建通过）；当前集成快照为c5e3382，第二批29张代码票均已落地，原有9个+首批8个+第二批29个=46个提供商入口。六个工作者与root使用独立wave2分支，保留首批历史分支。
 
 | 工作者 | 本批队列 |
 | --- | --- |
@@ -24,10 +24,10 @@
 
 ## 已执行自动验证与待验收
 
-- root 在c082bba实际执行完整XCTest，457 tests、0 failures；本机结果日志 `/tmp/tokenpulse-sol-wave2-full46.log`，结果包 `/tmp/tokenpulse-sol-wave2-full46.xcresult`。
-- root 同一快照的unsigned TokenPulse target构建成功，覆盖App/Watch/两端Widgets及资源目录；日志 `/tmp/tokenpulse-sol-wave2-unsigned.log`。
+- root 在c5e3382实际执行完整XCTest，465 tests、0 failures；本机结果日志 `/tmp/tokenpulse-sol-wave2-verified.log`，结果包 `/tmp/tokenpulse-sol-wave2-verified.xcresult`。
+- root 同一快照的unsigned TokenPulse target构建成功，覆盖App/Watch/两端Widgets及资源目录；日志 `/tmp/tokenpulse-sol-wave2-verified-unsigned.log`。
 - root已抽查全部新增账号卡片AX，重点截图核对混合钱包/单位/持续补充/日期/IBM缺分母/Warp到期，添加菜单可打开；这不表示完整各尺寸Widget/Watch/真实登录流程通过。首批演示截图和历史真机安装只属于各自版本的证据。
-- review仍在处理混合提醒默认开关联动、Chutes部分计数、DevPass缺限额及矩形complication等边界。非周期额度文案已另行修正；这些后续提交及新增测试不属于上述457项的c082bba结果，最终计数/重新构建和UI结果留root更新。
+- 混合提醒默认开关联动、Chutes部分计数及静默舍入、DevPass缺限额误判与矩形complication均已修复；非周期额度显示“无周期重置”。以上最终465项测试和重新构建已包含这些修改。卡片UI抽查基于初始整合版，后续文案/开关/矩形组件修改通过代码检查、回归和构建验证，未声称新增物理设备验收。
 - 真实账号、当前接口/权限/币种/单位、独立手机登录、凭证失效/续期、iCloud到达、关闭同步的本机生命周期、手机离线时物理Watch查询、后台通知和Widget/表盘仍需真实验收。详细命令、后续结果及UI证据由root维护[统一验证记录](validation-record.md)。
 
 ## 不能由代码落地推出的结论

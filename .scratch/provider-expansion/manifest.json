@@ -52,7 +52,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/moonshot-integration.md"
+    "implementationRecord": "../../docs/moonshot-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 5,
@@ -68,7 +69,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/alibaba-coding-plan-integration.md"
+    "implementationRecord": "../../docs/alibaba-coding-plan-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 6,
@@ -84,7 +86,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/factory-provider-integration.md"
+    "implementationRecord": "../../docs/factory-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 7,
@@ -100,7 +103,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/synthetic-provider-integration.md"
+    "implementationRecord": "../../docs/synthetic-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 8,
@@ -116,7 +120,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/v2ex-provider-integration.md"
+    "implementationRecord": "../../docs/v2ex-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 9,
@@ -235,7 +240,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/command-code-provider-integration.md"
+    "implementationRecord": "../../docs/command-code-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 17,
@@ -263,7 +269,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/amp-provider-integration.md"
+    "implementationRecord": "../../docs/amp-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 18,
@@ -291,7 +298,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/atlas-cloud-integration.md"
+    "implementationRecord": "../../docs/atlas-cloud-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 19,
@@ -319,7 +327,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/chutes-integration.md"
+    "implementationRecord": "../../docs/chutes-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 20,
@@ -347,7 +356,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/clinepass-integration.md"
+    "implementationRecord": "../../docs/clinepass-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 21,
@@ -375,7 +385,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/codebuff-integration.md"
+    "implementationRecord": "../../docs/codebuff-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 22,
@@ -403,7 +414,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/deepinfra-integration.md"
+    "implementationRecord": "../../docs/deepinfra-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 23,
@@ -431,7 +443,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/devpass-provider-integration.md"
+    "implementationRecord": "../../docs/devpass-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 24,
@@ -459,7 +472,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/gitkraken-provider-integration.md"
+    "implementationRecord": "../../docs/gitkraken-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 25,
@@ -487,7 +501,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/hugging-face-provider-integration.md"
+    "implementationRecord": "../../docs/hugging-face-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 26,
@@ -515,7 +530,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/hyper-integration.md"
+    "implementationRecord": "../../docs/hyper-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 27,
@@ -543,7 +559,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/ibm-bob-provider-integration.md"
+    "implementationRecord": "../../docs/ibm-bob-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 28,
@@ -571,7 +588,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/kilo-code-integration.md"
+    "implementationRecord": "../../docs/kilo-code-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 29,
@@ -599,7 +617,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/neuralwatt-integration.md"
+    "implementationRecord": "../../docs/neuralwatt-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 30,
@@ -627,7 +646,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/v0-provider-integration.md"
+    "implementationRecord": "../../docs/v0-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 31,
@@ -655,7 +675,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/venice-integration.md"
+    "implementationRecord": "../../docs/venice-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 32,
@@ -683,7 +704,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/warp-provider-integration.md"
+    "implementationRecord": "../../docs/warp-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 33,
@@ -711,7 +733,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/xkiro-provider-integration.md"
+    "implementationRecord": "../../docs/xkiro-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 34,
@@ -739,7 +762,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/zenmux-provider-integration.md"
+    "implementationRecord": "../../docs/zenmux-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 35,
@@ -767,7 +791,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/aixy-integration.md"
+    "implementationRecord": "../../docs/aixy-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 36,
@@ -795,7 +820,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/clawrouter-integration.md"
+    "implementationRecord": "../../docs/clawrouter-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 37,
@@ -848,7 +874,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/xai-api-provider-integration.md"
+    "implementationRecord": "../../docs/xai-api-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 39,
@@ -876,7 +903,8 @@
     "wave": 2,
     "validationRecord": "validation-record.md",
     "integrationBaseline": "c082bba",
-    "implementationRecord": "../../docs/volcengine-provider-integration.md"
+    "implementationRecord": "../../docs/volcengine-provider-integration.md",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 40,
@@ -1425,7 +1453,8 @@
     "wave": 2,
     "integrationBaseline": "c082bba",
     "implementationRecord": "../../docs/cursor-mobile-integration.md",
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "validationCommit": "c5e3382"
   },
   {
     "number": 61,

@@ -137,11 +137,11 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 截至集成提交 **c082bba**，完整 iPhone 模拟器 XCTest **457 项通过，0 failures**，覆盖原有功能及 46 个入口的契约/边界、身份隔离、精确数量、混合提醒与演示。该数值是此提交的已执行结果，后续审查修复须按新的结果更新。
-- 同一提交的 unsigned TokenPulse target 完整构建通过，覆盖 App、Watch、两端 Widgets 与资产目录。日志为本机 `/tmp/tokenpulse-sol-wave2-full46.log` 和 `/tmp/tokenpulse-sol-wave2-unsigned.log`；既有版本的签名构建、iPhone 真机安装与启动属于历史证据。
+- 截至集成提交 **c5e3382**，完整 iPhone 模拟器 XCTest **465 项通过，0 failures**，覆盖原有功能及 46 个入口的契约/边界、身份隔离、精确数量、混合提醒与演示。该数值包含本轮审查修复及其回归。
+- 同一提交的 unsigned TokenPulse target 完整构建通过，覆盖 App、Watch、两端 Widgets 与资产目录。日志为本机 `/tmp/tokenpulse-sol-wave2-verified.log` 和 `/tmp/tokenpulse-sol-wave2-verified-unsigned.log`；既有版本的签名构建、iPhone 真机安装与启动属于历史证据。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - root 已抽查新增账号卡片的可访问性信息，重点截图核对混合钱包、单位、持续补充、日期、IBM 未提供预算和 Warp 到期，添加表单菜单可打开。完整 UI/各尺寸组件、真实授权流程与物理设备仍未验收；首批截图也不替代本批完整视觉验收。
-- 新增 37 个入口的真实账号、当前接口兼容、凭证生命周期、iCloud 到达、物理 Watch 手机离线直查、后台通知与组件仍待验收。7 张研究票和 25 张依赖票均未完成；review 修复和重新验证正在进行，最终计数见[扩展进度](.scratch/provider-expansion/README.md)及由 root 维护的[统一验证记录](.scratch/provider-expansion/validation-record.md)。
+- 新增 37 个入口的真实账号、当前接口兼容、凭证生命周期、iCloud 到达、物理 Watch 手机离线直查、后台通知与组件仍待验收。7 张研究票和 25 张依赖票均未完成；审查修复与最终验证详见[扩展进度](.scratch/provider-expansion/README.md)及由 root 维护的[统一验证记录](.scratch/provider-expansion/validation-record.md)。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 
