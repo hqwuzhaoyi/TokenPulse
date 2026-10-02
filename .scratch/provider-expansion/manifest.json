@@ -1896,10 +1896,10 @@
   {
     "number": 66,
     "slug": "alibaba-token-plan",
-    "title": "Alibaba Token Plan 移动端可行性",
-    "behavior": "验证无需 bl CLI 的登录、地区绑定与 Token Plan 查询。",
+    "title": "Alibaba Token Plan 原生额度接入",
+    "behavior": "用户明确配置 AK/SK、地区与账号站点后，手机和 Watch 独立读取 Personal Token Plan 5 小时及每周额度。",
     "blockers": [],
-    "kind": "feasibility",
+    "kind": "integration",
     "upstream": "alibabaTokenPlan",
     "criteria": [
       "区分 Token Plan 与已排期的 Coding Plan；CLI 打印的额度不证明存在可供手机使用的认证入口。",
@@ -1910,11 +1910,15 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/66-alibaba-token-plan.md",
     "assignee": "sol_gateway",
     "researchReport": "research/66-alibaba-token-plan.md",
-    "acceptanceBasis": "implementation-and-provider-icon-exists"
+    "acceptanceBasis": "implementation-and-provider-icon-exists",
+    "implementationRecord": "../../docs/alibaba-token-plan-integration.md",
+    "validationCommit": "8c6427b",
+    "validationRecord": "wave4-progress.md",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 67,

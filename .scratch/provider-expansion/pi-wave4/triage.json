@@ -1,0 +1,9 @@
+[
+  {
+    "task": "01-openai-legacy",
+    "finding": "Numeric JSON with more than Decimal capacity can round during Foundation decoding",
+    "status": "documented-limit-not-expanded",
+    "evidence": "Swift6 production WalletNumericDecimal extraction reproduces rounding for a 41-significant-digit synthetic USD value; normal 19/38 digit tests and invalid-type tests pass",
+    "decision": "This round keeps the existing Foundation Decimal numeric model rather than adding a raw-JSON arbitrary-precision parser. No actual provider payload demonstrates this magnitude. The report remains archived as a known numeric representation limit; not reported as a fixed defect."
+  }
+]
