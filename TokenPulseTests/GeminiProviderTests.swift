@@ -16,7 +16,7 @@ final class GeminiProviderTests: XCTestCase {
         XCTAssertEqual(pro.period, .other)
         XCTAssertNil(pro.totalCount)
         XCTAssertNil(pro.exactCounts)
-        XCTAssertNil(snapshot.wallet)
+        XCTAssertTrue(snapshot.windows.allSatisfy { $0.wallet == nil })
     }
 
     func testMissingUnknownBooleanFractionAndInvalidTimeNeverBecomeZero() throws {
