@@ -46,7 +46,7 @@ final class BifrostProviderTests: XCTestCase {
     }
 
     func testDecimalOverrideRefusesOverflowAndLossOfPrecision() throws {
-        let huge = Decimal(sign: .plus, exponent: 127, significand: 9)
+        let huge = Decimal.greatestFiniteMagnitude
         XCTAssertThrowsError(try GatewayQuotaSupport.checkedAdd(huge, huge))
         XCTAssertThrowsError(try GatewayQuotaSupport.checkedAdd(huge, 1))
         XCTAssertEqual(try GatewayQuotaSupport.checkedAdd(5, 5), 10)
