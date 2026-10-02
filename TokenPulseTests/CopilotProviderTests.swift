@@ -3,6 +3,23 @@ import XCTest
 @testable import TokenPulse
 
 final class CopilotProviderTests: XCTestCase {
+    func testUnusedPercentageOnlyWindowDoesNotBecomeAnUnissuedPool() throws {
+        let root = try ProviderHTTP.json(Data(#"{"quota_snapshots":{"chat":{"percent_remaining":100}}}"#.utf8))
+        let window = try XCTUnwrap(CopilotProviderClient.windows(root).first)
+        XCTAssertEqual(window.usedPercentage, 0)
+        XCTAssertNil(window.totalCount)
+        XCTAssertNil(window.remainingCount)
+    }
+
+    func testNumericFlagsCannotBecomeUnlimitedOrPaidOverage() throws {
+        for flag in ["has_quota", "unlimited", "overage_permitted"] {
+            let data = Data("{\"quota_snapshots\":{\"chat\":{\"percent_remaining\":50,\"\(flag)\":1}}}".utf8)
+            XCTAssertTrue(CopilotProviderClient.windows(try ProviderHTTP.json(data)).isEmpty, flag)
+        }
+        let valid = try ProviderHTTP.json(Data(#"{"quota_snapshots":{"chat":{"unlimited":true}}}"#.utf8))
+        XCTAssertEqual(CopilotProviderClient.windows(valid).first?.isUnlimited, true)
+    }
+
     private let now = Date(timeIntervalSince1970: 100)
     private let deviceReply = #"{"user_code":"TEST-CODE","device_code":"device-fixture","verification_uri":"https://github.com/login/device","verification_uri_complete":"https://github.com/login/device?user_code=TEST-CODE","expires_in":900,"interval":5}"#
     private let tokenReply = #"{"access_token":"oauth-fixture","token_type":"bearer","scope":"read:user"}"#

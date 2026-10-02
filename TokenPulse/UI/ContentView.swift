@@ -569,7 +569,7 @@ private struct AddAccountView: View {
                     } header: {
                         Text("服务器地址")
                     } footer: {
-                        Text("每个账号可使用不同网关。支持 HTTPS，末尾 /v1 会自动移除；请确认这是你信任的服务器。暂不支持 HTTP 私网地址。")
+                        Text("每个账号可使用不同网关，末尾 /v1 会自动移除。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
                     }
                 }
                 Section {
@@ -621,7 +621,7 @@ private struct AddAccountView: View {
                                     return
                                 }
                             } catch {
-                                loginMessage = provider == .newAPI ? "请输入有效的 HTTPS 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存登录凭证"
+                                loginMessage = provider == .newAPI ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存登录凭证"
                                 saving = false
                                 return
                             }

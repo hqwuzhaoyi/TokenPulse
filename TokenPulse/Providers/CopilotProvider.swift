@@ -34,16 +34,19 @@ struct CopilotProviderClient: Sendable {
         let reset = date(root["quota_reset_date_utc"]) ?? date(root["quota_reset_date"])
         let definitions = [("premium_interactions", "Premium requests"), ("chat", "Chat"), ("completions", "Completions")]
         return definitions.compactMap { key, name in
-            guard let entry = entries[key] as? [String: Any], entry["has_quota"] as? Bool != false else { return nil }
-            let unlimited = entry["unlimited"] as? Bool == true
+            guard let entry = entries[key] as? [String: Any],
+                  ["has_quota", "unlimited", "overage_permitted"].allSatisfy({ flag in
+                      entry[flag] == nil || entry[flag] is NSNull || boolean(entry[flag]) != nil
+                  }), boolean(entry["has_quota"]) != false else { return nil }
+            let unlimited = boolean(entry["unlimited"]) == true
             let total = nonnegative(entry["entitlement"])
             let remaining = nonnegative(entry["remaining"])
             let percentRemaining = number(entry["percent_remaining"])
             // Older plans emit an unissued placeholder; never discard a genuinely spent lane.
-            if entry["has_quota"] == nil, !unlimited, (total ?? 0) <= 0,
-               (remaining ?? 0) <= 0, (percentRemaining ?? 0) >= 100 { return nil }
+            if boolean(entry["has_quota"]) == nil, !unlimited, total == 0,
+               remaining == 0, (percentRemaining ?? 0) >= 100 { return nil }
             guard unlimited || percentRemaining != nil || remaining != nil || total != nil else { return nil }
-            let overage = entry["overage_permitted"] as? Bool
+            let overage = boolean(entry["overage_permitted"])
             let used = unlimited ? nil : percentRemaining.map { min(max(100 - $0, 0), 100) }
             let exhausted: Bool? = unlimited ? false : percentRemaining.map { $0 <= 0 && overage != true }
             return QuotaWindow(
@@ -54,6 +57,11 @@ struct CopilotProviderClient: Sendable {
                 unit: "次", overagePermitted: overage, overageCount: nonnegative(entry["overage_count"])
             )
         }
+    }
+
+    private static func boolean(_ value: Any?) -> Bool? {
+        guard let value = value as? NSNumber, CFGetTypeID(value) == CFBooleanGetTypeID() else { return nil }
+        return value.boolValue
     }
 
     private static func number(_ value: Any?) -> Double? {

@@ -257,9 +257,9 @@ private struct AccountPreferencesView: View {
                         }
                     } else if usesAPIKey(configuration.account.provider) {
                         if configuration.account.provider == .newAPI {
-                            TextField("HTTPS 服务器地址", text: $serverAddress)
+                            TextField("服务器地址", text: $serverAddress)
                                 .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
-                            Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。暂不支持 HTTP 私网地址。")
+                            Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
@@ -276,7 +276,7 @@ private struct AccountPreferencesView: View {
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
-                                } catch { self.error = configuration.account.provider == .newAPI ? "请输入有效的 HTTPS 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
+                                } catch { self.error = configuration.account.provider == .newAPI ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
                             }
                         }.disabled(credential.isEmpty)
                     } else {

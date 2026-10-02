@@ -37,7 +37,7 @@ final class NewAPIProviderTests: XCTestCase {
             XCTAssertNil(snapshot.windows[0].wallet)
             XCTAssertNil(snapshot.windows[0].usedPercentage)
         }
-        XCTAssertEqual(try reading("TOKENS").windows[0].remainingCount, 13.155)
+        XCTAssertEqual(try XCTUnwrap(reading("TOKENS").windows[0].remainingCount), 13.155, accuracy: 1e-12)
         XCTAssertEqual(try reading("TOKENS").windows[0].unit, "tokens")
         XCTAssertNil(try reading(publicStatus: #"{"success":true,"data":{}}"#).windows[0].wallet)
         XCTAssertNil(try reading(publicStatus: #"{"success":true,"data":{"display_in_currency":false}}"#).windows[0].wallet)
