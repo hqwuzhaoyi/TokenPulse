@@ -167,6 +167,13 @@ enum QuotaResetSemantics: String, Codable, Sendable {
     case nonResettingAllowance
 }
 
+/// Exact reported quantities. Percentages remain Double for UI gauges, never for stored counts.
+struct DecimalQuotaCounts: Codable, Equatable, Sendable {
+    let used: Decimal
+    let remaining: Decimal
+    let total: Decimal
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -189,6 +196,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let resetSemantics: QuotaResetSemantics?
     /// A partial refill time, never a complete reset or reset-notification schedule.
     let nextReplenishmentAt: Date?
+    let exactCounts: DecimalQuotaCounts?
 
     init(id: String,
          name: String,
@@ -206,6 +214,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          wallet: WalletBalance? = nil,
          overagePermitted: Bool? = nil,
          overageCount: Double? = nil,
+         exactCounts: DecimalQuotaCounts? = nil,
          resetSemantics: QuotaResetSemantics? = nil,
          nextReplenishmentAt: Date? = nil) {
         self.id = id
@@ -226,6 +235,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.overageCount = overageCount
         self.resetSemantics = resetSemantics
         self.nextReplenishmentAt = nextReplenishmentAt
+        self.exactCounts = exactCounts
     }
 
     func needsUpdate(at date: Date) -> Bool {

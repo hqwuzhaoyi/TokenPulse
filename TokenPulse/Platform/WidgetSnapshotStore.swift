@@ -105,6 +105,7 @@ struct WidgetQuotaMetric: Identifiable {
         if let overage = QuotaFormatting.overageDescription(window) { return overage }
         if window.isExhausted == true { return "已用尽" }
         if window.isUnlimited { return "无限" }
+        if let value = QuotaFormatting.exactCountSummary(window) { return value }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
             let remaining = QuotaFormatting.count(window.remainingCount)
             let total = QuotaFormatting.count(window.totalCount)
