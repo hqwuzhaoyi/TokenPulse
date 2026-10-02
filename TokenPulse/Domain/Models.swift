@@ -14,10 +14,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
-    case moonshot
+    case moonshot, alibabaCodingPlan
 
     var id: String { rawValue }
-    var requiresRegion: Bool { self == .moonshot }
+    var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .moonshot }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
     var balancePresentation: ProviderBalancePresentation {
@@ -46,6 +46,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
         case .moonshot: "Moonshot API 钱包"
+        case .alibabaCodingPlan: "阿里百炼 Coding Plan"
         }
     }
 }
@@ -246,6 +247,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case noQuotaWindows
     case subscriptionRequired
     case insufficientPermissions
+    case consoleSessionRequired
 
     var displayName: String {
         switch self {
@@ -257,6 +259,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
         case .noQuotaWindows: "未返回套餐额度窗口"
         case .subscriptionRequired: "当前凭证没有可用的订阅套餐"
         case .insufficientPermissions: "Key 缺少所需的查询权限，请检查权限设置"
+        case .consoleSessionRequired: "该接口要求控制台登录会话，当前 Key 无法查询；请在对应站点检查。"
         }
     }
 }

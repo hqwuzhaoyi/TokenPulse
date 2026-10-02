@@ -19,6 +19,7 @@ enum DemoMode {
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
+            (.alibabaCodingPlan, "百炼 Coding Plan"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -116,6 +117,7 @@ enum DemoMode {
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
         ]
+        case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
         case .moonshot: [
             QuotaWindow(id: "moonshot.demo.wallet", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

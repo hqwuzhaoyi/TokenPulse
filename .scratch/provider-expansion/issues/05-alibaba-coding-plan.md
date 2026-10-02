@@ -1,6 +1,6 @@
 # 05: 阿里百炼 Coding Plan 额度接入
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -25,3 +25,11 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/alibaba-coding-plan.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+## Implementation and validation (2026-10-02)
+
+Implemented explicit mainland/international Key entry, credential/region source identity, active-plan selection and three reported quota windows, device-side routing, widgets, demo, reminders and licensed vector icon. See [provider contract and evidence](../../../docs/alibaba-coding-plan-integration.md).
+
+Before implementation, both consoles returned HTTP 200/ConsoleNeedLogin for an intentionally invalid synthetic Key. This verifies the failure shape only; it does not prove that a valid Key succeeds or fails. consoleSessionRequired reports the requirement explicitly. Console-session support was not added; the real-Key success path remains unverified and is blocked if the real account also requires that route.
+
+Verified: production module, all nine new XCTest methods and complete App UI pass real Swift 6 iOS SDK type checking; PBX plist and diff checks pass. XCTest execution and full unsigned App/Widgets/Watch builds await root. Real-account queries, Keychain/iCloud arrival, iCloud-off lifecycle, revocation, physical Watch independent refresh and real UI/notifications remain unvalidated. No real credential was accessed; acceptance checkboxes stay open.
