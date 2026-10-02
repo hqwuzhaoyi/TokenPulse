@@ -15,13 +15,15 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case newAPI
     case copilot
     case clinePass
+    case moonshot
 
     var id: String { rawValue }
-    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI }
+    var requiresRegion: Bool { self == .moonshot }
+    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .moonshot }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
-        case .deepSeek, .vercelAIGateway, .newAPI, .poe: .walletOnly
+        case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot: .walletOnly
         default: .none
         }
     }
@@ -45,9 +47,17 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
         case .clinePass: "ClinePass"
+        case .moonshot: "Moonshot API 钱包"
         }
     }
 }
+/// Region is an explicit credential choice, never inferred by trying another host.
+enum ProviderRegion: String, Codable, CaseIterable, Identifiable, Sendable {
+    case china, international
+    var id: String { rawValue }
+    var displayName: String { self == .china ? "国内（中国）" : "国际" }
+}
+
 struct SubscriptionAccount: Codable, Equatable, Identifiable, Sendable {
     let id: UUID
     var name: String

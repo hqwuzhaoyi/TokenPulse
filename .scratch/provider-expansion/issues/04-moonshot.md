@@ -1,6 +1,6 @@
 # 04: Moonshot API 钱包余额接入
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -25,3 +25,9 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/moonshot.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+## 实施与验证（2026-10-02）
+
+已实现显式地区 UI、地区 Key/envelope/缓存身份、双端直连路由、Decimal 全余额及可选明细、低余额提醒、widget、双地区演示与固定许可图标。详见 [Moonshot 接入边界](../../../docs/moonshot-integration.md)。
+
+已验证：生产 module、新增 7 项 XCTest 文件、完整 App UI 通过真实 Swift 6 iOS SDK typecheck；PBX plist 和 diff 检查通过。尚未执行 XCTest 或 unsigned target 构建，由 root 统一串行验证。实际国内/国际 Key、凭证失效、iCloud 与本机安全存储生命周期、物理 Watch 离线独立刷新和实际 UI/通知均未验收；未读取真实凭证，所有验收勾选保持开放。

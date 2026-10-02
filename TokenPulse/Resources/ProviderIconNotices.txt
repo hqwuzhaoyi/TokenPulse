@@ -252,3 +252,5 @@ Vercel asset license
    limitations under the License.
 
 ClinePass uses the Cline mark following the reference provider mapping. Source: official cline/cline repository, commit 7e7ff84efd3431a1b46fd3dbe02c816a21620b55, assets/branding/logos/cline-icon-dark.svg. License: Apache-2.0 (full license above). The asset has no individual copyright notice; rights remain with the repository contributors. Changes: dark fill to black, preserve original explicit 113 by 113 dimensions, package as vector/template Xcode image set. Use identifies a compatible service, not affiliation.
+
+Moonshot API uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/moonshot.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets width/height to 24; vector paths are unchanged. This is the MoonshotAI mark, distinct from the Kimi Code mark.

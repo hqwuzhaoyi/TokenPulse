@@ -110,7 +110,7 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
-        provider == .newAPI ? gatewayIdentity : metadata["sourceCredentialFingerprint"]
+        provider == .newAPI ? gatewayIdentity : provider.requiresRegion ? regionalIdentity : metadata["sourceCredentialFingerprint"]
     }
 
     /// Scope is canonical server + key; metadata order and trailing /v1 are irrelevant.
