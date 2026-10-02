@@ -66,6 +66,7 @@ extension Provider {
         case .xaiAPI: "ProviderXAIAPI"
         case .ibmBob: "ProviderIBMBob"
         case .warp: "ProviderWarp"
+        case .xiaomiCodingPlan: "ProviderXiaomiMiMo"
         case .v0: "ProviderV0"
         case .devPass: "ProviderDevPass"
         }

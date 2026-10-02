@@ -197,6 +197,11 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .xiaomiCodingPlan:
+            .init(loginURL: XiaomiCodingPlanProviderClient.loginURL, allowedOrigins: [XiaomiCodingPlanProviderClient.origin],
+                  makeCredentials: { cookies, _, accountID, now in
+                      [.init(id: "xiaomi", title: "MiMo 控制台账号", credential: try XiaomiCodingPlanProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                  })
         default: nil
         }
     }

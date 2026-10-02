@@ -37,6 +37,7 @@ enum DemoMode {
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
             (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
+            (.xiaomiCodingPlan, "小米月度套餐与余额"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -86,6 +87,14 @@ enum DemoMode {
         let short = window("demo.five-hour", "5 小时额度", .fiveHour, 36)
         let weekly = window("demo.weekly", "每周额度", .weekly, 71)
         let windows: [QuotaWindow] = switch provider {
+        case .xiaomiCodingPlan: [
+            QuotaWindow(id: "xiaomi.plan.0", name: "月度 Token 额度", scope: nil, period: .monthly,
+                        usedPercentage: 37.5, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "tokens", exactCounts: .init(used: 3_750_000, remaining: 6_250_000, total: 10_000_000)),
+            QuotaWindow(id: "xiaomi.wallet.CNY", name: "API 钱包余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: .init(currency: "CNY", total: 42.75, granted: 2.75, toppedUp: 40))
+        ]
         case .miniMaxChina: [short]
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
