@@ -26,6 +26,25 @@ DeepSeek 使用 [官方余额接口](https://api-docs.deepseek.com/api/get-user-
 
 待实测：Qoder iPhone 浏览器授权、真实额度响应和凭证有效期；DeepSeek 真实 API Key 查询；两者的 iCloud 凭证到达、手机离线时 Watch 独立刷新、真实通知和小组件。源码与模拟响应测试不等于真实账号验收。
 
+
+## GitHub Copilot
+
+Implemented against [Pulse 397c8fc](https://github.com/qunqin24/Pulse/tree/397c8fc4f1bd52180a452d2f3f0c099def97cf69):
+
+- iPhone requests `POST https://github.com/login/device/code`, then polls `POST https://github.com/login/oauth/access_token`. The public VS Code Copilot OAuth client is `Iv1.b507a08c87ecfe98`; the requested scope is only `read:user`. The consent screen names that editor client rather than TokenPulse. This is an unofficial integration, disclosed in the login screen. A separate TokenPulse OAuth registration remains a future option, but compatibility with the internal endpoint must be verified before switching clients.
+- GitHub's unfilled `verification_uri` is restricted to `https://github.com/login/device`. The user enters the displayed code on GitHub. TokenPulse never adds a code to the browser URL. Pending, cumulative `slow_down`, cancellation, rejection, expiry and new authorization are supported; background cancellation keeps the pending session available until its server-issued expiry.
+- No `gh` token or token from another app is read or accepted by the add-account UI. The device result is persisted in the existing per-account OAuth envelope and Keychain flow. GitHub device OAuth tokens have no refresh grant here; they are reused until revoked/invalid, after which account settings starts a new authorization.
+- `GET https://api.github.com/copilot_internal/user` uses `Authorization: token …`, `Editor-Version: vscode/1.96.2`, `Editor-Plugin-Version: copilot-chat/0.26.7` and `X-Github-Api-Version: 2025-04-01`. The route and these headers were checked against the pinned [usage implementation](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/CopilotUsageService.swift); client identity/scope were checked against [device authorization source](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Auth/GitHubDeviceLogin.swift).
+- This quota route is **not a public documented GitHub API** and may change without notice. Source compatibility and fixture tests do not verify that GitHub accepts the public editor client or narrow scope for a real account today.
+- Premium requests, Chat and Completions retain separate windows and reported counts. `percent_remaining` is inverted into used percentage. Explicit `has_quota: false` and older unissued placeholders are omitted; spent zero-remaining lanes remain visible. Unlimited lanes display “无限” without a ring, reset schedule or quota alert. Missing/invalid numbers remain unknown rather than zero.
+- `overage_permitted` and `overage_count` remain separate from `isExhausted`. An included allowance at 100% used can still support paid requests. Threshold alerts refer to included allowance usage; they do not claim paid requests are blocked. Widgets and both apps show the paid-overage status.
+- All finite issued lanes participate in summaries, details, widgets and the existing quota/reset reminder rules. Account reset uses `quota_reset_date_utc` (or date-only legacy `quota_reset_date`) in UTC; per-lane `quota_reset_at=0` is ignored. No fixed 30-day duration or fabricated cycle ID is introduced. Expected reset reminders remain distinct from a refresh confirming restored allowance.
+- The common account lifecycle provides multiple isolated accounts, local operation with iCloud disabled, reopen recovery, credential replacement/deletion and synchronized configuration tombstones. Once configuration and credentials arrive, Watch uses the same direct GitHub client. Demo data includes all three lanes and stays in existing isolated local demo stores.
+
+Verification: the Copilot fixture suite covers login request contracts, polling delays/cancellation/rejection/expiry, credential persistence without a refresh call, cross-provider rejection, finite/unlimited/unissued/overage parsing, request headers, missing fields, notifications, widget cache coding, and account isolation/reopen/delete with iCloud disabled. The isolated Keychain test uses synthetic tokens only. Provider SVG is pinned to Lobe Icons `2e76c48721e91b9aaa40803a0fa2eb8aca7399c4`; full provenance and MIT notice live in `ProviderIconNotices.txt`.
+
+Not yet verified: a real GitHub consent/token exchange with `read:user`, live Copilot Free/Individual/Business/Enterprise response compatibility, actual quota reset date, token lifetime or revocation, iCloud credential arrival, independent refresh on physical iPhone/Watch, real notifications and widget appearance. No real account token was accessed or printed. Complete unsigned build and simulator execution are tracked in ticket 03 and performed by the central integration worker.
+
 ## Shared integration API
 
 - `ProviderQuotaClient(provider:)` implements `QuotaQuerying` and also exposes `quotaResult(for:credential:)` so a coordinator can persist a rotated credential when one is returned.

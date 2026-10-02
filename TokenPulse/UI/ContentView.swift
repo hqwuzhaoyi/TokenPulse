@@ -196,6 +196,9 @@ private struct AccountQuotaView: View {
                             if let plan = snapshot.subscriptionPlan, state.account.provider == .codex {
                                 LabeledContent("套餐", value: plan.displayName)
                             }
+                            if let plan = snapshot.providerPlanName {
+                                LabeledContent("套餐", value: plan)
+                            }
                             let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
                             ForEach(detailWindows) { window in
                                 if window.scope == nil || state.account.provider == .qoderInternational {
@@ -376,6 +379,7 @@ private struct AccountSummaryView: View {
     }
 
     private var providerDescription: String {
+        if let plan = state.snapshot?.providerPlanName { return "\(state.account.provider.displayName) · \(plan)" }
         guard state.account.provider == .codex,
               let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
         return "\(state.account.provider.displayName) · \(plan.displayName)"
@@ -458,6 +462,9 @@ struct QuotaWindowView: View {
                 .font(.subheadline)
                 .bold()
 
+            if window.isUnlimited || window.overagePermitted == true || window.isExhausted == true {
+                LabeledContent("状态", value: QuotaFormatting.usage(window))
+            }
             if let scope = window.scope {
                 LabeledContent("范围", value: scope)
             }

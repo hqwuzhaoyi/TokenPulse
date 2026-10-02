@@ -8,7 +8,7 @@
 
 ## 功能
 
-- **多提供商、多账号**：Claude、ChatGPT/Codex、OpenCode Go、Z.ai 国际 Coding Plan（GLM）、MiniMax 国内版、SuperGrok、Qoder 国际版、DeepSeek 与 New API 自定义网关。
+- **多提供商、多账号**：Claude、ChatGPT/Codex、OpenCode Go、Z.ai 国际版、智谱国内版、MiniMax 国内／国际版、SuperGrok、Qoder 国际版、DeepSeek、Kimi Code 国内版、Poe、Vercel AI Gateway、ElevenLabs、StepFun、New API 与 GitHub Copilot。
 - **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 获取配置及凭证后，无需手机代查额度。
 - **账号管理**：首页通过 Edit 拖动账号卡片排序；左滑卡片或进入账号设置可删除账号，清理凭证、额度和提醒，并通过 iCloud 同步删除结果。Watch 同步全部账号，每个账号保留独立额度窗口。
 - **同步控制**：iCloud 同步开关、手动同步、最近同步时间、失败提示；点击同步时图标旋转反馈。
@@ -31,12 +31,15 @@
 | DeepSeek | API Key | 所选币种的 API 钱包余额 |
 | ElevenLabs | 具备 user_read 权限的 API Key | 账期字符额度与重置时间 |
 | New API | 每账号 HTTPS 服务器地址与网关 Key | 明确币种的钱包余额；无限 Key、Token 或未知单位按原意展示 |
+| GitHub Copilot | GitHub 设备码授权（read:user） | Premium requests、Chat、Completions，按实际套餐分别显示 |
 
 DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情包含总可用、赠送和充值余额。账号设置可选择概览及提醒币种，低余额默认阈值为 CNY 10 元或 USD 2 美元，可修改。持续低余额只提醒一次，余额恢复后再次降低才重新提醒；余额不足以调用 API 时也会提醒，并合并同次通知。钱包不显示已用百分比或周期重置时间。
 
 New API 每个账号可配置不同的 HTTPS 网关，地址末尾的 `/v1` 会自动移除；更新地址或 Key 后会清除旧余额和提醒身份。公共 `/api/status` 请求不携带 Key。USD/CNY 余额支持低余额提醒，TOKENS、CUSTOM 或未知币种不会被当作货币；不会用历史充值总量推断套餐百分比。HTTP 私网地址目前拒绝，iPhone/Watch 实机、iCloud Keychain 到达和真实 Key 失效尚待验收。
 
 Qoder 采用参考项目的非公开接口。设备凭证的自动续期不可用，源码核验与真实账号验证边界见 [提供商接入说明](docs/provider-integration.md)。到期时间只表示到期，不推断额度已重置。
+
+Copilot 授权页会显示 VS Code / Copilot 客户端身份，TokenPulse 使用该公开客户端进行非官方接入。只请求 `read:user`，无需粘贴 `gh` 或其他应用的 token。额度查询使用非公开内部接口；未发放项省略，无限项显示“无限”，超额付费与耗尽分别显示。凭证失效后可从账号设置重新授权，详见 [接入与验证边界](docs/provider-integration.md#github-copilot)。
 
 小、中、大组件都从主屏幕已配置账号列表中选择，分别最多选择 1、2、4 个具体账号，选择顺序就是展示顺序。中尺寸按账号分栏并对齐额度信息；大尺寸按账号纵向排列，每个账号的额度周期横向并列。每个账号的额度周期分别以文字和横向进度条显示，并保留各自的重置或到期时间，各周期用量不会相加。钱包余额、无限额度及未提供的用量不绘制百分比进度条。Codex 与 SuperGrok 的可手动重置次数属于账号级信息，只显示一次；没有可信字段时显示“未提供”。
 

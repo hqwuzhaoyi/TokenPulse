@@ -7,7 +7,7 @@
 **独立刷新**：设备自行获取服务端最新数据，无需另一台设备在线代查。iPhone 不依赖 Mac，Watch 不依赖 iPhone。
 _Avoid_：独立显示（只描述展示能力，不能说明是否可以获取新数据）
 
-**提供商**：被查询的 AI 服务来源；已纳入接入范围的服务为 Claude、Codex、OpenCode Go、Z.ai 国际版、智谱国内版、MiniMax 国内版、MiniMax 国际版、Grok、Qoder 国际版、DeepSeek、Poe、Vercel AI Gateway、ElevenLabs、StepFun、New API 和 Kimi Code 国内版。地区提供商具有独立账号与凭证；相同品牌不意味着 Key 或套餐可以跨地区使用。
+**提供商**：被查询的 AI 服务来源；已纳入接入范围的服务为 Claude、Codex、OpenCode Go、Z.ai 国际版、智谱国内版、MiniMax 国内版、MiniMax 国际版、Grok、Qoder 国际版、DeepSeek、Poe、Vercel AI Gateway、ElevenLabs、StepFun、New API、GitHub Copilot 和 Kimi Code 国内版。地区提供商具有独立账号与凭证；相同品牌不意味着 Key 或套餐可以跨地区使用。
 _Avoid_：账号（账号属于某个提供商，不等于提供商本身）
 
 **服务账号**：用户在某个提供商下配置的账号，可承载套餐额度或 API 钱包余额。同一个提供商可以配置多个服务账号。
@@ -53,3 +53,6 @@ _Avoid_：账号级额度（两者的展示与通知策略可以不同）
 _Avoid_：提供商解析（解析负责还原服务端数据，不决定产品可见性）
 
 **网关地址**：某个服务账号绑定的查询服务器根地址，与该账号的 Key 一起安全保存和同步；不同账号可绑定不同服务器。地址规范化和凭证身份用于阻止旧服务器或旧 Key 的缓存冒充当前数据。
+
+**Copilot 额度**：GitHub Copilot 套餐分别发放的 Premium requests、Chat 和 Completions，每项有独立额度状态，共用账号返回的每月重置日期。未发放项不展示，无限项不绘制百分比，允许超额付费不代表调用已阻断。
+_Avoid_：合并成一个账号总额度、将已用完免费份额等同不可继续调用。

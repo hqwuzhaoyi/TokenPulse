@@ -11,6 +11,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var walletCurrency: String? = nil
     var walletAvailable: Bool? = nil
     var quotaExceeded: Bool? = nil
+    var providerPlanName: String? = nil
 
     var id: UUID { account.id }
 
@@ -28,7 +29,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     }
 
     var ringMetrics: [WidgetQuotaMetric] {
-        let limit = account.provider == .openCodeGo || account.provider == .claude ? 3 : 2
+        let limit = account.provider == .openCodeGo || account.provider == .claude || account.provider == .copilot ? 3 : 2
         return Array(displayMetrics.prefix(limit))
     }
 
@@ -69,7 +70,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
@@ -94,6 +95,7 @@ struct WidgetQuotaMetric: Identifiable {
         if let wallet = window.wallet {
             return QuotaFormatting.balance(wallet.total, wallet: wallet)
         }
+        if let overage = QuotaFormatting.overageDescription(window) { return overage }
         if window.isExhausted == true { return "已用尽" }
         if window.isUnlimited { return "无限" }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
@@ -222,7 +224,8 @@ actor WidgetSnapshotStore {
                 subscriptionPlan: state.snapshot?.subscriptionPlan,
                 walletCurrency: settingsByID[state.id]?.walletCurrency,
                 walletAvailable: state.snapshot?.walletAvailable,
-                quotaExceeded: state.snapshot?.quotaExceeded
+                quotaExceeded: state.snapshot?.quotaExceeded,
+                providerPlanName: state.snapshot?.providerPlanName
             )
         }
         try save(snapshots, isDemoMode: isDemoMode)

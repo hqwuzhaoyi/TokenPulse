@@ -7,6 +7,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case zhipu, miniMaxInternational
     case stepFun
     case newAPI
+    case copilot
 
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI }
@@ -29,6 +30,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .elevenLabs: "ElevenLabs"
         case .stepFun: "StepFun"
         case .newAPI: "New API"
+        case .copilot: "GitHub Copilot"
         }
     }
 }
@@ -150,6 +152,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let unit: String?
     let expiresAt: Date?
     let wallet: WalletBalance?
+    let overagePermitted: Bool?
+    let overageCount: Double?
 
     init(id: String,
          name: String,
@@ -164,7 +168,9 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          cycleID: String? = nil,
          unit: String? = nil,
          expiresAt: Date? = nil,
-         wallet: WalletBalance? = nil) {
+         wallet: WalletBalance? = nil,
+         overagePermitted: Bool? = nil,
+         overageCount: Double? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -179,6 +185,8 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.unit = unit
         self.expiresAt = expiresAt
         self.wallet = wallet
+        self.overagePermitted = overagePermitted
+        self.overageCount = overageCount
     }
 
     func needsUpdate(at date: Date) -> Bool {
@@ -200,6 +208,7 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     var quotaExceeded: Bool? = nil
     /// A one-way identity for web-session cache matching; never contains cookies.
     var sourceCredentialFingerprint: String? = nil
+    var providerPlanName: String? = nil
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)

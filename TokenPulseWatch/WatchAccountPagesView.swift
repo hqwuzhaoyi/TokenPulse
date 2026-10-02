@@ -191,6 +191,9 @@ private struct WatchAccountPage: View {
                                     LabeledContent(window.displayName, value: QuotaFormatting.usage(window))
                                         .font(.caption)
                                 }
+                                if let overage = QuotaFormatting.overageDescription(window) {
+                                    Text(overage).font(.caption2)
+                                }
                                 if let remaining = window.remainingCount {
                                     LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
                                         .font(.caption2)
@@ -257,6 +260,7 @@ private struct WatchAccountPage: View {
     }
 
     private var providerDescription: String {
+        if let plan = state.snapshot?.providerPlanName { return "\(state.account.provider.displayName) · \(plan)" }
         guard state.account.provider == .codex,
               let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
         return "\(state.account.provider.displayName) · \(plan.displayName)"

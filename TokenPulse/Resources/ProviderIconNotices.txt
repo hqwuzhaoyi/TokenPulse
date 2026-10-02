@@ -18,6 +18,8 @@ The StepFun SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe
 
 The New API SVG mark is derived from Lobe Icons repository https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, asset packages/static-svg/icons/newapi.svg. Copyright (c) 2023 LobeHub, MIT License (reproduced below). The official New API repository primarily supplies a raster brand mark; the existing Lobe Icons vector source is used for template rendering.
 
+The GitHub Copilot SVG mark is derived from Lobe Icons commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/githubcopilot.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official github/copilot.vim repository inspected for an icon did not include an SVG provider mark.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

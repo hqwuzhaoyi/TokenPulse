@@ -34,6 +34,7 @@ enum QuotaFormatting {
 
     static func usage(_ window: QuotaWindow) -> String {
         if window.isUnlimited { return "无限" }
+        if let overage = overageDescription(window) { return overage }
         if window.isExhausted == true { return "已用尽" }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
             let remaining = count(window.remainingCount)
@@ -42,6 +43,13 @@ enum QuotaFormatting {
             return window.unit.map { "\(values) \($0)" } ?? values
         }
         return percentage(window.usedPercentage)
+    }
+
+    static func overageDescription(_ window: QuotaWindow) -> String? {
+        guard !window.isUnlimited, window.overagePermitted == true,
+              (window.usedPercentage ?? 0) >= 100 || (window.overageCount ?? 0) > 0 else { return nil }
+        if let count = window.overageCount, count > 0 { return "超额付费 \(Self.count(count)) 次" }
+        return "可超额付费"
     }
 
     static func effectiveUsedPercentage(_ window: QuotaWindow) -> Double? {

@@ -184,6 +184,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .copilot:
+            return try await CopilotProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .kimiCode:
             return try await KimiCodeProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -241,7 +244,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Poe API Key")
         case .vercelAIGateway:
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
-        case .codex, .kimiCode:
+        case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
         case .claude, .stepFun:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
@@ -266,6 +269,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func beginLogin(provider: Provider, callbackURL: URL? = nil) async throws -> ProviderLoginSession {
         switch provider {
+        case .copilot:
+            return try await CopilotProviderAuthenticator(transport: transport, now: now).begin()
         case .kimiCode:
             return try await KimiCodeProviderAuthenticator(transport: transport, now: now).begin()
         case .codex:
@@ -296,6 +301,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func continueLogin(_ session: ProviderLoginSession, callbackURL: URL? = nil) async throws -> ProviderLoginProgress {
         switch session.provider {
+        case .copilot:
+            return try await CopilotProviderAuthenticator(transport: transport, now: now).poll(session)
         case .kimiCode:
             return try await KimiCodeProviderAuthenticator(transport: transport, now: now).poll(session)
         case .codex:
@@ -312,6 +319,8 @@ struct ProviderAuthenticationController: Sendable {
     func refreshCredentialIfNeeded(provider: Provider, credential: String) async throws -> ProviderCredentialRefresh {
         let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
         switch provider {
+        case .copilot:
+            return try CopilotProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .kimiCode:
             return try await KimiCodeProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .codex:

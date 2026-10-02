@@ -887,6 +887,7 @@ private struct RingMetric: View {
     }
 
     private var percentage: String {
+        if let window = metric.window, QuotaFormatting.overageDescription(window) != nil { return "付费" }
         if metric.window?.isUnlimited == true { return "∞" }
         guard let window = metric.window,
               let value = QuotaFormatting.effectiveUsedPercentage(window),

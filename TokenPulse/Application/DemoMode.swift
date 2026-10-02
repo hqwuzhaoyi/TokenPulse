@@ -17,6 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
+            (.copilot, "GitHub Copilot Free"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -70,6 +71,11 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .copilot: [
+            window("copilot.premium_interactions", "Premium requests", .monthly, 60),
+            window("copilot.chat", "Chat", .monthly, 30),
+            window("copilot.completions", "Completions", .monthly, 20)
+        ]
         case .kimiCode: [short, weekly, window("kimiCode.monthly", "每月总额度", .monthly, 48)]
         case .zai, .zhipu, .miniMaxInternational: [short, weekly]
         case .superGrok: [window("superGrok.pool", "每周额度", .weekly, 62)]
@@ -122,7 +128,8 @@ enum DemoMode {
             accountID: accountID, windows: windows, collectedAt: now,
             subscriptionPlan: provider == .codex ? (accountID == proAccountID ? .pro : .plus) : nil,
             remainingResetCount: provider == .codex || provider == .superGrok ? 2 : nil,
-            walletAvailable: provider == .deepSeek ? true : nil
+            walletAvailable: provider == .deepSeek ? true : nil,
+            providerPlanName: provider == .copilot ? "Free" : nil
         )
     }
 }

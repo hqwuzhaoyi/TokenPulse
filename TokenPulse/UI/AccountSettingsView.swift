@@ -187,6 +187,9 @@ private struct AccountPreferencesView: View {
                             if configuration.account.provider == .stepFun, snapshot.windows.isEmpty {
                                 Text("当前账号没有可用的 Step Plan")
                             }
+                            if let plan = snapshot.providerPlanName {
+                                LabeledContent("套餐", value: plan)
+                            }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
                                 if window.scope == nil || configuration.account.provider == .qoderInternational {
                                     QuotaWindowView(window: window)

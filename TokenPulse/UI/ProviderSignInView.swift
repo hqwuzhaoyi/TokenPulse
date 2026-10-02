@@ -40,6 +40,10 @@ struct ProviderSignInView: View {
                             }
                             if login.message == nil {
                                 Section {
+                                    if provider == .copilot {
+                                        Text("GitHub 授权页会显示 VS Code / Copilot 客户端。TokenPulse 使用其公开客户端，仅请求 read:user 权限。这是非官方接入，请手动输入本页授权码。")
+                                            .font(.footnote)
+                                    }
                                     ProgressView(login.reconnecting ? "正在恢复连接，授权码仍然有效" : "正在等待授权结果")
                                 }
                             }
@@ -105,7 +109,8 @@ final class DeviceLoginModel: ObservableObject {
                 guard activeRunID == runID else { return }
                 session = pending
             }
-            guard let pending = session else { return }
+            guard var pending = session else { return }
+            if provider == .copilot { try await sleep(pending.pollingInterval ?? 5) }
             var networkFailures = 0
             while !Task.isCancelled {
                 guard activeRunID == runID else { return }
@@ -131,6 +136,15 @@ final class DeviceLoginModel: ObservableObject {
                     completion(credential)
                     return
                 case .pending(let retryAfter):
+                    if provider == .copilot {
+                        pending = ProviderLoginSession(
+                            provider: pending.provider, authorizationURL: pending.authorizationURL,
+                            userCode: pending.userCode, deviceCode: pending.deviceCode, state: pending.state,
+                            codeVerifier: pending.codeVerifier, callbackURL: pending.callbackURL,
+                            pollingInterval: retryAfter, expiresAt: pending.expiresAt, metadata: pending.metadata
+                        )
+                        session = pending
+                    }
                     try await sleep(retryAfter)
                 }
             }
@@ -143,6 +157,9 @@ final class DeviceLoginModel: ObservableObject {
             case .loginExpired:
                 session = nil
                 message = "授权已过期，请重新开始。"
+            case .invalidCredential where provider == .copilot:
+                session = nil
+                message = "GitHub 授权已拒绝或失效，请重新开始。"
             case .network: message = "网络暂不可用，请恢复连接后继续授权。"
             default: message = "登录未完成，请重试或检查账号授权设置。"
             }
