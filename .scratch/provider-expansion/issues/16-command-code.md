@@ -1,6 +1,6 @@
 # 16: Command Code 美元余额与限额
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## Acceptance criteria
 
-- [ ] 余额与滚动或组织限额分别展示；不使用上游按套餐价格推算的月度总额。
+- [x] 余额与滚动或组织限额分别展示；不使用上游按套餐价格推算的月度总额。
 - [ ] 确认 Key 可以独立查询；按服务返回的金额与单位解析，不将积分数推算为美元。
 - [ ] 从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。
 - [ ] iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。
@@ -19,8 +19,14 @@
 - [ ] 覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。
 - [ ] 新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。
 - [ ] 保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。
-- [ ] 更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。
+- [x] 更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。
 
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/command-code.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation — 2026-10-02
+
+已实现 `.commandCode` 添加入口、Key envelope、安全保存/账号隔离与既有同步/删除路径、双端直接客户端、混合额度+钱包能力、Widget/演示、固定 MIT 图标与7个合成契约测试。只读取 whoami 与 credits，不调用 subscriptions/summary、不含价格表或推算月度总额。钱包只在三个金额池全部明确返回时以 Decimal 相加，未知池不补零。
+
+[实施范围与验证记录](../../../docs/command-code-provider-integration.md)。完整 App 的 Swift6 iOS module emit 和完整新增 XCTest 文件 semantic typecheck通过，PBX/plist与diff检查通过；未运行xcodebuild/模拟器，真实Key、iCloud到Watch、手机离线的物理Watch读取、真实提醒及完整无签名目标构建仍未验收，由root集中验证。未把合成测试或源码接口作为真实账号证明。

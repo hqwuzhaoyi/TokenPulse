@@ -41,6 +41,7 @@ extension Provider {
         case .stepFun: "ProviderStepFun"
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
+        case .commandCode: "ProviderCommandCode"
         }
     }
 

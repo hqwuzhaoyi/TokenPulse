@@ -20,6 +20,8 @@ The New API SVG mark is derived from Lobe Icons repository https://github.com/lo
 
 The GitHub Copilot SVG mark is derived from Lobe Icons commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/githubcopilot.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official github/copilot.vim repository inspected for an icon did not include an SVG provider mark.
 
+The Command Code SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/commandcode.svg. Copyright (c) 2023 LobeHub, MIT License (included below). Official CommandCodeAI/command-code commit 5c8f1b48c9d6704210cb3f9a476fdcffe5093e9a provides logo SVGs but no license in its tree; the licensed existing Lobe Icons source is used.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

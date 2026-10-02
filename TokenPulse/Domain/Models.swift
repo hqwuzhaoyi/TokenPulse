@@ -14,12 +14,14 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
+    case commandCode
 
     var id: String { rawValue }
-    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI }
+    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .commandCode }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
+        case .commandCode: .mixed
         case .deepSeek, .vercelAIGateway, .newAPI, .poe: .walletOnly
         default: .none
         }
@@ -43,6 +45,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .stepFun: "StepFun"
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
+        case .commandCode: "Command Code"
         }
     }
 }

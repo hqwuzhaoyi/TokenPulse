@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
+            (.commandCode, "Command Code"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -114,6 +115,14 @@ enum DemoMode {
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
+        case .commandCode: [
+            QuotaWindow(id: "commandCode.five-hour", name: "5 小时消费限额", scope: nil, period: .fiveHour,
+                        usedPercentage: 40, remainingCount: 12, totalCount: 20,
+                        resetsAt: now.addingTimeInterval(2 * 3_600), unit: "USD"),
+            QuotaWindow(id: "commandCode.wallet.USD", name: "可用美元余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "18.25")!))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
