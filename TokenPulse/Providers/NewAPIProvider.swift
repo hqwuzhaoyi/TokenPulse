@@ -110,6 +110,7 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
+        if metadata["webSessionFormat"] == "v1" { return try? WebProviderSession.fingerprint(self) }
         if provider == .newAPI { return gatewayIdentity }
         if provider == .ibmBob { return (try? IBMBobCredential(envelope: self))?.fingerprint }
         if provider == .xaiAPI { return (try? XAIManagementCredential(envelope: self))?.fingerprint }
