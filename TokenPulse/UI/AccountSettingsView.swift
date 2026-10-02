@@ -213,7 +213,10 @@ private struct AccountPreferencesView: View {
                                 Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
                                     .foregroundStyle(.orange)
                             }
-                            Text("采集于 \(snapshot.collectedAt.formatted())").font(.caption)
+                            if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                                Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
+                            }
+                            Text("\(snapshot.walletFailure == nil ? "采集于" : "套餐采集于") \(snapshot.collectedAt.formatted())").font(.caption)
                         } else { Text("尚无成功采集数据") }
                         if let failure = state.lastFailure { Text(failure.displayName).foregroundStyle(.orange) }
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
@@ -229,7 +232,7 @@ private struct AccountPreferencesView: View {
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                             if configuration.account.provider != .qoderInternational &&
-                                (configuration.account.provider != .stepFun || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil }) == true) &&
+                                (![Provider.stepFun, .synthetic, .v2ex].contains(configuration.account.provider) || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil && $0.resetSemantics == nil }) == true) &&
                                 (configuration.account.provider.balancePresentation != .mixed || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.wallet == nil && $0.resetsAt != nil }) == true) {
                                 Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
                                     var settings = configuration.reminders; settings.resetRemindersEnabled = value

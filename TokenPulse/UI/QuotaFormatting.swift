@@ -1,6 +1,17 @@
 import Foundation
 
 enum QuotaFormatting {
+    static func walletCollectionStatus(failure: RefreshFailure?, collectedAt: Date?) -> String? {
+        guard failure != nil || collectedAt != nil else { return nil }
+        let time = collectedAt.map { "钱包采集于 \(resetDate($0))" } ?? "暂无成功钱包数据"
+        if let failure {
+            if let collectedAt {
+                return "钱包为旧数据（采集于 \(resetDate(collectedAt))）；刷新失败：\(failure.displayName)。"
+            }
+            return "钱包刷新失败：\(failure.displayName)。\(time)。"
+        }
+        return time
+    }
     static func remainingResets(_ count: Int?) -> String {
         guard let count else { return "未提供" }
         return "\(count.formatted()) 次"
@@ -54,8 +65,8 @@ enum QuotaFormatting {
         if window.isExhausted == true { return "已用尽" }
         if let value = exactCountSummary(window) { return value }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
-            let remaining = count(window.remainingCount)
-            let total = count(window.totalCount)
+            let remaining = count(window.remainingCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
+            let total = count(window.totalCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
             let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
             return window.unit.map { "\(values) \($0)" } ?? values
         }
@@ -100,13 +111,13 @@ enum QuotaFormatting {
         return unit.map { "\(formatted) \($0)" } ?? formatted
     }
 
-    static func count(_ value: Double?) -> String {
+    static func count(_ value: Double?, maximumFractionDigits: Int = 2) -> String {
         guard let value else { return "未提供" }
-        return value.formatted(.number.precision(.fractionLength(0...2)))
+        return value.formatted(.number.precision(.fractionLength(0...maximumFractionDigits)))
     }
 
     static func count(_ value: Double?, unit: String?) -> String {
-        let value = count(value)
+        let value = count(value, maximumFractionDigits: unit == "USD 预算额度" ? 6 : 2)
         guard value != "未提供", let unit, !unit.isEmpty else { return value }
         return "\(value) \(unit)"
     }

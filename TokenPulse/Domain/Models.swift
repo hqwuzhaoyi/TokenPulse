@@ -27,15 +27,16 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case kiloCode
     case atlasCloud
     case commandCode, amp, gitKraken, huggingFace
+    case synthetic, v2ex, xKiro, zenMux
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot }
-    var hasMonetaryWallet: Bool { [.commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice: .walletOnly
-        case .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
+        case .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -74,6 +75,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .amp: "Amp"
         case .gitKraken: "GitKraken AI"
         case .huggingFace: "Hugging Face"
+        case .synthetic: "Synthetic"
+        case .v2ex: "V2EX"
+        case .xKiro: "xKiro"
+        case .zenMux: "ZenMux"
         }
     }
 }
@@ -291,7 +296,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
 
 struct QuotaSnapshot: Codable, Equatable, Sendable {
     let accountID: UUID
-    let windows: [QuotaWindow]
+    var windows: [QuotaWindow]
     let collectedAt: Date
     var subscriptionPlan: SubscriptionPlan? = nil
     var remainingResetCount: Int? = nil
@@ -300,6 +305,23 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     /// A one-way identity for web-session cache matching; never contains cookies.
     var sourceCredentialFingerprint: String? = nil
     var providerPlanName: String? = nil
+    var walletCollectedAt: Date? = nil
+    var walletFailure: RefreshFailure? = nil
+
+    func retainingWalletAfterPartialFailure(from previous: QuotaSnapshot?) -> QuotaSnapshot {
+        guard walletFailure != nil else { return self }
+        var result = self
+        result.windows.removeAll { $0.wallet != nil }
+        result.walletCollectedAt = nil
+        result.walletAvailable = nil
+        guard let previous, previous.accountID == accountID,
+              let identity = sourceCredentialFingerprint, identity == previous.sourceCredentialFingerprint else { return result }
+        let wallets = previous.windows.filter { $0.wallet != nil }
+        result.windows.append(contentsOf: wallets)
+        if !wallets.isEmpty { result.walletCollectedAt = previous.walletCollectedAt ?? previous.collectedAt }
+        result.walletAvailable = previous.walletAvailable
+        return result
+    }
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)
@@ -308,6 +330,7 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
 
 enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case invalidCredential
+    case managementKeyRequired
     case network
     case rateLimited
     case server
@@ -319,6 +342,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     var displayName: String {
         switch self {
         case .invalidCredential: "凭证无效或已过期，请重新登录"
+        case .managementKeyRequired: "Management Key 无效或权限不足；普通推理 Key 无权查询"
         case .network: "网络连接失败"
         case .rateLimited: "请求过于频繁"
         case .server: "提供商服务异常"

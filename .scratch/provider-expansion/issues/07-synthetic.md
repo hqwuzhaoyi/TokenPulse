@@ -1,6 +1,6 @@
 # 07: Synthetic 多窗口额度接入
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,9 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/synthetic.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+## Implementation evidence (2026-10-02)
+
+Provider.synthetic and direct fixed HTTPS Bearer quota client added, with separate rolling five-hour, weekly and Search hourly windows. Continuous replenishment uses the shared resetSemantics/nextReplenishmentAt contract; partial recovery never emits a reset, and quota reminders rearm only below the lowest configured threshold. Add/update/store/sync/delete use existing API-key paths plus a provider/key identity. Demo, widgets and a generic system extension icon are included. See docs/synthetic-provider-integration.md.
+
+Swift 6 full App module emit and the complete new Synthetic XCTest file semantic typecheck, PBX lint and diff checks passed. No xcodebuild or simulator was started by this agent; test execution and unsigned App/Widgets/Watch build remain for root. No real Key was accessed. Real service/device/notifications/sync and brand-icon evidence remain unverified, so acceptance boxes remain open.

@@ -220,7 +220,10 @@ private struct AccountQuotaView: View {
                                 )
                             }
                             // The collapsed summary above already carries the 余额不足 / 额度已用尽 badge.
-                            Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
+                            if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                                Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
+                            }
+                            Text("\(snapshot.walletFailure == nil ? "更新于" : "套餐更新于") \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -362,6 +365,9 @@ private struct AccountSummaryView: View {
                         CompactQuotaWindowView(window: window)
                     }
                 }
+                if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                    Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
+                }
                 if snapshot.quotaExceeded == true {
                     Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
                         .font(.caption)
@@ -501,6 +507,9 @@ struct QuotaWindowView: View {
             if let replenishment = window.nextReplenishmentAt {
                 LabeledContent("下次补充", value: QuotaFormatting.resetDate(replenishment))
             }
+            if let replenishment = window.nextReplenishmentAt {
+                LabeledContent("下次补充", value: QuotaFormatting.resetDate(replenishment))
+            }
             if window.expiresAt == nil || window.resetsAt != nil {
                 TimelineView(.periodic(from: .now, by: 60)) { context in
                     if window.needsUpdate(at: context.date) {
@@ -516,7 +525,7 @@ struct QuotaWindowView: View {
 
     private func remainingValue(_ remaining: Double) -> String {
         guard let total = window.totalCount else { return QuotaFormatting.count(remaining, unit: window.unit) }
-        let values = "\(QuotaFormatting.count(remaining)) / \(QuotaFormatting.count(total))"
+        let values = "\(QuotaFormatting.count(remaining, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)) / \(QuotaFormatting.count(total, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2))"
         guard let unit = window.unit, !unit.isEmpty else { return values }
         return "\(values) \(unit)"
     }

@@ -563,3 +563,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Synthetic uses Apple SF Symbol puzzlepiece.extension.fill as a generic extension symbol, not a Synthetic trademark. No third-party SVG is imported for this provider; the system renders this symbol. The generic-symbol decision follows Pulse commit 397c8fc4f1bd52180a452d2f3f0c099def97cf69, Sources/Pulse/Providers/Profiled/SyntheticUsageService.swift (iconResource extension).
+
+V2EX uses Apple SF Symbol bubble.left.and.bubble.right.fill as a generic chat symbol, not a V2EX trademark. No third-party SVG is imported for this provider; the system renders this symbol. A dedicated brand vector license has not been verified.
+
+xKiro uses Apple SF Symbol puzzlepiece.extension.fill as a generic extension symbol, not an xKiro or AWS Kiro trademark. No third-party SVG is imported; the system renders it. The choice follows generic extension usage in Pulse commit 397c8fc4f1bd52180a452d2f3f0c099def97cf69, Sources/Pulse/Providers/Profiled/XKiroUsageService.swift.
+
+ZenMux SVG: Lobe Icons (https://github.com/lobehub/lobe-icons) commit f555763cdef7074e22f60970ad1a75334bf267e5, packages/static-svg/icons/zenmux.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. TokenPulse replaces currentColor with black, sets explicit 24x24 dimensions and packages the unchanged vector paths for template rendering.

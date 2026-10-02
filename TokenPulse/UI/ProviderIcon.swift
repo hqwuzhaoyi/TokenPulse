@@ -57,6 +57,8 @@ extension Provider {
         case .amp: "ProviderAmp"
         case .gitKraken: "ProviderGitKraken"
         case .huggingFace: "ProviderHuggingFace"
+        case .synthetic, .v2ex, .xKiro: nil
+        case .zenMux: "ProviderZenMux"
         }
     }
 
@@ -66,6 +68,8 @@ extension Provider {
         case .neuralwatt: "bolt.circle"
         case .aixy: "network"
         case .hyper: "bolt.circle"
+        case .synthetic, .xKiro: "puzzlepiece.extension.fill"
+        case .v2ex: "bubble.left.and.bubble.right.fill"
         default: nil
         }
     }

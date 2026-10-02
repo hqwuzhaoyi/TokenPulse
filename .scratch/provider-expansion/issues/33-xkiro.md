@@ -1,6 +1,6 @@
 # 33: xKiro 配额与钱包
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,9 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/xkiro.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation evidence (2026-10-02)
+
+Provider.xKiro direct Bearer usage route, fixed-point Decimal budget/wallet parsing, separate paid windows/free daily tokens/USD wallet, UTC documented free reset, explicit-null unlimited handling, scoped key identity, shared add/store/update/sync/delete, mixed UI and independent quota/wallet reminders, demo/widget and generic system icon implemented. Public docs and fixed Pulse contract checked; held funds not deducted; missing availability remains unknown. See docs/xkiro-provider-integration.md.
+
+6 new tests and full App Swift6 module/semantic test typechecks, PBX lint and diff check passed. No xcodebuild/simulator/real Key used. Test execution and unsigned full target build remain root integration work; real account/device/notifications/sync and brand-vector license remain unverified. Acceptance boxes remain open.

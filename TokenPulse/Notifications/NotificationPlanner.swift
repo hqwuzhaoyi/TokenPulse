@@ -150,6 +150,8 @@ struct NotificationPlanner: Sendable {
                                  snapshot: QuotaSnapshot,
                                  settings: AccountReminderSettings,
                                  ledger: inout ReminderLedger) -> [String] {
+        // A retained wallet is historical data: neither alert nor rearm its state from a failed collection.
+        guard snapshot.walletFailure == nil else { return [] }
         var messages: [String] = []
         let wallets = snapshot.windows.compactMap(\.wallet).filter(\.isMonetary)
         let currency = settings.walletCurrency ?? wallets.first?.currency

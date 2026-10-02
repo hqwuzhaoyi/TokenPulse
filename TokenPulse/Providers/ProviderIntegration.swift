@@ -192,6 +192,18 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .commandCode:
             return try await CommandCodeProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .zenMux:
+            return try await ZenMuxProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .xKiro:
+            return try await XKiroProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .v2ex:
+            return try await V2EXProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .synthetic:
+            return try await SyntheticProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .copilot:
             return try await CopilotProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -315,6 +327,14 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "ElevenLabs API Key（需 user_read 权限）")
         case .poe:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Poe API Key")
+        case .synthetic:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Synthetic API Key")
+        case .v2ex:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "V2EX Personal Access Token")
+        case .xKiro:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "xKiro API Key")
+        case .zenMux:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ZenMux Management Key（非推理 Key）")
         case .vercelAIGateway:
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
@@ -335,7 +355,7 @@ struct ProviderAuthenticationController: Sendable {
             envelope.metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
             return try envelope.encoded()
         }
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -352,7 +372,12 @@ struct ProviderAuthenticationController: Sendable {
             let identityData = try JSONEncoder().encode([provider.rawValue, key])
             metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
         }
-        return try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata).encoded()
+        var credential = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata)
+        if [Provider.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) {
+            guard let fingerprint = credential.apiKeySourceFingerprint else { throw ProviderIntegrationError.invalidCredentialData }
+            credential.metadata["sourceCredentialFingerprint"] = fingerprint
+        }
+        return try credential.encoded()
     }
 
     func beginLogin(provider: Provider, callbackURL: URL? = nil) async throws -> ProviderLoginSession {
@@ -382,7 +407,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -399,7 +424,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -417,7 +442,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux:
             return .init(credential: credential, changed: false)
         }
     }

@@ -33,6 +33,7 @@ enum DemoMode {
             (.amp, "Amp"),
             (.gitKraken, "GitKraken AI"),
             (.huggingFace, "Hugging Face ZeroGPU"),
+            (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -94,6 +95,42 @@ enum DemoMode {
                window("factory.rate.core.weekly", "每周额度", .weekly, 25, scope: "Core"),
                QuotaWindow(id: "factory.extraUsage", name: "附加用量余额", scope: nil, usedPercentage: nil,
                            remainingCount: 2500, totalCount: nil, resetsAt: nil, unit: "cents（币种未提供）")]
+        case .zenMux: [
+            QuotaWindow(id: "zenmux.five_hour", name: "5 小时额度", scope: nil, period: .fiveHour, usedPercentage: 7.15,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(7200)),
+            QuotaWindow(id: "zenmux.seven_day", name: "每周额度", scope: nil, period: .weekly, usedPercentage: 6.73,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(172800)),
+            QuotaWindow(id: "zenmux.wallet", name: "按量钱包余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "482.74")!))
+        ]
+        case .xKiro: [
+            QuotaWindow(id: "xkiro.short", name: "5 小时额度", scope: nil, period: .fiveHour,
+                        usedPercentage: 25, remainingCount: 150, totalCount: 200, resetsAt: now.addingTimeInterval(5005), unit: "USD 预算额度"),
+            QuotaWindow(id: "xkiro.long", name: "每周额度", scope: nil, period: .weekly,
+                        usedPercentage: 25, remainingCount: 990, totalCount: 1320, resetsAt: now.addingTimeInterval(199405), unit: "USD 预算额度"),
+            QuotaWindow(id: "xkiro.free_tokens", name: "每日免费 tokens", scope: nil, period: .other,
+                        usedPercentage: 0.13734333, remainingCount: 299_587_970, totalCount: 300_000_000, resetsAt: XKiroProviderClient.nextMidnightUTC(after: now), unit: "tokens"),
+            QuotaWindow(id: "xkiro.wallet", name: "API 钱包余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "683.95")!))
+        ]
+        case .v2ex: [
+            QuotaWindow(id: "v2ex.five_hour", name: "5 小时额度", scope: nil, period: .fiveHour,
+                        usedPercentage: 25, remainingCount: 6_015_000, totalCount: 8_020_000,
+                        resetsAt: now.addingTimeInterval(7200), cycleID: "demo-v2ex-start", unit: "tokens"),
+            QuotaWindow(id: "v2ex.extra", name: "额外用量补充包", scope: nil, period: .other,
+                        usedPercentage: 5, remainingCount: 11_400_000, totalCount: 12_000_000, resetsAt: nil,
+                        unit: "tokens", resetSemantics: .nonResettingAllowance)
+        ]
+        case .synthetic: [
+            QuotaWindow(id: "synthetic.five_hour", name: "5 小时滚动额度", scope: nil, period: .fiveHour,
+                        usedPercentage: 20, remainingCount: 600, totalCount: 750, resetsAt: nil,
+                        resetSemantics: .continuousReplenishment, nextReplenishmentAt: now.addingTimeInterval(300)),
+            QuotaWindow(id: "synthetic.weekly", name: "每周滚动额度", scope: nil, period: .weekly,
+                        usedPercentage: 2, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        resetSemantics: .continuousReplenishment, nextReplenishmentAt: now.addingTimeInterval(600)),
+            QuotaWindow(id: "synthetic.search_hourly", name: "每小时额度", scope: "Search", period: .other,
+                        usedPercentage: 10, remainingCount: 225, totalCount: 250, resetsAt: now.addingTimeInterval(1800), unit: "次请求")
+        ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),
             window("copilot.chat", "Chat", .monthly, 30),

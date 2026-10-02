@@ -44,6 +44,19 @@
 		AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000002; };
 		AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
 		AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
+		57F000000000000000000051 /* ZenMuxProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000050; };
+		57F000000000000000000052 /* ZenMuxProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000050; };
+		57F000000000000000000054 /* ZenMuxProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000053; };
+		57F000000000000000000041 /* XKiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
+		57F000000000000000000042 /* XKiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
+		57F000000000000000000044 /* XKiroProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000043; };
+		57F000000000000000000031 /* PartialWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000030; };
+		57F000000000000000000021 /* V2EXProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000020; };
+		57F000000000000000000022 /* V2EXProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000020; };
+		57F000000000000000000024 /* V2EXProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000023; };
+		57F000000000000000000011 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
+		57F000000000000000000012 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
+		57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000013; };
 		E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000002; };
@@ -291,6 +304,15 @@
 		AE2000000000000000000011 /* AmpProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AmpProvider.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000002 /* CommandCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CommandCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000001 /* CommandCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CommandCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000050 /* ZenMuxProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZenMuxProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000053 /* ZenMuxProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ZenMuxProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000040 /* XKiroProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XKiroProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000043 /* XKiroProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XKiroProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000030 /* PartialWalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PartialWalletTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000020 /* V2EXProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/V2EXProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000023 /* V2EXProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/V2EXProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000010 /* SyntheticProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SyntheticProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000013 /* SyntheticProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SyntheticProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000001 /* ElevenLabsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ElevenLabsProvider.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000002 /* ElevenLabsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ElevenLabsProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57EF00000000000000000001 /* StepFunProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/StepFunProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -508,6 +530,15 @@
 				E22000000000000000000002 /* ClinePassProviderTests.swift */,
 				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
 				2E6200000000000000000002 /* MoonshotProviderTests.swift */,
+				57F000000000000000000053 /* ZenMuxProviderTests.swift */,
+				57F000000000000000000050 /* ZenMuxProvider.swift */,
+				57F000000000000000000043 /* XKiroProviderTests.swift */,
+				57F000000000000000000040 /* XKiroProvider.swift */,
+				57F000000000000000000030 /* PartialWalletTests.swift */,
+				57F000000000000000000023 /* V2EXProviderTests.swift */,
+				57F000000000000000000020 /* V2EXProvider.swift */,
+				57F000000000000000000013 /* SyntheticProviderTests.swift */,
+				57F000000000000000000010 /* SyntheticProvider.swift */,
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
@@ -795,6 +826,10 @@
 				E22000000000000000000003 /* ClinePassProvider.swift in Sources */,
 				2E6200000000000000000003 /* MoonshotProvider.swift in Sources */,
                 C02200000000000000000013 /* FactoryProvider.swift in Sources */,
+				57F000000000000000000051 /* ZenMuxProvider.swift in Sources */,
+				57F000000000000000000041 /* XKiroProvider.swift in Sources */,
+				57F000000000000000000021 /* V2EXProvider.swift in Sources */,
+				57F000000000000000000011 /* SyntheticProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
 				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
@@ -829,6 +864,11 @@
 				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
 				2E6200000000000000000005 /* MoonshotProviderTests.swift in Sources */,
                 C02200000000000000000015 /* FactoryProviderTests.swift in Sources */,
+				57F000000000000000000054 /* ZenMuxProviderTests.swift in Sources */,
+				57F000000000000000000044 /* XKiroProviderTests.swift in Sources */,
+				57F000000000000000000031 /* PartialWalletTests.swift in Sources */,
+				57F000000000000000000024 /* V2EXProviderTests.swift in Sources */,
+				57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
@@ -906,6 +946,10 @@
 				E22000000000000000000004 /* ClinePassProvider.swift in Sources */,
 				2E6200000000000000000004 /* MoonshotProvider.swift in Sources */,
                 C02200000000000000000014 /* FactoryProvider.swift in Sources */,
+				57F000000000000000000052 /* ZenMuxProvider.swift in Sources */,
+				57F000000000000000000042 /* XKiroProvider.swift in Sources */,
+				57F000000000000000000022 /* V2EXProvider.swift in Sources */,
+				57F000000000000000000012 /* SyntheticProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
 				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,

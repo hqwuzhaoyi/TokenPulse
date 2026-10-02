@@ -11,6 +11,8 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var walletCurrency: String? = nil
     var walletAvailable: Bool? = nil
     var quotaExceeded: Bool? = nil
+    var walletCollectedAt: Date? = nil
+    var walletFailure: RefreshFailure? = nil
     var providerPlanName: String? = nil
 
     var id: UUID { account.id }
@@ -29,7 +31,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     }
 
     var ringMetrics: [WidgetQuotaMetric] {
-        let limit = account.provider == .openCodeGo || account.provider == .claude || account.provider == .copilot ? 3 : 2
+        let limit = account.provider == .openCodeGo || account.provider == .claude || account.provider == .copilot || account.provider == .synthetic ? 3 : 2
         return Array(displayMetrics.prefix(limit))
     }
 
@@ -73,7 +75,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
@@ -107,8 +109,8 @@ struct WidgetQuotaMetric: Identifiable {
         if window.isUnlimited { return "无限" }
         if let value = QuotaFormatting.exactCountSummary(window) { return value }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
-            let remaining = QuotaFormatting.count(window.remainingCount)
-            let total = QuotaFormatting.count(window.totalCount)
+            let remaining = QuotaFormatting.count(window.remainingCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
+            let total = QuotaFormatting.count(window.totalCount, maximumFractionDigits: window.unit == "USD 预算额度" ? 6 : 2)
             let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
             return window.unit.map { "\(values) \($0)" } ?? values
         }
@@ -233,6 +235,8 @@ actor WidgetSnapshotStore {
                 walletCurrency: settingsByID[state.id]?.walletCurrency,
                 walletAvailable: state.snapshot?.walletAvailable,
                 quotaExceeded: state.snapshot?.quotaExceeded,
+                walletCollectedAt: state.snapshot?.walletCollectedAt,
+                walletFailure: state.snapshot?.walletFailure,
                 providerPlanName: state.snapshot?.providerPlanName
             )
         }
