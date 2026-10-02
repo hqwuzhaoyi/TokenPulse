@@ -56,6 +56,24 @@ final class SakanaProviderTests: XCTestCase {
         try SakanaProviderClient.validateCookies(selected.header)
     }
 
+    func testOfflineInlineSpanUsageHeadingKeepsExactCardScopeAndReservedTitlesAreNotPlans() throws {
+        let spanned = billing.replacingOccurrences(of: ">Usage limit</div>", with: "><span class=\"font-bold\">Usage limit</span></div>")
+        let snapshot = try SakanaProviderParser.snapshot(page: Data(spanned.utf8), balancePage: nil, accountID: UUID(), collectedAt: time)
+        XCTAssertEqual(snapshot.windows.map(\.usedPercentage), [92, 32])
+        XCTAssertEqual(snapshot.providerPlanName, "Standard")
+        for title in ["Usage limit", "Credit balance"] {
+            let html = "<div data-slot=\"card-title\"><span>\(title)</span></div>"
+            let walletOnly = try SakanaProviderParser.snapshot(page: Data(html.utf8), balancePage: Data(credits.utf8), accountID: UUID(), collectedAt: time)
+            XCTAssertNil(walletOnly.providerPlanName)
+        }
+        for wrapped in ["<div>Usage limit</div>", "<span hidden>Usage limit</span>", "<span aria-hidden=\"true\">Usage limit</span>"] {
+            let html = billing.replacingOccurrences(of: ">Usage limit</div>", with: ">\(wrapped)</div>")
+            XCTAssertThrowsError(try SakanaProviderParser.snapshot(page: Data(html.utf8), balancePage: nil, accountID: UUID(), collectedAt: time))
+        }
+        let unrelated = spanned + #"<div data-slot="card-title"><span>Pricing</span></div><p>5-hour</p><p>99% used</p>"#
+        XCTAssertEqual(try SakanaProviderParser.snapshot(page: Data(unrelated.utf8), balancePage: nil, accountID: UUID(), collectedAt: time).windows.map(\.usedPercentage), [92, 32])
+    }
+
     func testRequestsAreDirectAndAuxiliaryWalletFailureDoesNotEraseQuota() async throws {
         let id = UUID(), transport = SakanaTransport(billing: billing, balance: credits)
         let snapshot = try await ProviderQuotaClient(provider: .sakana, transport: transport).quota(for: id, credential: session(id))

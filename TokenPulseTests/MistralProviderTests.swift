@@ -59,6 +59,24 @@ final class MistralProviderTests: XCTestCase {
         }
     }
 
+    func testOfflineMultiArgumentPushReadsAllJSONChunksButNeverJavaScriptExpressions() throws {
+        func argument(_ text: String) throws -> String {
+            String(decoding: try JSONSerialization.data(withJSONObject: [1, text]), as: UTF8.self)
+        }
+        let price = try argument(#"{"monthly_price":"$99"}"#)
+        let api = try argument(#"{"api_budget":{"usage_percentage":25}}"#)
+        let vibe = try argument(#"{"vibe_budget":{"usage_percentage":35}}"#)
+        let result = try MistralProviderParser.subscription("<script>self.__next_f.push(\(price), \(api),\n\(vibe))</script>")
+        XCTAssertEqual(result["api_budget"]?.usage_percentage, 25)
+        XCTAssertEqual(result["vibe_budget"]?.usage_percentage, 35)
+        XCTAssertTrue(try MistralProviderParser.subscription("self.__next_f.push(\(api), computeOtherChunk())").isEmpty)
+        XCTAssertTrue(try MistralProviderParser.subscription("self.__next_f.push(\(api),)").isEmpty)
+        XCTAssertTrue(try MistralProviderParser.subscription("self.__next_f.push(\(api)").isEmpty)
+        XCTAssertTrue(try MistralProviderParser.subscription("self.__next_f.push(" + Array(repeating: api, count: 65).joined(separator: ",") + ")").isEmpty)
+        let conflict = try argument(#"{"api_budget":{"usage_percentage":50}}"#)
+        XCTAssertNil(try MistralProviderParser.subscription("self.__next_f.push(\(api),\(conflict))")["api_budget"])
+    }
+
     func testFallbackVibeUsesOnlyConsoleCSRFAndAuxiliaryFailureKeepsValidWallet() async throws {
         let id = UUID(), transport = MistralTransport(credits: money, subscription: "<html>No subscription payload</html>", vibe: #"[{"result":{"data":{"json":{"usage_percentage":35,"reset_at":"$D2026-10-04T00:00:00Z"}}}}]"#)
         let snapshot = try await ProviderQuotaClient(provider: .mistral, transport: transport).quota(for: id, credential: session(id))

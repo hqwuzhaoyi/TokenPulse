@@ -13,3 +13,5 @@ credits三项wallet_amount/credit_notes_amount/ongoing_usage_balance都实际返
 新增5个合成方法覆盖Decimal/币种/缺失、Flight重复与错误旗标、Vibe CSRF/辅助失败保留、primary失效与余额partial、Cookie域、本地绑定、mixed widget/提醒。工作者只执行parse/PBX lint/diff，不Xcode/模拟器/重复大typecheck；root执行真实测试/整体构建。未访问真实Cookie，没有当前生产登录、账单、物理Watch/iCloud验收证据；按用户2026-10-02“实现+图标”标准关票，限制仍如实保存。
 
 后续精度复核增加第6个极值回归：净额使用checked NSDecimalAdd/Subtract并检查两条逆运算一致性，拒绝status错误、overflow与返回noError却吸收微小金额的静默舍入。原字段全部required的规则不变。
+
+2026-10-03 Pi08离线变体复核：一次合法Array.push传入多个JSON数组时，原scanner只保留首参数。现仅在整个调用由逗号分隔JSON数组并正确`)`闭合时收集类型1字符串；每调用最多64参数，原2,000,000字节与128层边界保留，表达式/尾逗号/未闭合不收集partial数据，预算重名冲突仍不选择。这是离线兼容改进，没有证据表明Mistral生产页面已产生该形态，也未扩接口或auth范围。新增XCTest回归；实际生产parser逐字提取+真实Domain模型的macOS离线驱动已重现修前nil、修后25，负例通过，完整XCTest由root统一执行，未跑Xcode/模拟器。

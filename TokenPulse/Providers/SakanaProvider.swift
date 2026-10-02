@@ -95,7 +95,7 @@ enum SakanaProviderParser {
         }
         guard !windows.isEmpty else { throw RefreshFailure.unreadableResponse }
         return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt,
-            providerPlanName: capture(#"<div\b[^>]*data-slot=["']card-title["'][^>]*>\s*<span\b[^>]*>\s*([^<]+?)\s*</span>"#, rendered))
+            providerPlanName: planName(rendered))
     }
 
     static func wallet(_ html: String) throws -> WalletBalance? {
@@ -128,12 +128,45 @@ enum SakanaProviderParser {
             guard let headings = try? NSRegularExpression(pattern: #"<div\b[^>]*data-slot=["']card-title["'][^>]*>([\s\S]*?)</div>"#, options: [.caseInsensitive]),
                   let last = headings.matches(in: prefix, range: NSRange(prefix.startIndex..., in: prefix)).last,
                   let titleRange = Range(last.range(at: 1), in: prefix),
-                  String(prefix[titleRange]).trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "usage limit" else { return nil }
+                  inlineTitle(String(prefix[titleRange]))?.lowercased() == "usage limit" else { return nil }
             let rest = source.substring(from: match.range.location + match.range.length)
             let boundary = rest.range(of: #"<p\b[^>]*>\s*(?:5-hour|Weekly)\s*</p>|<div\b[^>]*data-slot=["']card(?:-title)?["'][^>]*>"#, options: [.regularExpression, .caseInsensitive])?.lowerBound ?? rest.endIndex
             let section = String(rest[..<boundary])
             return section.utf8.count <= 20_000 ? section : nil
         }
+    }
+
+    /// Only bounded inline span wrappers are normalized; block/hidden markup never expands the quota scope.
+    private static func inlineTitle(_ html: String) -> String? {
+        guard html.utf8.count <= 2_048,
+              let tags = try? NSRegularExpression(pattern: #"<[^>]*>"#) else { return nil }
+        var depth = 0
+        for match in tags.matches(in: html, range: NSRange(html.startIndex..., in: html)) {
+            guard let range = Range(match.range, in: html) else { return nil }
+            let tag = String(html[range])
+            if tag.range(of: #"\A</span\s*>\z"#, options: [.regularExpression, .caseInsensitive]) != nil {
+                guard depth > 0 else { return nil }; depth -= 1
+            } else {
+                guard tag.range(of: #"\A<span\b[^>]*>\z"#, options: [.regularExpression, .caseInsensitive]) != nil,
+                      !tag.hasSuffix("/>"),
+                      tag.range(of: #"\s(?:hidden|aria-hidden|style)(?:\s|=|>)"#, options: [.regularExpression, .caseInsensitive]) == nil else { return nil }
+                depth += 1; guard depth <= 4 else { return nil }
+            }
+        }
+        guard depth == 0 else { return nil }
+        let title = tags.stringByReplacingMatches(in: html, range: NSRange(html.startIndex..., in: html), withTemplate: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return title.isEmpty || title.contains("<") || title.contains(">") ? nil : title
+    }
+
+    private static func planName(_ html: String) -> String? {
+        guard let card = capture(#"<div\b[^>]*data-slot=["']card-title["'][^>]*>([\s\S]*?)</div>"#, html),
+              inlineTitle(card) != nil,
+              let firstSpan = capture(#"\A\s*<span\b[^>]*>([\s\S]*?)</span>"#, card),
+              let name = inlineTitle(firstSpan), name.utf8.count <= 128,
+              !["usage limit", "credit balance", "usage", "pricing"].contains(name.lowercased()),
+              !name.contains("$"), !name.contains("%") else { return nil }
+        return name
     }
 
     private static func resetDate(_ text: String) -> Date? {

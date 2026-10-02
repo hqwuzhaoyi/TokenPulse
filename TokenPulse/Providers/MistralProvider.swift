@@ -162,10 +162,9 @@ enum MistralProviderParser {
         var cursor = html.startIndex, parts: [String] = []
         while let found = html.range(of: marker, range: cursor..<html.endIndex) {
             cursor = found.upperBound
-            guard let start = html[cursor...].firstIndex(where: { !$0.isWhitespace }), html[start] == "[",
-                  let end = containerEnd(html, from: start) else { continue }
-            if let push = try? JSONDecoder().decode(Push.self, from: Data(html[start..<end].utf8)) { parts.append(push.text) }
-            cursor = end
+            guard let arguments = pushArguments(html, from: cursor) else { continue }
+            parts += arguments.parts
+            cursor = arguments.end
         }
         let stream = parts.joined()
         var result: [String: Budget] = [:]
@@ -188,6 +187,23 @@ enum MistralProviderParser {
             if objects.count == 1, let budget { result[name] = budget }
         }
         return result
+    }
+
+    /// Offline-compatible Array.push arguments only: complete comma-separated JSON arrays, never JS expressions.
+    private static func pushArguments(_ html: String, from start: String.Index) -> (parts: [String], end: String.Index)? {
+        var cursor = start, parts: [String] = []
+        for _ in 0..<64 {
+            guard let argument = html[cursor...].firstIndex(where: { !$0.isWhitespace }), html[argument] == "[",
+                  let end = containerEnd(html, from: argument) else { return nil }
+            let data = Data(html[argument..<end].utf8)
+            guard (try? JSONSerialization.jsonObject(with: data)) is [Any] else { return nil }
+            if let push = try? JSONDecoder().decode(Push.self, from: data) { parts.append(push.text) }
+            guard let separator = html[end...].firstIndex(where: { !$0.isWhitespace }) else { return nil }
+            if html[separator] == ")" { return (parts, html.index(after: separator)) }
+            guard html[separator] == "," else { return nil }
+            cursor = html.index(after: separator)
+        }
+        return nil
     }
 
     static func vibe(_ data: Data) throws -> Budget? {
