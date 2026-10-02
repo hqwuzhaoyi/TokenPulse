@@ -47,9 +47,9 @@ final class MistralProviderTests: XCTestCase {
     }
 
     func testNetWalletRejectsOverflowAndSilentAbsorptionOfTinyAmount() {
-        let huge = "99999999999999999999999999999999999999"
+        let huge = Decimal.greatestFiniteMagnitude.description
         for payload in [
-            "{\"wallet_amount\":\"\(huge)\",\"credit_notes_amount\":\"\(huge)\",\"ongoing_usage_balance\":0,\"currency\":\"USD\"}",
+            "{\"wallet_amount\":\(huge),\"credit_notes_amount\":\(huge),\"ongoing_usage_balance\":0,\"currency\":\"USD\"}",
             #"{"wallet_amount":"100000000000000000","credit_notes_amount":0,"ongoing_usage_balance":"0.0000000000000000000001","currency":"USD"}"#,
             #"{"wallet_amount":"100000000000000000","credit_notes_amount":"0.0000000000000000000001","ongoing_usage_balance":0,"currency":"USD"}"#
         ] {
