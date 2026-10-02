@@ -1,6 +1,6 @@
 # 28: Kilo Code 钱包与 Kilo Pass
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/kilo-code.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+Kilo tRPC batch、API Key/个人账户路径、精确微美元钱包、明确基础+奖励 Pass、实际 billing reset、混合卡片/Watch/widget/独立提醒/演示与官方licensed icon已实现。7个KiloCodeProviderTests覆盖契约、包装/错误、缺失/零/负与精确金额、恢复/账号隔离及删除。完整App iOS Swift6 module/测试静态typecheck、PBX/diff检查通过；真实账号、失效、Watch/iCloud、unsigned目标构建与XCTest执行仍开放。详见 `docs/kilo-code-integration.md`。

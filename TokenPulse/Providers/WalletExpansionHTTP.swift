@@ -27,3 +27,36 @@ enum WalletExpansionHTTP {
                     unit: wallet.currency, wallet: wallet)
     }
 }
+
+/// Accept a JSON number or a strict decimal string without a Double intermediate.
+struct WalletDecimalValue: Decodable {
+    let amount: Decimal
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let text = try? container.decode(String.self) { amount = try ProviderDecimal.amount(text) }
+        else { amount = try container.decode(Decimal.self) }
+        guard !amount.isNaN else { throw RefreshFailure.unreadableResponse }
+    }
+}
+
+enum WalletDecimalArithmetic {
+    static func add(_ left: Decimal, _ right: Decimal) throws -> Decimal {
+        var left = left, right = right, result = Decimal()
+        guard NSDecimalAdd(&result, &left, &right, .plain) == .noError, !result.isNaN else {
+            throw RefreshFailure.unreadableResponse
+        }
+        return result
+    }
+    static func microDollars(_ value: Decimal) throws -> Decimal {
+        var value = value, scale = Decimal(1_000_000), result = Decimal()
+        guard NSDecimalDivide(&result, &value, &scale, .plain) == .noError, !result.isNaN else {
+            throw RefreshFailure.unreadableResponse
+        }
+        return result
+    }
+    static func percentage(used: Decimal, total: Decimal) throws -> Double {
+        let value = NSDecimalNumber(decimal: used / total * 100).doubleValue
+        guard value.isFinite else { throw RefreshFailure.unreadableResponse }
+        return min(max(value, 0), 100)
+    }
+}
