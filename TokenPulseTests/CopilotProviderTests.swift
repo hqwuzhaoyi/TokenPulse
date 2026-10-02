@@ -231,7 +231,7 @@ final class CopilotProviderTests: XCTestCase {
         let suite = "copilot.local.tests.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        let store = LocalAccountStateStore(defaults: defaults)
+        let store = LocalAccountStateStore(suiteName: suite)
         let config = LocalAccountConfigurationStore(suiteName: suite)
         let credentials = SynchronizableCredentialStore(service: suite, accessGroup: nil, syncEnabled: false)
         let transport = CopilotTransportStub([(200, quotaReply), (200, quotaReply), (401, "{}"), (200, quotaReply), (200, quotaReply)])

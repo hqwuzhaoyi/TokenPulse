@@ -2,6 +2,13 @@ import XCTest
 @testable import TokenPulse
 
 final class ElevenLabsProviderTests: XCTestCase {
+    func testUnrepresentableResetTimeIsNotUsedForScheduling() throws {
+        let body = #"{"character_count":960,"character_limit":1000,"next_character_count_reset_unix":1e20}"#
+        let window = try XCTUnwrap(ElevenLabsProviderClient.windows(Data(body.utf8)).first)
+        XCTAssertNil(window.resetsAt)
+        XCTAssertEqual(window.usedPercentage, 96)
+    }
+
     func testKeyHeaderAndIndependentAccounts() async throws {
         let transport = ElevenLabsTransportStub(status: 200, body: #"{"character_count":120,"character_limit":1000,"next_character_count_reset_unix":2000}"#)
         let controller = ProviderAuthenticationController(transport: transport)

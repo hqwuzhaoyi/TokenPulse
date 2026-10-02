@@ -191,7 +191,7 @@ private struct AccountPreferencesView: View {
                                 LabeledContent("套餐", value: plan)
                             }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
-                                if window.scope == nil || configuration.account.provider == .qoderInternational {
+                                if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational].contains(configuration.account.provider) {
                                     QuotaWindowView(window: window)
                                 } else {
                                     LabeledContent(

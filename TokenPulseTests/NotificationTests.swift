@@ -2,6 +2,26 @@ import XCTest
 @testable import TokenPulse
 
 final class NotificationTests: XCTestCase {
+    func testUnrepresentableProviderResetCannotCreateASchedule() {
+        let now = Date(timeIntervalSince1970: 100)
+        let account = UUID()
+        let window = QuotaWindow(id: "fixture", name: "额度", scope: nil,
+                                 usedPercentage: 96, remainingCount: nil, totalCount: nil,
+                                 resetsAt: Date(timeIntervalSince1970: 1e20))
+        let snapshot = QuotaSnapshot(accountID: account, windows: [window], collectedAt: now)
+        let result = NotificationPlanner().planSuccessfulRefresh(
+            accountID: account, accountName: "Fixture", previousSnapshot: nil, newSnapshot: snapshot,
+            settings: AccountReminderSettings(), ledger: ReminderLedger(), now: now)
+        XCTAssertFalse(result.operations.contains {
+            if case .schedule = $0 { return true }
+            return false
+        })
+        XCTAssertTrue(result.operations.contains {
+            if case .deliver(let notification) = $0 { return notification.kind == .quotaAlert }
+            return false
+        })
+    }
+
     @MainActor
     func testRemovingAccountCancelsItsScheduledNotifications() async throws {
         let suite = "com.tokenpulse.tests.delete-notifications.\(UUID().uuidString)"

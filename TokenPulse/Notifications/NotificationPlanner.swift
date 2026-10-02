@@ -342,6 +342,7 @@ struct NotificationPlanner: Sendable {
                   let usedPercentage = window.usedPercentage,
                   usedPercentage > 0,
                   let resetAt = window.resetsAt,
+                  Int64(exactly: (resetAt.timeIntervalSince1970 * 1000).rounded()) != nil,
                   resetAt > now else { return nil }
             return (resetAt, window.id)
         }

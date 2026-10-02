@@ -113,28 +113,20 @@ protocol ProviderTransport: Sendable {
 
 struct URLSessionProviderTransport: ProviderTransport {
     let session: URLSession
+    private let allowsSameOriginRedirects: Bool
 
-    init(session: URLSession = .shared) {
+    init(session: URLSession = .shared, allowsSameOriginRedirects: Bool = true) {
         self.session = session
+        self.allowsSameOriginRedirects = allowsSameOriginRedirects
     }
 
     static func rejectingRedirects() -> Self {
-        .init(session: URLSession(configuration: .ephemeral,
-                                  delegate: ProviderRejectRedirectDelegate(), delegateQueue: nil))
+        .init(session: URLSession(configuration: .ephemeral), allowsSameOriginRedirects: false)
     }
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        try await session.data(for: request, delegate: ProviderRedirectPolicy(origin: request.url))
-    }
-}
-
-/// Custom authentication headers, unlike Authorization, may follow redirects.
-private final class ProviderRejectRedirectDelegate: NSObject, URLSessionTaskDelegate, Sendable {
-    func urlSession(_ session: URLSession, task: URLSessionTask,
-                    willPerformHTTPRedirection response: HTTPURLResponse,
-                    newRequest request: URLRequest,
-                    completionHandler: @escaping @Sendable (URLRequest?) -> Void) {
-        completionHandler(nil)
+        try await session.data(for: request,
+                               delegate: ProviderRedirectPolicy(origin: allowsSameOriginRedirects ? request.url : nil))
     }
 }
 

@@ -85,7 +85,7 @@ final class StepFunProviderTests: XCTestCase {
             let id = UUID()
             let credential = try session(site: site, id: id)
             let transport = StepFunTransportStub([.response(200, tokenBody)])
-            let result = try await ProviderQuotaClient(provider: .stepFun, transport: transport, now: { self.now })
+            let result = try await ProviderQuotaClient(provider: .stepFun, transport: transport, now: { [now] in now })
                 .quotaResult(for: id, credential: credential)
             XCTAssertEqual(result.snapshot.accountID, id)
             XCTAssertNil(result.updatedCredential)
@@ -110,7 +110,7 @@ final class StepFunProviderTests: XCTestCase {
     func testWrongSiteAccountDeviceAndExpiredSessionsNeverSendRequests() async throws {
         let id = UUID()
         let transport = StepFunTransportStub([])
-        let client = ProviderQuotaClient(provider: .stepFun, transport: transport, now: { self.now })
+        let client = ProviderQuotaClient(provider: .stepFun, transport: transport, now: { [now] in now })
         let encoded = try session(site: .china, id: id)
         let base = try ProviderCredentialEnvelope.decode(encoded, expectedProvider: .stepFun)
         for mutation in ["account", "site", "host", "webID", "expiry", "kind", "missing-device", "unsafe-header"] {
@@ -174,12 +174,12 @@ final class StepFunProviderTests: XCTestCase {
                                          (200, #"{"status":0,"desc":"auth token expired"}"#, .invalidCredential),
                                          (200, #"{"status":0,"message":"unexpected reply"}"#, .unreadableResponse)] {
             do {
-                _ = try await ProviderQuotaClient(provider: .stepFun, transport: StepFunTransportStub([.response(status, body)]), now: { self.now })
+                _ = try await ProviderQuotaClient(provider: .stepFun, transport: StepFunTransportStub([.response(status, body)]), now: { [now] in now })
                     .quota(for: id, credential: encoded)
                 XCTFail("Expected failure")
             } catch { XCTAssertEqual(error as? RefreshFailure, expected) }
         }
-        let snapshot = try await ProviderQuotaClient(provider: .stepFun, transport: StepFunTransportStub([.response(200, #"{"status":1}"#)]), now: { self.now })
+        let snapshot = try await ProviderQuotaClient(provider: .stepFun, transport: StepFunTransportStub([.response(200, #"{"status":1}"#)]), now: { [now] in now })
             .quota(for: id, credential: encoded)
         XCTAssertTrue(snapshot.windows.isEmpty)
         XCTAssertEqual(snapshot.collectedAt, now)
@@ -253,7 +253,7 @@ final class StepFunProviderTests: XCTestCase {
         let store = StepFunMemoryStore()
         let transport = StepFunTransportStub([.response(200, tokenBody), .failure(.timedOut),
                                               .response(200, #"{"status":1}"#), .response(500, "{}")])
-        let client = ProviderQuotaClient(provider: .stepFun, transport: transport, now: { self.now })
+        let client = ProviderQuotaClient(provider: .stepFun, transport: transport, now: { [now] in now })
         let monitor = QuotaMonitor(accountStore: store, credentialStore: store, quotaClient: client)
         await monitor.start(refresh: false)
         await monitor.addAccount(name: "First", credential: try session(site: .china, id: id), provider: .stepFun, accountID: id)

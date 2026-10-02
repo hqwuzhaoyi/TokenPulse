@@ -640,7 +640,7 @@ private struct HorizontalMetric: View {
     private var homeScreenSmall: some View {
         VStack(alignment: .leading, spacing: metricCount >= 3 || hasCountValue ? 1 : 3) {
             if metric.window?.wallet != nil {
-                Text("钱包余额")
+                Text(metric.displayTitle)
                     .font(.system(size: titleFontSize, weight: .semibold))
                 Text(valueText)
                     .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -746,7 +746,7 @@ private struct HorizontalMetric: View {
     }
 
     private var panelTitle: some View {
-        Text(metric.window?.wallet != nil ? "钱包余额" : metric.title)
+        Text(metric.displayTitle)
             .font(.system(size: 10, weight: .semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.8)

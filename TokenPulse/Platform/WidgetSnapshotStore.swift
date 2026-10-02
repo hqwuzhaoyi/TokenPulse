@@ -70,7 +70,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
@@ -89,6 +89,10 @@ struct WidgetQuotaMetric: Identifiable {
     let id: String
     let title: String
     let window: QuotaWindow?
+
+    var displayTitle: String {
+        window?.wallet?.isMonetary == true ? "钱包余额" : title
+    }
 
     var valueText: String {
         guard let window else { return "未提供" }

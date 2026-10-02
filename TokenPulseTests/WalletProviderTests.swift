@@ -3,6 +3,17 @@ import XCTest
 @testable import TokenPulse
 
 final class WalletProviderTests: XCTestCase {
+    func testPoeWidgetTitleRemainsPointsInsteadOfMonetaryWallet() throws {
+        let account = SubscriptionAccount(name: "Poe", provider: .poe)
+        let snapshot = try PoeProviderClient.snapshot(Data(#"{"current_point_balance":125000}"#.utf8),
+                                                      accountID: account.id, collectedAt: Date())
+        let widget = WidgetAccountSnapshot(account: account, windows: snapshot.windows,
+                                           collectedAt: snapshot.collectedAt, lastFailure: nil)
+        let metric = try XCTUnwrap(widget.displayMetrics.first)
+        XCTAssertEqual(metric.displayTitle, "剩余 points")
+        XCTAssertNil(metric.ringFraction)
+    }
+
     private let collectedAt = Date(timeIntervalSince1970: 1_000)
 
     func testPoeNumericAndStringPointsKeepUnitsAndDoNotInventQuota() throws {
@@ -202,7 +213,7 @@ final class WalletProviderTests: XCTestCase {
             XCTAssertEqual(restored.states.count, 2)
             let synced = try JSONDecoder().decode([AccountQuotaState].self, from: JSONEncoder().encode(restored.states))
             XCTAssertEqual(synced, restored.states)
-            let widgetStore = WidgetSnapshotStore(defaults: defaults, key: "expansion.widgets")
+            let widgetStore = WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite), key: "expansion.widgets")
             try await widgetStore.save(states: restored.states)
             let widgets = await widgetStore.load()
             let widgetA = try XCTUnwrap(widgets.first { $0.id == a.id })

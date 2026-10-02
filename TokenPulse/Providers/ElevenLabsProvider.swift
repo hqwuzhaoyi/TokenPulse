@@ -46,7 +46,8 @@ struct ElevenLabsProviderClient: Sendable {
         let percentage = used / limit * 100
         guard percentage.isFinite else { return [] }
         let reset = reply.next_character_count_reset_unix.flatMap { value in
-            value.isFinite && value > 0 ? Date(timeIntervalSince1970: value) : nil
+            value.isFinite && value > 0 && Int64(exactly: (value * 1000).rounded()) != nil
+                ? Date(timeIntervalSince1970: value) : nil
         }
         // The response names a reset, not the length of the billing cycle.
         return [QuotaWindow(id: "elevenlabs.characters", name: "账期字符额度", scope: nil,

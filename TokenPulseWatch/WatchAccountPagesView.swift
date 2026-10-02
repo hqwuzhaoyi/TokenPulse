@@ -176,7 +176,7 @@ private struct WatchAccountPage: View {
                                 }
                             }
                             .font(.caption2)
-                        } else if window.scope == nil || state.account.provider == .qoderInternational {
+                        } else if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational].contains(state.account.provider) {
                             VStack(alignment: .leading, spacing: 3) {
                                 if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                                     Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
@@ -194,7 +194,7 @@ private struct WatchAccountPage: View {
                                 if let overage = QuotaFormatting.overageDescription(window) {
                                     Text(overage).font(.caption2)
                                 }
-                                if let remaining = window.remainingCount {
+                                if !window.isUnlimited, let remaining = window.remainingCount {
                                     LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
                                         .font(.caption2)
                                 }
