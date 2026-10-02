@@ -141,7 +141,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider == .newAPI { self.transport = GatewayProviderTransport() }
-        else if provider == .elevenLabs { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider == .elevenLabs || provider == .cursor { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -196,6 +196,9 @@ struct ProviderQuotaClient: QuotaQuerying {
                 .quota(accountID: accountID, credential: envelope)
         case .newAPI:
             return try await NewAPIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .cursor:
+            return try await CursorProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .chutes:
             return try await ChutesProviderClient(transport: transport, now: now)
@@ -253,7 +256,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude, .stepFun:
+        case .claude, .stepFun, .cursor:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -301,6 +304,8 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
+        case .cursor:
+            throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成 Cursor 授权")
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
         case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .moonshot, .alibabaCodingPlan, .chutes:
@@ -320,7 +325,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .moonshot, .alibabaCodingPlan, .chutes:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .moonshot, .alibabaCodingPlan, .chutes, .cursor:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -338,7 +343,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .moonshot, .alibabaCodingPlan, .chutes:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .moonshot, .alibabaCodingPlan, .chutes, .cursor:
             return .init(credential: credential, changed: false)
         }
     }

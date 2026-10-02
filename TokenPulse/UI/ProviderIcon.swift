@@ -44,6 +44,7 @@ extension Provider {
         case .moonshot: "ProviderMoonshot"
         case .alibabaCodingPlan: "ProviderAlibabaCloud"
         case .chutes: "ProviderChutes"
+        case .cursor: "ProviderCursor"
         }
     }
 

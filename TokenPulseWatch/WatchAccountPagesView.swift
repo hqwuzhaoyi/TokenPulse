@@ -176,11 +176,11 @@ private struct WatchAccountPage: View {
                                 }
                             }
                             .font(.caption2)
-                        } else if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational].contains(state.account.provider) {
+                        } else if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational, .cursor].contains(state.account.provider) {
                             VStack(alignment: .leading, spacing: 3) {
                                 if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                                     Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
-                                    Text(window.name)
+                                    Text(state.account.provider == .cursor ? window.displayName : window.name)
                                 } currentValueLabel: {
                                     Text(window.isExhausted == true
                                          ? "已用尽"

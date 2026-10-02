@@ -1,6 +1,6 @@
 # 60: Cursor 移动端授权与额度
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -25,3 +25,9 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/cursor.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation and validation (2026-10-02)
+
+Implemented pinned nonce/PKCE mobile authorization in account-isolated ephemeral WK containers, reusable CursorAccountAuthenticator/Session module, local-account/source-bound minimal credentials, direct two-device quota query, separate model pools and Decimal cents-based extra budget, widgets/Watch/demo/reminders and fixed licensed icon. No editor database, Safari state or real credential was read. See [protocol and validation boundary](../../../docs/cursor-mobile-integration.md).
+
+Verified 12 new XCTest methods with actual Swift 6 iOS SDK type checking, full production module, complete App UI, iPhone Widgets, Watch App and Watch Widgets type checking, PBX plist and diff checks. XCTest execution/full unsigned target resource build await root. Real WK/SSO/CAPTCHA authorization, production Cookie compatibility, no-window account behavior, revoked credential, Keychain/iCloud, iCloud-off lifecycle, physical Watch independent refresh and real notifications/UI remain unverified. No invented client/redirect/refresh endpoint; expiration requires re-login. Grok Bot 61 remains gated on real acceptance, and all acceptance checkboxes stay open.

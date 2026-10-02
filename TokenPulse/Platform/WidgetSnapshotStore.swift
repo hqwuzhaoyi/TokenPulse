@@ -29,7 +29,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     }
 
     var ringMetrics: [WidgetQuotaMetric] {
-        let limit = account.provider == .openCodeGo || account.provider == .claude || account.provider == .copilot ? 3 : 2
+        let limit = account.provider == .openCodeGo || account.provider == .claude || account.provider == .copilot || account.provider == .cursor ? 3 : 2
         return Array(displayMetrics.prefix(limit))
     }
 
@@ -73,7 +73,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .alibabaCodingPlan, .chutes:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .alibabaCodingPlan, .chutes, .cursor:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway, .moonshot:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
