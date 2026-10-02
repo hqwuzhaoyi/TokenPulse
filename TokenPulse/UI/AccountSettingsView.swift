@@ -229,7 +229,8 @@ private struct AccountPreferencesView: View {
                     Section("提醒") {
                         if quotaRemindersAvailable {
                             Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
-                                var settings = configuration.reminders; settings.quotaAlertsEnabled = value
+                                var settings = configuration.reminders
+                                settings.setQuotaAlertsEnabled(value, provider: configuration.account.provider)
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                             TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)

@@ -351,3 +351,55 @@ private actor HybridWalletNotificationAdapter: NotificationApplying {
         }
     }
 }
+
+
+extension HybridWalletReminderTests {
+    func testFirstQuotaToggleMigratesMixedNilWalletPreferenceWithoutChangingIt() throws {
+        for initial in [true, false] {
+            let data = Data("{\"quotaAlertsEnabled\":\(initial),\"resetRemindersEnabled\":true,\"thresholds\":[80,95,100]}".utf8)
+            var settings = try JSONDecoder().decode(AccountReminderSettings.self, from: data)
+            XCTAssertNil(settings.walletAlertsEnabled)
+            settings.setQuotaAlertsEnabled(!initial, provider: .kiloCode)
+            XCTAssertEqual(settings.quotaAlertsEnabled, !initial)
+            XCTAssertEqual(settings.walletAlertsEnabled, initial)
+            XCTAssertEqual(settings.effectiveWalletAlertsEnabled, initial)
+            settings.setQuotaAlertsEnabled(initial, provider: .kiloCode)
+            XCTAssertEqual(settings.effectiveWalletAlertsEnabled, initial)
+            XCTAssertEqual(try JSONDecoder().decode(AccountReminderSettings.self, from: JSONEncoder().encode(settings)), settings)
+        }
+    }
+
+    func testQuotaTogglePreservesExplicitWalletPreferenceAndPureWalletLegacyFallback() {
+        var explicit = AccountReminderSettings(walletAlertsEnabled: false)
+        explicit.setQuotaAlertsEnabled(false, provider: .deepInfra)
+        explicit.setQuotaAlertsEnabled(true, provider: .deepInfra)
+        XCTAssertEqual(explicit.walletAlertsEnabled, false)
+        XCTAssertFalse(explicit.effectiveWalletAlertsEnabled)
+        var pure = AccountReminderSettings()
+        pure.setQuotaAlertsEnabled(false, provider: .deepSeek)
+        XCTAssertNil(pure.walletAlertsEnabled)
+        XCTAssertFalse(pure.effectiveWalletAlertsEnabled)
+        pure.setQuotaAlertsEnabled(true, provider: .deepSeek)
+        XCTAssertNil(pure.walletAlertsEnabled)
+        XCTAssertTrue(pure.effectiveWalletAlertsEnabled)
+    }
+
+    func testTurningOffQuotaFirstStillDeliversLowWalletAlertForDefaultMixedSettings() {
+        var settings = AccountReminderSettings()
+        settings.setQuotaAlertsEnabled(false, provider: .kiloCode)
+        let id = UUID(), date = Date(timeIntervalSince1970: 100)
+        let snapshot = QuotaSnapshot(accountID: id, windows: [
+            QuotaWindow(id: "pass", name: "Kilo Pass", scope: nil, usedPercentage: 95,
+                        remainingCount: nil, totalCount: nil, resetsAt: nil),
+            QuotaWindow(id: "wallet", name: "USD wallet", scope: nil, usedPercentage: nil,
+                        remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: 1)),
+        ], collectedAt: date)
+        let result = NotificationPlanner().planSuccessfulRefresh(accountID: id, accountName: "Mixed", previousSnapshot: nil,
+                                                               newSnapshot: snapshot, settings: settings, ledger: ReminderLedger(), now: date)
+        let delivered = result.operations.compactMap { operation -> ReminderNotificationKind? in
+            if case .deliver(let notification) = operation { return notification.kind }; return nil
+        }
+        XCTAssertEqual(delivered, [.walletAlert])
+    }
+}

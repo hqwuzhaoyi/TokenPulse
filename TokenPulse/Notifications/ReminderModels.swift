@@ -24,6 +24,15 @@ struct AccountReminderSettings: Codable, Equatable, Sendable {
         self.walletAlertsEnabled = walletAlertsEnabled
     }
 
+    mutating func setQuotaAlertsEnabled(_ enabled: Bool, provider: Provider) {
+        // On first editing a mixed account, freeze the previously effective
+        // wallet preference before the legacy nil fallback can follow quota.
+        if provider.balancePresentation == .mixed, walletAlertsEnabled == nil {
+            walletAlertsEnabled = effectiveWalletAlertsEnabled
+        }
+        quotaAlertsEnabled = enabled
+    }
+
     func walletThreshold(for currency: String) -> Decimal {
         if let threshold = walletThresholds?[currency], !threshold.isNaN, threshold >= 0 {
             return threshold
