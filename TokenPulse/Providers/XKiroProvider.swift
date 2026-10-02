@@ -81,9 +81,9 @@ struct XKiroProviderClient: Sendable {
             guard seen.insert(id).inserted else { throw RefreshFailure.unreadableResponse }
             windows.append(QuotaWindow(id: id, name: ProviderHTTP.windowName(seconds: seconds), scope: nil,
                 period: QuotaPeriod(seconds: seconds), isExhausted: spent >= cap, usedPercentage: used,
-                remainingCount: slot.remaining_usd.map { NSDecimalNumber(decimal: $0.value).doubleValue },
-                totalCount: NSDecimalNumber(decimal: cap).doubleValue,
-                resetsAt: slot.resets_in_sec.map { collectedAt.addingTimeInterval($0) }, unit: "USD 预算额度"))
+                remainingCount: nil, totalCount: nil,
+                resetsAt: slot.resets_in_sec.map { collectedAt.addingTimeInterval($0) }, unit: "USD 预算额度",
+                exactCounts: DecimalQuotaCounts(used: spent, remaining: slot.remaining_usd?.value, total: cap)))
         }
         if let free = reply.free_tokens {
             guard [free.used_today, free.limit_per_day, free.remaining].compactMap({ $0 }).allSatisfy({ $0.isFinite && $0 >= 0 && $0.rounded() == $0 && $0 <= 9_007_199_254_740_991 }) else { throw RefreshFailure.unreadableResponse }
