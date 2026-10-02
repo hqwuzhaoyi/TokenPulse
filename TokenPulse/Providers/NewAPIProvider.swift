@@ -110,7 +110,14 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
-        provider == .newAPI ? gatewayIdentity : metadata["sourceCredentialFingerprint"]
+        if provider == .newAPI { return gatewayIdentity }
+        if [.factory, .devPass, .v0, .warp].contains(provider) {
+            guard kind == .apiKey, !accessToken.isEmpty,
+                  let bytes = try? JSONEncoder().encode([provider.rawValue, accessToken]) else { return nil }
+            // Recompute from the actual Key; metadata cannot claim another Key's identity.
+            return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        }
+        return metadata["sourceCredentialFingerprint"]
     }
 
     /// Scope is canonical server + key; metadata order and trailing /v1 are irrelevant.

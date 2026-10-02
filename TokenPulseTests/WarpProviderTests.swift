@@ -129,6 +129,22 @@ final class WarpProviderTests: XCTestCase {
         let requests = await transport.requests
         XCTAssertEqual(requests.map { $0.value(forHTTPHeaderField:"Authorization") },["Bearer work","Bearer personal","Bearer work","Bearer renewed"])
     }
+    func testGrantRecoveryRearmsAlertsWithoutAnyResetClaim() throws {
+        let id = UUID(), now = Date(timeIntervalSince1970: 100)
+        let firstWindows = try WarpProviderClient.windows(Data(reply.replacingOccurrences(of: "Remaining\":400", with: "Remaining\":50").utf8), now: now)
+        XCTAssertTrue(firstWindows.filter { $0.id.hasPrefix("warp.grant.") }.allSatisfy { $0.resetSemantics == .nonResettingAllowance })
+        let first = QuotaSnapshot(accountID: id, windows: firstWindows, collectedAt: now)
+        let planner = NotificationPlanner()
+        let planned = planner.planSuccessfulRefresh(accountID: id, accountName: "Warp", previousSnapshot: nil,
+            newSnapshot: first, settings: .init(), ledger: .init(), now: now)
+        let recoveredWindows = try WarpProviderClient.windows(Data(reply.replacingOccurrences(of: "Remaining\":400", with: "Remaining\":900").utf8), now: now)
+        let recovered = QuotaSnapshot(accountID: id, windows: recoveredWindows, collectedAt: now.addingTimeInterval(100))
+        let after = planner.planSuccessfulRefresh(accountID: id, accountName: "Warp", previousSnapshot: first,
+            newSnapshot: recovered, settings: .init(), ledger: planned.ledger, now: recovered.collectedAt)
+        XCTAssertFalse(after.operations.contains { if case .deliver(let n) = $0 { return n.kind == .confirmedReset }; return false })
+        XCTAssertTrue(after.ledger.pendingSchedules(accountID: id).allSatisfy { $0.windowIDs == Set(["warp.plan"]) })
+    }
+
     private func key(_ token:String) throws -> String { try ProviderCredentialEnvelope(provider:.warp,kind:.apiKey,accessToken:token).encoded() }
 }
 private actor WarpTransport:ProviderTransport {

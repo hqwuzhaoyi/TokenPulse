@@ -323,7 +323,7 @@ private struct AccountPreferencesView: View {
     }
 
     private func supportsQuotaReminders(_ configuration: AccountConfiguration) -> Bool {
-        if configuration.account.provider == .devPass {
+        if [.devPass, .factory, .warp].contains(configuration.account.provider) {
             return monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.usedPercentage != nil }) == true
         }
         guard configuration.account.provider.balancePresentation != .walletOnly else { return false }

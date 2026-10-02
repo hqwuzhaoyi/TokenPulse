@@ -19,3 +19,14 @@ Premium 每周额度 (`devpass.premium_weekly`)、账期 credits (`devpass.cycle
 仍未真实验收：普通 API Key 的真实查询、套餐实际额度变化/过期、生产无套餐状态、Key 失效和删除、iCloud 到达、物理 Watch 独立查询、真实提醒和组件视觉表现。官方文档与固定参考不能替代当前账号证据；未接触或输出真实凭证。
 
 生产 DevPass 解析代码 macOS 合成 smoke 另通过：超出 Double 整数精度的 Decimal 原值、精确相减、快照编码、已知 no-plan、非有限/负数/溢出/下溢拒绝。此检查不是模拟器 XCTest 或真实 Key 查询。
+
+
+## Key scope / reminder lifecycle correction
+
+本组 Factory、DevPass、v0、Warp 的 credential identity 直接从 provider + 实际 API Key 重算 SHA-256，不信 metadata 声称的指纹；错误 kind 或空 Key 没有有效身份。统一 monitor/配置/ledger 用它隔离更换凭证和乱序同步，换 Key 后清掉旧 Key 的数量，即使新 Key 查询失败也不展示原 Key 的额度。其他提供商的身份策略保持不变，由 root 合并统一 getter。
+
+复用共享 `QuotaWindow.resetSemantics`，DevPass 的 Key 累计上限和每个 Warp one-off grant 设为 `.nonResettingAllowance`；真实使用回落只内部重新允许阈值提醒，不推断、确认或预排重置。API余额/不明币种没有混入这一策略。演示同步采用该语义。
+
+追加四个回归方法验证实际 Key/metadata/空值与kind、四提供商换 Key失败清旧数据及恢复、all-time Key额度恢复不通知重置、grant恢复不通知重置。最终 Factory10/DevPass8/v0 7/Warp8 共33个provider XCTest方法完成Swift6 typecheck，完整App模块与共用partial/reset tests一起typecheck通过；补丁最后的无效kind/空Key防御分支已经语法检查但未额外运行模拟器。root统一执行最终编译、全部XCTest和unsigned构建。
+
+合成 Foundation smoke 通过实际Key identity及 nonResetting Key恢复不通知/不排重置；它不能代替Keychain/iCloud/物理设备或真实API验收。验收仍保持pending。

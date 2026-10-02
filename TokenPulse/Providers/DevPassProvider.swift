@@ -71,7 +71,8 @@ struct DevPassProviderClient: Sendable {
         guard percentage.isFinite else { throw RefreshFailure.unreadableResponse }
         return QuotaWindow(id: id, name: name, scope: nil, period: period, isExhausted: used >= total,
                            usedPercentage: min(percentage, 100), remainingCount: nil, totalCount: nil,
-                           resetsAt: reset, unit: "USD credits", exactCounts: .init(used: used, remaining: remaining, total: total))
+                           resetsAt: reset, unit: "USD credits", exactCounts: .init(used: used, remaining: remaining, total: total),
+                           resetSemantics: id == "devpass.key_limit" ? .nonResettingAllowance : nil)
     }
 
     static func amount(_ text: String?) throws -> Decimal? {

@@ -135,6 +135,24 @@ final class DevPassProviderTests: XCTestCase {
         catch { XCTAssertEqual(error as? ProviderIntegrationError, .invalidCredentialData) }
     }
 
+    func testAllTimeKeyAllowanceRecoveryNeverClaimsConfirmedReset() throws {
+        let id = UUID(), firstDate = Date(timeIntervalSince1970: 100)
+        func snapshot(usage: String, at date: Date) throws -> QuotaSnapshot {
+            let body = "{\"data\":{\"devPlan\":\"none\",\"usage\":\"\(usage)\",\"limit\":\"100\"}}"
+            return try DevPassProviderClient.snapshot(Data(body.utf8), accountID: id, collectedAt: date)
+        }
+        let first = try snapshot(usage: "90", at: firstDate)
+        XCTAssertEqual(first.windows[0].resetSemantics, .nonResettingAllowance)
+        let planner = NotificationPlanner()
+        let planned = planner.planSuccessfulRefresh(accountID: id, accountName: "DevPass", previousSnapshot: nil,
+            newSnapshot: first, settings: .init(), ledger: .init(), now: firstDate)
+        let recovered = try snapshot(usage: "10", at: firstDate.addingTimeInterval(100))
+        let after = planner.planSuccessfulRefresh(accountID: id, accountName: "DevPass", previousSnapshot: first,
+            newSnapshot: recovered, settings: .init(), ledger: planned.ledger, now: recovered.collectedAt)
+        XCTAssertFalse(after.operations.contains { if case .deliver(let n) = $0 { return n.kind == .confirmedReset }; return false })
+        XCTAssertTrue(after.ledger.pendingSchedules(accountID: id).isEmpty)
+    }
+
     private func decimal(_ text: String) -> Decimal { Decimal(string: text, locale: Locale(identifier: "en_US_POSIX"))! }
     private func key(_ token: String) throws -> String { try ProviderCredentialEnvelope(provider: .devPass, kind: .apiKey, accessToken: token).encoded() }
 }

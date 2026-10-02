@@ -136,7 +136,8 @@ struct WarpProviderClient: Sendable {
                 result.append(QuotaWindow(id: "warp.grant.\(hash).\(occurrence)", name: "\(label) 附加 credits \(index + 1)", scope: nil,
                                           period: .other, isExhausted: total.flatMap { total in remaining.map { total > 0 && $0 == 0 } },
                                           usedPercentage: percent, remainingCount: nil, totalCount: nil, resetsAt: nil,
-                                          unit: "credits", expiresAt: expiry, exactCounts: .init(used: used, remaining: remaining, total: total)))
+                                          unit: "credits", expiresAt: expiry, exactCounts: .init(used: used, remaining: remaining, total: total),
+                                          resetSemantics: .nonResettingAllowance))
             }
         }
         try append(account.bonusGrants ?? [], source: "personal", label: "个人")
