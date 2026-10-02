@@ -8,6 +8,7 @@ struct GoogleNativeOAuth: Sendable {
     let transport: any ProviderTransport
     let now: @Sendable () -> Date
     var requestedScopes: [String] = Self.scopes
+    var sleep: @Sendable (TimeInterval) async throws -> Void = { try await Task.sleep(for: .seconds($0)) }
 
     static func headerSafe(_ value: String) -> Bool { !value.isEmpty && value.utf8.allSatisfy { $0 >= 33 && $0 <= 126 } }
 
@@ -49,18 +50,63 @@ struct GoogleNativeOAuth: Sendable {
         var request = URLRequest(url: URL(string: "https://www.googleapis.com/oauth2/v2/userinfo")!)
         request.setValue("Bearer \(envelope.accessToken)", forHTTPHeaderField: "Authorization")
         request.httpShouldHandleCookies = false; request.timeoutInterval = 20
-        let (data, response) = try await ProviderHTTP.send(request, transport: transport)
-        try Self.validateResponseOrigin(response, request: request)
-        if let failure = ProviderHTTP.queryFailure(status: response.statusCode) { throw failure }
-        struct User: Decodable { let id: String }
-        guard let user = try? JSONDecoder().decode(User.self, from: data), !user.id.isEmpty else { throw RefreshFailure.unreadableResponse }
-        envelope.accountID = user.id
+        envelope.accountID = try await userInfoSubject(request)
         return envelope
     }
 
     func refresh(_ envelope: ProviderCredentialEnvelope) async throws -> ProviderCredentialEnvelope {
-        guard envelope.kind == .oauth, envelope.metadata["clientID"] == clientID, let refresh = envelope.refreshToken, !refresh.isEmpty else { throw RefreshFailure.invalidCredential }
+        guard envelope.kind == .oauth, envelope.metadata["clientID"] == clientID,
+              let historicalScopes = envelope.metadata["grantedScopes"], !historicalScopes.isEmpty,
+              Set(historicalScopes.split(separator: " ").map(String.init)).isSuperset(of: requestedScopes),
+              let refresh = envelope.refreshToken, !refresh.isEmpty else { throw RefreshFailure.invalidCredential }
         return try await token(values: ["grant_type": "refresh_token", "refresh_token": refresh, "client_id": clientID], provider: envelope.provider, previous: envelope)
+    }
+
+    /// Only the idempotent GET is retried. The authorization code POST above is never replayed.
+    private func userInfoSubject(_ request: URLRequest) async throws -> String {
+        for attempt in 0..<3 {
+            try Task.checkCancellation()
+            let data: Data, response: HTTPURLResponse
+            do {
+                (data, response) = try await ProviderHTTP.send(request, transport: transport)
+            } catch {
+                guard attempt < 2, error as? ProviderIntegrationError == .network else { throw error }
+                try await sleep(TimeInterval(attempt + 1))
+                continue
+            }
+            try Task.checkCancellation()
+            try Self.validateResponseOrigin(response, request: request)
+            if response.statusCode == 429 || (500...599).contains(response.statusCode) {
+                if attempt < 2, let delay = Self.userInfoRetryDelay(response, attempt: attempt, now: now()) {
+                    try await sleep(delay)
+                    continue
+                }
+            }
+            if let failure = ProviderHTTP.queryFailure(status: response.statusCode) { throw failure }
+            struct User: Decodable { let id: String }
+            guard let user = try? JSONDecoder().decode(User.self, from: data), !user.id.isEmpty else { throw RefreshFailure.unreadableResponse }
+            return user.id
+        }
+        throw RefreshFailure.server
+    }
+
+    /// At most two retries, each waiting no more than five seconds. Longer server
+    /// cooldowns fail promptly rather than retrying before Retry-After permits it.
+    static func userInfoRetryDelay(_ response: HTTPURLResponse, attempt: Int, now: Date) -> TimeInterval? {
+        let fallback = TimeInterval(attempt + 1)
+        guard let raw = response.value(forHTTPHeaderField: "Retry-After")?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return fallback }
+        let delay: TimeInterval
+        if raw.utf8.allSatisfy({ (48...57).contains($0) }) {
+            guard let number = Double(raw), number.isFinite else { return nil }
+            delay = number
+        } else {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"; formatter.isLenient = false
+            guard let date = formatter.date(from: raw) else { return fallback }
+            delay = max(0, date.timeIntervalSince(now))
+        }
+        return delay.isFinite && delay <= 5 ? delay : nil
     }
 
     static func validateResponseOrigin(_ response: HTTPURLResponse, request: URLRequest) throws {

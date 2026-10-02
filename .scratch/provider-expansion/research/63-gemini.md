@@ -44,3 +44,11 @@ POST `:retrieveUserQuota` body `{project: 实际项目}`，参数按官方 requi
 真实自有 iOS client 注册、Google同意/内部quota entitlement、真实quota数值、手机/Watch跨到期刷新与撤销均未观察。合成 fixture 不证明这些实际结果；按用户当前 **实现+图标** 验收不以无账号作为阻塞。Google拒绝自备client时显示错误，继续使用 CLI client 或伪装 CLI 都不在方案内。
 
 Gemini图标：Lobe Icons `a94750e3f5f8fc33757b839d85030e742284e43a`，`packages/static-svg/icons/gemini.svg`，MIT，模板黑色/24×24/vector preservation，已登记 ProviderIconNotices。
+
+## 共享 OAuth 回归加固（2026-10-03，Pi03后续）
+
+userinfo GET最多3次尝试，仅429/5xx/网络瞬态错误重试，不重放授权码POST。最多两个延迟，每次≤5秒；合理Retry-After秒数/HTTP日期被遵守，较长冷却直接返回原错误，永久401不重试。已签发grant在重试期间保留内存；耗尽仍失败，不声称能无限恢复或跨进程续接。
+
+活动run收到非Task主动取消的CancellationError显示“请求意外中断”；显式cancel先清runID并取消Task，迟到结果仍静默。未认定重定向拒绝必定造成CancellationError，3xx行为的因果没有实证。
+
+refresh在请求前拒绝缺失/减少的历史grantedScopes，不能因响应scope缺省而补造旧权限。共享OAuth回归由6增至12，新增503→200且code只兑换一次、429 Retry-After、长冷却、HTTP日期/极大值、历史scope与取消提示边界。真实生产小模块与12tests的iOS SDK Swift6语义检查通过；完整XCTest仍由root执行。

@@ -75,9 +75,7 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
                         } catch {
                             guard let self, self.runID == id else { return }
                             self.busy = false
-                            if error is CancellationError { return }
-                            if case ProviderIntegrationError.unsupportedLogin(let reason) = error { self.message = reason }
-                            else { self.message = (ProviderHTTP.refreshFailure(error) as? RefreshFailure)?.displayName ?? "Google 授权未完成" }
+                            self.message = Self.failureMessage(error, taskCancelled: Task.isCancelled)
                         }
                     }
                 }
@@ -91,6 +89,15 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
             if case ProviderIntegrationError.unsupportedLogin(let reason) = error { message = reason }
             else { message = "Google Client ID 格式无效" }
         }
+    }
+
+    static func failureMessage(_ error: Error, taskCancelled: Bool) -> String? {
+        // Explicit cancel clears runID before this path. A still-active request can
+        // also be cancelled by its transport; that interruption needs feedback.
+        guard !taskCancelled else { return nil }
+        if error is CancellationError { return "Google 授权请求意外中断，请重试" }
+        if case ProviderIntegrationError.unsupportedLogin(let reason) = error { return reason }
+        return (ProviderHTTP.refreshFailure(error) as? RefreshFailure)?.displayName ?? "Google 授权未完成"
     }
 
     func cancel() {
