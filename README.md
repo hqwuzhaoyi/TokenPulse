@@ -8,8 +8,8 @@
 
 ## 功能
 
-- **多提供商、多账号**：71 个代码入口，涵盖订阅、API 钱包和自托管网关；同一提供商可配置多个账号。62 张接入票已按用户最新“完整实现+图标存在”标准关闭，真实生产兼容和设备观测仍分别记录。
-- **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 获取配置及凭证后，无需手机代查额度。
+- **多提供商、多账号**：77 个代码入口，涵盖订阅、API 钱包和自托管网关；同一提供商可配置多个账号。69 张扩展票中 68 张接入已按用户最新“完整实现+图标存在”标准完成，JetBrains AI 仍在协议实施调查；本轮集成验证进行中。
+- **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 取得配置及适用凭证后，无需手机代查额度。Nous 的两端凭证各自授权，不通过 iCloud 传送。
 - **账号管理**：首页通过 Edit 拖动账号卡片排序；左滑卡片或进入账号设置可删除账号，清理凭证、额度和提醒，并通过 iCloud 同步删除结果。Watch 同步全部账号，每个账号保留独立额度窗口。
 - **同步控制**：iCloud 同步开关、手动同步、最近同步时间、失败提示；点击同步时图标旋转反馈。
 - **额度告警**：提供应用级通知开关；默认阈值为 80%、95%、100%，按提供商和套餐的可通知窗口判断，多个窗口同时触发时合并提醒。
@@ -19,7 +19,7 @@
 
 ## 提供商与登录方式
 
-下表列出 **71 个已落地代码入口**：原有9个、首批8个、第二批29个、第三批25个。全部图标均存在，接入票按用户当前标准已关闭；这不表示每家真实账号、手机登录或物理Watch流程都已观测通过。百炼Key兼容、嵌入登录、反自动化限制及Warp移动上下文等边界仍见各行说明和[第三批记录](.scratch/provider-expansion/wave3-progress.md)。7张研究票未作为正式入口加入。
+下表列出 **77 个已落地代码入口**：原有 71 个，加 OpenAI API Legacy、阿里百炼 Token Plan、Gemini Code Assist、Antigravity、Kiro 与 Nous Portal。图标均存在；68 张扩展接入按当前实现与图标标准完成，剩余 JetBrains AI 尚未列为入口。本轮验证进行中，真实账号、手机登录或物理 Watch 观察边界分别保留在接入文档中。
 
 | 提供商 | 登录方式 | 桌面小组件主要内容 |
 | --- | --- | --- |
@@ -94,6 +94,12 @@
 | [ZoomMate](docs/zoommate-integration.md) | Zoom 父域隔离网页登录 | AI credits/无限/停用/超额付费按实际状态分开 |
 | [Grok Bot](docs/grok-bot-provider-integration.md) | 独立的 Cursor 账号授权范围 | Grok Bot 额度，和 Cursor 模型池、SuperGrok 分开 |
 | [Windsurf](docs/windsurf-provider-integration.md) | Windsurf 本域隔离网页登录 | 自己的账号/组织 Connect 额度，不复用 Devin 的账号数据 |
+| [OpenAI API（Legacy 余额）](docs/openai-api-integration.md) | 用户主动配置 API Key，旧接口兼容性因账号与 Key 而异 | legacy 契约的 USD 可用余额；不将组织 Costs 消费统计当作余额 |
+| [阿里百炼 Token Plan](docs/alibaba-token-plan-integration.md) | AK/SK，明确北京／新加坡地区及国内／国际账号站点 | 个人 5 小时与每周已用比例及实际重置时间；不造月窗，与 Coding Plan 分开 |
+| [Gemini Code Assist](.scratch/provider-expansion/research/63-gemini.md) | 自备 Google iOS OAuth Client ID，原生 PKCE 授权；可指定 Cloud 项目 | 各模型限制窗口的使用率或剩余原数，按服务单位；不猜周期，客户端／项目须获服务许可 |
+| [Antigravity](docs/antigravity-integration.md) | 自备 Google iOS OAuth Client ID，原生 PKCE 授权；需已激活服务与项目 | 模型组独立额度；数量缺类型时明示未提供，不推断 tokens／USD；内部 scope 授予不保证 |
+| [Kiro](docs/kiro-provider-integration.md) | app.kiro.dev 个人账号隔离网页登录，支持 Google／GitHub／Builder ID | 订阅、试用、bonus／额外 credits 分开；非货币，试用到期不作重置，与 xKiro 无关 |
+| [Nous Portal](docs/nous-portal-provider.md) | OAuth 设备码授权，公开客户端标识 Hermes CLI；iPhone／Watch 分别授权同一用户与组织 | 订阅、购买与总可用非货币 credits；不重复合计，凭证仅留在授权设备 |
 
 DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情包含总可用、赠送和充值余额。账号设置可选择概览及提醒币种，低余额默认阈值为 CNY 10 元或 USD 2 美元，可修改。持续低余额只提醒一次，余额恢复后再次降低才重新提醒；余额不足以调用 API 时也会提醒，并合并同次通知。钱包不显示已用百分比或周期重置时间。
 
@@ -105,7 +111,11 @@ Qoder 采用参考项目的非公开接口。设备凭证的自动续期不可�
 
 网页登录为各服务账号新建临时容器，只提取允许域名、路径及必要Cookie/存储字段；多工作区或组织由用户选择，查询前复核范围。到期后重新登录，关闭或重启登录清理旧临时会话。明确未发额度、未配置预算或套餐不适用可显示服务确认的状态，和网络失败/未知字段区分，不制造0%或无限。
 
-71个入口的图标均已实查：56个映射到53套image sets，15个使用8种可用SF Symbol。SF入口及DevPass/Warp/Zed的3套通用SVG共18个通用图标，不冒称官方品牌logo。来源/许可见[图标记录](.scratch/provider-expansion/icon-acceptance.md)与ProviderIconNotices。
+Gemini Code Assist 与 Antigravity 需要用户自行注册 Google iOS OAuth 客户端（Bundle ID `com.tokenpulse.app`），配置授权同意与所需权限；可用项目与服务资格也由 Google 决定。应用不借用 Google CLI 客户端或电脑上的令牌，不自动开通服务；强制 App Check／DPoP 的客户端配置目前不支持。Antigravity 所需内部 scope 是否授予自备客户端尚未真实验证。
+
+Nous Portal 使用设备本地的旋转授权链：iPhone 和 Watch 分别完成设备码授权，同一用户与组织的配置、额度快照和提醒记录可以共享，access／refresh 凭证不会传到另一设备。Watch 在账号页点击“连接此 Watch”取得自己的授权；令牌轮换结果不确定或授权失效时需要重新连接。详情见[Nous 接入说明](docs/nous-portal-provider.md)。
+
+77 个入口均已接入现有品牌资源或可用通用图标，完整无签名构建已编译 App、Watch 与两端小组件的资源。通用图标不冒称官方品牌 logo；来源与许可见 [ProviderIconNotices.txt](TokenPulse/Resources/ProviderIconNotices.txt)，此前 71 个入口的分类核验见[图标记录](.scratch/provider-expansion/icon-acceptance.md)。
 
 Copilot 授权页会显示 VS Code / Copilot 客户端身份，TokenPulse 使用该公开客户端进行非官方接入。只请求 `read:user`，无需粘贴 `gh` 或其他应用的 token。额度查询使用非公开内部接口；未发放项省略，无限项显示“无限”，超额付费与耗尽分别显示。凭证失效后可从账号设置重新授权，详见 [接入与验证边界](docs/provider-integration.md#github-copilot)。
 
@@ -120,7 +130,7 @@ Codex 套餐根据额度响应中的 `plan_type` 识别为 Plus 或 Pro；缺失
 1. 打开 iPhone 上的 TokenPulse，点击右上角 **＋**，选择提供商并完成登录或输入 Key。
 2. 需要调整顺序时，点击首页左上角 **Edit** 并拖动账号卡片，编辑期间收起详情并关闭点击展开。删除时左滑卡片露出 **删除** 按钮，点击并确认后移除；也可进入 **设置 → 具体账号 → 删除账号**。在 **设置** 中打开通知，并按账号配置提醒类型和阈值。
 3. 在 **账号设置 → 同步** 中开启 iCloud 同步，或点击“立即同步”。
-4. 安装并打开 Watch 端，等待配置到达后刷新额度；在右上角 **表盘设置** 中选择表盘要显示的账号。
+4. 安装并打开 Watch 端，等待配置与适用凭证到达后刷新额度；Nous 账号还需在 Watch 账号页点击 **连接此 Watch** 独立授权。在右上角 **表盘设置** 中选择表盘要显示的账号。
 5. 添加 iPhone 小组件；手表上可长按表盘，进入 **编辑 → 复杂功能 → TokenPulse 额度**。
 
 Apple Watch 首次启动会自动请求系统通知权限；允许后额度告警和重置提醒默认开启，不需要在 Watch App 内单独配置。
@@ -166,18 +176,17 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 最终代码 `4adb520` 的完整 iPhone 模拟器 XCTest **638 项通过，0 failures**，日志 `/tmp/tokenpulse-wave3-final.log`、结果包 `/tmp/tokenpulse-wave3-final.xcresult`。包含第三批实现与采用的 Pi 回归修复。
-- 同一源码的 unsigned App／Watch／两端 Widgets 构建通过，日志 `/tmp/tokenpulse-wave3-final-unsigned.log`；71个图标映射、53个image sets与15个SF映射均已核验。
-- 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
-- 第二批46入口版本曾做演示卡片截图/可访问性抽查；本次71入口验证包含图标、注册、自动化测试和完整构建，没有把此前截图作为新增25家真实登录或全尺寸视觉验收。
-- 62张接入票已按最新图标存在标准关闭；真实账号、生产接口/权限/单位、凭证生命周期、iCloud到达、物理Watch手机离线直查及完整组件/通知仍保留实际未验证说明，已不阻塞关票。7张研究票仍未完成，也没有伪列为已接入提供商。
-- **10组Pi回归报告已全部交付并审阅**。确认的问题及有界解析改进已处理并进入最终638项测试；Replicate部分枚举建议未采纳，许可缺失观察已纠正。见[Pi报告与处理记录](.scratch/provider-expansion/pi-regression/README.md)及[统一验证记录](.scratch/provider-expansion/validation-record.md)。
+- **本轮集成验证进行中**：76 个入口的代码 `312b742` 已完成完整 iPhone 模拟器 XCTest，**709 项通过，0 failures**，日志 `/tmp/tokenpulse-wave4-pre-nous.log`、结果包 `/tmp/tokenpulse-wave4-pre-nous.xcresult`。
+- 当前 77 个入口的代码 `2b530a3` 已通过 unsigned App／Watch／两端 Widgets 构建，日志 `/tmp/tokenpulse-wave4-nous-unsigned-fixed.log`。Nous 专项测试仍在补充，尚未宣称 77 个入口全测完成。
+- 68 张扩展接入按用户当前“完整实现+图标存在”标准完成；JetBrains AI 仍在最后协议实施调查。该标准与真实账号、生产权限／单位、授权生命周期、iCloud 到达及物理 Watch 观察分别记录。
+- 此前 71 入口的 `4adb520` 已通过 638 项完整 XCTest 及无签名构建；10 组 Pi 报告的已确认修复包含在该历史结果中。见[Pi 报告](.scratch/provider-expansion/pi-regression/README.md)及[统一验证记录](.scratch/provider-expansion/validation-record.md)。旧截图、合成响应和构建结果不作为本轮新增入口的真实登录或全尺寸视觉验收。
+- 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动；这一历史观察不扩展为其他提供商的真实账号或设备验收。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 
 ## 数据与运行边界
 
-凭证保存在 Keychain 中，账号配置和额度快照单独保存；无需自建查询服务器或 Mac 常驻采集进程。
+凭证保存在 Keychain 中，账号配置和额度快照单独保存。原有可同步凭证沿 iCloud Keychain 通道同步；Nous 旋转凭证只保存在授权设备，开启同步也不改变这一限制。无需自建查询服务器或 Mac 常驻采集进程。
 
 后台刷新、iCloud 传送和 Widget 更新由系统调度，不保证固定间隔或即时到达。当前配置同步使用 iCloud，尚未接入 WatchConnectivity 手机直传通道。设备离线或同步延迟时可能分别发出通知。
 

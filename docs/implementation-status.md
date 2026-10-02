@@ -1,12 +1,20 @@
 # 全部 Tickets 实现与验收记录
 
-用户于 2026-09-08 指示“先把其他的一起都实现了”，允许先开发全部功能，随后做真实账号与实机验收。任务索引中的复选框继续表示完整验收，不能以构建成功替代。
+用户于 2026-09-08 指示“先把其他的一起都实现了”，允许先开发全部功能，随后做真实账号与实机验收。早期任务索引和下方历史记录的复选框仍保留原完整验收含义；2026-10-03 提供商扩展按最新“完整实现+图标存在”标准验收，两种范围不混写。
 
-## 提供商扩展最新快照（2026-10-02，0477a43文档基线）
+## 提供商扩展最新快照（2026-10-03，2b530a3 文档基线）
 
-71个代码入口已集成：9原有+8首批+29第二批+25第三批。69票中62张integration全部done/current gate[x]，7张研究已恢复in-progress，尚未计入接入数；最新关票以完整实现+图标存在为准，历史真实清单不伪勾。71图标无缺失，56资产映射/53 image sets与15 SF映射/8个有效系统符号，共18个明确通用图标，见[图标验收](../.scratch/provider-expansion/icon-acceptance.md)。
+**本轮集成验证进行中。** 当前 77 个代码入口：此前 71 个，加 OpenAI API Legacy、阿里百炼 Token Plan、Gemini Code Assist、Antigravity、Kiro 与 Nous Portal。69 张扩展票中 68 张接入按“完整实现+图标存在”标准完成，JetBrains AI 仍在最后协议实施调查，尚未计入入口数。真实账号及设备观察缺口保留原意，不伪勾旧历史清单。
 
-最终代码4adb520通过638项完整XCTest（0 failures）及unsigned App/Watch/两端Widgets构建，日志/tmp/tokenpulse-wave3-final.log与/tmp/tokenpulse-wave3-final-unsigned.log。10组Pi报告全部交付，确认问题及采用的有界解析改进均已纳入最终测试，未采纳建议与许可观察纠正也有记录。见[71入口表](../README.md#提供商与登录方式)、[Pi回归](../.scratch/provider-expansion/pi-regression/README.md)、[第三批记录](../.scratch/provider-expansion/wave3-progress.md)和[统一验证记录](../.scratch/provider-expansion/validation-record.md)。真实生产、账号、物理Watch、iCloud及完整视觉观察缺口不改写为已实测。
+| 验证基线 | 已执行结果 | 范围边界 |
+| --- | --- | --- |
+| `312b742`，76 个入口 | 完整 iPhone 模拟器 XCTest 709 项通过，0 failures；`/tmp/tokenpulse-wave4-pre-nous.log` 与 `.xcresult` | 不包含随后加入 Nous 的专项回归，不代表真实账号／设备观察 |
+| `2b530a3`，77 个入口 | unsigned App、Watch App 与两端 Widgets 完整构建成功；`/tmp/tokenpulse-wave4-nous-unsigned-fixed.log` | Nous 专项 tests 仍在补充，77 入口全测尚未完成 |
+| `4adb520`，此前 71 个入口 | 638 项完整 XCTest（0 failures）及 unsigned 全目标构建 | 历史结果；日志 `/tmp/tokenpulse-wave3-final.log`、`/tmp/tokenpulse-wave3-final-unsigned.log` |
+
+新增六入口的登录、单位及兼容边界见 [77 入口表](../README.md#提供商与登录方式)。Google 两入口需要自备 iOS OAuth client 与服务许可；OpenAI Legacy 仅查询旧余额接口，不承诺所有 Key 通用兼容；Nous 两端独立设备码授权，本地旋转秘密不经 iCloud 传送，配置／快照／提醒记录仍可共享。Nous 专项回归与最终全测结果由 root 集成后更新，不以构建成功替代。
+
+所有入口图标均已接入，当前完整构建编译了 App、Watch 与两端 Widget 的资源；来源／许可见 [ProviderIconNotices.txt](../TokenPulse/Resources/ProviderIconNotices.txt)。此前 71 入口分类核验、10 组 Pi 回归及已采用修复见[图标验收](../.scratch/provider-expansion/icon-acceptance.md)、[Pi 回归](../.scratch/provider-expansion/pi-regression/README.md)、[第三批记录](../.scratch/provider-expansion/wave3-progress.md)和[统一验证记录](../.scratch/provider-expansion/validation-record.md)。真实生产接口、授权、物理 Watch、iCloud 和完整视觉观察没有由这些自动结果推定通过。
 
 下方原始功能Ticket编号与历史验证保持原意，和provider-expansion的01–69编号不是同一票据集。
 
