@@ -34,6 +34,9 @@ extension Provider {
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational, .qoderChina: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
+        case .notionAI: "ProviderNotionAI"
+        case .perplexity: "ProviderPerplexity"
+        case .abacus: nil
         case .venice: "ProviderVenice"
         case .qwenCloud: "ProviderQwenCloud"
         case .raycastAI, .t3Chat, .zoomMate, .typeSafe: nil
@@ -91,6 +94,7 @@ extension Provider {
         case .t3Chat: "bubble.left.and.bubble.right.fill"
         case .zoomMate: "video.fill"
         case .codebuff: "terminal"
+        case .abacus: "square.grid.3x3.fill"
         case .neuralwatt: "bolt.circle"
         case .aixy: "network"
         case .hyper: "bolt.circle"

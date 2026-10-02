@@ -1,6 +1,6 @@
 # 50: Notion AI 工作区额度
 
-**Status:** ready-for-agent
+**Status:** implemented
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/notion-ai.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+Scoped temporary WK login extracts only token_v2. getSpaces builds every explicit workspace choice, including free workspaces; selected workspace/user IDs bind credential fingerprints and cache window IDs. Queries validate membership then request only selected getCreditRateLimitStatus; no-plan returns explicit quotaStatusText while request failures retain error state. Exact basic-AI counters, stated rolling duration/monthly billing documentation, UI/Watch/widgets/demo/routes/PBX and pinned MIT Notion vector icon are complete. Six tests cover explicit choices, query scope, decimals/partial data, no-plan, user ambiguity and token domain/tampering. Current implementation-plus-icon acceptance is complete; no real account/device evidence is claimed. Root owns full runtime validation. See docs/notion-ai-integration.md.

@@ -45,6 +45,9 @@ enum DemoMode {
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
             (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"),
             (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"), (.ollamaCloud, "Ollama Cloud"), (.longCat, "LongCat Token 与燃料包"),
+            (.abacus, "Abacus AI"),
+            (.perplexity, "Perplexity API"),
+            (.notionAI, "Notion AI"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -432,6 +435,9 @@ enum DemoMode {
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: Decimal(string: "80.25")!))
         ]
+        case .abacus: [QuotaWindow(id: "abacus.computePoints", name: "Compute points 额度", scope: nil, period: .other, usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(15 * 86_400), unit: "compute points", exactCounts: .init(used: 250, remaining: 750, total: 1000))]
+        case .perplexity: [QuotaWindow(id: "perplexity.apiCredits.USD", name: "API credits 余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, wallet: .init(currency: "USD", total: Decimal(string: "3.20")!))]
+        case .notionAI: [QuotaWindow(id: "notionAI.demo.rolling", name: "Demo workspace · 6 小时 AI 额度", scope: nil, period: .other, usedPercentage: 42.5, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3 * 3600), unit: "AI credits", exactCounts: .init(used: Decimal(string: "42.5")!, remaining: Decimal(string: "57.5")!, total: 100)), QuotaWindow(id: "notionAI.demo.billing", name: "Demo workspace · 账期 AI 额度", scope: nil, period: .monthly, usedPercentage: 18, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(15 * 86400), unit: "AI credits", exactCounts: .init(used: 18, remaining: 82, total: 100))]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

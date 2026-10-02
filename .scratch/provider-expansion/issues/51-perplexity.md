@@ -1,6 +1,6 @@
 # 51: Perplexity API credits
 
-**Status:** ready-for-agent
+**Status:** implemented
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/perplexity.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+Scoped temporary WK login and query verification, simple/contiguous chunk session cookie handling, provider/account/origin/expiry/fingerprint validation, fixed credits GET and precise cents-to-USD wallet, pure balance reminders, UI/Watch/widget/demo/register/PBX plus pinned MIT vector icon are implemented. Five tests cover exact/zero/missing amounts, cookie chunks/isolation, request metadata and redirects. Current implementation-plus-icon acceptance is complete; no live account/device evidence is claimed. See docs/perplexity-integration.md.

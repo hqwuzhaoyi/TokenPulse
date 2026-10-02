@@ -44,6 +44,12 @@ The Mistral SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe
 
 The Sakana AI SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/sakana.svg. Copyright (c) 2023 LobeHub, MIT License (included below). Official SakanaAI/AI-Scientist commit 1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb tree has no reusable provider SVG; the existing licensed Lobe source is used.
 
+Abacus AI uses the platform SF Symbol square.grid.3x3.fill as a generic compute indicator. No external Abacus artwork is imported.
+
+ProviderPerplexity: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/perplexity.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
+ProviderNotionAI: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/notion.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

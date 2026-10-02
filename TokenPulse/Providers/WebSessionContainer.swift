@@ -239,6 +239,9 @@ extension Provider {
                   makeCredentials: { cookies, _, accountID, now in
                       [.init(id: "xiaomi", title: "MiMo 控制台账号", credential: try XiaomiCodingPlanProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
                   })
+        case .abacus: AbacusProviderClient.loginProfile
+        case .perplexity: PerplexityProviderClient.loginProfile
+        case .notionAI: NotionAIProviderClient.loginProfile
         default: nil
         }
     }

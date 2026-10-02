@@ -1,6 +1,6 @@
 # 45: Abacus AI Compute points
 
-**Status:** ready-for-agent
+**Status:** implemented
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/abacus.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+Implemented scoped temporary WK web login, candidate Cookie capture and query verification, required compute points / optional billing, exact counts and source-bound account lifecycle, device-side Watch query, widget/demo/register/PBX and SF Symbol square.grid.3x3.fill. Five regression tests cover schema/zero/missing, optional billing, scoped/expired cookies and request contracts. Static parse/PBX checks passed; root owns runtime XCTest. Current implementation-plus-icon acceptance is complete; no real account or device evidence is claimed. See docs/abacus-integration.md.
