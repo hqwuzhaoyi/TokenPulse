@@ -110,6 +110,7 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
+        if provider == .jetBrainsAI { return try? JetBrainsCredential.fingerprint(self) }
         if provider == .gemini { return try? GeminiProviderClient.fingerprint(self) }
         if provider == .kiro { return try? KiroProviderClient.sourceIdentity(self) }
         if provider == .nousPortal { return try? NousPortalCredential.fingerprint(self) }

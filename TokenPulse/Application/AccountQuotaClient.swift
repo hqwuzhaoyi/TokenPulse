@@ -18,6 +18,11 @@ struct AccountQuotaClient: QuotaQuerying {
         if provider == .miniMaxChina {
             return try await MiniMaxQuotaClient().quota(for: accountID, credential: credential)
         }
+        if provider == .jetBrainsAI {
+            guard let local = credentialStore as? any DeviceOAuthVaultProviding else { throw RefreshFailure.invalidCredential }
+            return try await JetBrainsSessionCoordinator.shared.quota(accountID: accountID, vault: local.deviceOAuthVault,
+                transport: transport ?? URLSessionProviderTransport.rejectingRedirects(), now: now)
+        }
         if provider == .nousPortal {
             guard let local = credentialStore as? any DeviceOAuthVaultProviding else { throw RefreshFailure.invalidCredential }
             return try await NousSessionCoordinator.shared.quota(accountID: accountID, vault: local.deviceOAuthVault,

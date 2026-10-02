@@ -40,7 +40,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case warp, v0, devPass
     case raycastAI, t3Chat, zoomMate, qwenCloud, typeSafe
     case devin, manus, windsurf
-    case nousPortal
+    case nousPortal, jetBrainsAI
     case replicate, mistral, sakana, kiro
     case xiaomiCodingPlan, qoderChina, ollamaCloud, longCat
     case notionAI
@@ -52,7 +52,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan || self == .alibabaTokenPlan }
     var hasMonetaryWallet: Bool { [.openAIAPI, .perplexity, .xiaomiCodingPlan, .sub2api, .sakana, .mistral, .replicate, .devin, .typeSafe, .xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
-    var requiresDeviceLocalCredential: Bool { self == .nousPortal }
+    var requiresDeviceLocalCredential: Bool { [.nousPortal, .jetBrainsAI].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper, .manus, .nousPortal].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
@@ -127,6 +127,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .manus: "Manus"
         case .windsurf: "Windsurf"
         case .nousPortal: "Nous Portal"
+        case .jetBrainsAI: "JetBrains AI"
         case .replicate: "Replicate"
         case .mistral: "Mistral"
         case .sakana: "Sakana AI"

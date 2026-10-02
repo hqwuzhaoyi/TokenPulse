@@ -155,6 +155,7 @@ private struct WatchAccountPage: View {
     @ObservedObject var monitor: QuotaMonitor
     let isDemoMode: Bool
     @State private var showingNousAuthorization = false
+    @State private var showingJetBrainsImport = false
     let date: Date
     let isRefreshing: Bool
     let refresh: () async -> Void
@@ -268,6 +269,10 @@ private struct WatchAccountPage: View {
                     .foregroundStyle(.orange)
                 }
 
+                if state.account.provider == .jetBrainsAI, !isDemoMode {
+                    Button("在此 Watch 导入授权") { showingJetBrainsImport = true }
+                        .disabled(monitor.configuration(for: state.id)?.credentialIdentity == nil)
+                }
                 if state.account.provider == .nousPortal, !isDemoMode {
                     Button("连接此 Watch") { showingNousAuthorization = true }
                         .disabled(monitor.configuration(for: state.id)?.credentialIdentity == nil)
@@ -282,6 +287,15 @@ private struct WatchAccountPage: View {
                     }
                 }
                 .disabled(isRefreshing)
+            }
+        }
+        .sheet(isPresented: $showingJetBrainsImport) {
+            if let identity = monitor.configuration(for: state.id)?.credentialIdentity {
+                JetBrainsImportView(accountID: state.id, expectedIdentity: identity, bindCredential: { value in
+                    guard monitor.configuration(for: state.id)?.credentialIdentity == identity else { return false }
+                    await monitor.replaceCredential(value, accountID: state.id, expectedIdentity: identity)
+                    return monitor.configuration(for: state.id)?.credentialIdentity == identity
+                }, completion: { _ in })
             }
         }
         .sheet(isPresented: $showingNousAuthorization) {

@@ -1,0 +1,67 @@
+{
+  "binarySHA256": "07d76becc367762e31f59ecbf744a967ce5ef1cbf395b4fc05835e6fb244a042",
+  "constants": {
+    "originalPublicClient": {
+      "address": "0xe6e2d1",
+      "length": 11,
+      "value": "central-cli"
+    },
+    "productionAIAuthBase": {
+      "address": "0xe79df8",
+      "length": 22,
+      "value": "https://auth.grazie.ai"
+    },
+    "productionOAuthBase": {
+      "address": "0xe891c9",
+      "length": 35,
+      "value": "https://oauth.account.jetbrains.com"
+    },
+    "productionQuotaBase": {
+      "address": "0xe7c24d",
+      "length": 24,
+      "value": "https://api.jetbrains.ai"
+    },
+    "providePathFormat": {
+      "address": "0xe961ab",
+      "length": 47,
+      "value": "%s/auth/jetbrains-jwt/provide-access/license/v2"
+    },
+    "registerPathFormat": {
+      "address": "0xe83b02",
+      "length": 30,
+      "value": "%s/auth/jetbrains-jwt/register"
+    },
+    "tokenPathFormat": {
+      "address": "0xe72466",
+      "length": 15,
+      "value": "%s/oauth2/token"
+    }
+  },
+  "functionValues": {
+    "completeLicenseLogin.signIn": {
+      "functionValue": "0xed5330",
+      "slot": "0x16b1d58",
+      "target": "0x8ec240"
+    },
+    "fallback.JBARefresh": {
+      "functionValue": "0xed5318",
+      "slot": "0x16b1cc0",
+      "target": "0x8eb1c0"
+    },
+    "fallback.SignInJBAI": {
+      "functionValue": "0xed5330",
+      "slot": "0x16b1cd0",
+      "target": "0x8ec240"
+    },
+    "fallback.fastAIRefresh": {
+      "functionValue": "0xed5320",
+      "slot": "0x16b1cc8",
+      "target": "0x8eb540"
+    },
+    "importJCPTransfer.refresh": {
+      "functionValue": "0xed5318",
+      "slot": "0x16b1e00",
+      "target": "0x8eb1c0"
+    }
+  }
+}

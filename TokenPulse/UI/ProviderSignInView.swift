@@ -12,7 +12,9 @@ struct ProviderSignInView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if provider == .gemini {
+                if provider == .jetBrainsAI {
+                    JetBrainsImportView(accountID: accountID, completion: completion)
+                } else if provider == .gemini {
                     GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, validateProject: GeminiProviderClient.validateConfiguredProject, complete: { callback, pending, id, project in
                         try await GeminiProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
                             .authorize(callback: callback, session: pending, accountID: id, configuredProject: project)

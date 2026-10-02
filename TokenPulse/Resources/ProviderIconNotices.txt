@@ -1775,3 +1775,5 @@ Copyright (c) 2023 LobeHub
 License: MIT (full text above). Monochrome template adaptation.
 
 Nous Portal SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit 03fa842d9a4aae31437b6ebd5aa7ca8de7180acc, packages/static-svg/icons/nousresearch.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. currentColor changed to black and explicit 24x24 dimensions added; vector paths unchanged.
+
+JetBrains AI uses the platform SF Symbol terminal as a generic tool indicator, not a copied JetBrains mark. Official JetBrains/logos commit 3f21b4a2eeaf930823c8987c373feb49e4c58753, web/jetbrains/icon.svg and LICENSE.txt, were checked: those marks require original colors and additional commercial-use permission, which does not fit tinted template packaging. The fixed Lobe Icons 79b551cf26aab9ea4ac701fb807160950a5b860f tree supplies Junie product marks, but no JetBrains AI/account-wide mark. No external JetBrains artwork is imported.

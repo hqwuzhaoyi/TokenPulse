@@ -43,7 +43,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
-            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"), (.nousPortal, "Nous Portal"),
+            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"), (.nousPortal, "Nous Portal"), (.jetBrainsAI, "JetBrains AI"),
             (.xiaomiCodingPlan, "小米月度套餐与余额"), (.qoderChina, "Qoder 国内个人与团队"), (.ollamaCloud, "Ollama Cloud"), (.longCat, "LongCat Token 与燃料包"),
             (.abacus, "Abacus AI"),
             (.perplexity, "Perplexity API"),
@@ -221,6 +221,12 @@ enum DemoMode {
             window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
             QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
                         usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
+        ]
+        case .jetBrainsAI: [
+            QuotaWindow(id: "jetbrains.tariff", name: "订阅额度", scope: nil, usedPercentage: 42,
+                remainingCount: 5.8, totalCount: 10, resetsAt: now.addingTimeInterval(12 * 86400), unit: "AI credits"),
+            QuotaWindow(id: "jetbrains.topup", name: "额外额度", scope: nil, usedPercentage: 20,
+                remainingCount: 4, totalCount: 5, resetsAt: nil, unit: "AI credits", resetSemantics: .nonResettingAllowance),
         ]
         case .nousPortal: [
             QuotaWindow(id: "nous.subscription", name: "订阅 credits", scope: nil, period: .monthly, usedPercentage: 25,

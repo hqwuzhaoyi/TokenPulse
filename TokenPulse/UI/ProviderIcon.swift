@@ -87,6 +87,7 @@ extension Provider {
         case .manus: "ProviderManus"
         case .windsurf: "ProviderWindsurf"
         case .nousPortal: "ProviderNousPortal"
+        case .jetBrainsAI: nil
         case .replicate: "ProviderReplicate"
         case .mistral: "ProviderMistral"
         case .sakana: "ProviderSakana"
@@ -96,6 +97,7 @@ extension Provider {
 
     var systemIconName: String? {
         switch self {
+        case .jetBrainsAI: "terminal"
         case .typeSafe: "puzzlepiece.extension.fill"
         case .raycastAI: "sparkles"
         case .t3Chat: "bubble.left.and.bubble.right.fill"

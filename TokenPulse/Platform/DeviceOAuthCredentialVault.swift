@@ -58,13 +58,31 @@ actor DeviceOAuthCredentialVault {
     static let shared = DeviceOAuthCredentialVault()
     nonisolated let deviceID: String
     private let records: any DeviceOAuthRecordStoring
+    private static let grantLedgerID = UUID(uuidString: "A68A0000-0000-0000-0000-000000000001")!
     init(records: any DeviceOAuthRecordStoring = KeychainDeviceOAuthRecords(), deviceID: String = DeviceOAuthIdentity.id) {
         self.records = records
         self.deviceID = deviceID
     }
     func version(for accountID: UUID) throws -> DeviceCredentialVersion {
+        guard accountID != Self.grantLedgerID else { throw ProviderIntegrationError.invalidCredentialData }
         guard let data = try records.read(accountID) else { return .init(credential: nil, generation: 0) }
         return try JSONDecoder().decode(DeviceCredentialVersion.self, from: data)
+    }
+    /// Only high-entropy refresh-token digests are retained, including after account deletion.
+    /// This prevents local replay under another UUID; it is not a global cross-device family lock.
+    func reserveGrantMarker(_ marker: String, accountID: UUID) throws -> Bool {
+        guard accountID != Self.grantLedgerID,
+              marker.range(of: #"\A[0-9a-f]{64}\z"#, options: .regularExpression) != nil else { throw RefreshFailure.invalidCredential }
+        var ledger: [String: UUID] = [:]
+        if let data = try records.read(Self.grantLedgerID) { ledger = try JSONDecoder().decode([String: UUID].self, from: data) }
+        if let owner = ledger[marker] {
+            guard owner == accountID else { throw RefreshFailure.invalidCredential }
+            return false
+        }
+        guard ledger.count < 4_096 else { throw RefreshFailure.invalidCredential }
+        ledger[marker] = accountID
+        try records.write(JSONEncoder().encode(ledger), for: Self.grantLedgerID)
+        return true
     }
     func save(_ credential: String, for accountID: UUID) throws {
         let current = try version(for: accountID)
@@ -99,10 +117,22 @@ struct ProviderScopedCredentialStore: CredentialStoring, DeviceOAuthVaultProvidi
         self.deviceOAuthVault = deviceOAuthVault
     }
     func save(_ credential: String, for accountID: UUID, provider: Provider) async throws {
-        if provider == .nousPortal {
+        if provider.requiresDeviceLocalCredential {
             let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
-            try NousPortalCredential.validateLocal(envelope, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
-            try await deviceOAuthVault.save(credential, for: accountID)
+            if provider == .jetBrainsAI {
+                try JetBrainsCredential.validateLocal(envelope, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
+                // Import already checkpointed the grant. A UI handoff must never overwrite a later rotation.
+                let current = try await deviceOAuthVault.version(for: accountID)
+                guard let stored = current.credential else { throw RefreshFailure.invalidCredential }
+                let latest = try ProviderCredentialEnvelope.decode(stored, expectedProvider: provider)
+                try JetBrainsCredential.validateLocal(latest, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
+                guard latest.metadata["grantMarker"] == envelope.metadata["grantMarker"],
+                      try JetBrainsCredential.fingerprint(latest) == JetBrainsCredential.fingerprint(envelope) else { throw RefreshFailure.invalidCredential }
+                // Acknowledge the existing generation, including newer in-progress refresh checkpoints.
+            } else {
+                try NousPortalCredential.validateLocal(envelope, accountID: accountID, deviceID: deviceOAuthVault.deviceID)
+                try await deviceOAuthVault.save(credential, for: accountID)
+            }
         } else {
             // Call-site context cannot override the actual secret's distribution policy.
             guard !Self.isDeviceOnlyEnvelope(credential) else { throw ProviderIntegrationError.invalidCredentialData }
@@ -110,17 +140,19 @@ struct ProviderScopedCredentialStore: CredentialStoring, DeviceOAuthVaultProvidi
         }
     }
     func credential(for accountID: UUID, provider: Provider) async throws -> String? {
-        if provider == .nousPortal { return try await deviceOAuthVault.version(for: accountID).credential }
+        if provider.requiresDeviceLocalCredential { return try await deviceOAuthVault.version(for: accountID).credential }
         return try await synchronized.credential(for: accountID)
     }
     func deleteCredential(for accountID: UUID, provider: Provider) async throws {
-        if provider == .nousPortal { try await deviceOAuthVault.delete(for: accountID) }
+        if provider.requiresDeviceLocalCredential { try await deviceOAuthVault.delete(for: accountID) }
         else { try await synchronized.deleteCredential(for: accountID) }
     }
     // Unscoped methods are retained only for API compatibility; product call sites pass provider explicitly.
     func save(_ credential: String, for accountID: UUID) async throws {
         if Self.isDeviceOnlyEnvelope(credential) {
-            try await save(credential, for: accountID, provider: .nousPortal)
+            struct Header: Decodable { let provider: Provider }
+            let provider = try JSONDecoder().decode(Header.self, from: Data(credential.utf8)).provider
+            try await save(credential, for: accountID, provider: provider)
         } else { try await synchronized.save(credential, for: accountID) }
     }
     func credential(for accountID: UUID) async throws -> String? {
@@ -133,6 +165,6 @@ struct ProviderScopedCredentialStore: CredentialStoring, DeviceOAuthVaultProvidi
     }
     private static func isDeviceOnlyEnvelope(_ credential: String) -> Bool {
         guard let data = credential.data(using: .utf8), let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return false }
-        return object["provider"] as? String == Provider.nousPortal.rawValue
+        return (object["provider"] as? String).flatMap(Provider.init(rawValue:))?.requiresDeviceLocalCredential == true
     }
 }

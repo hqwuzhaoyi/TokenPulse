@@ -142,7 +142,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider.requiresGatewayAddress { self.transport = GatewayProviderTransport() }
-        else if provider.webLoginProfile != nil || [.antigravity, .gemini, .grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider.webLoginProfile != nil || [.jetBrainsAI, .antigravity, .gemini, .grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -255,6 +255,8 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .v0:
             return try await V0ProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .jetBrainsAI:
+            return try await JetBrainsProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .nousPortal:
             return try await NousPortalProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .windsurf:
@@ -392,6 +394,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func loginConfiguration(for provider: Provider) -> ProviderLoginConfiguration {
         switch provider {
+        case .jetBrainsAI:
+            return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .gemini:
             return .init(provider: provider, method: .authorizationCode, credentialLabel: nil)
         case .miniMaxChina:
@@ -538,6 +542,8 @@ struct ProviderAuthenticationController: Sendable {
             throw ProviderIntegrationError.unsupportedLogin("请配置自己的 Google iOS OAuth Client ID 后授权")
         case .antigravity:
             throw ProviderIntegrationError.unsupportedLogin("请通过自有 iOS Google Client ID 完成原生授权")
+        case .jetBrainsAI:
+            throw ProviderIntegrationError.unsupportedLogin("请主动导入官方 Central login export")
         case .nousPortal:
             guard let accountID else { throw ProviderIntegrationError.invalidCredentialData }
             return try await NousPortalAuthenticator(transport: nousTransport, now: now).begin(accountID: accountID)
@@ -591,6 +597,8 @@ struct ProviderAuthenticationController: Sendable {
         switch session.provider {
         case .nousPortal:
             return try await NousPortalAuthenticator(transport: nousTransport, now: now).poll(session)
+        case .jetBrainsAI:
+            throw ProviderIntegrationError.unsupportedLogin("请主动导入官方 Central login export")
         case .gemini:
             throw ProviderIntegrationError.unsupportedLogin("请使用 Google 原生授权界面完成配置")
         case .antigravity:
@@ -620,6 +628,8 @@ struct ProviderAuthenticationController: Sendable {
         case .antigravity:
             let updated = try await AntigravityProviderClient(transport: transport, now: now).refreshed(envelope)
             return .init(credential: updated == envelope ? credential : try updated.encoded(), changed: updated != envelope)
+        case .jetBrainsAI:
+            return .init(credential: credential, changed: false)
         case .nousPortal:
             // The local coordinator persists each rotated chain with generation CAS.
             return .init(credential: credential, changed: false)
