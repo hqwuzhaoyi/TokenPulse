@@ -198,6 +198,7 @@ extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
         case .replicate: ReplicateProviderClient.loginProfile
+        case .mistral: MistralProviderClient.loginProfile
         default: nil
         }
     }

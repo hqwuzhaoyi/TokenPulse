@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE2000000000000000000215 /* MistralProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000212; };
+		AE2000000000000000000214 /* MistralProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000211; };
+		AE2000000000000000000213 /* MistralProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000211; };
 		AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000202; };
 		AE2000000000000000000204 /* ReplicateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000201; };
 		AE2000000000000000000203 /* ReplicateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000201; };
@@ -315,6 +318,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AE2000000000000000000212 /* MistralProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/MistralProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000211 /* MistralProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/MistralProvider.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000202 /* ReplicateProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplicateProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000201 /* ReplicateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ReplicateProvider.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000001 /* ClawRouterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClawRouterProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -587,6 +592,7 @@
 
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
 				AE2000000000000000000001 /* CommandCodeProvider.swift */,
+				AE2000000000000000000211 /* MistralProvider.swift */,
 				AE2000000000000000000201 /* ReplicateProvider.swift */,
 				AE2000000000000000000031 /* HuggingFaceProvider.swift */,
 				AE2000000000000000000021 /* GitKrakenProvider.swift */,
@@ -630,6 +636,7 @@
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
+				AE2000000000000000000212 /* MistralProviderTests.swift */,
 				AE2000000000000000000202 /* ReplicateProviderTests.swift */,
 				AE2000000000000000000032 /* HuggingFaceProviderTests.swift */,
 				AE2000000000000000000022 /* GitKrakenProviderTests.swift */,
@@ -932,6 +939,7 @@
                 C02200000000000000000023 /* DevPassProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000213 /* MistralProvider.swift in Sources */,
 				AE2000000000000000000203 /* ReplicateProvider.swift in Sources */,
 				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
 				AE2000000000000000000023 /* GitKrakenProvider.swift in Sources */,
@@ -979,6 +987,7 @@
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
+				AE2000000000000000000215 /* MistralProviderTests.swift in Sources */,
 				AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */,
 				AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */,
 				AE2000000000000000000025 /* GitKrakenProviderTests.swift in Sources */,
@@ -1073,6 +1082,7 @@
                 C02200000000000000000024 /* DevPassProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000214 /* MistralProvider.swift in Sources */,
 				AE2000000000000000000204 /* ReplicateProvider.swift in Sources */,
 				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,
 				AE2000000000000000000024 /* GitKrakenProvider.swift in Sources */,

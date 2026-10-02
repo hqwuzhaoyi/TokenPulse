@@ -1,6 +1,6 @@
 # 54: Replicate 预付钱包
 
-**Status:** complete
+**Status:** done
 
 **Type:** integration
 
