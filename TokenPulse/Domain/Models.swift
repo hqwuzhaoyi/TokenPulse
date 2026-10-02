@@ -40,7 +40,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case warp, v0, devPass
     case raycastAI, t3Chat, zoomMate, qwenCloud, typeSafe
     case devin, manus, windsurf
-    case replicate, mistral, sakana
+    case replicate, mistral, sakana, kiro
     case xiaomiCodingPlan, qoderChina, ollamaCloud, longCat
     case notionAI
     case perplexity
@@ -127,6 +127,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .replicate: "Replicate"
         case .mistral: "Mistral"
         case .sakana: "Sakana AI"
+        case .kiro: "Kiro"
         case .xiaomiCodingPlan: "小米 Coding Plan"
         case .qoderChina: "Qoder 国内版"
         case .ollamaCloud: "Ollama Cloud"

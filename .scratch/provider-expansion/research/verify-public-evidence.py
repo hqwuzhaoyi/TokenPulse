@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Re-read locked public GitHub source; never access provider credentials or login.
+"""Re-read locked public GitHub source and release assets; never access credentials or login.
 
 Run: python3 .scratch/provider-expansion/research/verify-public-evidence.py
-Only GETs of fixed public source paths are made (gh API fallback on CDN rate limit). No source
+Only GETs of fixed public source paths/release URLs are made (gh fallback on GitHub rate limit). No source
 body, OAuth constants, account data, or credential values are printed or stored.
 This verifies research provenance, not API compatibility or account acceptance.
 """
@@ -27,14 +27,16 @@ def main():
             parser.error("Repository is not in the public source lock")
     failed = 0
     for entry in entries:
-        url = "https://raw.githubusercontent.com/{repo}/{commit}/{path}".format(**entry)
+        url = entry.get("url") or "https://raw.githubusercontent.com/{repo}/{commit}/{path}".format(**entry)
         try:
             request = Request(url, headers={"User-Agent": "TokenPulse-public-source-audit"})
             try:
                 with urlopen(request, timeout=20) as response:
-                    content = response.read()
+                    content = response.read(16_000_001)
+                    if len(content) > 16_000_000:
+                        raise ValueError("Public source exceeds bounded audit size")
             except HTTPError as error:
-                if error.code != 429:
+                if error.code != 429 or entry.get("url"):
                     raise
                 route = "repos/{repo}/contents/{path}?ref={commit}".format(**entry)
                 result = subprocess.run(

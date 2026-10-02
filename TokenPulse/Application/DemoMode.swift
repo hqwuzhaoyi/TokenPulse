@@ -37,7 +37,7 @@ enum DemoMode {
             (.amp, "Amp"),
             (.replicate, "Replicate"),
             (.mistral, "Mistral"),
-            (.sakana, "Sakana AI"),
+            (.sakana, "Sakana AI"), (.kiro, "Kiro"),
             (.gitKraken, "GitKraken AI"),
             (.huggingFace, "Hugging Face ZeroGPU"),
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
@@ -434,6 +434,13 @@ enum DemoMode {
         ]
         case .alibabaTokenPlan: [window("alibabaTokenPlan.fiveHour", "5 小时额度", .fiveHour, 25, scope: "Personal Token Plan"), window("alibabaTokenPlan.weekly", "每周额度", .weekly, 62, scope: "Personal Token Plan")]
         case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
+        case .kiro: [
+            QuotaWindow(id: "kiro.CREDIT.monthly", name: "Credits（订阅额度）", scope: nil, period: .monthly,
+                usedPercentage: 42.5, remainingCount: 575, totalCount: 1000, resetsAt: now.addingTimeInterval(12 * 86400), unit: "credits"),
+            QuotaWindow(id: "kiro.CREDIT.trial", name: "Credits（试用）", scope: nil,
+                usedPercentage: 10, remainingCount: 90, totalCount: 100, resetsAt: nil, unit: "credits",
+                expiresAt: now.addingTimeInterval(7 * 86400), resetSemantics: .nonResettingAllowance),
+        ]
         case .sakana: [
             QuotaWindow(id: "sakana.five-hour", name: "5-hour allowance", scope: nil, period: .fiveHour,
                         usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(2 * 3_600)),

@@ -111,6 +111,7 @@ extension ProviderCredentialEnvelope {
 
     var sourceCredentialIdentity: String? {
         if provider == .gemini { return try? GeminiProviderClient.fingerprint(self) }
+        if provider == .kiro { return try? KiroProviderClient.sourceIdentity(self) }
         if [.factory, .devPass, .v0, .warp].contains(provider), kind != .apiKey { return nil }
         if provider == .claude { return try? ClaudeWebSession.fingerprint(self) }
         if kind == .session, metadata["webSessionFormat"] == "v1" { return try? WebProviderSession.fingerprint(self) }

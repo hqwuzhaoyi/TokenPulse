@@ -54,6 +54,8 @@ ProviderNotionAI: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b
 
 ProviderAntigravity: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/antigravity.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
 
+ProviderKiro: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/kiro.svg, Copyright (c) 2023 LobeHub, MIT License (included below). The official kirodotdev/kiro repository was checked and did not establish a licensed reusable SVG; the existing Lobe source is used. Changes: black template fill, explicit 24x24 dimensions, vector preservation.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

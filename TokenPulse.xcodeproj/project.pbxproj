@@ -18,8 +18,13 @@
 		57F000000000000000000102 /* DevinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000100; };
 		57F000000000000000000104 /* DevinProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000103; };
 		AE2000000000000000000225 /* SakanaProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000222; };
+		AE2000000000000000000645 /* KiroProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000642; };
 		AE2000000000000000000224 /* SakanaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000221; };
+		AE2000000000000000000644 /* KiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000641; };
+		AE2000000000000000000648 /* KiroCBOR.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000646; };
 		AE2000000000000000000223 /* SakanaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000221; };
+		AE2000000000000000000643 /* KiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000641; };
+		AE2000000000000000000647 /* KiroCBOR.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000646; };
 		AE2000000000000000000215 /* MistralProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000212; };
 		AE2000000000000000000214 /* MistralProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000211; };
 		AE2000000000000000000213 /* MistralProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000211; };
@@ -413,7 +418,10 @@
 		57F000000000000000000100 /* DevinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DevinProvider.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000103 /* DevinProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DevinProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000222 /* SakanaProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SakanaProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000642 /* KiroProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KiroProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000221 /* SakanaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SakanaProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000641 /* KiroProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KiroProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000646 /* KiroCBOR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KiroCBOR.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000212 /* MistralProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/MistralProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000211 /* MistralProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/MistralProvider.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000202 /* ReplicateProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplicateProviderTests.swift; sourceTree = SOURCE_ROOT; };
@@ -766,6 +774,8 @@
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
 				AE2000000000000000000001 /* CommandCodeProvider.swift */,
 				AE2000000000000000000221 /* SakanaProvider.swift */,
+				AE2000000000000000000641 /* KiroProvider.swift */,
+				AE2000000000000000000646 /* KiroCBOR.swift */,
 				AE2000000000000000000211 /* MistralProvider.swift */,
 				AE2000000000000000000201 /* ReplicateProvider.swift */,
 				AE2000000000000000000031 /* HuggingFaceProvider.swift */,
@@ -836,6 +846,7 @@
 				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
 				AE2000000000000000000222 /* SakanaProviderTests.swift */,
+				AE2000000000000000000642 /* KiroProviderTests.swift */,
 				AE2000000000000000000212 /* MistralProviderTests.swift */,
 				AE2000000000000000000202 /* ReplicateProviderTests.swift */,
 				AE2000000000000000000032 /* HuggingFaceProviderTests.swift */,
@@ -1173,6 +1184,8 @@
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
 				AE2000000000000000000223 /* SakanaProvider.swift in Sources */,
+				AE2000000000000000000643 /* KiroProvider.swift in Sources */,
+				AE2000000000000000000647 /* KiroCBOR.swift in Sources */,
 				AE2000000000000000000213 /* MistralProvider.swift in Sources */,
 				AE2000000000000000000203 /* ReplicateProvider.swift in Sources */,
 				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
@@ -1238,6 +1251,7 @@
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
 				AE2000000000000000000225 /* SakanaProviderTests.swift in Sources */,
+				AE2000000000000000000645 /* KiroProviderTests.swift in Sources */,
 				AE2000000000000000000215 /* MistralProviderTests.swift in Sources */,
 				AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */,
 				AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */,
@@ -1371,6 +1385,8 @@
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
 				AE2000000000000000000224 /* SakanaProvider.swift in Sources */,
+				AE2000000000000000000644 /* KiroProvider.swift in Sources */,
+				AE2000000000000000000648 /* KiroCBOR.swift in Sources */,
 				AE2000000000000000000214 /* MistralProvider.swift in Sources */,
 				AE2000000000000000000204 /* ReplicateProvider.swift in Sources */,
 				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,

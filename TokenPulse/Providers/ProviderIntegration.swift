@@ -201,6 +201,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .kiro:
+            return try await KiroProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .sakana:
             return try await SakanaProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -479,7 +482,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude, .stepFun, .cursor, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+        case .claude, .stepFun, .cursor, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .kiro, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -570,7 +573,7 @@ struct ProviderAuthenticationController: Sendable {
             throw ProviderIntegrationError.unsupportedLogin("请在隔离控制台浏览器中登录")
         case .cursor, .abacus, .perplexity, .notionAI:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成登录")
-        case .replicate, .mistral, .sakana, .stepFun, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe:
+        case .replicate, .mistral, .sakana, .kiro, .stepFun, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
         case .openAIAPI, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
@@ -583,7 +586,7 @@ struct ProviderAuthenticationController: Sendable {
             throw ProviderIntegrationError.unsupportedLogin("请使用 Google 原生授权界面完成配置")
         case .antigravity:
             throw ProviderIntegrationError.unsupportedLogin("请在原生 Google 授权页完成回调")
-        case .replicate, .mistral, .sakana:
+        case .replicate, .mistral, .sakana, .kiro:
             throw ProviderIntegrationError.unsupportedLogin("Use the account-isolated web login view")
         case .copilot:
             return try await CopilotProviderAuthenticator(transport: transport, now: now).poll(session)
@@ -618,7 +621,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .kiro, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(credential: credential, changed: false)
         }
     }

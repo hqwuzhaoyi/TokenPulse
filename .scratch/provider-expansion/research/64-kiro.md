@@ -1,38 +1,78 @@
-# 64 Kiro：远程额度与认证研究
+# 64 Kiro：官方 portal 独立 HTTPS 路线
 
-调查日期：2026-10-02。结论：**固定 Pulse ACP 路线在当前 ADR 下不可接入；脱离 CLI 的移动端 quota API 仍未建立契约**。官方支持手机浏览器完成 CLI 授权，与手机原生持有凭证并查询额度是不同能力。
+调查更新：2026-10-03。**已从官方公开网页 release 建立个人账号认证、额度查询和续期的原生 HTTPS 契约，并实现 `.kiro` provider。** 固定 Pulse 的本地 ACP 路线仍不可用于设备直连，但它不再是 Kiro 唯一可证实的查询入口。
 
-## 来源与版本
+用户当前验收口径是实现与图标存在。未进行真实登录、账号对照或 Watch 实机观察；这些是未观察事实，不是本票关闭的硬门槛。完整 iOS XCTest 和 unsigned 全目标构建交给主线程执行，本文不把小模块测试当成这些构建的通过证明。
 
-- [Pulse Kiro 文档](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/kiro.md)、[ACP transport](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/KiroACPClient.swift)、[usage parser](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/KiroUsageService.swift)，均为固定 commit `397c8fc4f1bd52180a452d2f3f0c099def97cf69`。上游记录 CLI 2.22.1 / ACP agent server 0.66.4 与同账号 `/usage` 对照成功，属于 Mac CLI 证据。
-- [Kiro 官方认证](https://kiro.dev/docs/getting-started/authentication/)与[CLI 命令](https://kiro.dev/docs/reference/cli-commands/)，调查日公开文档：Builder ID、Identity Center、Google、GitHub 的 CLI device flow。
-- [Kiro 官方 headless](https://kiro.dev/docs/cli/headless/)和[FAQ](https://kiro.dev/faq/)：当前 API key 用于原生 headless 工作流；额度面板显示 monthly credits，后台更新可延迟。
-- 调查了 AWS 官方前身 [amazon-q-developer-cli](https://github.com/aws/amazon-q-developer-cli/tree/15cc8f3cd18c4272925ce1c7053268eedff1ea0a) 源码树，包含 `amzn-codewhisperer-client` 的 `get_usage_limits`。它不是当前 Kiro CLI 的可用性、客户端注册或额度账号映射证明，本报告不把它作为 Kiro 可执行路由。
+## 新增官方证据与锁定版本
 
-## 已确认的契约
+- [Kiro Web Portal](https://app.kiro.dev) 的匿名首页公开 `cdn-base-url` release `7641e207feab0c25`，并加载同版本 main/vendor。首页每次有 nonce，不能把动态首页哈希当作可重取的静态版本锁。
+- [官方 main.js](https://assets.app.kiro.dev/releases/7641e207feab0c25/main.js)：614703 bytes，SHA-256 `38176f7972d2e0a24f8f856eabc044f335bf5afc8548f8040ec0e175feea11ff`。`is` hook 调用 `useGetUserUsageAndLimits`；`r9/c9` 添加 Bearer/CSRF；`A9` 在认证失败后调用 RefreshToken 并重试；`Md` 明确个人登录方式的 production profile；`tT` 为 SDK 设置 BFF endpoint 和 credentials include。
+- [官方 vendor.js](https://assets.app.kiro.dev/releases/7641e207feab0c25/vendor.js)：3900540 bytes，SHA-256 `610e1a0770e6b325eef96bd09b071f07cbf38c3e6d018c0fbb0a9bf1799e0e78`。`YKn`/`KIRO_STAGE_TO_BFF_ENDPOINT_MAPPING` 定义 production 为 `https://app.kiro.dev`；`gFe/m_` 定义 POST、CBOR 与 operation 路由；`ut=S3(...,"KiroWebPortalService",...)` 定义 service 名；`gpt/i1t/Spt` 是 GetToken/RefreshToken/GetUserUsageAndLimits 的正式 schema。
+- [Kiro 官方认证文档](https://kiro.dev/docs/getting-started/authentication/)说明个人 Google、GitHub、Builder ID 与企业登录方式；本次实施只支持默认 production portal 的前三种个人会话。ExternalOIDC、Identity Center 和其它区域不自动兜底到个人账号。
+- [官方 ACP migration](https://kiro.dev/docs/cli/v3/acp-migration/)现已明确 `_kiro/account/getUsage` 供 `/usage` 使用。它仍是 ACP，不是 HTTPS URL；相较旧调查，这是公开程度变化，不是移动端协议本身。
 
-Pulse 启动短生命周期本地子进程 `kiro-cli acp --agent-engine v3`，通过 stdin/stdout 完成 ACP 初始化，再调用 `_kiro/account/getUsage`。它是本地 JSON-RPC extension，不是 HTTPS 云端 URL，也没有携带 API key 的云端 HTTP 契约。认证和续期都由 Kiro CLI 负责，Pulse 不读取 SQLite、Keychain 或 access token。
+main/vendor 和固定 Lobe 图标已加入 `public-source-lock.json`。2026-10-03 实际重新 GET 两份 release asset，锁校验 2/2 通过。仓库不保存大 bundle。
 
-返回外层 `success/message/data`；data 有 `planName`、`billingCycleReset` 和 `usageBreakdowns[]`。池字段为 `resourceType/displayName/used/limit/percentage/hasLimit`。只有有界正 limit 才画窗口，优先实际 used，否则 percentage/100×limit；stable ID 基于 provider resource type，而非数组序号。billing reset 是日期，不能据此声称固定 30 天长度。该 schema 只说明 ACP 输出，不能据它推断云端 request body。
+## 可实施的线上 wire 契约
 
-## 手机认证、续期和平台限制
+所有原生请求只发往 `https://app.kiro.dev`。SDK 的默认协议是 `smithy.protocols#rpcv2Cbor`，不是 AWS JSON target dispatch，也不是把 ACP method 拼成云端路径。
 
-官方 device flow 说明 CLI 展示 URL/code，用户可在手机浏览器确认，CLI 自己轮询并持有 session。文档没有给 TokenPulse 可注册的 OAuth client、注册 scopes、device/token HTTP 契约、个人订阅额度远程 endpoint 或 Watch refresh 规则。当前 headless API key 对指定付费套餐可用，不代表 key 被准许读取 subscription dashboard；没有使用真实 key 测试额度权限。
+| 操作 | POST 路径 | CBOR body | 返回字段 |
+| --- | --- | --- | --- |
+| GetToken | `/service/KiroWebPortalService/operation/GetToken` | 空 map | `accessToken` |
+| RefreshToken | `/service/KiroWebPortalService/operation/RefreshToken` | `csrfToken` | `accessToken, csrfToken, expiresIn, profileArn`（schema 可选字段不补默认值） |
+| GetUserUsageAndLimits | `/service/KiroWebPortalService/operation/GetUserUsageAndLimits` | `isEmailRequired: true, origin: "KIRO_IDE", profileArn` | `usageBreakdownList, nextDateReset, subscriptionInfo`，另有旧 `usageBreakdown/limits` 与 overage 字段 |
 
-FAQ 中第三方 harness 推理使用有明确原生接口边界。TokenPulse 只读额度的产品许可需独立确认；不能从 headless 推理能力或前身 AWS SDK 得出第三方 quota 许可。
+请求头为 Cookie、`Content-Type/Accept: application/cbor`、`smithy-protocol: rpc-v2-cbor`、`X-CSRF-Token`、`x-kiro-userid`；额度请求另带 GetToken 返回的 Bearer。官方 client 的 profile middleware 把个人 profileArn 加入 CBOR body。
 
-遵守 [设备直连 ADR](../../../docs/adr/0001-device-side-refresh.md)。手机/Watch 不能运行此 Mac CLI ACP，Mac 常驻代查、CLIProxyAPI、推送快照不满足 ADR。
+2026-10-03 对公开 GetToken 路由做了一次**不携带 Cookie、CSRF 或任何凭证**的只读空 map POST。实际 HTTP 400、`application/cbor`、`smithy-protocol: rpc-v2-cbor`，响应类型 BadRequestException、消息为 CSRF token required。这验证路由与序列化协议被真实服务识别，**不证明登录后额度请求成功**。匿名错误使用 break 终止 CBOR map，因此 codec 支持有界 map/array indefinite containers，拒绝 indefinite strings、byte chunks、重复 keys、超长/深层/过量节点、非有限浮点与未知 tags。
 
-- 已证实：Pulse 本地 ACP 获取 bounded credit pools；官方 CLI 有 device 授权和自身 token 生命周期。
-- 不可行：原样移植 Pulse ACP/local CLI 架构到手机/Watch 的直连 provider。
-- 未验证：官方认可第三方原生 quota 客户端是否存在，API key 是否能查询订阅池、如何续期/绑定订阅账号。没有证据证明 Kiro 绝无远程 API。
+匿名路由可复现：构造 `Data([0xa0])`（空 map），仅设置上述三项协议头，向固定 GetToken URL POST；不要设置 Authorization/Cookie/CSRF，不要调用推理、购买、登录或账户变更方法。
 
-## 可重复的最小验证（本次未执行账号步骤）
+## 会话、身份与续期
 
-1. 通过固定源码核对 `_kiro/account/getUsage` 是 ACP method，而非网络 endpoint；同目录 public-evidence 脚本可重取。
-2. 先从供应商或可审核的当前官方客户端取得移动端 client 注册、token 与 quota HTTP 契约。缺任一项停止，不猜 AWS hostname/path，不拿 ACP method 拼 URL。
-3. 使用为 TokenPulse 建立的独立测试授权或明确支持的只读 key，iPhone 只读取 credits；记录套餐、各 resource ID、used/limit、账期日期和采样时间，与官方 `/usage` 对照。
-4. Watch 接收自己的可用凭证，手机离线、CLI 停止后直接读取；跨过 token 过期验证续期。记录设备/OS、状态码与脱敏额度字段。
-5. 验证撤销、无额度套餐、不同登录方式和地区不会错误关联账号或将缓存显示成 live。
+账号专属非持久 WKWebView 让用户登录官方 portal；只导出 `app.kiro.dev/kiro.dev`、根路径可用的 Cookie，排除统计前缀与其它站点。此公开 bundle 没给客户端读取的 auth cookie 名，所以没有猜单一 cookie 名：导出 scope 后用原生 GET 首页核验 head 中的 stage、个人 idp、user-id、CSRF，继而由额度查询验证会话；不能只凭某个 Cookie 的存在宣布已登录。
 
-无官方移动端 quota 契约、独立授权账号及 Watch 实机，票据保留**未验收**。只有上述纵向实验通过才拆正式实施票；届时要包含登录方式、订阅身份、resource 稳定性、日期语义、凭证失效、UI/组件/提醒及双端独立验收。
+原生 GET 首页不运行 JS。元数据只来自去掉 scripts/styles/comments 后的 head，重复或不完整字段拒绝。user-id 是个人身份；profileArn 是官方公开服务 profile，不能拿它当个人 ID。source identity 为 origin/local account UUID/已核验 user-id/profileArn/idp 的哈希。每次查询重新验证身份相同。Cookie 内容仍由 generic envelope 指纹保护，但轮换不会改变缓存的个人 scope；AccountQuotaClient 保存轮换凭证后，QuotaMonitor 仍能接纳同一账号的快照。
+
+每次刷新先获得新的短期 Bearer，Bearer/CSRF 不持久化或伪装成永久 API key。401 只触发一次该阶段的官方 RefreshToken 重试，缺字段、scope 改变或再次失败要求重新登录。原生响应的根路径 secure Set-Cookie 在当前账号 jar 内按 name 替换/删除；逐 Cookie 的已知到期表写入 envelope metadata，并重算最早到期。新 expiry 替换旧 expiry，不使用 `min(old,new)` 把续期锁在旧期限。没有服务器到期信息的浏览器 session Cookie 保持 unknown，依靠服务的认证结果失效；不编造永久有效期。撤销和完整生命周期尚未通过真实账号观察。
+
+## 额度语义
+
+解析主路径是明确的 `usageBreakdownList`，不回退猜测 ACP response。主要 decoded shape 如下（是字段契约示意，不是实际用户响应）：
+
+```json
+{
+  "subscriptionInfo": { "subscriptionTitle": "string" },
+  "nextDateReset": "CBOR tag 1 epoch timestamp",
+  "usageBreakdownList": [{
+    "resourceType": "CREDIT or SANDBOX_RUNTIME",
+    "displayNamePlural": "string", "unit": "string",
+    "currentUsage": "number?", "currentUsageWithPrecision": "number?",
+    "usageLimit": "number?", "usageLimitWithPrecision": "number?",
+    "freeTrialInfo": { "freeTrialStatus": "string", "freeTrialExpiry": "timestamp?", "currentUsage": "number?", "usageLimit": "number?" },
+    "bonuses": [{ "status": "string", "bonusCode": "string", "expiresAt": "timestamp?", "currentUsage": "number?", "usageLimit": "number?" }],
+    "overageCredits": [{ "expiresAt": "timestamp?", "currentUsage": "number?", "usageLimit": "number?" }]
+  }]
+}
+```
+
+官方页面优先 WithPrecision 字段，fallback 到普通字段；TokenPulse 相同，但不仿照网页把缺字段补 0。数值不能是 Bool、字符串、负数或非有限值。订阅池显示月度额度及返回的 reset；试用、active bonus 和可明确标识的 purchased credits 是到期额度，不宣称周期 reset。resourceType/bonusCode/credit expiry 为稳定 ID；重复/模糊 ID 不偷偷用数组下标代替。purchased credits 若缺 expiry 或同 resource 出现重复 expiry，当前严格拒绝响应，等待可区分 packs 的契约，不返回部分误关联池。
+
+credits 是非货币配额；即使响应有 currency/overageCharges，也不凭这些把有限 quota 或预付 credits 转成可提现钱包。未知限额不补 0、不算百分比，已用计数可单独显示。无有限池的明确空 list 显示静态无额度状态。
+
+## 历史路径与限制
+
+[固定 Pulse ACP transport](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/KiroACPClient.swift)和[usage parser](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Sources/Pulse/Providers/KiroUsageService.swift)仍用于说明原研究为什么受阻，固定 SHA 是 `397c8fc4f1bd52180a452d2f3f0c099def97cf69`。前身 AWS Q 源码和第三方 Hermes Kiro plugin 只作线索；新实现不复制其客户端注册、不运行 CLI，不读本机数据库或 Keychain，不把 localhost endpoint 猜成云端。
+
+实现遵守 [设备直连 ADR](../../../docs/adr/0001-device-side-refresh.md)：iPhone/Watch 使用同步的本账号 session，自己执行 HTTPS，不需要电脑常驻或代理。企业、其它区域、真实会话撤销、浏览器登录兼容性和 Watch 离线行为没有实际账号观察，不扩大本次个人默认 portal 支持范围。
+
+## 本次验证与后续观察
+
+- 小范围 Swift 6 生产 module 语义检查通过；来源是实际 Models、Kiro provider/codec、HTTP/redirect 与按原文件抽出的通用 session/envelope 部分，未使用伪同名类型替换接口。
+- macOS 命令行实际 XCTest：23 tests，0 failures，日志 `/tmp/tokenpulse-kiro-small/test.log`。覆盖独立 CBOR hex fixtures、边界拒绝、scope、未知字段、expiry/renewal、Cookie 更新与重启。
+- 第24项 iOS AccountQuotaClient → QuotaMonitor 回归已提交，包含凭证落盘、同 scope 新快照接纳、重启后跨旧 expiry 查询、widget/demo/icon/registration；该用例及 unsigned 全目标由主线程运行，尚不在本报告宣称通过。
+- Kiro 图标使用固定 Lobe MIT 源，资产与 mapping 存在，官方 `kirodotdev/kiro` 固定 `bfe7ff30d9b21e583566c844d75e3dd2b572e2c7` 只有 PNG、未建立可复用 SVG 许可，故遵循现有 Lobe 来源。
+
+可选择的真实观察：在独立账号浏览器登录个人账号，与官方额度页对照；等待 Bearer/Cookie 到期或撤销；Watch 手机离线查询。未执行这些观察不阻塞用户当前的实现+图标验收，也不被写成成功。

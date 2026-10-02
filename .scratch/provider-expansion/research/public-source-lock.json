@@ -118,5 +118,25 @@
     "commit": "b7200efef01dce2097c3c5556843ff3cd2764789",
     "path": "hermes_cli/nous_account.py",
     "sha256": "b0659cd80a872ad2e309aff521712cde726179080896ced6b3ff8e05e37aa282"
+  },
+  {
+    "repo": "kiro-web-portal",
+    "commit": "release-7641e207feab0c25",
+    "path": "main.js",
+    "url": "https://assets.app.kiro.dev/releases/7641e207feab0c25/main.js",
+    "sha256": "38176f7972d2e0a24f8f856eabc044f335bf5afc8548f8040ec0e175feea11ff"
+  },
+  {
+    "repo": "kiro-web-portal",
+    "commit": "release-7641e207feab0c25",
+    "path": "vendor.js",
+    "url": "https://assets.app.kiro.dev/releases/7641e207feab0c25/vendor.js",
+    "sha256": "610e1a0770e6b325eef96bd09b071f07cbf38c3e6d018c0fbb0a9bf1799e0e78"
+  },
+  {
+    "repo": "lobehub/lobe-icons",
+    "commit": "79b551cf26aab9ea4ac701fb807160950a5b860f",
+    "path": "packages/static-svg/icons/kiro.svg",
+    "sha256": "1e56073e35799b0d7075d5376ca2d99c3d3bbf51a000a1ec3d4b0df7612c91d6"
   }
 ]

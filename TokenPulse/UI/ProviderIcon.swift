@@ -89,6 +89,7 @@ extension Provider {
         case .replicate: "ProviderReplicate"
         case .mistral: "ProviderMistral"
         case .sakana: "ProviderSakana"
+        case .kiro: "ProviderKiro"
         }
     }
 

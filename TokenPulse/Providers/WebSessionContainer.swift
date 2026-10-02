@@ -219,6 +219,7 @@ extension Provider {
         case .replicate: ReplicateProviderClient.loginProfile
         case .mistral: MistralProviderClient.loginProfile
         case .sakana: SakanaProviderClient.loginProfile
+        case .kiro: KiroProviderClient.loginProfile
         case .longCat:
             .init(loginURL: LongCatProviderClient.loginURL, allowedOrigins: [LongCatProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in

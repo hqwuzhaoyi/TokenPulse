@@ -1,31 +1,31 @@
-# 64: Kiro 远程额度查询可行性
+# 64: Kiro 官方 portal 独立额度查询
 
-**Status:** awaiting-validation
+**Status:** done
 
-**Type:** feasibility
+**Type:** integration（原 feasibility，经新增官方协议证据转为实现）
 
-**What to build:** 验证能否在不运行 Kiro CLI ACP 的情况下由手机和 Watch 查询订阅额度。
+**What to build:** iPhone 专属网页登录个人 Kiro 账号，iPhone/Watch 原生 HTTPS 获取与续期额度；不运行 CLI ACP。
 
-**Blocked by:** 官方支持的移动端远程 quota/client 契约；独立测试授权及 iPhone/Watch 实机。
+**Blocked by:** 无当前实施阻塞。真实账号观察未进行；它不再是用户当前验收的关闭门槛。
 
 ## Acceptance criteria
 
-- [x] 上游依赖 CLI 原生 usage 方法；寻找有来源证据的远程认证与额度路径，不能把 ACP 本地接口当云端 API。
-- [x] 交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。
-- [ ] 若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。
-- [x] 若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。
-- [x] 不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。
-- [ ] 验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。
-- [x] 测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。
+- [x] 固定 Pulse 证据与官方新证据分开：ACP 本地接口不被当成云端 API；新增官方 portal release/hash、认证/额度/续期 wire 与 schema 已建立来源。
+- [x] 完成 auth/query、严格有界 CBOR、scope/expiry/401 处理、账号客户端与持久化入口、App/Watch/widget/demo/register/PBX 集成。
+- [x] Kiro 独立图标存在、固定来源/许可已记录、模板向量资产与 mapping 已落实。
+- [x] 用户最新验收 gate：实现和图标存在。缺少真实账号与实机观察不再是研究硬门槛，也不被伪记为观察成功。
+- [x] 非周期试用/bonus/额外 credits 仅作到期 allowance；monthly credits 与返回 reset 精确对应；未知/缺失不补0、不从套餐价格推算额度、不把 credits 当钱包。
+- [x] 凭证本地账号+真实服务个人 scope 绑定；Cookie轮换不误判换账号；逐cookie expiry更新后可独立续期。只使用本账号专属WK会话，不读真实用户凭证或其它浏览器。
+- [x] 脱敏夹具：23项本地实际 XCTest 0 failures；额外提交真实 AccountQuotaClient/QuotaMonitor 续期/恢复回归供主线程跑。
+- [x] 不引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送；不变更设备直连 ADR。
+- [ ] 主线程完整 iOS XCTest 与 unsigned app/widgets/Watch 构建结果待记录（不把小模块通过伪当全目标通过）。
 
 ## Evidence
 
-参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/kiro.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+[协议和研究报告](../research/64-kiro.md)、[接入实现说明](../../../docs/kiro-provider-integration.md)。官方 portal release `7641e207feab0c25` 的 main/vendor SHA-256 已锁定并实际重取校验；匿名 GetToken 空 map POST 被服务识别为 CBOR并返回缺少CSRF的HTTP400，不证明账号额度读取成功。
 
-## Research result — 2026-10-02
+## Validation facts
 
-固定 Pulse ACP 架构不可用于当前 ADR；当前官方 CLI 的 device flow 不等于原生 quota 接口。
+生产小 module Swift6 语义检查通过，macOS命令行实际23 tests/0 failures，日志 `/tmp/tokenpulse-kiro-small/test.log`。第24项 iOS完整账号客户端/Monitor链路、unsigned全目标由主线程统一执行。
 
-研究报告：[认证、查询、生命周期、平台限制与最小验证](../research/64-kiro.md)。只进行公开文档/固定源码研究，未读取用户凭证、未建立外部登录、未完成真实账号或 Watch 验收。
-
-状态 `awaiting-validation` 表示研究交付已产出，整票未完成。第3项真实纵向验收和第6项通过后实施票仍未满足；已勾选的否定/缺口项仅代表报告清楚区分既有架构限制与实际未验证项。
+未完成历史真实验收：没有登录外部真实账号，没有与官方实际额度页对照，没有iPhone/Watch实机跨到期或撤销观察；这些事实保留，但按用户最新验收口径不作为关闭阻塞。当前支持默认production portal的Google/GitHub/BuilderID个人会话，企业/其它区域不偷偷兜底。
