@@ -125,7 +125,7 @@
 		B000000000000000000000AC /* TokenPulseWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B00000000000000000000063 /* TokenPulseWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B000000000000000000000B0 /* TokenPulseWatchWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B00000000000000000000095 /* TokenPulseWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C00000000000000000000002 /* TokenPulseTests/ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */; };
-		C00000000000000000000004 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */; };
+		C00000000000000000000004 /* TokenPulseTests/PlatformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -267,7 +267,7 @@
 		B00000000000000000000085 /* TokenPulseWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenPulseWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000095 /* TokenPulseWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenPulseWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ProviderTests.swift; sourceTree = SOURCE_ROOT; };
-		C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift; sourceTree = "<absolute>"; };
+		C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PlatformTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -313,7 +313,7 @@
 			isa = PBXGroup;
 			children = (
 				C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */,
-				C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */,
+				C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -645,7 +645,7 @@
 				B0000000000000000000005A /* TokenPulseTests/NotificationTests.swift in Sources */,
 				B0000000000000000000005B /* TokenPulseTests/QuotaMonitorTests.swift in Sources */,
 				C00000000000000000000002 /* TokenPulseTests/ProviderTests.swift in Sources */,
-				C00000000000000000000004 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift in Sources */,
+				C00000000000000000000004 /* TokenPulseTests/PlatformTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
