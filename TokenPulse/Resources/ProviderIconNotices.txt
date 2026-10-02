@@ -250,3 +250,5 @@ Vercel asset license
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+ClinePass uses the Cline mark following the reference provider mapping. Source: official cline/cline repository, commit 7e7ff84efd3431a1b46fd3dbe02c816a21620b55, assets/branding/logos/cline-icon-dark.svg. License: Apache-2.0 (full license above). The asset has no individual copyright notice; rights remain with the repository contributors. Changes: dark fill to black, preserve original explicit 113 by 113 dimensions, package as vector/template Xcode image set. Use identifies a compatible service, not affiliation.

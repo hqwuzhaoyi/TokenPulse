@@ -1,6 +1,6 @@
 # 20: ClinePass 多周期额度
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/clinepass.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## 第二批实现记录
+
+已接通显式 API Key、固定额度查询端点、三个窗口、演示与 Widget/Watch 路由。严格解析 Boolean 成功标识、未知/缺失比例、重复窗口，比例不猜测尺度。新增 4 个 XCTest 方法，完整运行与真实账号/物理 Watch 尚待验证。图标来自已固定版本的官方 Cline SVG（Apache-2.0）。
