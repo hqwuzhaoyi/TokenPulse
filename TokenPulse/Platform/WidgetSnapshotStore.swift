@@ -90,7 +90,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .ibmBob, .devPass, .warp, .augmentCode:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .ibmBob, .devPass, .warp, .augmentCode, .zed:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud, .xaiAPI:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first

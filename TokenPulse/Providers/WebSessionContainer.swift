@@ -198,6 +198,7 @@ extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
         case .augmentCode: AugmentCodeProviderClient.loginProfile
+        case .zed: ZedProviderClient.loginProfile
         default: nil
         }
     }

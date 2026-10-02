@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        C02300000000000000000023 /* ZedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000021; };
+        C02300000000000000000024 /* ZedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000021; };
+        C02300000000000000000025 /* ZedProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000022; };
         C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000011; };
         C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000011; };
         C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000012; };
@@ -315,6 +318,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        C02300000000000000000021 /* ZedProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZedProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000022 /* ZedProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ZedProviderTests.swift; sourceTree = SOURCE_ROOT; };
         C02300000000000000000011 /* AugmentCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AugmentCodeProvider.swift; sourceTree = SOURCE_ROOT; };
         C02300000000000000000012 /* AugmentCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AugmentCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000001 /* ClawRouterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClawRouterProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -561,6 +566,9 @@
 				A220020000000000000001 /* AtlasCloudProvider.swift */,
 				A220010000000000000001 /* WalletExpansionHTTP.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
+                C02300000000000000000021 /* ZedProvider.swift */,
+                C02300000000000000000022 /* ZedProviderTests.swift */,
+
                 C02300000000000000000011 /* AugmentCodeProvider.swift */,
                 C02300000000000000000012 /* AugmentCodeProviderTests.swift */,
 
@@ -912,6 +920,7 @@
                 6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+                C02300000000000000000023 /* ZedProvider.swift in Sources */,
                 C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */,
 				E23600000000000000000003 /* ClawRouterProvider.swift in Sources */,
 				E23500000000000000000003 /* AixyProvider.swift in Sources */,
@@ -958,6 +967,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+                C02300000000000000000025 /* ZedProviderTests.swift in Sources */,
                 C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */,
 				E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */,
 				E23500000000000000000005 /* AixyProviderTests.swift in Sources */,
@@ -1054,6 +1064,7 @@
                 6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+                C02300000000000000000024 /* ZedProvider.swift in Sources */,
                 C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */,
 				E23600000000000000000004 /* ClawRouterProvider.swift in Sources */,
 				E23500000000000000000004 /* AixyProvider.swift in Sources */,

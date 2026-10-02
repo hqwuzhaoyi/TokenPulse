@@ -856,3 +856,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+Zed generic integration icon (not the Zed brand mark)
+Source: https://github.com/qunqin24/Pulse
+Commit: 397c8fc4f1bd52180a452d2f3f0c099def97cf69
+Asset: Sources/Pulse/Resources/extension.svg
+License: Apache License 2.0 (full text in Factory notice section).
+Copyright: Pulse contributors, no source-specific copyright year asserted.
+TokenPulse changes: explicit 24x24 dimensions, currentColor replaced by black; original vector geometry.
+Official zed-industries/zed icon assets inspected at 9dd6993e2e6e26baaf0fdfcb152cb823dba1135d; its app/assets are primarily GPL3 unless marked otherwise. This generic Apache2 substitute is intentionally non-brand.
