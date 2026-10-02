@@ -831,3 +831,9 @@ Raycast AI, T3 Chat and ZoomMate: use Apple SF Symbols sparkles, bubble.left.and
 ProviderQwenCloud: follows the existing Lobe Icons vector source, lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/qwen.svg. Copyright (c) 2023 LobeHub, MIT License (full text above). The Qwen Cloud entry is distinct from Alibaba Coding Plan and Kimi Code. Changes: currentColor replaced with black, explicit 24px dimensions preserved, packaged as vector/template image set.
 
 TypeSafe uses the Apple SF Symbol puzzlepiece.extension.fill as a generic integration symbol, not an official brand logo. No TypeSafe artwork is copied. The fixed Pulse 397c8fc4f1bd52180a452d2f3f0c099def97cf69 TypeSafeUsageService.swift and provider documentation use a generic extension icon and report no Lobe Icons entry.
+
+Devin SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit c23e42baf04f1749d7a1c78d807f20cd40cae97e, packages/static-svg/icons/devin.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. Only currentColor changed to black and explicit 24x24 dimensions added for template vector rendering.
+
+Manus SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit 2df73b8899ec387eb94b96ecb6b87b151c4770dc, packages/static-svg/icons/manus.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. currentColor changed to black and explicit 24x24 dimensions added; vector paths unchanged.
+
+Windsurf SVG: Lobe Icons (https://github.com/lobehub/lobe-icons), commit 7970dce20b059ed397389e874929bf0f6a10d2db, packages/static-svg/icons/windsurf.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. currentColor changed to black and explicit 24x24 dimensions added; vector paths unchanged.

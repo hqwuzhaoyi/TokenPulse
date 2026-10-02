@@ -1,6 +1,6 @@
 # 62: Windsurf 网页额度
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/windsurf.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation evidence (2026-10-02)
+
+Fixed-origin exact4 storage login, account/org/session/auth1 binding and quota probe, independent Connect-protobuf backend, checked wire handling and remaining-percent semantics, no editor/Devin fallback, shared add/store/relogin/sync/delete and direct Watch refresh, demo/widget and ProviderWindsurf pinned MIT vector icon all implemented. 8tests authored; parse/PBX/diff/icon static checks plus pure Foundation fixture/wire execution passed. See docs/windsurf-provider-integration.md. Root owns unified compile/XCTest. No true account/device evidence claimed; it is no longer a closure blocker under current criterion.

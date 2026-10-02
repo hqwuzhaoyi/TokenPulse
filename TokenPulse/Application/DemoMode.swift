@@ -39,7 +39,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
-            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
+            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -166,6 +166,30 @@ enum DemoMode {
             window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
             QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
                         usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
+        ]
+        case .windsurf: [
+            QuotaWindow(id: "windsurf.daily", name: "每日额度", scope: nil, period: .other, usedPercentage: 32,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(14400)),
+            QuotaWindow(id: "windsurf.weekly", name: "每周额度", scope: nil, period: .weekly, usedPercentage: 16,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(259200))
+        ]
+        case .manus: [
+            QuotaWindow(id: "manus.refresh", name: "每日恢复额度", scope: nil, period: .other, usedPercentage: 75,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(14400), unit: "credits",
+                        exactCounts: DecimalQuotaCounts(used: 225, remaining: 75, total: 300)),
+            QuotaWindow(id: "manus.monthly", name: "每月额度", scope: nil, period: .monthly, usedPercentage: 70,
+                        remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "credits",
+                        exactCounts: DecimalQuotaCounts(used: 700, remaining: 300, total: 1000), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "manus.total", name: "总 credits", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                        resetsAt: nil, wallet: WalletBalance(currency: "credits", total: 1200, isMonetary: false))
+        ]
+        case .devin: [
+            QuotaWindow(id: "devin.daily", name: "每日额度", scope: nil, period: .other, usedPercentage: 2,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(14400)),
+            QuotaWindow(id: "devin.weekly", name: "每周额度", scope: nil, period: .weekly, usedPercentage: 1,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(259200)),
+            QuotaWindow(id: "devin.overage", name: "超额使用余额", scope: nil, usedPercentage: nil,
+                        remainingCount: nil, totalCount: nil, resetsAt: nil, wallet: WalletBalance(currency: "USD", total: 10))
         ]
         case .devPass: [
             QuotaWindow(id: "devpass.premium_weekly", name: "Premium 每周额度", scope: nil, period: .weekly,

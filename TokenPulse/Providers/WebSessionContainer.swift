@@ -200,6 +200,22 @@ extension Provider {
         case .typeSafe: TypeSafeSession.profile
         case .qwenCloud: QwenCloudSession.profile
         case .raycastAI, .t3Chat, .zoomMate: HostedWebProfiles.profile(self)
+        case .windsurf:
+            WebProviderLoginProfile(loginURL: URL(string: "https://windsurf.com/profile")!, allowedOrigins: [WindsurfWebSession.origin],
+                storageKeys: WindsurfWebSession.storageKeys, makeCredentials: { _, storage, accountID, _ in
+                    let envelope = try WindsurfWebSession.credential(storage: storage, accountID: accountID)
+                    return [WebLoginCredentialChoice(id: "windsurf", title: "Windsurf", credential: try envelope.encoded())]
+                })
+        case .manus:
+            WebProviderLoginProfile(loginURL: URL(string: "https://manus.im/")!, allowedOrigins: [ManusWebSession.origin], makeCredentials: { cookies, _, accountID, now in
+                let envelope = try ManusWebSession.credential(cookies: cookies, accountID: accountID, now: now)
+                return [WebLoginCredentialChoice(id: "manus", title: "Manus", credential: try envelope.encoded())]
+            })
+        case .devin:
+            WebProviderLoginProfile(loginURL: URL(string: "https://app.devin.ai/")!, allowedOrigins: [DevinWebSession.origin],
+                storageKeys: ["auth1_session"], storagePrefixes: [DevinWebSession.organizationPrefix], makeCredentials: { _, storage, accountID, _ in
+                    try DevinWebSession.credentials(storage: storage, accountID: accountID)
+                })
         default: nil
         }
     }

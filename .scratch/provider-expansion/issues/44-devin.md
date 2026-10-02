@@ -1,6 +1,6 @@
 # 44: Devin 网页账户额度
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/devin.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation evidence (2026-10-02)
+
+Scoped temporary WK login profile + exact app.devin.ai storage extraction, user/token pairing and explicit org choice/probe implemented. Account-bound session fingerprint, remote org quota route and same-org404 alternative, used-percent parsing/hide/no-allocation/USD overage, shared add/save/relogin/sync/delete, Watch direct query, mixed UI/demo/widget and pinned MIT ProviderDevin vector asset registered. See docs/devin-provider-integration.md; 7 contract/scope/lifecycle tests authored. Parser, PBX/diff and asset XML/JSON/presence checks passed. Root owns Xcode/test execution. Real account/device evidence remains unperformed, explicitly no longer a closure blocker under revised criterion.
