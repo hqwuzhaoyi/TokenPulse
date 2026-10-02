@@ -9,6 +9,8 @@ struct GoogleNativeOAuth: Sendable {
     let now: @Sendable () -> Date
     var requestedScopes: [String] = Self.scopes
 
+    static func headerSafe(_ value: String) -> Bool { !value.isEmpty && value.utf8.allSatisfy { $0 >= 33 && $0 <= 126 } }
+
     static func redirectURL(clientID: String) throws -> URL {
         let suffix = ".apps.googleusercontent.com"
         guard clientID.hasSuffix(suffix) else { throw ProviderIntegrationError.unsupportedLogin("请输入 Google 注册的 iOS OAuth Client ID") }
@@ -32,8 +34,9 @@ struct GoogleNativeOAuth: Sendable {
               let expires = session.expiresAt, expires > now(),
               let expected = session.callbackURL, callback.scheme == expected.scheme, callback.host == expected.host, callback.path == expected.path,
               callback.fragment == nil, let c = URLComponents(url: callback, resolvingAgainstBaseURL: false) else { throw ProviderIntegrationError.invalidCallback }
+        guard let state = session.state, !state.isEmpty else { throw ProviderIntegrationError.invalidCallback }
         let items = c.queryItems ?? []
-        guard Set(items.map(\.name)).count == items.count, items.first(where: { $0.name == "state" })?.value == session.state,
+        guard Set(items.map(\.name)).count == items.count, items.first(where: { $0.name == "state" })?.value == state,
               items.first(where: { $0.name == "error" }) == nil,
               let code = items.first(where: { $0.name == "code" })?.value, !code.isEmpty else { throw ProviderIntegrationError.invalidCallback }
         return code
@@ -47,7 +50,8 @@ struct GoogleNativeOAuth: Sendable {
         request.setValue("Bearer \(envelope.accessToken)", forHTTPHeaderField: "Authorization")
         request.httpShouldHandleCookies = false; request.timeoutInterval = 20
         let (data, response) = try await ProviderHTTP.send(request, transport: transport)
-        guard response.statusCode == 200 else { throw RefreshFailure.invalidCredential }
+        try Self.validateResponseOrigin(response, request: request)
+        if let failure = ProviderHTTP.queryFailure(status: response.statusCode) { throw failure }
         struct User: Decodable { let id: String }
         guard let user = try? JSONDecoder().decode(User.self, from: data), !user.id.isEmpty else { throw RefreshFailure.unreadableResponse }
         envelope.accountID = user.id
@@ -59,6 +63,10 @@ struct GoogleNativeOAuth: Sendable {
         return try await token(values: ["grant_type": "refresh_token", "refresh_token": refresh, "client_id": clientID], provider: envelope.provider, previous: envelope)
     }
 
+    static func validateResponseOrigin(_ response: HTTPURLResponse, request: URLRequest) throws {
+        guard let actual = response.url, let expected = request.url, actual.scheme == "https", actual.host == expected.host, actual.port == expected.port else { throw RefreshFailure.invalidCredential }
+    }
+
     private func token(values: [String: String], provider: Provider, previous: ProviderCredentialEnvelope?) async throws -> ProviderCredentialEnvelope {
         _ = try Self.redirectURL(clientID: clientID)
         var request = URLRequest(url: URL(string: "https://oauth2.googleapis.com/token")!)
@@ -66,18 +74,21 @@ struct GoogleNativeOAuth: Sendable {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = ProviderHTTP.formBody(values)
         let (data, response) = try await ProviderHTTP.send(request, transport: transport)
+        try Self.validateResponseOrigin(response, request: request)
         guard response.statusCode == 200 else {
             if response.statusCode == 400 || response.statusCode == 401 { throw RefreshFailure.invalidCredential }
             if response.statusCode == 429 { throw RefreshFailure.rateLimited }
             throw RefreshFailure.server
         }
         struct Token: Decodable { let access_token: String; let refresh_token: String?; let expires_in: Double; let token_type: String; let scope: String? }
-        guard let reply = try? JSONDecoder().decode(Token.self, from: data), !reply.access_token.isEmpty, reply.token_type.lowercased() == "bearer",
+        guard let reply = try? JSONDecoder().decode(Token.self, from: data), Self.headerSafe(reply.access_token), reply.token_type.lowercased() == "bearer",
               reply.expires_in.isFinite, reply.expires_in > 0, reply.expires_in <= 31_536_000 else { throw RefreshFailure.unreadableResponse }
-        let granted = reply.scope ?? previous?.metadata["grantedScopes"]
-        guard let granted, Set(granted.split(separator: " ").map(String.init)).isSuperset(of: requestedScopes) else { throw ProviderIntegrationError.unsupportedLogin("Google 未授予查询所需权限，请重新授权") }
+        // RFC 6749 §5.1 permits omission when the granted scope equals the request.
+        let granted = reply.scope ?? previous?.metadata["grantedScopes"] ?? requestedScopes.joined(separator: " ")
+        guard Set(granted.split(separator: " ").map(String.init)).isSuperset(of: requestedScopes) else { throw ProviderIntegrationError.unsupportedLogin("Google 未授予查询所需权限，请重新授权") }
         let refresh = reply.refresh_token ?? previous?.refreshToken
         guard let refresh, !refresh.isEmpty else { throw ProviderIntegrationError.unsupportedLogin("Google 未返回离线刷新令牌，请重新同意授权") }
+        guard Self.headerSafe(refresh) else { throw RefreshFailure.unreadableResponse }
         var envelope = previous ?? .init(provider: provider, kind: .oauth, accessToken: reply.access_token)
         envelope.accessToken = reply.access_token; envelope.refreshToken = refresh
         envelope.expiresAt = now().addingTimeInterval(reply.expires_in)

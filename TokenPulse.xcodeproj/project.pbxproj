@@ -327,6 +327,8 @@
 		C00000000000000000000004 /* TokenPulseTests/PlatformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */; };
         C02400000000000000000011 /* GoogleNativeOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000010; };
         C02400000000000000000012 /* GoogleNativeOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000010; };
+        C02400000000000000000021 /* GoogleNativeOAuthLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000020; };
+        C02400000000000000000031 /* GoogleNativeOAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000030; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -607,6 +609,8 @@
 		C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PlatformTests.swift; sourceTree = SOURCE_ROOT; };
         C02400000000000000000010 /* GoogleNativeOAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GoogleNativeOAuth.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000020 /* GoogleNativeOAuthLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/GoogleNativeOAuthLoginView.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000030 /* GoogleNativeOAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GoogleNativeOAuthTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -708,6 +712,8 @@
 				2E6300000000000000000421 /* QoderChinaProvider.swift */,
 				2E6300000000000000000411 /* XiaomiCodingPlanProvider.swift */,
                 C02400000000000000000010 /* GoogleNativeOAuth.swift */,
+                C02400000000000000000020 /* GoogleNativeOAuthLoginView.swift */,
+                C02400000000000000000030 /* GoogleNativeOAuthTests.swift */,
                 C02300000000000000000031 /* GrokBotProvider.swift */,
                 C02300000000000000000032 /* GrokBotProviderTests.swift */,
 
@@ -1122,6 +1128,7 @@
 				2E6300000000000000000423 /* QoderChinaProvider.swift in Sources */,
 				2E6300000000000000000413 /* XiaomiCodingPlanProvider.swift in Sources */,
                 C02400000000000000000011 /* GoogleNativeOAuth.swift in Sources */,
+                C02400000000000000000021 /* GoogleNativeOAuthLoginView.swift in Sources */,
                 C02300000000000000000033 /* GrokBotProvider.swift in Sources */,
                 C02300000000000000000023 /* ZedProvider.swift in Sources */,
                 C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */,
@@ -1184,6 +1191,7 @@
 				2E6300000000000000000435 /* OllamaCloudProviderTests.swift in Sources */,
 				2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */,
 				2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */,
+                C02400000000000000000031 /* GoogleNativeOAuthTests.swift in Sources */,
                 C02300000000000000000035 /* GrokBotProviderTests.swift in Sources */,
                 C02300000000000000000025 /* ZedProviderTests.swift in Sources */,
                 C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */,
