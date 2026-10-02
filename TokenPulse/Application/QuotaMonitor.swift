@@ -404,6 +404,7 @@ final class QuotaMonitor: ObservableObject {
                 synchronizedConfigurations[configIndex].reminders.walletCurrency = nil
             }
             synchronizedConfigurations[configIndex].providerRegion = envelope.providerRegion
+            if provider == .gitKraken { synchronizedConfigurations[configIndex].organizationID = envelope.metadata["organizationID"] }
             synchronizedConfigurations[configIndex].modifiedAt = Date()
         }
     }

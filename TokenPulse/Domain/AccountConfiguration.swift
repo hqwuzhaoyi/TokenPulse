@@ -8,6 +8,7 @@ struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var isWatchFavorite: Bool?
     var serverAddress: String?
     var providerRegion: ProviderRegion?
+    var organizationID: String?
     var credentialIdentity: String?
 
     var id: UUID { account.id }

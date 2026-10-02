@@ -29,6 +29,10 @@ enum DemoMode {
             (.deepInfra, "DeepInfra"),
             (.hyper, "Hyper"),
             (.venice, "Venice"),
+            (.commandCode, "Command Code"),
+            (.amp, "Amp"),
+            (.gitKraken, "GitKraken AI"),
+            (.huggingFace, "Hugging Face ZeroGPU"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -176,6 +180,39 @@ enum DemoMode {
         case .deepInfra: [WalletExpansionHTTP.walletWindow(id: "deepInfra.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "95.81")!)), QuotaWindow(id: "deepInfra.spend", name: "支出上限", scope: nil, period: .other, usedPercentage: 19.7, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD", exactCounts: DecimalQuotaCounts(used: Decimal(string: "3.94")!, remaining: Decimal(string: "16.06")!, total: 20))]
         case .hyper: [WalletExpansionHTTP.walletWindow(id: "hyper.HC", wallet: WalletBalance(currency: "HC", total: Decimal(string: "1234.5")!, isMonetary: false))]
         case .venice: [WalletExpansionHTTP.walletWindow(id: "venice.balance.DIEM", wallet: WalletBalance(currency: "DIEM", total: Decimal(string: "90.5")!, isMonetary: false))]
+        case .huggingFace: [
+            QuotaWindow(id: "huggingFace.zeroGPU", name: "GPU time quota", scope: "ZeroGPU",
+                        usedPercentage: 25, remainingCount: 1800, totalCount: 2400,
+                        resetsAt: now.addingTimeInterval(8 * 3_600), unit: "GPU s")
+        ]
+        case .gitKraken: [
+            QuotaWindow(id: "gitKraken.personal", name: "Personal AI credits", scope: nil,
+                        usedPercentage: 25, remainingCount: 75, totalCount: 100,
+                        resetsAt: now.addingTimeInterval(3 * 86_400), unit: "credits"),
+            QuotaWindow(id: "gitKraken.organization", name: "Organization AI credits", scope: "Demo Organization",
+                        usedPercentage: 40, remainingCount: 600, totalCount: 1000,
+                        resetsAt: now.addingTimeInterval(3 * 86_400), unit: "credits")
+        ]
+        case .amp: [
+            QuotaWindow(id: "amp.free", name: "Amp Free · 逐小时补充", scope: nil,
+                        usedPercentage: 40, remainingCount: 6, totalCount: 10, resetsAt: nil, unit: "USD",
+                        resetSemantics: .continuousReplenishment),
+            QuotaWindow(id: "amp.orb", name: "Orb 账期额度", scope: nil, period: .monthly,
+                        usedPercentage: 20, remainingCount: 600, totalCount: 750,
+                        resetsAt: Date(timeIntervalSince1970: (now.timeIntervalSince1970 / 86_400).rounded(.down) * 86_400 + 12 * 86_400),
+                        unit: "小时", resetDatePrecision: .day),
+            QuotaWindow(id: "amp.wallet.USD", name: "个人美元余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "10.205")!))
+        ]
+        case .commandCode: [
+            QuotaWindow(id: "commandCode.five-hour", name: "5 小时消费限额", scope: nil, period: .fiveHour,
+                        usedPercentage: 40, remainingCount: 12, totalCount: 20,
+                        resetsAt: now.addingTimeInterval(2 * 3_600), unit: "USD"),
+            QuotaWindow(id: "commandCode.wallet.USD", name: "可用美元余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "18.25")!))
+        ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

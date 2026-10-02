@@ -173,6 +173,7 @@ private struct AccountPreferencesView: View {
     @State private var credential = ""
     @State private var serverAddress = ""
     @State private var region: ProviderRegion?
+    @State private var organizationID = ""
     @State private var showingLogin = false
     @State private var showingDeleteConfirmation = false
 
@@ -276,6 +277,12 @@ private struct AccountPreferencesView: View {
                             Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
+                        if configuration.account.provider == .gitKraken {
+                            TextField("组织 ID（可选）", text: $organizationID)
+                                .textInputAutocapitalization(.never).autocorrectionDisabled()
+                            Text("这是会过期的账户会话 Token，失效后请重新配置。留空读取默认组织；更换组织与 Token 会清除旧额度。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {
@@ -285,7 +292,7 @@ private struct AccountPreferencesView: View {
                                         ? try ProviderAuthenticationController().credential(
                                             provider: configuration.account.provider,
                                             apiKey: credential,
-                                            serverAddress: serverAddress, region: region
+                                            serverAddress: serverAddress, region: region, organizationID: organizationID
                                         )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
@@ -306,6 +313,7 @@ private struct AccountPreferencesView: View {
         .onAppear {
             serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? ""
             region = monitor.configuration(for: accountID)?.providerRegion
+            organizationID = monitor.configuration(for: accountID)?.organizationID ?? ""
         }
         .onChange(of: region) { _, _ in credential = "" }
         .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {

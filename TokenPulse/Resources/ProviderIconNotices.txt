@@ -30,6 +30,14 @@ Hyper uses the platform SF Symbol bolt.circle as a generic indicator, not a copi
 
 ProviderVenice: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/venice.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
 
+The Command Code SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/commandcode.svg. Copyright (c) 2023 LobeHub, MIT License (included below). Official CommandCodeAI/command-code commit 5c8f1b48c9d6704210cb3f9a476fdcffe5093e9a provides logo SVGs but no license in its tree; the licensed existing Lobe Icons source is used.
+
+The Amp SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/amp.svg. Copyright (c) 2023 LobeHub, MIT License (included below). No official licensed repository icon has been established; the existing licensed Lobe Icons vector source is used.
+
+The GitKraken AI mark uses the official GitLens symbol from GitKraken/vscode-gitlens commit a3ab1179ac86a0d83cb35c63a0af9114a6003f99, images/dark/icon-gitlens-filled-orange.svg (outside plus directories). Source https://github.com/gitkraken/vscode-gitlens. MIT License: Copyright (c) 2021-2026 Axosoft, LLC dba GitKraken ("GitKraken"); Copyright (c) 2016-2021 Eric Amodio. The repository LICENSE applies to this path. TokenPulse changes orange fill to black for template tinting; the vector paths and dimensions are unchanged.
+
+The Hugging Face SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/huggingface.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official huggingface/huggingface_hub source tree was checked and did not supply a reusable SVG provider mark; the existing licensed Lobe vector source is used.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.
@@ -514,6 +522,29 @@ DeepInfra official documentation asset license
 MIT License
 
 Copyright (c) 2023 Mintlify
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+GitLens symbol MIT notice
+
+Copyright (c) 2021-2026 Axosoft, LLC dba GitKraken ("GitKraken")
+Copyright (c) 2016-2021 Eric Amodio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

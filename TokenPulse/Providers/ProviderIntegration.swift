@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 enum ProviderCredentialKind: String, Codable, Sendable {
     case apiKey
@@ -179,6 +180,18 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .factory:
             return try await FactoryProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .huggingFace:
+            return try await HuggingFaceProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .gitKraken:
+            return try await GitKrakenProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .amp:
+            return try await AmpProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .commandCode:
+            return try await CommandCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .copilot:
             return try await CopilotProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -264,6 +277,14 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
         case .factory:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Factory API Key")
+        case .huggingFace:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Hugging Face 用户 Token（需读取账单权限）")
+        case .gitKraken:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "GitKraken 账户会话 Token")
+        case .amp:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Amp Access Token")
+        case .commandCode:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Command Code API Key")
         case .newAPI:
             return .init(provider: provider, method: .apiKey, credentialLabel: "New API Key")
         case .codebuff:
@@ -307,8 +328,14 @@ struct ProviderAuthenticationController: Sendable {
         }
     }
 
-    func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) else {
+    func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil, organizationID: String? = nil) throws -> String {
+        if provider == .gitKraken {
+            var envelope = try GitKrakenSessionCredential.envelope(token: apiKey, organizationID: organizationID)
+            let identityData = try JSONEncoder().encode([provider.rawValue, envelope.accessToken, envelope.metadata["organizationID"] ?? ""])
+            envelope.metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
+            return try envelope.encoded()
+        }
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -320,6 +347,10 @@ struct ProviderAuthenticationController: Sendable {
             : provider.requiresRegion ? ["region": region!.rawValue] : [:]
         if [.clinePass, .codebuff, .neuralwatt, .aixy, .clawRouter].contains(provider) {
             metadata["sourceCredentialFingerprint"] = try KeyQuotaRequest.fingerprint(provider: provider, key: key)
+        }
+        if provider == .commandCode || provider == .amp || provider == .huggingFace {
+            let identityData = try JSONEncoder().encode([provider.rawValue, key])
+            metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
         }
         return try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata).encoded()
     }
@@ -351,7 +382,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -368,7 +399,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -386,7 +417,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace:
             return .init(credential: credential, changed: false)
         }
     }

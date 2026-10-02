@@ -26,15 +26,16 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case deepInfra
     case kiloCode
     case atlasCloud
+    case commandCode, amp, gitKraken, huggingFace
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot }
-    var hasMonetaryWallet: Bool { [.neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice: .walletOnly
-        case .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
+        case .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
     }
@@ -69,6 +70,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .deepInfra: "DeepInfra"
         case .kiloCode: "Kilo Code"
         case .atlasCloud: "Atlas Cloud"
+        case .commandCode: "Command Code"
+        case .amp: "Amp"
+        case .gitKraken: "GitKraken AI"
+        case .huggingFace: "Hugging Face"
         }
     }
 }
