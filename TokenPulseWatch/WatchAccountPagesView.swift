@@ -176,7 +176,7 @@ private struct WatchAccountPage: View {
                                 }
                             }
                             .font(.caption2)
-                        } else if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational].contains(state.account.provider) {
+                        } else if window.scope == nil || window.hasDetailValues {
                             VStack(alignment: .leading, spacing: 3) {
                                 if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
                                     Gauge(value: min(max(percentage, 0), 100), in: 0...100) {

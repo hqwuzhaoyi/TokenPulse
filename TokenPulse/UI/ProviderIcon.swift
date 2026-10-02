@@ -42,6 +42,7 @@ extension Provider {
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
+        case .aixy: nil
         case .neuralwatt: nil
         case .codebuff: nil
         case .moonshot: "ProviderMoonshot"
@@ -53,6 +54,7 @@ extension Provider {
         switch self {
         case .codebuff: "terminal"
         case .neuralwatt: "bolt.circle"
+        case .aixy: "network"
         default: nil
         }
     }

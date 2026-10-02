@@ -469,3 +469,5 @@ TokenPulse changes: white fill changed to black for template rendering; added ma
 Codebuff: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol terminal as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.
 
 Neuralwatt: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol bolt.circle as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.
+
+Aixy: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol network as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.

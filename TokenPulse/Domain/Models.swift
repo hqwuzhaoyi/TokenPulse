@@ -15,6 +15,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case newAPI
     case copilot
     case clinePass
+    case aixy
     case neuralwatt
     case codebuff
     case moonshot
@@ -52,6 +53,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
         case .clinePass: "ClinePass"
+        case .aixy: "Aixy"
         case .neuralwatt: "Neuralwatt"
         case .codebuff: "Codebuff"
         case .moonshot: "Moonshot API 钱包"
@@ -258,6 +260,12 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
 
     func needsUpdate(at date: Date) -> Bool {
         resetDatePrecision != .day && (resetsAt.map { $0 <= date } ?? false)
+    }
+
+    var hasDetailValues: Bool {
+        wallet != nil || exactCounts?.used != nil || exactCounts?.remaining != nil || exactCounts?.total != nil
+            || remainingCount != nil || totalCount != nil || resetsAt != nil || expiresAt != nil
+            || nextReplenishmentAt != nil || isUnlimited || overagePermitted == true || isExhausted == true
     }
 
     var displayName: String {

@@ -201,7 +201,7 @@ private struct AccountQuotaView: View {
                             }
                             let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
                             ForEach(detailWindows) { window in
-                                if window.scope == nil || state.account.provider == .qoderInternational || state.account.provider == .factory {
+                                if window.scope == nil || window.hasDetailValues {
                                     QuotaWindowView(window: window)
                                 } else {
                                     LabeledContent(

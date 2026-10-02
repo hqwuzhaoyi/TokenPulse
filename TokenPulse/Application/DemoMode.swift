@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
+            (.aixy, "Aixy"),
             (.neuralwatt, "Neuralwatt"),
             (.codebuff, "Codebuff"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
@@ -150,6 +151,14 @@ enum DemoMode {
                 exactCounts: .init(used: 5, remaining: 15, total: 20)),
             QuotaWindow(id: "neuralwatt.wallet", name: "API 钱包余额", scope: nil, usedPercentage: nil,
                 remainingCount: nil, totalCount: nil, resetsAt: nil, wallet: WalletBalance(currency: "USD", total: 15))
+        ]
+        case .aixy: [
+            QuotaWindow(id: "aixy.team", name: "每月预算", scope: "团队 · 共享", period: .monthly,
+                usedPercentage: 80, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400),
+                unit: "USD", exactCounts: .init(used: 80, remaining: 20, total: 100)),
+            QuotaWindow(id: "aixy.key", name: "每月监控预算", scope: "Key", period: .monthly,
+                usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400),
+                unit: "USD", exactCounts: .init(used: 12, remaining: 8, total: 20))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
