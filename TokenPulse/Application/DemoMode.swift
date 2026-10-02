@@ -16,7 +16,7 @@ enum DemoMode {
             (.poe, "Poe points"), (.vercelAIGateway, "Vercel AI Gateway 钱包"),
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
-            (.newAPI, "New API 钱包"), (.sub2api, "sub2api 分组"), (.bifrost, "Bifrost 虚拟 Key"), (.liteLLM, "LiteLLM 用户与团队"),
+            (.newAPI, "New API 钱包"), (.sub2api, "sub2api 分组"), (.bifrost, "Bifrost 虚拟 Key"), (.liteLLM, "LiteLLM 用户与团队"), (.llmProxy, "LLM Proxy 配额组"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
             (.clawRouter, "ClawRouter"),
             (.aixy, "Aixy"),
@@ -224,6 +224,10 @@ enum DemoMode {
                             usedPercentage: 25, remainingCount: 1_200_000_000, totalCount: 1_600_000_000,
                             resetsAt: nil, unit: "积分", expiresAt: now.addingTimeInterval(3 * 86_400))
             ]
+        case .llmProxy: [
+            QuotaWindow(id: "llmProxy.openai.demo", name: "配额组", scope: "openai", period: .other, usedPercentage: 58, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3600)),
+            QuotaWindow(id: "llmProxy.gemini.demo", name: "配额组", scope: "gemini_cli · pro", period: .other, usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(7200))
+        ]
         case .liteLLM: [
             QuotaWindow(id: "liteLLM.team.demo", name: "团队预算", scope: "团队 · demo-team", period: .monthly, usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(10 * 86400), unit: "USD 预算额度", exactCounts: .init(used: 40, remaining: 60, total: 100)),
             QuotaWindow(id: "liteLLM.user.demo", name: "用户预算", scope: "用户 · demo-user", period: .weekly, usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(2 * 86400), unit: "USD 预算额度", exactCounts: .init(used: 5, remaining: 15, total: 20))

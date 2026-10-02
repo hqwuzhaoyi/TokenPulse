@@ -1675,3 +1675,5 @@ Public License instead of this License.  But first, please read
 Bifrost: built-in SF Symbol puzzlepiece.extension.fill, supplied by Apple SDK (Xcode 26.5), a generic gateway mark rather than a vendor logo. The pinned official maximhq/bifrost 8ffa1fbd27d1a33a55a05109b96fc2d2aab8805b tree contains raster Bifrost logos, no suitable template vector; Lobe Icons a94750e3/79b551cf contain no Bifrost mark. No third-party bitmap is imported or relicensed; SF Symbol use follows Apple SDK/SF Symbols terms.
 
 LiteLLM: Apple SDK SF Symbol puzzlepiece.extension.fill, generic gateway mark supplied by SDK under its SF Symbols terms; no branded bitmap imported. BerriAI/litellm 615ed7900f3bcfd09b324c38c5123eb6ed4769da and Lobe Icons a94750e3/79b551cf were checked; no suitable LiteLLM template mark in the existing vector source.
+
+LLM API Key Proxy: Apple SDK SF Symbol puzzlepiece.extension.fill, generic gateway mark supplied by SDK/SF Symbols terms, no third-party artwork imported. Primary Mirrowel/LLM-API-Key-Proxy adef2d696024f6525887e032c92947581593659b tree has no suitable provider vector; existing Lobe tree no mark.

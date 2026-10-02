@@ -3,7 +3,7 @@ import CryptoKit
 import Foundation
 
 extension Provider {
-    var requiresGatewayAddress: Bool { [.newAPI, .sub2api, .bifrost, .liteLLM].contains(self) }
+    var requiresGatewayAddress: Bool { [.newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy].contains(self) }
 }
 
 enum GatewayCredentials {
