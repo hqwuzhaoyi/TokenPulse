@@ -199,6 +199,7 @@ extension Provider {
         switch self {
         case .abacus: AbacusProviderClient.loginProfile
         case .perplexity: PerplexityProviderClient.loginProfile
+        case .notionAI: NotionAIProviderClient.loginProfile
         default: nil
         }
     }

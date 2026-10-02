@@ -291,6 +291,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .perplexity:
             return try await PerplexityProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .notionAI:
+            return try await NotionAIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -388,7 +391,7 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
         case .codex, .kimiCode, .copilot:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude, .stepFun, .cursor, .abacus, .perplexity:
+        case .claude, .stepFun, .cursor, .abacus, .perplexity, .notionAI:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -457,7 +460,7 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
-        case .cursor, .abacus, .perplexity:
+        case .cursor, .abacus, .perplexity, .notionAI:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成 Cursor 授权")
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
@@ -478,7 +481,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .abacus, .perplexity:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .abacus, .perplexity, .notionAI:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -496,7 +499,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .abacus, .perplexity:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .abacus, .perplexity, .notionAI:
             return .init(credential: credential, changed: false)
         }
     }

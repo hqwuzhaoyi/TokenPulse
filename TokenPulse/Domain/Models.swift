@@ -33,6 +33,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case xaiAPI
     case ibmBob
     case warp, v0, devPass
+    case notionAI
     case perplexity
     case abacus
 
@@ -96,6 +97,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .warp: "Warp"
         case .v0: "v0"
         case .devPass: "DevPass"
+        case .notionAI: "Notion AI"
         case .perplexity: "Perplexity API"
         case .abacus: "Abacus AI"
         }
