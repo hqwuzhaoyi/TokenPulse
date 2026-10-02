@@ -503,6 +503,9 @@ struct QuotaWindowView: View {
             if window.resetsAt != nil {
                 LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt))
             }
+            if let replenishment = window.nextReplenishmentAt {
+                LabeledContent("下次补充", value: QuotaFormatting.resetDate(replenishment))
+            }
             if window.expiresAt == nil || window.resetsAt != nil {
                 TimelineView(.periodic(from: .now, by: 60)) { context in
                     if window.needsUpdate(at: context.date) {
