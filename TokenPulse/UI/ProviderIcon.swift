@@ -53,6 +53,7 @@ extension Provider {
         case .codebuff: nil
         case .moonshot: "ProviderMoonshot"
         case .factory: "ProviderFactory"
+        case .augmentCode: "ProviderAugmentCode"
         case .commandCode: "ProviderCommandCode"
         case .amp: "ProviderAmp"
         case .gitKraken: "ProviderGitKraken"

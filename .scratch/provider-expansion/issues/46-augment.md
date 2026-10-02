@@ -1,6 +1,6 @@
 # 46: Augment Code 当期 credits
 
-**Status:** ready-for-agent
+**Status:** implemented — current integration/icon criteria met; aggregate tests delegated to root
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,14 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/augment.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence
+
+- `.augmentCode` registered through auth/query/UI/Watch/widget/demo/PBX; the common ephemeral WebProviderSession profile captures restricted session cookies and validates quota before secure saving. Reopen/rekey/delete/multi-account/disabled-cloud use the shared UUID lifecycle.
+- Fixed Pulse397c8fc4 source/fixtures and official Auggie public repositories were inspected through agent-reach GitHub/gh. Cookie names and available-total semantics remain second-hand; no unsafe denominator is inferred. Reported used/remaining are exact counts, no invented percentage or currency.
+- Optional subscription failure keeps credit counts, only reported billingPeriodEnd enables expected reset; no unknown-ratio alerts. Static status propagates without replacing data. Demo covers partial counters.
+- Six new regression methods; source/test parse, PBX lint and diff checks passed. Root owns aggregate compile and XCTest. Official Auggie SVG pinned b377ae129e6bb1f5297b9f0a191dbad03f3ce8ec / MIT full license in notices; image-set exists with vector/template options.
+- Dedicated docs/augment-code-provider-integration.md records the actual verification boundary. No central README/CONTEXT/manifest edited.
+
+Real account/browser/Watch/iCloud observations remain not performed; they are historical evidence gaps, not current extra close gates. No actual credential was accessed or printed.

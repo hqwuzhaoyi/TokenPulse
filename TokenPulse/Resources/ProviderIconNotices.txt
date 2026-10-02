@@ -825,3 +825,34 @@ License: Apache License 2.0; full terms reproduced in Factory Droid section.
 Copyright: qunqin24/Pulse contributors; no asset-specific year is asserted.
 TokenPulse changes: currentColor replaced with black, explicit 24x24 dimensions; vector geometry unchanged.
 Official warpdotdev/Warp assets were inspected at 3f37d69ff3e87818d24f803c16b2e045fa4bd95e. README licenses app/assets under AGPLv3; only the UI framework crates use MIT. This generic Apache2 alternative avoids importing that brand asset.
+
+
+Augment Code official Auggie icon
+Repository: https://github.com/augmentcode/auggie-zed-extension
+Commit: b377ae129e6bb1f5297b9f0a191dbad03f3ce8ec
+Asset: auggie.svg
+Copyright (c) 2025 Augment Computing, Inc.
+License: MIT, full upstream notice below.
+TokenPulse changes: add explicit 16x16 dimensions for the unchanged 16x16 viewBox and template rendering; paths unchanged.
+
+MIT License
+
+Copyright (c) 2025, Augment Computing, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

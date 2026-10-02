@@ -36,7 +36,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
-            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
+            (.warp, "Warp"), (.augmentCode, "Augment Code"), (.v0, "v0"), (.devPass, "DevPass"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -90,6 +90,11 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo, .clinePass: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .augmentCode: [
+            QuotaWindow(id: "augmentCode.credits", name: "本账期 credits", scope: nil, period: .other,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 130946, remaining: 319054, total: nil))
+        ]
         case .factory: accountID == accounts().first(where: { $0.name.contains("Standard / Premium") })?.id
             ? [window("factory.legacy.standard", "每月额度", .monthly, 35, scope: "Standard"),
                window("factory.legacy.premium", "每月额度", .monthly, 70, scope: "Premium")]

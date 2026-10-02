@@ -245,6 +245,12 @@ private struct AccountPreferencesView: View {
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                         }
+                        if augmentResetAvailable {
+                            Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
+                                var settings = configuration.reminders; settings.resetRemindersEnabled = value
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
+                        }
                         if walletRemindersAvailable {
                             Toggle("低余额提醒", isOn: Binding(get: { configuration.reminders.effectiveWalletAlertsEnabled }, set: { value in
                                 var settings = configuration.reminders
@@ -364,6 +370,7 @@ private struct AccountPreferencesView: View {
     }
 
     private func supportsQuotaReminders(_ configuration: AccountConfiguration) -> Bool {
+        if configuration.account.provider == .augmentCode { return false }
         guard configuration.account.provider.balancePresentation != .walletOnly else { return false }
         guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else {
             return configuration.account.provider != .ibmBob
