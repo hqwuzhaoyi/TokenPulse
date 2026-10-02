@@ -1,13 +1,24 @@
 import Foundation
+import CryptoKit
 
 /// A bounded, direct key query shared by the small hosted quota clients.
 enum KeyQuotaRequest {
+    static func fingerprint(provider: Provider, key: String) throws -> String {
+        guard !key.isEmpty, key.unicodeScalars.allSatisfy({ $0.value > 32 && $0.value < 127 }) else {
+            throw ProviderIntegrationError.invalidCredentialData
+        }
+        let data = try JSONEncoder().encode([provider.rawValue, key])
+        return SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+    }
     static func fetch(provider: Provider, endpoint: String, accountID: UUID,
                       credential: ProviderCredentialEnvelope, transport: any ProviderTransport,
                       now: @Sendable () -> Date, body: Data? = nil,
                       parse: (Data, UUID, Date) throws -> QuotaSnapshot) async throws -> ProviderQueryResult {
         guard credential.provider == provider, credential.kind == .apiKey,
-              !credential.accessToken.isEmpty else { throw RefreshFailure.invalidCredential }
+              !credential.accessToken.isEmpty,
+              credential.accessToken.unicodeScalars.allSatisfy({ $0.value > 32 && $0.value < 127 }) else {
+            throw RefreshFailure.invalidCredential
+        }
         var request = URLRequest(url: URL(string: endpoint)!)
         request.httpMethod = body == nil ? "GET" : "POST"
         request.httpBody = body

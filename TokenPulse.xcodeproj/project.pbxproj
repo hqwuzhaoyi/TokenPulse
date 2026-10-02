@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E22100000000000000000003 /* CodebuffProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000001; };
+		E22100000000000000000004 /* CodebuffProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000001; };
+		E22100000000000000000005 /* CodebuffProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000002; };
 		E22000000000000000000003 /* ClinePassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000001; };
 		E22000000000000000000004 /* ClinePassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000001; };
 		E22000000000000000000005 /* ClinePassProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000002; };
@@ -223,6 +226,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E22100000000000000000001 /* CodebuffProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CodebuffProvider.swift; sourceTree = SOURCE_ROOT; };
+		E22100000000000000000002 /* CodebuffProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CodebuffProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E22000000000000000000001 /* ClinePassProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClinePassProvider.swift; sourceTree = SOURCE_ROOT; };
 		E22000000000000000000002 /* ClinePassProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClinePassProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QuotaDatePrecisionTests.swift; sourceTree = SOURCE_ROOT; };
@@ -400,6 +405,7 @@
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
 				FA0900000000000000000001 /* WalletProvider.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
+				E22100000000000000000001 /* CodebuffProvider.swift */,
 				E22000000000000000000001 /* ClinePassProvider.swift */,
 				2E6200000000000000000001 /* MoonshotProvider.swift */,
                 C02200000000000000000011 /* FactoryProvider.swift */,
@@ -417,6 +423,7 @@
                 C01100000000000000000001 /* CopilotProvider.swift */,
                 C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+				E22100000000000000000002 /* CodebuffProviderTests.swift */,
 				E22000000000000000000002 /* ClinePassProviderTests.swift */,
 				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
 				2E6200000000000000000002 /* MoonshotProviderTests.swift */,
@@ -684,6 +691,7 @@
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+				E22100000000000000000003 /* CodebuffProvider.swift in Sources */,
 				E22000000000000000000003 /* ClinePassProvider.swift in Sources */,
 				2E6200000000000000000003 /* MoonshotProvider.swift in Sources */,
                 C02200000000000000000013 /* FactoryProvider.swift in Sources */,
@@ -709,6 +717,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+				E22100000000000000000005 /* CodebuffProviderTests.swift in Sources */,
 				E22000000000000000000005 /* ClinePassProviderTests.swift in Sources */,
 				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
 				2E6200000000000000000005 /* MoonshotProviderTests.swift in Sources */,
@@ -767,6 +776,7 @@
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+				E22100000000000000000004 /* CodebuffProvider.swift in Sources */,
 				E22000000000000000000004 /* ClinePassProvider.swift in Sources */,
 				2E6200000000000000000004 /* MoonshotProvider.swift in Sources */,
                 C02200000000000000000014 /* FactoryProvider.swift in Sources */,

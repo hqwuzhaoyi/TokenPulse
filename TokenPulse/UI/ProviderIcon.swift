@@ -42,13 +42,17 @@ extension Provider {
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
+        case .codebuff: nil
         case .moonshot: "ProviderMoonshot"
         case .factory: "ProviderFactory"
         }
     }
 
     var systemIconName: String? {
-        nil
+        switch self {
+        case .codebuff: "terminal"
+        default: nil
+        }
     }
 }
 

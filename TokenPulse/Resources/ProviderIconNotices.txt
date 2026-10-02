@@ -465,3 +465,5 @@ TokenPulse changes: white fill changed to black for template rendering; added ma
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+Codebuff: no reusable licensed provider SVG was found in the inspected official repository / pinned Lobe Icons catalogue. Uses the platform SF Symbol terminal as a generic capability illustration, not a provider brand mark; no third-party logo file was imported.

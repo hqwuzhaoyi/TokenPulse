@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
+            (.codebuff, "Codebuff"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
             (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
         ]
@@ -130,6 +131,14 @@ enum DemoMode {
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: accountID == accounts().last(where: { $0.provider == .moonshot })?.id ? "USD" : "CNY",
                                               total: Decimal(50 - revision), granted: 10, toppedUp: 40))
+        ]
+        case .codebuff: [
+            QuotaWindow(id: "codebuff.credits", name: "credits 额度", scope: nil, usedPercentage: 35,
+                remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400), unit: "credits",
+                exactCounts: .init(used: 350, remaining: 650, total: 1000)),
+            QuotaWindow(id: "codebuff.balance", name: "剩余 credits", scope: nil, usedPercentage: nil,
+                remainingCount: nil, totalCount: nil, resetsAt: nil,
+                wallet: WalletBalance(currency: "credits", total: 650, isMonetary: false))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,

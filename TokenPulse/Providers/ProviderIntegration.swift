@@ -200,6 +200,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .newAPI:
             return try await NewAPIProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .codebuff:
+            return try await CodebuffProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .clinePass:
             return try await ClinePassProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -239,6 +242,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Factory API Key")
         case .newAPI:
             return .init(provider: provider, method: .apiKey, credentialLabel: "New API Key")
+        case .codebuff:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Codebuff API Key")
         case .clinePass:
             return .init(provider: provider, method: .apiKey, credentialLabel: "ClinePass API Key")
         case .moonshot:
@@ -263,16 +268,19 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { throw ProviderIntegrationError.invalidCredentialData }
         if provider == .miniMaxChina { return key }
         if provider.requiresRegion, region == nil { throw ProviderIntegrationError.invalidCredentialData }
-        let metadata: [String: String] = provider == .newAPI
+        var metadata: [String: String] = provider == .newAPI
             ? ["serverAddress": try GatewayServerAddress(serverAddress ?? "").value]
             : provider.requiresRegion ? ["region": region!.rawValue] : [:]
+        if [.clinePass, .codebuff].contains(provider) {
+            metadata["sourceCredentialFingerprint"] = try KeyQuotaRequest.fingerprint(provider: provider, key: key)
+        }
         return try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata).encoded()
     }
 
@@ -303,7 +311,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -320,7 +328,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -338,7 +346,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff:
             return .init(credential: credential, changed: false)
         }
     }
