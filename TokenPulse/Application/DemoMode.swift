@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
+            (.atlasCloud, "Atlas Cloud"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -115,6 +116,7 @@ enum DemoMode {
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
         ]
+        case .atlasCloud: [WalletExpansionHTTP.walletWindow(id: "atlasCloud.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "42.50")!))]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
