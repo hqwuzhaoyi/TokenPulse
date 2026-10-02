@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		57F000000000000000000021 /* V2EXProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000020; };
+		57F000000000000000000022 /* V2EXProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000020; };
+		57F000000000000000000024 /* V2EXProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000023; };
 		57F000000000000000000011 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
 		57F000000000000000000012 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
 		57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000013; };
@@ -214,6 +217,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		57F000000000000000000020 /* V2EXProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/V2EXProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000023 /* V2EXProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/V2EXProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000010 /* SyntheticProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SyntheticProvider.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000013 /* SyntheticProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SyntheticProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplenishmentSemanticsTests.swift; sourceTree = SOURCE_ROOT; };
@@ -395,6 +400,8 @@
                 C01100000000000000000001 /* CopilotProvider.swift */,
                 C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+				57F000000000000000000023 /* V2EXProviderTests.swift */,
+				57F000000000000000000020 /* V2EXProvider.swift */,
 				57F000000000000000000013 /* SyntheticProviderTests.swift */,
 				57F000000000000000000010 /* SyntheticProvider.swift */,
 				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
@@ -661,6 +668,7 @@
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+				57F000000000000000000021 /* V2EXProvider.swift in Sources */,
 				57F000000000000000000011 /* SyntheticProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				57EF00000000000000000002 /* StepFunProvider.swift in Sources */,
@@ -684,6 +692,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+				57F000000000000000000024 /* V2EXProviderTests.swift in Sources */,
 				57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */,
 				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
@@ -738,6 +747,7 @@
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+				57F000000000000000000022 /* V2EXProvider.swift in Sources */,
 				57F000000000000000000012 /* SyntheticProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				57EF00000000000000000003 /* StepFunProvider.swift in Sources */,

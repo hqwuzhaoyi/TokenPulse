@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"),
+            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"), (.v2ex, "V2EX"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,14 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .v2ex: [
+            QuotaWindow(id: "v2ex.five_hour", name: "5 小时额度", scope: nil, period: .fiveHour,
+                        usedPercentage: 25, remainingCount: 6_015_000, totalCount: 8_020_000,
+                        resetsAt: now.addingTimeInterval(7200), cycleID: "demo-v2ex-start", unit: "tokens"),
+            QuotaWindow(id: "v2ex.extra", name: "额外用量补充包", scope: nil, period: .other,
+                        usedPercentage: 5, remainingCount: 11_400_000, totalCount: 12_000_000, resetsAt: nil,
+                        unit: "tokens", resetSemantics: .nonResettingAllowance)
+        ]
         case .synthetic: [
             QuotaWindow(id: "synthetic.five_hour", name: "5 小时滚动额度", scope: nil, period: .fiveHour,
                         usedPercentage: 20, remainingCount: 600, totalCount: 750, resetsAt: nil,

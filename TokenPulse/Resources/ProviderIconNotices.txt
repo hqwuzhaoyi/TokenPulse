@@ -252,3 +252,5 @@ Vercel asset license
    limitations under the License.
 
 Synthetic uses Apple SF Symbol puzzlepiece.extension.fill as a generic extension symbol, not a Synthetic trademark. No third-party SVG is imported for this provider; the system renders this symbol. The generic-symbol decision follows Pulse commit 397c8fc4f1bd52180a452d2f3f0c099def97cf69, Sources/Pulse/Providers/Profiled/SyntheticUsageService.swift (iconResource extension).
+
+V2EX uses Apple SF Symbol bubble.left.and.bubble.right.fill as a generic chat symbol, not a V2EX trademark. No third-party SVG is imported for this provider; the system renders this symbol. A dedicated brand vector license has not been verified.
