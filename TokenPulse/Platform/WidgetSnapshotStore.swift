@@ -35,6 +35,9 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
 
     var displayMetrics: [WidgetQuotaMetric] {
         let visible = QuotaPolicy.windows(windows, provider: account.provider, plan: subscriptionPlan, surface: .widget)
+        if account.provider.balancePresentation == .mixed {
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
+        }
         let weekly = visible.filter { $0.period == .weekly }
         let fiveHour = visible.filter { $0.period == .fiveHour }
         switch account.provider {

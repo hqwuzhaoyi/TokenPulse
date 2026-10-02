@@ -150,14 +150,14 @@ struct NotificationPlanner: Sendable {
         if let wallet = wallets.first(where: { $0.currency == currency }),
            observeWalletAlert(accountID: accountID, currency: wallet.currency,
                               active: wallet.total <= settings.walletThreshold(for: wallet.currency),
-                              enabled: settings.quotaAlertsEnabled, observedAt: snapshot.collectedAt,
+                              enabled: settings.effectiveWalletAlertsEnabled, observedAt: snapshot.collectedAt,
                               ledger: &ledger) {
             messages.append("\(wallet.currency) 可用余额 \(wallet.total)，已达到低余额阈值")
         }
-        if !snapshot.windows.contains(where: { $0.wallet?.isMonetary == false }),
+        if !wallets.isEmpty || !snapshot.windows.contains(where: { $0.wallet?.isMonetary == false }),
            let available = snapshot.walletAvailable,
            observeWalletAlert(accountID: accountID, currency: nil, active: !available,
-                              enabled: settings.quotaAlertsEnabled, observedAt: snapshot.collectedAt,
+                              enabled: settings.effectiveWalletAlertsEnabled, observedAt: snapshot.collectedAt,
                               ledger: &ledger) {
             messages.append("余额不足，无法调用 API")
         }
