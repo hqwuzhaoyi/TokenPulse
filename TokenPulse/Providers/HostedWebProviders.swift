@@ -41,8 +41,9 @@ enum HostedWebProfiles {
 }
 
 enum HostedWebHTTP {
+    struct StatusFailure: Error { let status: Int; let failure: RefreshFailure }
     static func get(_ url: URL, credential: ProviderCredentialEnvelope, headers: [String: String] = [:],
-                    transport: any ProviderTransport) async throws -> Data {
+                    transport: any ProviderTransport, reportHTTPStatus: Bool = false) async throws -> Data {
         try Task.checkCancellation()
         var request = URLRequest(url: url)
         request.timeoutInterval = 20; request.cachePolicy = .reloadIgnoringLocalCacheData; request.httpShouldHandleCookies = false
@@ -54,7 +55,10 @@ enum HostedWebHTTP {
         guard response.url?.scheme == url.scheme, response.url?.host == url.host,
               response.url?.port == url.port else { throw RefreshFailure.invalidCredential }
         if (300..<400).contains(response.statusCode) { throw RefreshFailure.invalidCredential }
-        if let failure = ProviderHTTP.queryFailure(status: response.statusCode) { throw failure }
+        if let failure = ProviderHTTP.queryFailure(status: response.statusCode) {
+            if reportHTTPStatus { throw StatusFailure(status: response.statusCode, failure: failure) }
+            throw failure
+        }
         guard data.count <= 2_097_152 else { throw RefreshFailure.unreadableResponse }
         return data
     }
@@ -208,18 +212,21 @@ struct ZoomMateProviderClient: Sendable {
                     var login = URLComponents(string: "https://\(host)/ai-computer/api/v1/login/")!
                     login.queryItems = [.init(name: "continue", value: "https://zoommate.zoom.us/")]
                     let data = try await HostedWebHTTP.get(login.url!, credential: credential,
-                        headers: ["Referer": "https://zoommate.zoom.us/"], transport: transport)
+                        headers: ["Referer": "https://zoommate.zoom.us/"], transport: transport, reportHTTPStatus: true)
                     let token = try Self.token(data)
                     let status = try await HostedWebHTTP.get(URL(string: "https://\(host)/ai-computer/api/v1/credits/status")!,
-                        credential: credential, headers: ["Referer": "https://zoommate.zoom.us/", "Authorization": "Bearer \(token)"], transport: transport)
+                        credential: credential, headers: ["Referer": "https://zoommate.zoom.us/", "Authorization": "Bearer \(token)"], transport: transport, reportHTTPStatus: true)
                     var snapshot = try Self.snapshot(status, accountID: accountID, collectedAt: now())
                     snapshot.sourceCredentialFingerprint = credential.sourceCredentialIdentity
                     return .init(snapshot: snapshot, updatedCredential: nil)
                 } catch {
                     if Task.isCancelled { throw CancellationError() }
+                    if let http = error as? HostedWebHTTP.StatusFailure {
+                        guard host == "ai.zoom.us", (500..<600).contains(http.status) else { throw http.failure }
+                        continue
+                    }
                     let mapped = ProviderHTTP.refreshFailure(error)
-                    let failure = mapped as? RefreshFailure
-                    guard host == "ai.zoom.us", failure == .network || failure == .server else { throw mapped }
+                    guard host == "ai.zoom.us", mapped as? RefreshFailure == .network else { throw mapped }
                 }
             }
             throw RefreshFailure.network

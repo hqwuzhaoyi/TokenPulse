@@ -152,7 +152,7 @@ final class HostedWebProviderTests: XCTestCase {
         XCTAssertEqual(requests.map { $0.url?.host }, ["ai.zoom.us","zoommate.zoom.us","zoommate.zoom.us"])
         XCTAssertNil(requests[1].value(forHTTPHeaderField: "Authorization"))
         XCTAssertEqual(requests[2].value(forHTTPHeaderField: "Authorization"), "Bearer temporary-one")
-        for status in [302,401,403,429] {
+        for status in [302,400,401,403,404,422,429] {
             let denied = HostedWebTestTransport(replies: [(status,"{}")])
             do { _ = try await ProviderQuotaClient(provider: .zoomMate, transport: denied).quota(for: id, credential: credential.encoded()); XCTFail("Refusal") } catch {}
             let count = await denied.requests.count; XCTAssertEqual(count, 1)
