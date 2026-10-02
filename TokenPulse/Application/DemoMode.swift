@@ -34,6 +34,7 @@ enum DemoMode {
             (.gitKraken, "GitKraken AI"),
             (.huggingFace, "Hugging Face ZeroGPU"),
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
+            (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -250,6 +251,26 @@ enum DemoMode {
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: Decimal(string: "18.25")!))
         ]
+        case .cursor: [
+            window("cursor.cursorModels", "每月额度", .monthly, 12, scope: "Cursor Models"),
+            window("cursor.otherModels", "每月额度", .monthly, 71, scope: "Other Models"),
+            QuotaWindow(id: "cursor.onDemand", name: "额外支出额度", scope: nil, period: .monthly,
+                        usedPercentage: 25, remainingCount: 15, totalCount: 20,
+                        resetsAt: now.addingTimeInterval(12 * 86400), unit: "USD 预算",
+                        exactCounts: DecimalQuotaCounts(used: 5, remaining: 15, total: 20))
+        ]
+        case .chutes: [
+            QuotaWindow(id: "chutes.fourHour", name: "4 小时固定额度", scope: nil, period: .other,
+                        usedPercentage: 40, remainingCount: 5, totalCount: 8.333333333333334,
+                        resetsAt: now.addingTimeInterval(3600), unit: "USD 预算",
+                        exactCounts: DecimalQuotaCounts(used: Decimal(string: "3.333333333333334")!, remaining: 5,
+                                                       total: Decimal(string: "8.333333333333334")!)),
+            QuotaWindow(id: "chutes.monthly", name: "账期额度", scope: nil, period: .monthly,
+                        usedPercentage: 25, remainingCount: 75, totalCount: 100,
+                        resetsAt: now.addingTimeInterval(12 * 86400), unit: "USD 预算",
+                        exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100))
+        ]
+        case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

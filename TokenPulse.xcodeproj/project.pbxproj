@@ -57,6 +57,22 @@
 		57F000000000000000000011 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
 		57F000000000000000000012 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
 		57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000013; };
+		2E6200000000000000000305 /* CursorAccountAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000301; };
+		2E6200000000000000000306 /* CursorAccountAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000301; };
+		2E6200000000000000000307 /* CursorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000302; };
+		2E6200000000000000000308 /* CursorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000302; };
+		2E6200000000000000000309 /* CursorSessionLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000303; };
+		2E6200000000000000000310 /* CursorProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000304; };
+
+		2E6200000000000000000023 /* ChutesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000021; };
+		2E6200000000000000000024 /* ChutesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000021; };
+		2E6200000000000000000025 /* ChutesProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000022; };
+
+		2E6200000000000000000013 /* AlibabaCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000011; };
+		2E6200000000000000000014 /* AlibabaCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000011; };
+		2E6200000000000000000015 /* AlibabaCodingPlanProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000012; };
+
+
 		E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
 		E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000002; };
@@ -313,6 +329,18 @@
 		57F000000000000000000023 /* V2EXProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/V2EXProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000010 /* SyntheticProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SyntheticProvider.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000013 /* SyntheticProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SyntheticProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000301 /* CursorAccountAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CursorAccountAuthenticator.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000302 /* CursorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CursorProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000303 /* CursorSessionLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/CursorSessionLoginView.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000304 /* CursorProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CursorProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6200000000000000000021 /* ChutesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ChutesProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000022 /* ChutesProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ChutesProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6200000000000000000011 /* AlibabaCodingPlanProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AlibabaCodingPlanProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000012 /* AlibabaCodingPlanProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AlibabaCodingPlanProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+
 		E11000000000000000000001 /* ElevenLabsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ElevenLabsProvider.swift; sourceTree = SOURCE_ROOT; };
 		E11000000000000000000002 /* ElevenLabsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ElevenLabsProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57EF00000000000000000001 /* StepFunProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/StepFunProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -507,6 +535,11 @@
                 C02200000000000000000011 /* FactoryProvider.swift */,
                 C02200000000000000000012 /* FactoryProviderTests.swift */,
 
+				2E6200000000000000000303 /* CursorSessionLoginView.swift */,
+				2E6200000000000000000302 /* CursorProvider.swift */,
+				2E6200000000000000000301 /* CursorAccountAuthenticator.swift */,
+				2E6200000000000000000021 /* ChutesProvider.swift */,
+				2E6200000000000000000011 /* AlibabaCodingPlanProvider.swift */,
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
 				AE2000000000000000000001 /* CommandCodeProvider.swift */,
 				AE2000000000000000000031 /* HuggingFaceProvider.swift */,
@@ -539,6 +572,9 @@
 				57F000000000000000000020 /* V2EXProvider.swift */,
 				57F000000000000000000013 /* SyntheticProviderTests.swift */,
 				57F000000000000000000010 /* SyntheticProvider.swift */,
+				2E6200000000000000000304 /* CursorProviderTests.swift */,
+				2E6200000000000000000022 /* ChutesProviderTests.swift */,
+				2E6200000000000000000012 /* AlibabaCodingPlanProviderTests.swift */,
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
@@ -830,6 +866,11 @@
 				57F000000000000000000041 /* XKiroProvider.swift in Sources */,
 				57F000000000000000000021 /* V2EXProvider.swift in Sources */,
 				57F000000000000000000011 /* SyntheticProvider.swift in Sources */,
+				2E6200000000000000000309 /* CursorSessionLoginView.swift in Sources */,
+				2E6200000000000000000307 /* CursorProvider.swift in Sources */,
+				2E6200000000000000000305 /* CursorAccountAuthenticator.swift in Sources */,
+				2E6200000000000000000023 /* ChutesProvider.swift in Sources */,
+				2E6200000000000000000013 /* AlibabaCodingPlanProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
 				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
@@ -869,6 +910,9 @@
 				57F000000000000000000031 /* PartialWalletTests.swift in Sources */,
 				57F000000000000000000024 /* V2EXProviderTests.swift in Sources */,
 				57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */,
+				2E6200000000000000000310 /* CursorProviderTests.swift in Sources */,
+				2E6200000000000000000025 /* ChutesProviderTests.swift in Sources */,
+				2E6200000000000000000015 /* AlibabaCodingPlanProviderTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
@@ -950,6 +994,10 @@
 				57F000000000000000000042 /* XKiroProvider.swift in Sources */,
 				57F000000000000000000022 /* V2EXProvider.swift in Sources */,
 				57F000000000000000000012 /* SyntheticProvider.swift in Sources */,
+				2E6200000000000000000308 /* CursorProvider.swift in Sources */,
+				2E6200000000000000000306 /* CursorAccountAuthenticator.swift in Sources */,
+				2E6200000000000000000024 /* ChutesProvider.swift in Sources */,
+				2E6200000000000000000014 /* AlibabaCodingPlanProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
 				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,

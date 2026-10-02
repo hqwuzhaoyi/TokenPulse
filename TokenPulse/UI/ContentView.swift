@@ -587,7 +587,9 @@ private struct AddAccountView: View {
                 if provider.requiresRegion && !isDemoMode {
                     Section("服务地区") {
                         ProviderRegionPicker(region: $region)
-                        Text("Moonshot 开放平台 API 钱包与 Kimi Code 套餐不同。Key 只发送至所选地区；更换地区需要重新输入对应 Key。")
+                        Text(provider == .moonshot
+                             ? "Moonshot 开放平台 API 钱包与 Kimi Code 套餐不同。Key 只发送至所选地区；更换地区需要重新输入对应 Key。"
+                             : "Key 只发送至所选百炼地区。部分账号的接口要求控制台登录会话；此版本仅支持 Key 路线，真实 Key 兼容性仍待验证。")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }

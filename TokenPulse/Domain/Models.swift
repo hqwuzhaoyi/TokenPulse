@@ -28,9 +28,10 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case atlasCloud
     case commandCode, amp, gitKraken, huggingFace
     case synthetic, v2ex, xKiro, zenMux
+    case alibabaCodingPlan, chutes, cursor
 
     var id: String { rawValue }
-    var requiresRegion: Bool { self == .moonshot }
+    var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
     var hasMonetaryWallet: Bool { [.xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
@@ -79,6 +80,9 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .v2ex: "V2EX"
         case .xKiro: "xKiro"
         case .zenMux: "ZenMux"
+        case .alibabaCodingPlan: "阿里百炼 Coding Plan"
+        case .chutes: "Chutes"
+        case .cursor: "Cursor"
         }
     }
 }
@@ -338,6 +342,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case noQuotaWindows
     case subscriptionRequired
     case insufficientPermissions
+    case consoleSessionRequired
 
     var displayName: String {
         switch self {
@@ -350,6 +355,7 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
         case .noQuotaWindows: "未返回套餐额度窗口"
         case .subscriptionRequired: "当前凭证没有可用的订阅套餐"
         case .insufficientPermissions: "Key 缺少所需的查询权限，请检查权限设置"
+        case .consoleSessionRequired: "该接口要求控制台登录会话，当前 Key 无法查询；请在对应站点检查。"
         }
     }
 }

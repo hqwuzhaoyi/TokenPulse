@@ -571,3 +571,11 @@ V2EX uses Apple SF Symbol bubble.left.and.bubble.right.fill as a generic chat sy
 xKiro uses Apple SF Symbol puzzlepiece.extension.fill as a generic extension symbol, not an xKiro or AWS Kiro trademark. No third-party SVG is imported; the system renders it. The choice follows generic extension usage in Pulse commit 397c8fc4f1bd52180a452d2f3f0c099def97cf69, Sources/Pulse/Providers/Profiled/XKiroUsageService.swift.
 
 ZenMux SVG: Lobe Icons (https://github.com/lobehub/lobe-icons) commit f555763cdef7074e22f60970ad1a75334bf267e5, packages/static-svg/icons/zenmux.svg. Copyright (c) 2023 LobeHub. MIT License reproduced above. TokenPulse replaces currentColor with black, sets explicit 24x24 dimensions and packages the unchanged vector paths for template rendering.
+
+Moonshot API uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/moonshot.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets width/height to 24; vector paths are unchanged. This is the MoonshotAI mark, distinct from the Kimi Code mark.
+
+Alibaba Coding Plan uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/alibabacloud.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets explicit width/height; vector paths are unchanged.
+
+Chutes uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/chutes.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets width/height to 64; vector paths are unchanged.
+
+Cursor uses Lobe Icons (https://github.com/lobehub/lobe-icons) commit 2e76c48721e91b9aaa40803a0fa2eb8aca7399c4, packages/static-svg/icons/cursor.svg. Copyright (c) 2023 LobeHub; MIT License above. TokenPulse replaces currentColor with black and sets explicit width/height; vector paths are unchanged.

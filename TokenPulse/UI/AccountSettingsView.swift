@@ -271,7 +271,9 @@ private struct AccountPreferencesView: View {
                     } else if usesAPIKey(configuration.account.provider) {
                         if configuration.account.provider.requiresRegion {
                             ProviderRegionPicker(region: $region)
-                            Text("地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。")
+                            Text(configuration.account.provider == .moonshot
+                                 ? "地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。"
+                                 : "地区与凭证绑定。Key 查询兼容性待验证；要求控制台会话时不会显示零额度。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         if configuration.account.provider == .newAPI {
