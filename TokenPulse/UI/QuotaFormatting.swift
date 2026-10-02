@@ -133,11 +133,18 @@ enum QuotaFormatting {
 
     static func balance(_ value: Decimal?, wallet: WalletBalance) -> String {
         guard let value else { return "未提供" }
-        return "\(value.formatted(.number.precision(.fractionLength(0...8)))) \(wallet.currency)"
+        return money(value, currency: wallet.currency)
     }
 
     static func money(_ value: Decimal, currency: String) -> String {
-        "\(value.formatted(.number.precision(.fractionLength(0...8)))) \(currency)"
+        let minimumFixedUnit = Decimal(string: "0.00000001")!
+        let formatted: String
+        if value != 0, value > -minimumFixedUnit, value < minimumFixedUnit {
+            formatted = value.formatted(.number.notation(.scientific).precision(.significantDigits(1...8)))
+        } else {
+            formatted = value.formatted(.number.precision(.fractionLength(0...8)))
+        }
+        return "\(formatted) \(currency)"
     }
 
     /// Wallet status wording shared by the account card, Watch pages and widgets.

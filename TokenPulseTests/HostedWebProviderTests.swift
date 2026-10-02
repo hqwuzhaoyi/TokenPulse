@@ -44,6 +44,19 @@ final class WebProviderSessionTests: XCTestCase {
         XCTAssertNotNil(reported.displayMetrics.first?.window)
     }
 
+    func testTinyBalancesRetainTheirNonzeroValueAndSignAcrossSharedFormatting() {
+        let tiny = Decimal(string: "0.0000000000000000000001")!
+        let zero = QuotaFormatting.money(0, currency: "USD")
+        let positive = QuotaFormatting.money(tiny, currency: "USD")
+        let negative = QuotaFormatting.money(-tiny, currency: "USD")
+        XCTAssertNotEqual(positive, zero)
+        XCTAssertNotEqual(negative, zero)
+        XCTAssertNotEqual(positive, negative)
+        XCTAssertTrue(positive.contains("E-22"))
+        XCTAssertEqual(QuotaFormatting.balance(tiny, wallet: .init(currency: "USD", total: tiny)), positive)
+        XCTAssertEqual(QuotaFormatting.money(Decimal(string: "4.98")!, currency: "USD"), "4.98 USD")
+    }
+
     func testOriginAndHeaderRestrictionsRejectInvalidSessions() throws {
         let profile = try XCTUnwrap(Provider.raycastAI.webLoginProfile)
         XCTAssertTrue(profile.permits(URL(string: "https://www.raycast.com/settings")))
