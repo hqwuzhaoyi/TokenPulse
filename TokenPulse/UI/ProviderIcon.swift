@@ -43,6 +43,7 @@ extension Provider {
         case .copilot: "ProviderCopilot"
         case .commandCode: "ProviderCommandCode"
         case .amp: "ProviderAmp"
+        case .gitKraken: "ProviderGitKraken"
         }
     }
 

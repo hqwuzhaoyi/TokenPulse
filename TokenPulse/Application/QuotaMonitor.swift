@@ -400,6 +400,7 @@ final class QuotaMonitor: ObservableObject {
         if synchronizedConfigurations[configIndex].credentialIdentity != identity {
             synchronizedConfigurations[configIndex].credentialIdentity = identity
             synchronizedConfigurations[configIndex].serverAddress = envelope.gatewayAddress?.value
+            if provider == .gitKraken { synchronizedConfigurations[configIndex].organizationID = envelope.metadata["organizationID"] }
             synchronizedConfigurations[configIndex].modifiedAt = Date()
         }
     }

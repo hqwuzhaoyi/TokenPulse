@@ -533,6 +533,7 @@ private struct AddAccountView: View {
     @State private var name = ""
     @State private var key = ""
     @State private var serverAddress = ""
+    @State private var organizationID = ""
     @State private var provider = Provider.miniMaxChina
     @State private var saving = false
     @State private var showingLogin = false
@@ -573,6 +574,14 @@ private struct AddAccountView: View {
                         Text("服务器地址")
                     } footer: {
                         Text("每个账号可使用不同网关，末尾 /v1 会自动移除。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
+                    }
+                }
+                if provider == .gitKraken && !isDemoMode {
+                    Section("查询组织") {
+                        TextField("组织 ID（可选）", text: $organizationID)
+                            .textInputAutocapitalization(.never).autocorrectionDisabled()
+                        Text("留空查询会话默认组织；组织额度会标明配置的 ID。会话 Token 会过期，失效后请在账号设置重新配置。")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
                 }
                 Section {
@@ -616,7 +625,7 @@ private struct AddAccountView: View {
                         Task {
                             do {
                                 let credential = isDemoMode ? "demo" : usesAPIKey
-                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress)
+                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key, serverAddress: serverAddress, organizationID: organizationID)
                                     : key
                                 guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider, newAccountID) else {
                                     loginMessage = "账号未保存，请重试。"
@@ -639,7 +648,7 @@ private struct AddAccountView: View {
                     ToolbarItem(placement: .status) { ProgressView() }
                 }
             }
-            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; loginMessage = nil }
+            .onChange(of: provider) { _, _ in key = ""; serverAddress = ""; organizationID = ""; loginMessage = nil }
             .sheet(isPresented: $showingLogin) {
                 ProviderSignInView(provider: provider, accountID: newAccountID) { credential in
                     key = credential

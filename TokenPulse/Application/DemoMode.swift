@@ -20,6 +20,7 @@ enum DemoMode {
             (.copilot, "GitHub Copilot Free"),
             (.commandCode, "Command Code"),
             (.amp, "Amp"),
+            (.gitKraken, "GitKraken AI"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -116,6 +117,14 @@ enum DemoMode {
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
+        case .gitKraken: [
+            QuotaWindow(id: "gitKraken.personal", name: "Personal AI credits", scope: nil,
+                        usedPercentage: 25, remainingCount: 75, totalCount: 100,
+                        resetsAt: now.addingTimeInterval(3 * 86_400), unit: "credits"),
+            QuotaWindow(id: "gitKraken.organization", name: "Organization AI credits", scope: "Demo Organization",
+                        usedPercentage: 40, remainingCount: 600, totalCount: 1000,
+                        resetsAt: now.addingTimeInterval(3 * 86_400), unit: "credits")
         ]
         case .amp: [
             QuotaWindow(id: "amp.free", name: "Amp Free · 逐小时补充", scope: nil,

@@ -14,7 +14,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
-    case commandCode, amp
+    case commandCode, amp, gitKraken
 
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .commandCode || self == .amp }
@@ -47,6 +47,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .copilot: "GitHub Copilot"
         case .commandCode: "Command Code"
         case .amp: "Amp"
+        case .gitKraken: "GitKraken AI"
         }
     }
 }
