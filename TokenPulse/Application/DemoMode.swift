@@ -16,7 +16,7 @@ enum DemoMode {
             (.poe, "Poe points"), (.vercelAIGateway, "Vercel AI Gateway 钱包"),
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
-            (.newAPI, "New API 钱包"), (.sub2api, "sub2api 分组"),
+            (.newAPI, "New API 钱包"), (.sub2api, "sub2api 分组"), (.bifrost, "Bifrost 虚拟 Key"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
             (.clawRouter, "ClawRouter"),
             (.aixy, "Aixy"),
@@ -224,6 +224,10 @@ enum DemoMode {
                             usedPercentage: 25, remainingCount: 1_200_000_000, totalCount: 1_600_000_000,
                             resetsAt: nil, unit: "积分", expiresAt: now.addingTimeInterval(3 * 86_400))
             ]
+        case .bifrost: [
+            QuotaWindow(id: "bifrost.key.demo", name: "1h USD 预算", scope: "虚拟 Key", period: .other, usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(1800), unit: "USD 预算额度", exactCounts: .init(used: 2, remaining: 8, total: 10)),
+            QuotaWindow(id: "bifrost.model.demo", name: "1M USD 预算", scope: "模型 · openai · gpt-4o", period: .monthly, usedPercentage: 50, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD 预算额度", exactCounts: .init(used: 10, remaining: 10, total: 20))
+        ]
         case .sub2api: [
             QuotaWindow(id: "sub2api.balance", name: "API 钱包余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD", wallet: WalletBalance(currency: "USD", total: 16.33538288)),
             QuotaWindow(id: "sub2api.rate.5h", name: "5h 限流额度", scope: "限流", period: .fiveHour, usedPercentage: 91, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3600), unit: "USD", exactCounts: .init(used: 91, remaining: 9, total: 100))

@@ -3,7 +3,7 @@ import CryptoKit
 import Foundation
 
 extension Provider {
-    var requiresGatewayAddress: Bool { self == .newAPI || self == .sub2api }
+    var requiresGatewayAddress: Bool { [.newAPI, .sub2api, .bifrost].contains(self) }
 }
 
 enum GatewayCredentials {

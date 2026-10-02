@@ -1671,3 +1671,5 @@ the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
 
+
+Bifrost: built-in SF Symbol puzzlepiece.extension.fill, supplied by Apple SDK (Xcode 26.5), a generic gateway mark rather than a vendor logo. The pinned official maximhq/bifrost 8ffa1fbd27d1a33a55a05109b96fc2d2aab8805b tree contains raster Bifrost logos, no suitable template vector; Lobe Icons a94750e3/79b551cf contain no Bifrost mark. No third-party bitmap is imported or relicensed; SF Symbol use follows Apple SDK/SF Symbols terms.
