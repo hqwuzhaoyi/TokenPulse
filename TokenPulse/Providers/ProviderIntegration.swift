@@ -589,6 +589,8 @@ struct ProviderAuthenticationController: Sendable {
 
     func continueLogin(_ session: ProviderLoginSession, callbackURL: URL? = nil) async throws -> ProviderLoginProgress {
         switch session.provider {
+        case .nousPortal:
+            return try await NousPortalAuthenticator(transport: nousTransport, now: now).poll(session)
         case .gemini:
             throw ProviderIntegrationError.unsupportedLogin("请使用 Google 原生授权界面完成配置")
         case .antigravity:
