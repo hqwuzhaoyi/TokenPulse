@@ -1,0 +1,1461 @@
+[
+  {
+    "number": 1,
+    "slug": "zhipu",
+    "title": "智谱国内版套餐额度接入",
+    "behavior": "用户输入国内 Coding Plan Key 后，在 iPhone、Watch 与小组件查看国内账号的套餐额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "glmCoding",
+    "status": "ready-for-agent",
+    "file": "issues/01-zhipu.md"
+  },
+  {
+    "number": 2,
+    "slug": "minimax-international",
+    "title": "MiniMax 国际版套餐额度接入",
+    "behavior": "用户添加 MiniMax 国际服务账号，两端独立查询套餐额度，与国内版同时使用。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "minimax",
+    "status": "ready-for-agent",
+    "file": "issues/02-minimax-international.md"
+  },
+  {
+    "number": 3,
+    "slug": "copilot",
+    "title": "GitHub Copilot 设备授权与额度查询",
+    "behavior": "用户从 iPhone 完成 GitHub 设备授权，同步后可在 Watch 独立查看 Copilot 额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "copilot",
+    "status": "ready-for-agent",
+    "file": "issues/03-copilot.md"
+  },
+  {
+    "number": 4,
+    "slug": "moonshot",
+    "title": "Moonshot API 钱包余额接入",
+    "behavior": "用户明确选择 Moonshot 国内或国际账号并输入 Key，两端查看对应币种的 API 钱包余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "moonshot",
+    "status": "ready-for-agent",
+    "file": "issues/04-moonshot.md"
+  },
+  {
+    "number": 5,
+    "slug": "alibaba-coding-plan",
+    "title": "阿里百炼 Coding Plan 额度接入",
+    "behavior": "用户选择百炼国内或国际服务并提供可用凭证，在双端查看 Coding Plan 三个额度周期。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "alibabaCodingPlan",
+    "status": "ready-for-agent",
+    "file": "issues/05-alibaba-coding-plan.md"
+  },
+  {
+    "number": 6,
+    "slug": "factory",
+    "title": "Factory 套餐额度接入",
+    "behavior": "用户输入 Factory Key，在双端查看账号采用的计费模式及对应套餐额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "factory",
+    "status": "ready-for-agent",
+    "file": "issues/06-factory.md"
+  },
+  {
+    "number": 7,
+    "slug": "synthetic",
+    "title": "Synthetic 多窗口额度接入",
+    "behavior": "用户输入 Synthetic Key，在双端分别查看 5 小时、每周和搜索额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "synthetic",
+    "status": "ready-for-agent",
+    "file": "issues/07-synthetic.md"
+  },
+  {
+    "number": 8,
+    "slug": "v2ex",
+    "title": "V2EX AI Chat 额度接入",
+    "behavior": "用户输入个人访问 Token，在双端查看 AI Chat 滚动额度及购买的补充包。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "v2ex",
+    "status": "ready-for-agent",
+    "file": "issues/08-v2ex.md"
+  },
+  {
+    "number": 9,
+    "slug": "poe",
+    "title": "Poe points 余额接入",
+    "behavior": "用户输入 Poe Key，在双端及小组件查看剩余 points。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "poe",
+    "status": "ready-for-agent",
+    "file": "issues/09-poe.md"
+  },
+  {
+    "number": 10,
+    "slug": "vercel-ai-gateway",
+    "title": "Vercel AI Gateway 钱包余额接入",
+    "behavior": "用户输入 AI Gateway Key，在双端查看美元余额并配置低余额提醒。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "vercelAIGateway",
+    "status": "ready-for-agent",
+    "file": "issues/10-vercel-ai-gateway.md"
+  },
+  {
+    "number": 11,
+    "slug": "elevenlabs",
+    "title": "ElevenLabs 字符额度接入",
+    "behavior": "用户输入具有 user_read 权限的 Key，在双端查看账期字符用量与重置时间。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "elevenLabs",
+    "status": "ready-for-agent",
+    "file": "issues/11-elevenlabs.md"
+  },
+  {
+    "number": 12,
+    "slug": "new-api",
+    "title": "New API 自定义地址与余额查询",
+    "behavior": "用户添加自定义网关地址和 Key，在双端查询 New API 钱包余额；同一提供商可配置多个服务器。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "newAPI",
+    "status": "ready-for-agent",
+    "file": "issues/12-new-api.md"
+  },
+  {
+    "number": 13,
+    "slug": "sub2api",
+    "title": "sub2api 分组额度与余额接入",
+    "behavior": "用户配置 sub2api 地址和分组 Key，在双端查看该分组实际提供的余额、配额、订阅或限流窗口。",
+    "blockers": [
+      12
+    ],
+    "kind": "integration",
+    "upstream": "sub2api",
+    "status": "ready-for-agent",
+    "file": "issues/13-sub2api.md"
+  },
+  {
+    "number": 14,
+    "slug": "bifrost",
+    "title": "Bifrost 虚拟 Key 预算接入",
+    "behavior": "用户配置 Bifrost 网关与虚拟 Key，在双端查看 Key、上游提供商和模型的预算窗口。",
+    "blockers": [
+      12
+    ],
+    "kind": "integration",
+    "upstream": "bifrost",
+    "status": "ready-for-agent",
+    "file": "issues/14-bifrost.md"
+  },
+  {
+    "number": 15,
+    "slug": "litellm",
+    "title": "LiteLLM 用户与团队预算接入",
+    "behavior": "用户配置 LiteLLM 地址与虚拟 Key，在双端分别查看对应用户及团队预算。",
+    "blockers": [
+      12
+    ],
+    "kind": "integration",
+    "upstream": "liteLLM",
+    "status": "ready-for-agent",
+    "file": "issues/15-litellm.md"
+  },
+  {
+    "number": 16,
+    "slug": "command-code",
+    "title": "Command Code 美元余额与限额",
+    "behavior": "输入 Key 后查看美元余额和服务明确给出的用量限额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "commandCode",
+    "criteria": [
+      "余额与滚动或组织限额分别展示；不使用上游按套餐价格推算的月度总额。",
+      "确认 Key 可以独立查询；按服务返回的金额与单位解析，不将积分数推算为美元。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/16-command-code.md"
+  },
+  {
+    "number": 17,
+    "slug": "amp",
+    "title": "Amp 套餐额度与余额",
+    "behavior": "输入 access token 后查看 Free、Agent、Orb 额度和个人美元余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "amp",
+    "criteria": [
+      "只解析已核实的响应文本形态；ANSI 和 Markdown 清理不改变数值，陌生文本明确报错。",
+      "逐小时补充与每日重置区分；Orb 使用小时单位，周期结束日期保留其日期精度。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/17-amp.md"
+  },
+  {
+    "number": 18,
+    "slug": "atlas-cloud",
+    "title": "Atlas Cloud 钱包余额",
+    "behavior": "输入具有余额读取权限的 Key 后查看账户余额并配置低余额提醒。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "atlasCloud",
+    "criteria": [
+      "核验 account scope 和币种；以十进制处理金额，保留零及负余额。",
+      "仅覆盖 API 钱包；没有套餐上限时不生成使用率或 Coding Plan 额度。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/18-atlas-cloud.md"
+  },
+  {
+    "number": 19,
+    "slug": "chutes",
+    "title": "Chutes 订阅额度",
+    "behavior": "输入 Key 后分别查看滚动窗口和月度订阅额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "chutes",
+    "criteria": [
+      "确认真实响应字段和使用率尺度；未知字段不通过递归搜索或比例猜测产生额度。",
+      "窗口长度仅采用接口给出的值；无订阅、未提供限额和耗尽分别显示。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/19-chutes.md"
+  },
+  {
+    "number": 20,
+    "slug": "clinepass",
+    "title": "ClinePass 多周期额度",
+    "behavior": "输入 Key 后查看 5 小时、每周及每月额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "clinePass",
+    "criteria": [
+      "验证成功状态及各窗口百分比；缺失、负值或未知类型不伪装成零用量。",
+      "按服务给出的重置时间提醒，月度额度不假定固定三十天。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/20-clinepass.md"
+  },
+  {
+    "number": 21,
+    "slug": "codebuff",
+    "title": "Codebuff Key 模式 credits",
+    "behavior": "输入 API Key 后查看可查询的 credits 余额及有完整分母的额度窗口。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "codebuff",
+    "criteria": [
+      "API Key 路径与 CLI 会话能力区分；仅 CLI 能读取的每周订阅额度不假装可用。",
+      "credits 使用非货币单位；缺少总量时不绘制百分比，未返回的重置时间不补齐。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/21-codebuff.md"
+  },
+  {
+    "number": 22,
+    "slug": "deepinfra",
+    "title": "DeepInfra 钱包与支出上限",
+    "behavior": "输入 Key 后查看可用美元余额和服务实际配置的支出上限。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "deepInfra",
+    "criteria": [
+      "核对账本正负号及待结算支出规则，验证预付余额与欠费场景，使用十进制金额。",
+      "余额与支出限额分别展示；没有正上限时只显示余额，不把停用标志转成 100% 用量。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/22-deepinfra.md"
+  },
+  {
+    "number": 23,
+    "slug": "devpass",
+    "title": "DevPass 套餐与 Key 限额",
+    "behavior": "输入 LLM Gateway Key 后查看 premium 每周额度、套餐 credits 与 Key 限额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "devPass",
+    "criteria": [
+      "三个窗口独立标识和提醒，十进制字符串精确解析。",
+      "无套餐、无 Key 上限及未知计划类型明确处理，非周期限额不创建重置提醒。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/23-devpass.md"
+  },
+  {
+    "number": 24,
+    "slug": "gitkraken",
+    "title": "GitKraken AI 个人与组织额度",
+    "behavior": "输入 GitKraken 账户会话 token 后查看个人额度和对应组织共享额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "gitKraken",
+    "criteria": [
+      "该凭证属于会话 token，不标成永久 API Key；到期后提供重新配置入口。",
+      "两种额度分开显示，标明所查询组织；无限和零配额不生成虚假百分比。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/24-gitkraken.md"
+  },
+  {
+    "number": 25,
+    "slug": "hugging-face",
+    "title": "Hugging Face ZeroGPU 额度",
+    "behavior": "输入用户 token 后查看 ZeroGPU 已用与剩余 GPU 时长。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "huggingFace",
+    "criteria": [
+      "以秒或可读时长显示 GPU 配额，不称为模型 token 或 API 钱包。",
+      "使用接口返回的重置时间，额度为零或未提供时不伪造日窗口；不包含 Inference Providers 账单。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/25-hugging-face.md"
+  },
+  {
+    "number": 26,
+    "slug": "hyper",
+    "title": "Hyper Hypercredits 余额",
+    "behavior": "输入 Key 后在手机、Watch 和小组件查看 HC 余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "hyper",
+    "criteria": [
+      "HC 是服务积分单位，不使用货币格式、汇率、套餐百分比或重置时间。",
+      "零余额有效，负值或缺失值按核实的契约处理；不误触发货币低余额规则。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/26-hyper.md"
+  },
+  {
+    "number": 27,
+    "slug": "ibm-bob",
+    "title": "IBM Bob 团队 Bobcoins 预算",
+    "behavior": "输入受支持凭证后查看各实例和团队的 Bobcoins 使用与预算。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "ibmBob",
+    "criteria": [
+      "识别 API Key 与登录 token 的认证差异；动态区域地址仅允许已核实的 IBM 服务域名。",
+      "每个实例与团队的额度单独标识，不将不同预算池或重置周期相加；无预算与查询失败明确区分。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/27-ibm-bob.md"
+  },
+  {
+    "number": 28,
+    "slug": "kilo-code",
+    "title": "Kilo Code 钱包与 Kilo Pass",
+    "behavior": "输入 Key 后查看美元余额与 Kilo Pass 当期额度。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "kiloCode",
+    "criteria": [
+      "微美元金额精确换算；套餐基础和奖励额度仅按明确契约合并。",
+      "余额块各自的到期不当成套餐重置；tRPC 子请求失败与未订阅状态正确处理。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/28-kilo-code.md"
+  },
+  {
+    "number": 29,
+    "slug": "neuralwatt",
+    "title": "Neuralwatt 订阅与钱包",
+    "behavior": "输入 Key 后分别查看 kWh 订阅额度、Key 支出限额和美元余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "neuralwatt",
+    "criteria": [
+      "三个计量系统保持独立单位和身份；只对明确提供的总额绘制使用率。",
+      "账期结束仅用于相应套餐，钱包没有重置；缺失数值不补零。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/29-neuralwatt.md"
+  },
+  {
+    "number": 30,
+    "slug": "v0",
+    "title": "v0 账期额度与限流",
+    "behavior": "输入 v0 Platform Key 后查看账期 credits 和消息限流窗口。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "v0",
+    "criteria": [
+      "账期额度与消息数量分别显示；缺少剩余额度时不由上限单独生成使用率。",
+      "限流查询失败不抹除已取得的账期数据，辅助数据陈旧或缺失明确显示。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/30-v0.md"
+  },
+  {
+    "number": 31,
+    "slug": "venice",
+    "title": "Venice USD 与 DIEM 余额",
+    "behavior": "输入 Key 后查看账号实际消费的 USD 或 DIEM 余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "venice",
+    "criteria": [
+      "优先采用服务指定的消费单位；DIEM 作为非货币单位，不做换汇或美元低余额提醒。",
+      "USD 接入货币低余额规则，切换计量单位后提醒状态和小组件保持一致。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/31-venice.md"
+  },
+  {
+    "number": 32,
+    "slug": "warp",
+    "title": "Warp 套餐与附加 credits",
+    "behavior": "输入 Warp Key 后查看套餐及附加 credits。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "warp",
+    "criteria": [
+      "核验移动端直连的只读 GraphQL 请求和必需客户端头；平台约束必须形成真实验证结论。",
+      "个人与工作区的附加额度来源保持清晰，不能把无统一周期的 grants 相加形成套餐百分比。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/32-warp.md"
+  },
+  {
+    "number": 33,
+    "slug": "xkiro",
+    "title": "xKiro 配额与钱包",
+    "behavior": "输入 Key 后查看 5 小时、每周、每日免费 token 和钱包余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "xKiro",
+    "criteria": [
+      "各类窗口保留服务给出的单位、周期与限额，套餐额度与钱包分开显示。",
+      "API 可用状态、额度耗尽与钱包低余额分别按证据处理。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/33-xkiro.md"
+  },
+  {
+    "number": 34,
+    "slug": "zenmux",
+    "title": "ZenMux 管理额度与余额",
+    "behavior": "输入 Management Key 后查看 5 小时、7 天额度及按量钱包余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "zenMux",
+    "criteria": [
+      "明确需要管理 Key，推理 Key 无权查询时提示对应原因。",
+      "余额查询失败不覆盖成功的套餐额度，分别记录数据可用性和时间；保留服务声明的币种。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/34-zenmux.md"
+  },
+  {
+    "number": 35,
+    "slug": "aixy",
+    "title": "Aixy 托管网关预算",
+    "behavior": "输入 Aixy Key 后查看当前 Key 或项目适用的预算。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "aixy",
+    "criteria": [
+      "使用上游已核实的固定托管地址，本票不添加未验证的自定义部署能力。",
+      "硬预算的已花费加预留与监控预算的支出分开解释；过滤其他 Key 或项目，不混用周期。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/35-aixy.md"
+  },
+  {
+    "number": 36,
+    "slug": "clawrouter",
+    "title": "ClawRouter 托管预算",
+    "behavior": "输入 Key 后查看托管 ClawRouter 的已配置月度预算。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "clawRouter",
+    "criteria": [
+      "使用固定托管服务路径；微美元整数精确换算，无预算不显示为耗尽。",
+      "月份标识不证明重置的时刻和时区，因此不自行生成重置倒计时。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/36-clawrouter.md"
+  },
+  {
+    "number": 37,
+    "slug": "llm-proxy",
+    "title": "LLM API Key Proxy 分组额度",
+    "behavior": "配置服务器地址和 Key 后查看每个上游的各配额组。",
+    "blockers": [
+      12
+    ],
+    "kind": "integration",
+    "upstream": "llmProxy",
+    "criteria": [
+      "复用按账号绑定的自定义地址；缓存、凭证与提醒不得在服务器或 Key 间复用。",
+      "逐组展示剩余比例与实际重置时间，不将所有上游的最小剩余值合成为总额度。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/37-llm-proxy.md"
+  },
+  {
+    "number": 38,
+    "slug": "xai-api",
+    "title": "xAI API 团队预付余额",
+    "behavior": "配置 Team ID 与 Management Key 后查看该团队美元余额。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "xaiAPI",
+    "criteria": [
+      "团队身份与凭证绑定并安全同步；团队参数严格验证，不能改变请求域名或路径结构。",
+      "与 SuperGrok、Grok Bot 独立识别；使用十进制和已核实的金额单位，不把推理 Key 当管理 Key。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/38-xai-api.md"
+  },
+  {
+    "number": 39,
+    "slug": "volcengine",
+    "title": "火山方舟 Coding 与 Agent Plan",
+    "behavior": "输入 AK/SK 后由手机及 Watch 直接签名查询 Coding 和 Agent Plan。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "volcengine",
+    "criteria": [
+      "采用移动端可执行的签名 API 路径，签名计算有独立验证；不调用 arkcli。",
+      "两个套餐独立解析，单个未订阅不抹去另一个的有效额度；无真实账号证据不能宣称可用。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/39-volcengine.md"
+  },
+  {
+    "number": 40,
+    "slug": "stepfun",
+    "title": "StepFun 套餐与网页登录",
+    "behavior": "在 iPhone 完成 StepFun 网页登录，将账户会话同步后由 Watch 独立查询套餐。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "stepFun",
+    "criteria": [
+      "以本票建立最小可复用的按提供商和账号隔离的网页登录、Cookie 提取及重新登录路径；保留现有 Claude 行为。",
+      "区分国内与国际站；会话与设备标识相匹配，Token Plan 和 Coding Plan 分别解析；到期时间不当成重置。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/40-stepfun.md"
+  },
+  {
+    "number": 41,
+    "slug": "xiaomi-coding-plan",
+    "title": "小米 Coding Plan 套餐与余额",
+    "behavior": "从 iPhone 登录 MiMo 控制台后在双端查看月度额度与余额。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "xiaomiMiMo",
+    "criteria": [
+      "使用控制台会话，普通推理 API Key 不作为查询凭证。",
+      "无套餐与未取到数据区分；余额和月度限额分别展示，实际未核实的海外站点不自动猜测。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/41-xiaomi-coding-plan.md"
+  },
+  {
+    "number": 42,
+    "slug": "qoder",
+    "title": "Qoder 国内版网页登录与额度",
+    "behavior": "用户添加 Qoder 国内站账号后在手机和 Watch 查看个人与团队 credits。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "qoder",
+    "criteria": [
+      "国内网页会话独立于现有国际设备授权；地区改变后缓存、凭证和通知状态不能沿用。",
+      "个人额度与团队资源不相加；处理试用额度、过期重置时间和所需防护 Cookie，保持国际版兼容。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/42-qoder.md"
+  },
+  {
+    "number": 43,
+    "slug": "ollama-cloud",
+    "title": "Ollama Cloud 账户额度",
+    "behavior": "从 iPhone 登录 Ollama 后在双端查看云端账号额度窗口。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "ollamaCloud",
+    "criteria": [
+      "使用账户页面会话及其数据，不把推理响应的 token 或时延指标当账号额度。",
+      "页面解析失配、会话过期与首次未登录明确区分；布局变化不以猜测数字补齐。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/43-ollama-cloud.md"
+  },
+  {
+    "number": 44,
+    "slug": "devin",
+    "title": "Devin 网页账户额度",
+    "behavior": "从 iPhone 登录 Devin 后在双端直接查询每日和每周额度。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "devin",
+    "criteria": [
+      "在已有按账号隔离的网页登录路径上增加最小必要的同源网页存储凭证提取；核验 token、账户与组织的一致性。",
+      "只采用对应账号的远程查询结果，失败保留本账号旧快照，不回退 Mac 编辑器保存的计划。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/44-devin.md"
+  },
+  {
+    "number": 45,
+    "slug": "abacus",
+    "title": "Abacus AI Compute points",
+    "behavior": "从 iPhone 登录 Abacus 后查看 compute points 额度与账期日期。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "abacus",
+    "criteria": [
+      "以真实登录核验必需的 Cookie 名称，上游候选名称不能作为已验证事实。",
+      "总量、已用和剩余必须来自同一账户与周期，分母不明确时不绘制百分比。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/45-abacus.md"
+  },
+  {
+    "number": 46,
+    "slug": "augment",
+    "title": "Augment Code 当期 credits",
+    "behavior": "从 iPhone 登录 Augment 后在双端查看本账期 credits。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "augment",
+    "criteria": [
+      "核验真实会话 Cookie 和 available 字段的含义，不能仅凭名称将剩余值作为总额度。",
+      "套餐辅助查询失败时保留成功的 credits；没有明确账期结束则不预排重置提醒。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/46-augment.md"
+  },
+  {
+    "number": 47,
+    "slug": "longcat",
+    "title": "LongCat Token 包与燃料包",
+    "behavior": "登录 LongCat 后查看当前 Token 包和补充燃料包。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "longCat",
+    "criteria": [
+      "主包和补充包分别显示；到期时间不能当成重置，缺失 consumed 不填零。",
+      "登录校验仅保留必要凭证与额度数据；当前包查询失败按核实规则回退，不能串到其他账号。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/47-longcat.md"
+  },
+  {
+    "number": 48,
+    "slug": "manus",
+    "title": "Manus 每日与每月 credits",
+    "behavior": "登录 Manus 后查看每日恢复额度、月度额度与总 credits。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "manus",
+    "criteria": [
+      "服务 credits 使用非货币单位；各分项不能重复计入总余额或合并为一个百分比。",
+      "每日周期须有响应依据，月度未返回重置时间则明确未提供；不猜测数值时间戳起点。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/48-manus.md"
+  },
+  {
+    "number": 49,
+    "slug": "mistral",
+    "title": "Mistral API 与 Vibe 额度",
+    "behavior": "登录 Mistral 后查看 API、Vibe 额度及钱包余额。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "mistral",
+    "criteria": [
+      "核验 Ory 会话 Cookie、CSRF 和允许的官方子域；登录重定向与过期状态明确处理。",
+      "钱包与 API、Vibe 两个窗口分开；页面流解析与辅助路由失败不抹除有效数据，金额仅在币种明确时展示。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/49-mistral.md"
+  },
+  {
+    "number": 50,
+    "slug": "notion-ai",
+    "title": "Notion AI 工作区额度",
+    "behavior": "登录 Notion 并明确选择工作区，在双端查看该工作区的滚动与账期额度。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "notionAI",
+    "criteria": [
+      "工作区 ID 纳入账户配置与缓存身份，不能自动选第一个付费工作区或混用多个工作区。",
+      "无适用套餐与请求失败分别显示；内部接口仅查询指定工作区额度，不扩大到文档内容或 Custom Agents 计费。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/50-notion-ai.md"
+  },
+  {
+    "number": 51,
+    "slug": "perplexity",
+    "title": "Perplexity API credits",
+    "behavior": "从 iPhone 登录 Perplexity 后查看 API credits 余额。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "perplexity",
+    "criteria": [
+      "核验实际会话及可能的分块 Cookie；确认 Watch 独立请求可通过所需会话验证。",
+      "只显示 API credits，不将其宣称为聊天订阅剩余次数；分币金额精确换算。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/51-perplexity.md"
+  },
+  {
+    "number": 52,
+    "slug": "qwen-cloud",
+    "title": "Qwen Cloud 套餐额度",
+    "behavior": "登录 Qwen Cloud 后在双端查看 5 小时、每周和每月套餐额度。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "qwenCloud",
+    "criteria": [
+      "账号 Cookie、CSRF 及目标站点绑定；正确编码请求字段中的特殊字符。",
+      "仅按已核实比例尺度解析，套餐名称查询失败不抹去额度；不混同百炼 Coding Plan 或 CLI Token Plan。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/52-qwen-cloud.md"
+  },
+  {
+    "number": 53,
+    "slug": "raycast-ai",
+    "title": "Raycast AI credits",
+    "behavior": "从 iPhone 登录 Raycast 后查看 AI credits 使用和续期时间。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "raycastAI",
+    "criteria": [
+      "总额度与剩余值均有依据时才计算百分比，未知账期长度不假设固定三十天。",
+      "验证真实会话、接口必需头和 Watch 独立读取；会话过期有重新登录入口。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/53-raycast-ai.md"
+  },
+  {
+    "number": 54,
+    "slug": "replicate",
+    "title": "Replicate 预付钱包",
+    "behavior": "登录 Replicate 后查看预付余额并配置低余额提醒。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "replicate",
+    "criteria": [
+      "使用账单网页会话，推理 API Token 不假定可读账单；会话与 CSRF 按官方域名绑定。",
+      "JSON 与页面回退结果保持同账号同币种；没有套餐上限或周期则不显示百分比和重置。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/54-replicate.md"
+  },
+  {
+    "number": 55,
+    "slug": "sakana",
+    "title": "Sakana AI 额度与余额",
+    "behavior": "登录 Sakana 控制台后查看 5 小时、每周额度及明确标币种的余额。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "sakana",
+    "criteria": [
+      "核验实际 Auth.js 会话和分块 Cookie，不直接把上游推测的 Cookie 名当契约。",
+      "页面解析限定实际额度区块；余额无币种依据则不格式化成美元，页面变化明确报错。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/55-sakana.md"
+  },
+  {
+    "number": 56,
+    "slug": "t3-chat",
+    "title": "T3 Chat 多周期额度",
+    "behavior": "登录 T3 Chat 后在双端查看四小时和月度额度。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "t3Chat",
+    "criteria": [
+      "真实核验会话 Cookie 与防护要求，解析 tRPC JSON Lines 时不能匹配到无关记录。",
+      "月度重置采用账期结束；未说明所属周期的比例不充当月度数据。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/56-t3-chat.md"
+  },
+  {
+    "number": 57,
+    "slug": "typesafe",
+    "title": "TypeSafe 余额与套餐",
+    "behavior": "用户在手机建立 TypeSafe 控制台会话后查看余额与套餐。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "typeSafe",
+    "criteria": [
+      "优先应用内登录；若只能手动配置 Cookie，要提供明确的凭证入口并实测 Watch 可独立使用，不能依赖持续桌面采集。",
+      "动态服务端 action 的发现和查询需有真实契约依据；失效 action 与会话过期明确区分，不保存整份账户页面。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/57-typesafe.md"
+  },
+  {
+    "number": 58,
+    "slug": "zed",
+    "title": "Zed 编辑预测与支出限额",
+    "behavior": "登录 Zed 网页账户后查看编辑预测用量与实际配置的支出上限。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "zed",
+    "criteria": [
+      "采用网页会话路径，不读取 Mac 编辑器 Keychain；分别验证两种限额的数值和单位。",
+      "无限预测和未设支出上限不显示耗尽；未知重置时间不从编辑器规则推算。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/58-zed.md"
+  },
+  {
+    "number": 59,
+    "slug": "zoommate",
+    "title": "ZoomMate credits 预算",
+    "behavior": "登录 Zoom 后在双端查询 ZoomMate credits 预算和账期。",
+    "blockers": [
+      40
+    ],
+    "kind": "integration",
+    "upstream": "zoomMate",
+    "criteria": [
+      "核验真实 SSO Cookie 及每次查询所需的短期 token 交换，短期 token 不作为持久凭证。",
+      "允许超额付费、无限额度与停用分别呈现；备选官方主机不改变账号身份。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/59-zoommate.md"
+  },
+  {
+    "number": 60,
+    "slug": "cursor",
+    "title": "Cursor 移动端授权与额度",
+    "behavior": "从 iPhone 完成 Cursor 账号登录后在双端查看 Cursor Models 和其他模型额度池。",
+    "blockers": [],
+    "kind": "integration",
+    "upstream": "cursor",
+    "criteria": [
+      "实现并验证无需读取桌面数据库的授权路径；建立可供 Grok Bot 复用的 Cursor 账号授权能力。",
+      "分别展示两个模型池和有依据的额外支出限额；使用服务返回的百分比尺度，不把货币套餐价格作为池总额。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/60-cursor.md"
+  },
+  {
+    "number": 61,
+    "slug": "grok-bot",
+    "title": "Grok Bot 独立周额度",
+    "behavior": "使用 Cursor 账号授权后，在独立 Grok Bot 卡片查看其每周额度。",
+    "blockers": [
+      60
+    ],
+    "kind": "integration",
+    "upstream": "grokBot",
+    "criteria": [
+      "复用 Cursor 移动端授权，独立保存本服务账号的查询、缓存与提醒身份。",
+      "Grok Bot 权益不与 SuperGrok 或 Cursor 月度模型池合并；无实际重置时间时不推断周一重置。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/61-grok-bot.md"
+  },
+  {
+    "number": 62,
+    "slug": "windsurf",
+    "title": "Windsurf 网页额度",
+    "behavior": "从 iPhone 登录 Windsurf 后在双端查看每日和每周额度。",
+    "blockers": [
+      44
+    ],
+    "kind": "integration",
+    "upstream": "windsurf",
+    "criteria": [
+      "复用经过 Devin 接入验证的网页存储凭证读取方式，保留 Windsurf 独立域名、账号和组织身份。",
+      "完整核验四项会话值、Connect/protobuf 请求与剩余比例；缺少凭证项时不发送不完整查询。",
+      "网页登录使用按服务账号隔离的会话容器，只提取已核实的必要凭证；明确有效域名、过期处理、重新登录及删除清理，并验证双端使用会话的兼容性。",
+      "从添加入口到安全凭证保存、账号管理、同步和删除完整可用；同一提供商多个账号隔离，iCloud 关闭时本机可用。",
+      "iPhone 与 Watch 分别向服务端查询；Watch 获得配置和凭证后不依赖手机、Mac 或新增代查服务在线。",
+      "卡片、详情、iPhone 小组件、Watch 和演示数据覆盖新增计量方式；金额、积分、token、时长和预算单位不混淆。",
+      "适用的额度告警、重置或低余额提醒接入既有规则；不适用的设置不开放；失败保留旧数据与采集时间，缺失值不补零。",
+      "覆盖请求契约、字段边界、账号与站点隔离、成功与失败及适用提醒行为的测试；运行相关测试和 unsigned TokenPulse target 完整构建。",
+      "新增图标优先官方资源或既有 Lobe Icons，固定来源版本、记录版权许可，并验证矢量与模板渲染覆盖 App、Widgets 和 Watch。",
+      "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
+      "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/62-windsurf.md"
+  },
+  {
+    "number": 63,
+    "slug": "gemini",
+    "title": "Gemini 移动端独立授权可行性",
+    "behavior": "验证不借用 CLI 短期 token 的 Google 授权、续期和各模型额度查询。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "gemini",
+    "criteria": [
+      "上游只读 Gemini CLI 登录且不续期；核验合法可用的移动端授权客户端、账号和项目绑定。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/63-gemini.md"
+  },
+  {
+    "number": 64,
+    "slug": "kiro",
+    "title": "Kiro 远程额度查询可行性",
+    "behavior": "验证能否在不运行 Kiro CLI ACP 的情况下由手机和 Watch 查询订阅额度。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "kiro",
+    "criteria": [
+      "上游依赖 CLI 原生 usage 方法；寻找有来源证据的远程认证与额度路径，不能把 ACP 本地接口当云端 API。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/64-kiro.md"
+  },
+  {
+    "number": 65,
+    "slug": "antigravity",
+    "title": "Antigravity 独立查询可行性",
+    "behavior": "验证是否存在脱离编辑器语言服务器的远程额度与授权路径。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "antigravity",
+    "criteria": [
+      "上游仅通过运行中的本机语言服务器取数；若无法独立查询，应明确该架构下不可接入。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/65-antigravity.md"
+  },
+  {
+    "number": 66,
+    "slug": "alibaba-token-plan",
+    "title": "Alibaba Token Plan 移动端可行性",
+    "behavior": "验证无需 bl CLI 的登录、地区绑定与 Token Plan 查询。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "alibabaTokenPlan",
+    "criteria": [
+      "区分 Token Plan 与已排期的 Coding Plan；CLI 打印的额度不证明存在可供手机使用的认证入口。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/66-alibaba-token-plan.md"
+  },
+  {
+    "number": 67,
+    "slug": "nous-portal",
+    "title": "Nous Portal 独立会话可行性",
+    "behavior": "验证用户可为 TokenPulse 建立独立 Nous 会话并查询授予及购买的 credits。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "nousPortal",
+    "criteria": [
+      "上游借用 Hermes 的短期 OAuth token，重复使用一次性 refresh token 会撤销会话；验证独立授权及双端续期，不借用 Hermes 的刷新令牌。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/67-nous-portal.md"
+  },
+  {
+    "number": 68,
+    "slug": "jetbrains-ai",
+    "title": "JetBrains AI 远程额度可行性",
+    "behavior": "验证是否存在不依赖 IDE 本地额度文件的账户级查询。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "jetBrainsAI",
+    "criteria": [
+      "若只有 IDE 保存的快照，则不满足设备独立刷新，不能把文件同步方案当作接入完成。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/68-jetbrains-ai.md"
+  },
+  {
+    "number": 69,
+    "slug": "openai-api",
+    "title": "OpenAI API 钱包可用接口验证",
+    "behavior": "核验当前可用凭证能否获取真实预付余额，并明确余额与组织花费的边界。",
+    "blockers": [],
+    "kind": "feasibility",
+    "upstream": "openAIPlatform",
+    "criteria": [
+      "旧 credit_grants 路由兼容范围有限；Admin costs 仅表示消费，不能推算出未知的余额、充值或套餐上限。",
+      "交付有来源链接和版本的认证、查询、凭证生命周期与平台约束调查，以及可重复执行的最小只读验证步骤。",
+      "若找到可行路径，先完成最小纵向验证：手机授权或配置、真实读取、凭证提供给 Watch 后在手机离线时再次直连读取；记录具体设备与数据证据。",
+      "若未找到可行路径，交付明确的否定结论及缺口；缺少账号或设备的情形单独标记为未验证，不把它等同于不可行或通过。",
+      "不自动引入 Mac 常驻进程、CLIProxyAPI 代查或设备外推送服务；改变独立刷新 ADR 需要另行决策。",
+      "验证通过后给出实施票的完整验收范围与真实阻塞项，实施票依赖本验证；验证票本身不宣布正式 provider 已接入。",
+      "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
+    ],
+    "status": "ready-for-agent",
+    "file": "issues/69-openai-api.md"
+  }
+]
