@@ -18,6 +18,8 @@ struct ProviderSignInView: View {
                     CursorSessionLoginView(accountID: accountID, onCredential: completion)
                 } else if provider == .stepFun {
                     StepFunSessionLoginView(accountID: accountID, onCredential: completion)
+                } else if let profile = provider.webLoginProfile {
+                    WebProviderSessionLoginView(provider: provider, profile: profile, accountID: accountID, onCredential: completion)
                 } else {
                     Form {
                         if let session = login.session {
