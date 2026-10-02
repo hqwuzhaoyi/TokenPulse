@@ -50,6 +50,16 @@ struct GatewayAmount: Decodable, Sendable {
 }
 
 enum GatewayQuotaSupport {
+    static func checkedAdd(_ lhs: Decimal, _ rhs: Decimal) throws -> Decimal {
+        var left = lhs
+        var right = rhs
+        var result = Decimal()
+        guard NSDecimalAdd(&result, &left, &right, .plain) == .noError, !result.isNaN else {
+            throw RefreshFailure.unreadableResponse
+        }
+        return result
+    }
+
     static func percentage(used: Decimal?, total: Decimal?) throws -> Double? {
         guard let used, let total, total > 0 else { return nil }
         guard used >= 0 else { throw RefreshFailure.unreadableResponse }

@@ -41,9 +41,8 @@ struct BifrostProviderClient: Sendable {
             throw RefreshFailure.unreadableResponse
         }
         if reply.is_active == false {
-            let inactive = QuotaWindow(id: "bifrost.inactive", name: "虚拟 Key 已停用", scope: nil,
-                                       usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil)
-            return QuotaSnapshot(accountID: accountID, windows: [inactive], collectedAt: collectedAt, providerPlanName: reply.virtual_key_name)
+            return QuotaSnapshot(accountID: accountID, windows: [], collectedAt: collectedAt,
+                                 providerPlanName: reply.virtual_key_name, quotaStatusText: "虚拟 Key 已停用")
         }
         var scoped: [(String, [String], Budget)] = []
         for budget in reply.budgets ?? [] { scoped.append(("虚拟 Key" + (budget.source_name.map { " · \($0)" } ?? ""), ["key"], budget)) }
@@ -66,7 +65,7 @@ struct BifrostProviderClient: Sendable {
             var limit = base
             if let extra = budget.override_amount?.value, extra > 0,
                budget.override_mode == "forever" || (budget.override_mode == "cycles" && (budget.override_cycles_remaining ?? 0) > 0) {
-                limit += extra
+                limit = try GatewayQuotaSupport.checkedAdd(limit, extra)
             }
             guard !limit.isNaN else { throw RefreshFailure.unreadableResponse }
             guard limit > 0 else { continue }
@@ -89,11 +88,8 @@ struct BifrostProviderClient: Sendable {
                                        cycleID: actualLastReset.map { "last-reset:\($0.timeIntervalSince1970)" }, unit: "USD 预算额度",
                                        exactCounts: .init(used: used, remaining: remaining, total: limit)))
         }
-        if windows.isEmpty {
-            windows = [QuotaWindow(id: "bifrost.no_budget", name: "未配置可读取预算", scope: nil,
-                                   usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil)]
-        }
-        return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt, providerPlanName: reply.virtual_key_name)
+        return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt, providerPlanName: reply.virtual_key_name,
+                             quotaStatusText: windows.isEmpty ? "未配置可读取预算" : nil)
     }
 
     static func period(_ raw: String?) -> (kind: QuotaPeriod, fixedSeconds: Int?) {

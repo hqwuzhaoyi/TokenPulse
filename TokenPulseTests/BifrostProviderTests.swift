@@ -36,14 +36,20 @@ final class BifrostProviderTests: XCTestCase {
 
     func testInactiveAndNoBudgetHaveDifferentExplicitStatesWithoutZeroPercent() throws {
         let inactive = try reading(#"{"is_active":false,"budgets":[{"id":"b","max_limit":100,"current_usage":50}]}"#)
-        XCTAssertEqual(inactive.windows[0].id, "bifrost.inactive")
-        XCTAssertTrue(inactive.windows[0].name.contains("停用"))
-        XCTAssertNil(inactive.windows[0].usedPercentage)
+        XCTAssertTrue(inactive.windows.isEmpty)
+        XCTAssertEqual(inactive.quotaStatusText, "虚拟 Key 已停用")
         let none = try reading(#"{"is_active":true,"budgets":[]}"#)
-        XCTAssertEqual(none.windows[0].id, "bifrost.no_budget")
-        XCTAssertNil(none.windows[0].usedPercentage)
+        XCTAssertTrue(none.windows.isEmpty)
+        XCTAssertEqual(none.quotaStatusText, "未配置可读取预算")
         XCTAssertThrowsError(try reading("{}"))
         XCTAssertThrowsError(try reading(#"{"budgets":[{"id":"b","max_limit":10,"current_usage":true}]}"#))
+    }
+
+    func testDecimalOverrideRefusesOverflowAndLossOfPrecision() throws {
+        let huge = Decimal(sign: .plus, exponent: 127, significand: 9)
+        XCTAssertThrowsError(try GatewayQuotaSupport.checkedAdd(huge, huge))
+        XCTAssertThrowsError(try GatewayQuotaSupport.checkedAdd(huge, 1))
+        XCTAssertEqual(try GatewayQuotaSupport.checkedAdd(5, 5), 10)
     }
 
     func testRequestUsesVirtualKeyHeaderAndConfiguredOriginOnly() async throws {
