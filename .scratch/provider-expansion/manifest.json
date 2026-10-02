@@ -1827,10 +1827,10 @@
   {
     "number": 63,
     "slug": "gemini",
-    "title": "Gemini 移动端独立授权可行性",
-    "behavior": "验证不借用 CLI 短期 token 的 Google 授权、续期和各模型额度查询。",
+    "title": "Gemini 原生 OAuth 与模型额度接入",
+    "behavior": "用户配置自有 iOS OAuth client 后，独立读取已激活项目下的模型额度。",
     "blockers": [],
-    "kind": "feasibility",
+    "kind": "integration",
     "upstream": "gemini",
     "criteria": [
       "上游只读 Gemini CLI 登录且不续期；核验合法可用的移动端授权客户端、账号和项目绑定。",
@@ -1841,19 +1841,23 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/63-gemini.md",
     "assignee": "sol_copilot",
     "researchReport": "research/63-gemini.md",
-    "acceptanceBasis": "implementation-and-provider-icon-exists"
+    "acceptanceBasis": "implementation-and-provider-icon-exists",
+    "implementationRecord": "research/63-gemini.md",
+    "integrationCommit": "c87507b",
+    "validationRecord": "wave4-progress.md",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 64,
     "slug": "kiro",
-    "title": "Kiro 远程额度查询可行性",
-    "behavior": "验证能否在不运行 Kiro CLI ACP 的情况下由手机和 Watch 查询订阅额度。",
+    "title": "Kiro 官方账户站额度接入",
+    "behavior": "通过官方账户站登录，手机和 Watch 以 HTTPS/CBOR 查询及续期，按真实额度池展示。",
     "blockers": [],
-    "kind": "feasibility",
+    "kind": "integration",
     "upstream": "kiro",
     "criteria": [
       "上游依赖 CLI 原生 usage 方法；寻找有来源证据的远程认证与额度路径，不能把 ACP 本地接口当云端 API。",
@@ -1864,19 +1868,23 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/64-kiro.md",
     "assignee": "sol_research",
     "researchReport": "research/64-kiro.md",
-    "acceptanceBasis": "implementation-and-provider-icon-exists"
+    "acceptanceBasis": "implementation-and-provider-icon-exists",
+    "implementationRecord": "../../docs/kiro-provider-integration.md",
+    "integrationCommit": "4e76e19",
+    "validationRecord": "wave4-progress.md",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 65,
     "slug": "antigravity",
-    "title": "Antigravity 独立查询可行性",
-    "behavior": "验证是否存在脱离编辑器语言服务器的远程额度与授权路径。",
+    "title": "Antigravity 原生模型组额度接入",
+    "behavior": "使用自有 iOS OAuth client 与已激活项目，直接读取官方模型组额度。",
     "blockers": [],
-    "kind": "feasibility",
+    "kind": "integration",
     "upstream": "antigravity",
     "criteria": [
       "上游仅通过运行中的本机语言服务器取数；若无法独立查询，应明确该架构下不可接入。",
@@ -1887,11 +1895,15 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/65-antigravity.md",
     "assignee": "sol_research",
     "researchReport": "research/65-antigravity.md",
-    "acceptanceBasis": "implementation-and-provider-icon-exists"
+    "acceptanceBasis": "implementation-and-provider-icon-exists",
+    "implementationRecord": "../../docs/antigravity-integration.md",
+    "integrationCommit": "1b2e9bb",
+    "validationRecord": "wave4-progress.md",
+    "acceptanceRecord": "icon-acceptance.md"
   },
   {
     "number": 66,
@@ -1960,11 +1972,12 @@
       "协议完整则直接推进实施并记录测试；协议或必需客户端配置确有缺口则记录具体阻塞，不能只因缺少测试账号阻塞。",
       "测试夹具和日志脱敏；不保存真实凭证，不对外发布账户资料。"
     ],
-    "status": "in-progress",
+    "status": "protocol-gap",
     "file": "issues/68-jetbrains-ai.md",
-    "assignee": "sol_copilot",
+    "assignee": "sol_gateway",
     "researchReport": "research/68-jetbrains-ai.md",
-    "acceptanceBasis": "implementation-and-provider-icon-exists"
+    "acceptanceBasis": "implementation-and-provider-icon-exists",
+    "protocolGap": "原生初始 TokenTransfer 导入后的 JBA 签发/Register/ProvideAccess 与完整认证 fallback 组合未闭合；quota/schema/单位/direct-refresh 已固定。"
   },
   {
     "number": 69,

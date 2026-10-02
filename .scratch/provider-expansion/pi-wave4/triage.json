@@ -5,5 +5,37 @@
     "status": "documented-limit-not-expanded",
     "evidence": "Swift6 production WalletNumericDecimal extraction reproduces rounding for a 41-significant-digit synthetic USD value; normal 19/38 digit tests and invalid-type tests pass",
     "decision": "This round keeps the existing Foundation Decimal numeric model rather than adding a raw-JSON arbitrary-precision parser. No actual provider payload demonstrates this magnitude. The report remains archived as a known numeric representation limit; not reported as a fixed defect."
+  },
+  {
+    "task": "02-alibaba-token-plan",
+    "status": "reviewed-no-findings",
+    "decision": "Production signer/parser synthetic probes and independent signature calculation passed; root additionally found and fixed Widget visibility separately in 8c6427b. Nine real XCTest passed."
+  },
+  {
+    "task": "03-google-oauth",
+    "finding": "Transient userinfo failure loses initial completed grant and requires new authorization",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Add bounded retry to read-only userinfo, never repeat authorization-code POST. Keep unverified identity out of persistent credentials. Rename misleading classification-only test.",
+    "commit": "5c3e5e6",
+    "validation": "Twelve Google OAuth XCTest passed in /tmp/tokenpulse-wave4-cloud-providers-run.log; 55 combined tests zero failures."
+  },
+  {
+    "task": "03-google-oauth",
+    "finding": "Active transport cancellation silently hides login result",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Show retry message for cancellation while active run is still current and task is not cancelled. Actual onDisappear/new-run cancellation remains silent. Pi theory that rejecting redirect necessarily emits cancelled is not established; no such causal claim adopted.",
+    "commit": "5c3e5e6",
+    "validation": "Twelve Google OAuth XCTest passed in /tmp/tokenpulse-wave4-cloud-providers-run.log; 55 combined tests zero failures."
+  },
+  {
+    "task": "03-google-oauth",
+    "finding": "Syntactically safe but unlikely Google client ID prefixes accepted",
+    "status": "not-adopted",
+    "decision": "Validation checks safe Google suffix and redirect syntax; Google decides whether an ID exists. Do not invent undocumented prefix length/numeric format restrictions."
+  },
+  {
+    "task": "04-gemini",
+    "status": "reviewed-no-findings",
+    "decision": "Independent parser/project/identity/refresh probes passed. Root corrected a test API typo separately (5dd15e5); all 12 Gemini XCTest pass."
   }
 ]

@@ -6,12 +6,12 @@
 
 | 票 | 负责 | 当前工作 |
 | --- | --- | --- |
-| 63 Gemini | sol_copilot | 原生 OAuth 客户端与 quota 权限契约 |
-| 64 Kiro | sol_research | CLI 之外的远程认证及额度协议 |
-| 65 Antigravity | sol_research | CLI/语言服务器之外的远程协议 |
+| 63 Gemini | sol_copilot | `c87507b` 已合入；自配 iOS OAuth，组合测试中 |
+| 64 Kiro | sol_research | `4e76e19` 已合入；官方 Portal HTTPS/CBOR，组合测试中 |
+| 65 Antigravity | sol_wallet | `1b2e9bb` 已合入；官方 quota summary，组合测试中 |
 | 66 Alibaba Token Plan | sol_gateway | 已合入 `c230bc6`，Widget 类型共享修复 `8c6427b`；9 项 XCTest 通过；Pi 运行中 |
 | 67 Nous Portal | sol_web | 独立设备 OAuth 链与账户 credits 查询 |
-| 68 JetBrains AI | sol_copilot | 个人额度远程协议 |
+| 68 JetBrains AI | sol_gateway | `bb2cab3` 追加官方发布包静态证据；仍缺完整原生签发/fallback，protocol-gap |
 | 69 OpenAI API | sol_wallet | 已合入 `444a1ba`；Legacy 余额，7 项 XCTest 通过；Pi 运行中 |
 
 sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root 负责集成、中央清单和串行 Xcode 验证。新增实现稳定后安排针对性的 Pi 回归，前一批 10 组结果保留。
@@ -25,3 +25,7 @@ sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root
 
 - `d402277`：共享 Google 原生 OAuth 6 项 XCTest，0 失败。日志 `/tmp/tokenpulse-wave4-google-auth.log`，结果 `/tmp/tokenpulse-wave4-google-auth.xcresult`。后续 `ab300b9` 在授权期间禁用 client/project 编辑；待最终统一构建覆盖。
 - 第四批 Pi 报告逐项归档至 [pi-wave4](pi-wave4/README.md)，OpenAI 任务已完成，其余按新实现陆续启动。
+
+- `5dd15e5`、`274fbbd` 修正新增测试对实际模型 API 的引用；`ca87270` 补齐 Kiro Widget 分支。独立小模块检查不等于 App XCTest 编译通过，组合回归将验证这些接合点。
+
+- `274fbbd`：Gemini 12 + Google OAuth 12 + Antigravity 7 + Kiro 24，共 55 项 XCTest，0 失败。日志 `/tmp/tokenpulse-wave4-cloud-providers-run.log`，结果 `/tmp/tokenpulse-wave4-cloud-providers-run.xcresult`。包括 Pi 03 后的 bounded userinfo 重试和取消提示修复（`5c3e5e6`）。
