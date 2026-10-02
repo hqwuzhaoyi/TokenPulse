@@ -137,6 +137,52 @@ final class FactoryProviderTests: XCTestCase {
         XCTAssertEqual(requests.map { $0.value(forHTTPHeaderField: "Authorization") }, ["Bearer work", "Bearer work", "Bearer personal", "Bearer personal", "Bearer work", "Bearer renewed", "Bearer renewed"])
     }
 
+    func testOwnedProviderKeyIdentitiesUseActualTokenAndIgnoreClaimedMetadata() {
+        var hashes: Set<String> = []
+        for provider in [Provider.factory, .devPass, .v0, .warp] {
+            let first = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "first-key",
+                metadata: ["sourceCredentialFingerprint": "claimed"])
+            let second = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "second-key",
+                metadata: ["sourceCredentialFingerprint": "claimed"])
+            let same = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "first-key",
+                metadata: ["sourceCredentialFingerprint": "different"])
+            let wrongKind = ProviderCredentialEnvelope(provider: provider, kind: .oauth, accessToken: "first-key",
+                metadata: ["sourceCredentialFingerprint": "claimed"])
+            let empty = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "",
+                metadata: ["sourceCredentialFingerprint": "claimed"])
+            XCTAssertNil(wrongKind.sourceCredentialIdentity)
+            XCTAssertNil(empty.sourceCredentialIdentity)
+            XCTAssertNotNil(first.sourceCredentialIdentity)
+            XCTAssertNotEqual(first.sourceCredentialIdentity, second.sourceCredentialIdentity)
+            XCTAssertEqual(first.sourceCredentialIdentity, same.sourceCredentialIdentity)
+            if let identity = first.sourceCredentialIdentity { hashes.insert(identity) }
+        }
+        XCTAssertEqual(hashes.count, 4)
+    }
+
+    @MainActor
+    func testReplacingEachOwnedKeyClearsOldScopeEvenWhenNewKeyFails() async throws {
+        for provider in [Provider.factory, .devPass, .v0, .warp] {
+            let store = FactoryMemoryStore()
+            let client = OwnedKeyScopeClient(provider: provider)
+            let monitor = QuotaMonitor(accountStore: store, credentialStore: store, quotaClient: client)
+            await monitor.start(refresh: false)
+            let old = try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "old-key").encoded()
+            await monitor.addAccount(name: "Scoped", credential: old, provider: provider)
+            let state = try XCTUnwrap(monitor.states.first)
+            XCTAssertNotNil(state.snapshot)
+            let replacement = try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: "bad-key").encoded()
+            await monitor.replaceCredential(replacement, accountID: state.id)
+            XCTAssertNil(monitor.states[0].snapshot, "A different Key must not retain the previous Key's quantities")
+            XCTAssertEqual(monitor.states[0].lastFailure, .invalidCredential)
+            XCTAssertNotEqual(monitor.states[0].credentialIdentity, state.credentialIdentity)
+            let restored = QuotaMonitor(accountStore: store, credentialStore: store, quotaClient: client)
+            await restored.start(refresh: false)
+            XCTAssertNil(restored.states[0].snapshot)
+            XCTAssertEqual(restored.states[0].credentialIdentity, monitor.states[0].credentialIdentity)
+        }
+    }
+
     private func key(_ value: String) throws -> String { try ProviderCredentialEnvelope(provider: .factory, kind: .apiKey, accessToken: value).encoded() }
     private func json(_ value: String) throws -> [String: Any] { try ProviderHTTP.json(Data(value.utf8)) }
 }
@@ -160,4 +206,15 @@ private actor FactoryMemoryStore: AccountStateStoring, CredentialStoring {
     func save(_ credential: String, for accountID: UUID) { credentials[accountID] = credential }
     func credential(for accountID: UUID) -> String? { credentials[accountID] }
     func deleteCredential(for accountID: UUID) { credentials[accountID] = nil }
+}
+
+private actor OwnedKeyScopeClient: QuotaQuerying {
+    let provider: Provider
+    init(provider: Provider) { self.provider = provider }
+    func quota(for accountID: UUID, credential: String) throws -> QuotaSnapshot {
+        let key = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
+        if key.accessToken == "bad-key" { throw RefreshFailure.invalidCredential }
+        return QuotaSnapshot(accountID: accountID, windows: [QuotaWindow(id: "fixture", name: "Fixture", scope: nil,
+            usedPercentage: 90, remainingCount: nil, totalCount: nil, resetsAt: nil)], collectedAt: Date(timeIntervalSince1970: 100))
+    }
 }

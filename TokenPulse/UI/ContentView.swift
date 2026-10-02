@@ -340,6 +340,15 @@ private struct AccountSummaryView: View {
 
             if let snapshot = state.snapshot {
                 Divider()
+                if snapshot.isNoPlan == true {
+                    Text("当前按量计费，没有套餐或 Key 用量上限").font(.subheadline).foregroundStyle(.secondary)
+                }
+                if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.billing" }) {
+                    Text("账期 credits：未提供").font(.caption).foregroundStyle(.secondary)
+                }
+                if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.rate_limit" }) {
+                    Text("消息限流：未提供").font(.caption).foregroundStyle(.secondary)
+                }
                 let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
                 if state.account.provider.balancePresentation == .walletOnly &&
                     (state.account.provider != .newAPI || summaryWindows.contains(where: { $0.wallet?.isMonetary == true })) {
@@ -503,6 +512,9 @@ struct QuotaWindowView: View {
             }
             if window.resetsAt != nil {
                 LabeledContent("下次重置", value: QuotaFormatting.resetDate(window.resetsAt, precision: window.resetDatePrecision))
+            }
+            if let replenishment = window.nextReplenishmentAt {
+                LabeledContent("下次补充", value: QuotaFormatting.resetDate(replenishment))
             }
             if let replenishment = window.nextReplenishmentAt {
                 LabeledContent("下次补充", value: QuotaFormatting.resetDate(replenishment))

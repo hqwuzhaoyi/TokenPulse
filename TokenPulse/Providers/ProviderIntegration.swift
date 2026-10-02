@@ -213,6 +213,15 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .volcengine:
             return try await VolcengineProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .devPass:
+            return try await DevPassProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .v0:
+            return try await V0ProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .warp:
+            return try await WarpProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .copilot:
             return try await CopilotProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -321,6 +330,12 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "TeamID:ManagementKey")
         case .volcengine:
             return .init(provider: provider, method: .apiKey, credentialLabel: "AccessKeyID:SecretAccessKey")
+        case .devPass:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "DevPass API Key")
+        case .v0:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "v0 API Key")
+        case .warp:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Warp API Key")
         case .newAPI:
             return .init(provider: provider, method: .apiKey, credentialLabel: "New API Key")
         case .codebuff:
@@ -386,7 +401,7 @@ struct ProviderAuthenticationController: Sendable {
             envelope.metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
             return try envelope.encoded()
         }
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) || [.alibabaCodingPlan, .chutes].contains(provider) else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) || [.alibabaCodingPlan, .chutes].contains(provider) || [.devPass, .v0, .warp].contains(provider) else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -440,7 +455,7 @@ struct ProviderAuthenticationController: Sendable {
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成 Cursor 授权")
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .volcengine, .xaiAPI, .ibmBob:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -457,7 +472,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -475,7 +490,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
             return .init(credential: credential, changed: false)
         }
     }

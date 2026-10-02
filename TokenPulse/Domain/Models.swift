@@ -32,6 +32,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case volcengine
     case xaiAPI
     case ibmBob
+    case warp, v0, devPass
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
@@ -89,6 +90,9 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .volcengine: "火山方舟"
         case .xaiAPI: "xAI API"
         case .ibmBob: "IBM Bob"
+        case .warp: "Warp"
+        case .v0: "v0"
+        case .devPass: "DevPass"
         }
     }
 }
@@ -332,6 +336,7 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
         result.walletAvailable = previous.walletAvailable
         return result
     }
+    var isNoPlan: Bool? = nil
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)

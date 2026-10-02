@@ -36,6 +36,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
+            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -153,6 +154,36 @@ enum DemoMode {
             window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
             QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
                         usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
+        ]
+        case .devPass: [
+            QuotaWindow(id: "devpass.premium_weekly", name: "Premium 每周额度", scope: nil, period: .weekly,
+                        usedPercentage: 50, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3 * 86400),
+                        unit: "USD credits", exactCounts: .init(used: 5, remaining: 5, total: 10)),
+            QuotaWindow(id: "devpass.cycle", name: "账期 credits", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "USD credits", exactCounts: .init(used: 25, remaining: 75, total: 100)),
+            QuotaWindow(id: "devpass.key_limit", name: "Key 累计限额", scope: nil, period: .other,
+                        usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "USD credits", exactCounts: .init(used: 40, remaining: 60, total: 100), resetSemantics: .nonResettingAllowance)
+        ]
+        case .v0: [
+            QuotaWindow(id: "v0.billing", name: "账期 credits", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 250, remaining: 750, total: 1000)),
+            QuotaWindow(id: "v0.rate_limit", name: "消息限流", scope: nil, period: .other,
+                        usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(1800),
+                        unit: "条消息", exactCounts: .init(used: 20, remaining: 80, total: 100))
+        ]
+        case .warp: [
+            QuotaWindow(id: "warp.plan", name: "套餐 credits", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
+                        unit: "credits", exactCounts: .init(used: 625, remaining: 1875, total: 2500)),
+            QuotaWindow(id: "warp.grant.demo.personal", name: "个人 附加 credits 1", scope: nil, period: .other,
+                        usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "credits", expiresAt: now.addingTimeInterval(4 * 86400), exactCounts: .init(used: 600, remaining: 400, total: 1000), resetSemantics: .nonResettingAllowance),
+            QuotaWindow(id: "warp.grant.demo.workspace", name: "工作区 1 附加 credits 1", scope: nil, period: .other,
+                        usedPercentage: 0, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "credits", expiresAt: now.addingTimeInterval(20 * 86400), exactCounts: .init(used: 0, remaining: 500, total: 500), resetSemantics: .nonResettingAllowance)
         ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),

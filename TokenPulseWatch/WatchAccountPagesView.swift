@@ -164,6 +164,15 @@ private struct WatchAccountPage: View {
                     .foregroundStyle(.secondary)
 
                 if let snapshot = state.snapshot {
+                    if snapshot.isNoPlan == true {
+                        Text("按量计费，无套餐或 Key 上限").font(.caption2)
+                    }
+                    if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.billing" }) {
+                        Text("账期 credits：未提供").font(.caption2).foregroundStyle(.secondary)
+                    }
+                    if state.account.provider == .v0, !snapshot.windows.contains(where: { $0.id == "v0.rate_limit" }) {
+                        Text("消息限流：未提供").font(.caption2).foregroundStyle(.secondary)
+                    }
                     ForEach(snapshot.windows(for: state.account.provider, surface: .detail)) { window in
                         if let wallet = window.wallet {
                             VStack(alignment: .leading, spacing: 3) {
