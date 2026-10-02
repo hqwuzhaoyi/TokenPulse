@@ -217,17 +217,18 @@ private struct AccountPreferencesView: View {
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
                     }
                 }
-                if configuration.account.provider != .poe {
+                let quotaRemindersAvailable = supportsQuotaReminders(configuration)
+                let walletRemindersAvailable = supportsWalletReminders(configuration)
+                if quotaRemindersAvailable || walletRemindersAvailable {
                     Section("提醒") {
-                        Toggle(configuration.account.provider.hasMonetaryWallet ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
-                            var settings = configuration.reminders; settings.quotaAlertsEnabled = value
-                            Task { await monitor.updateReminders(settings, accountID: accountID) }
-                        }))
-                        if configuration.account.provider.hasMonetaryWallet {
-                            walletReminderControls(configuration: configuration)
-                        } else {
+                        if quotaRemindersAvailable {
+                            Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
+                                var settings = configuration.reminders; settings.quotaAlertsEnabled = value
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
                             if configuration.account.provider != .qoderInternational &&
-                                (configuration.account.provider != .stepFun || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil }) == true) {
+                                (configuration.account.provider != .stepFun || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil }) == true) &&
+                                (configuration.account.provider.balancePresentation != .mixed || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.wallet == nil && $0.resetsAt != nil }) == true) {
                                 Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
                                     var settings = configuration.reminders; settings.resetRemindersEnabled = value
                                     Task { await monitor.updateReminders(settings, accountID: accountID) }
@@ -235,6 +236,13 @@ private struct AccountPreferencesView: View {
                             }
                             TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
                             Button("保存阈值") { saveQuotaThresholds(configuration) }
+                        }
+                        if walletRemindersAvailable {
+                            Toggle("低余额提醒", isOn: Binding(get: { configuration.reminders.effectiveWalletAlertsEnabled }, set: { value in
+                                var settings = configuration.reminders; settings.walletAlertsEnabled = value
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
+                            walletReminderControls(configuration: configuration)
                         }
                         if let error { Text(error).foregroundStyle(.red) }
                         Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
@@ -315,9 +323,23 @@ private struct AccountPreferencesView: View {
     }
 
     @ViewBuilder
+    private func supportsQuotaReminders(_ configuration: AccountConfiguration) -> Bool {
+        guard configuration.account.provider.balancePresentation != .walletOnly else { return false }
+        guard configuration.account.provider.balancePresentation == .mixed,
+              let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else { return true }
+        return snapshot.windows.contains { $0.wallet == nil && !$0.isUnlimited && ($0.usedPercentage != nil || $0.totalCount != nil) }
+    }
+
+    private func supportsWalletReminders(_ configuration: AccountConfiguration) -> Bool {
+        guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else {
+            return configuration.account.provider.hasMonetaryWallet
+        }
+        return snapshot.windows.contains { $0.wallet?.isMonetary == true }
+    }
+
     private func walletReminderControls(configuration: AccountConfiguration) -> some View {
         let currencies = monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows
-            .compactMap(\.wallet?.currency).uniqued() ?? []
+            .compactMap(\.wallet).filter(\.isMonetary).map(\.currency).uniqued() ?? []
         if currencies.isEmpty {
             Text("成功刷新后可选择提醒币种。")
                 .font(.caption).foregroundStyle(.secondary)

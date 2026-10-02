@@ -261,3 +261,90 @@ private actor ExpansionWalletCredentials: CredentialStoring {
     func credential(for accountID: UUID) async throws -> String? { values[accountID] }
     func deleteCredential(for accountID: UUID) async throws { values[accountID] = nil }
 }
+
+final class HybridWalletReminderTests: XCTestCase {
+    func testLegacyWalletSettingDecodesAndExplicitWalletToggleRoundTrips() throws {
+        let old = Data(#"{"quotaAlertsEnabled":false,"resetRemindersEnabled":true,"thresholds":[80]}"#.utf8)
+        var settings = try JSONDecoder().decode(AccountReminderSettings.self, from: old)
+        XCTAssertNil(settings.walletAlertsEnabled)
+        XCTAssertFalse(settings.effectiveWalletAlertsEnabled)
+        settings.walletAlertsEnabled = true
+        XCTAssertEqual(try JSONDecoder().decode(AccountReminderSettings.self, from: JSONEncoder().encode(settings)), settings)
+        XCTAssertTrue(settings.effectiveWalletAlertsEnabled)
+    }
+
+    func testQuotaAndMonetaryWalletTogglesAreIndependentAndNonMoneyNeverAlerts() {
+        let accountID = UUID()
+        let quota = QuotaWindow(id: "quota", name: "套餐", scope: nil, usedPercentage: 95,
+                                remainingCount: nil, totalCount: nil, resetsAt: nil)
+        let wallet = QuotaWindow(id: "wallet", name: "钱包", scope: nil, usedPercentage: nil,
+                                 remainingCount: nil, totalCount: nil, resetsAt: nil,
+                                 wallet: WalletBalance(currency: "USD", total: 1))
+        let credits = QuotaWindow(id: "credits", name: "积分", scope: nil, usedPercentage: nil,
+                                  remainingCount: nil, totalCount: nil, resetsAt: nil,
+                                  wallet: WalletBalance(currency: "HC", total: 0, isMonetary: false))
+        for (quotaEnabled, walletEnabled, expected) in [
+            (false, false, Set<ReminderNotificationKind>()), (true, false, Set([.quotaAlert])),
+            (false, true, Set([.walletAlert])), (true, true, Set([.quotaAlert, .walletAlert])),
+        ] {
+            let date = Date(timeIntervalSince1970: 100)
+            let result = NotificationPlanner().planSuccessfulRefresh(
+                accountID: accountID, accountName: "混合", previousSnapshot: nil,
+                newSnapshot: QuotaSnapshot(accountID: accountID, windows: [quota, wallet, credits], collectedAt: date),
+                settings: AccountReminderSettings(quotaAlertsEnabled: quotaEnabled, walletAlertsEnabled: walletEnabled),
+                ledger: ReminderLedger(), now: date
+            )
+            let alerts = result.operations.compactMap { operation -> ReminderNotificationKind? in
+                if case .deliver(let notification) = operation { return notification.kind }
+                return nil
+            }
+            XCTAssertEqual(Set(alerts), expected)
+            XCTAssertNil(result.ledger.walletAlertState(accountID: accountID, currency: "HC"))
+        }
+    }
+}
+
+extension HybridWalletReminderTests {
+    @MainActor
+    func testGlobalDisableOverridesExplicitWalletEnableWithoutChangingAccountPreferences() async throws {
+        let suite = "com.tokenpulse.tests.hybrid-global.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(false, forKey: "notificationsEnabled")
+        let adapter = HybridWalletNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "混合", provider: .deepSeek)
+        let snapshot = QuotaSnapshot(accountID: account.id, windows: [
+            QuotaWindow(id: "quota", name: "套餐", scope: nil, usedPercentage: 95,
+                        remainingCount: nil, totalCount: nil, resetsAt: nil),
+            QuotaWindow(id: "wallet", name: "钱包", scope: nil, usedPercentage: nil,
+                        remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: 1)),
+        ], collectedAt: Date())
+        let state = AccountQuotaState(account: account, snapshot: snapshot)
+        let settings = AccountReminderSettings(walletAlertsEnabled: true)
+        try await runtime.fresh(state: state, previous: nil, settings: settings)
+        let disabled = await adapter.delivered
+        XCTAssertTrue(disabled.isEmpty)
+        var config = AccountConfiguration(account: account, reminders: settings)
+        config.reminders.resetRemindersEnabled = false
+        let feedback = await runtime.setEnabled(true, configurations: [config], states: [state])
+        XCTAssertEqual(feedback, .enabled)
+        try await runtime.fresh(state: state, previous: nil, settings: settings)
+        let enabled = await adapter.delivered
+        XCTAssertEqual(Set(enabled.map(\.kind)), Set([.quotaAlert, .walletAlert]))
+        XCTAssertTrue(settings.effectiveWalletAlertsEnabled)
+    }
+}
+
+private actor HybridWalletNotificationAdapter: NotificationApplying {
+    private(set) var delivered: [ReminderNotification] = []
+    @MainActor func configure() {}
+    func authorizationStatus() async -> NotificationAuthorizationStatus { .authorized }
+    func requestAuthorization() async throws -> Bool { true }
+    func apply(_ operations: [NotificationOperation]) async throws {
+        for operation in operations {
+            if case .deliver(let notification) = operation { delivered.append(notification) }
+        }
+    }
+}

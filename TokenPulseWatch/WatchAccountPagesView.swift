@@ -168,7 +168,7 @@ private struct WatchAccountPage: View {
                         if let wallet = window.wallet {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(wallet.currency).font(.caption.bold())
-                                LabeledContent(wallet.isMonetary ? "总可用" : "剩余 points",
+                                LabeledContent(wallet.isMonetary ? "总可用" : "剩余 \(wallet.currency)",
                                                value: QuotaFormatting.balance(wallet.total, wallet: wallet))
                                 if wallet.isMonetary {
                                     LabeledContent("赠送", value: QuotaFormatting.balance(wallet.granted, wallet: wallet))
