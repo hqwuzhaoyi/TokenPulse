@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		57F000000000000000000101 /* DevinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000100; };
+		57F000000000000000000102 /* DevinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000100; };
+		57F000000000000000000104 /* DevinProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000103; };
 		E23600000000000000000003 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
 		E23600000000000000000004 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
 		E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000002; };
@@ -312,6 +315,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		57F000000000000000000100 /* DevinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DevinProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000103 /* DevinProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DevinProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000001 /* ClawRouterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClawRouterProvider.swift; sourceTree = SOURCE_ROOT; };
 		E23600000000000000000002 /* ClawRouterProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClawRouterProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E23500000000000000000001 /* AixyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AixyProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -602,6 +607,8 @@
                 C01100000000000000000001 /* CopilotProvider.swift */,
                 C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+				57F000000000000000000103 /* DevinProviderTests.swift */,
+				57F000000000000000000100 /* DevinProvider.swift */,
 				E23600000000000000000002 /* ClawRouterProviderTests.swift */,
 				E23500000000000000000002 /* AixyProviderTests.swift */,
 				E22900000000000000000002 /* NeuralwattProviderTests.swift */,
@@ -904,6 +911,7 @@
                 6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+				57F000000000000000000101 /* DevinProvider.swift in Sources */,
 				E23600000000000000000003 /* ClawRouterProvider.swift in Sources */,
 				E23500000000000000000003 /* AixyProvider.swift in Sources */,
 				E22900000000000000000003 /* NeuralwattProvider.swift in Sources */,
@@ -949,6 +957,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+				57F000000000000000000104 /* DevinProviderTests.swift in Sources */,
 				E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */,
 				E23500000000000000000005 /* AixyProviderTests.swift in Sources */,
 				E22900000000000000000005 /* NeuralwattProviderTests.swift in Sources */,
@@ -1044,6 +1053,7 @@
                 6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+				57F000000000000000000102 /* DevinProvider.swift in Sources */,
 				E23600000000000000000004 /* ClawRouterProvider.swift in Sources */,
 				E23500000000000000000004 /* AixyProvider.swift in Sources */,
 				E22900000000000000000004 /* NeuralwattProvider.swift in Sources */,

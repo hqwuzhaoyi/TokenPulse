@@ -197,6 +197,11 @@ struct WebProviderLoginProfile: Sendable {
 extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
+        case .devin:
+            WebProviderLoginProfile(loginURL: URL(string: "https://app.devin.ai/")!, allowedOrigins: [DevinWebSession.origin],
+                storageKeys: ["auth1_session"], storagePrefixes: [DevinWebSession.organizationPrefix], makeCredentials: { _, storage, accountID, _ in
+                    try DevinWebSession.credentials(storage: storage, accountID: accountID)
+                })
         default: nil
         }
     }
