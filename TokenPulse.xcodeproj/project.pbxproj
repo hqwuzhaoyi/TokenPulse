@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        57F000000000000000000202 /* ClaudeSessionScopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000201; };
 		57F000000000000000000121 /* WindsurfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000120; };
 		57F000000000000000000122 /* WindsurfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000120; };
 		57F000000000000000000124 /* WindsurfProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000123; };
@@ -388,6 +389,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        57F000000000000000000201 /* ClaudeSessionScopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClaudeSessionScopeTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000120 /* WindsurfProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WindsurfProvider.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000123 /* WindsurfProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WindsurfProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		57F000000000000000000110 /* ManusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ManusProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -761,6 +763,7 @@
                 C01100000000000000000001 /* CopilotProvider.swift */,
                 C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+                57F000000000000000000201 /* ClaudeSessionScopeTests.swift */,
 				57F000000000000000000123 /* WindsurfProviderTests.swift */,
 				57F000000000000000000120 /* WindsurfProvider.swift */,
 				57F000000000000000000113 /* ManusProviderTests.swift */,
@@ -1152,6 +1155,7 @@
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+                57F000000000000000000202 /* ClaudeSessionScopeTests.swift in Sources */,
 				57F000000000000000000124 /* WindsurfProviderTests.swift in Sources */,
 				57F000000000000000000114 /* ManusProviderTests.swift in Sources */,
 				57F000000000000000000104 /* DevinProviderTests.swift in Sources */,

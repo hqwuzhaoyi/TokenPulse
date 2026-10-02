@@ -110,6 +110,7 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
+        if provider == .claude { return try? ClaudeWebSession.fingerprint(self) }
         if metadata["webSessionFormat"] == "v1" { return try? WebProviderSession.fingerprint(self) }
         if provider.requiresGatewayAddress { return gatewayIdentity }
         if provider == .ibmBob { return (try? IBMBobCredential(envelope: self))?.fingerprint }
