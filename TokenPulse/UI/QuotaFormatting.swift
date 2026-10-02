@@ -42,11 +42,13 @@ enum QuotaFormatting {
     static func nextEventValue(_ window: QuotaWindow) -> String {
         let event = nextEventDate(window)
         if event == nil, window.resetSemantics == .continuousReplenishment { return "持续补充" }
+        if event == nil, window.resetSemantics == .nonResettingAllowance { return "无周期重置" }
         return resetDate(event, precision: event == window.resetsAt ? window.resetDatePrecision : nil)
     }
 
     static func nextEventLabel(_ window: QuotaWindow) -> String {
         if nextEventDate(window) == nil, window.resetSemantics == .continuousReplenishment { return "额度补充" }
+        if nextEventDate(window) == nil, window.resetSemantics == .nonResettingAllowance { return "额度类型" }
         if let replenishment = window.nextReplenishmentAt,
            nextEventDate(window) == replenishment { return "下次补充" }
         guard let expiry = window.expiresAt else { return "下次重置" }

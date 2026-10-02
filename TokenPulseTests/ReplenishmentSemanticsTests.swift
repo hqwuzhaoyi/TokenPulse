@@ -64,6 +64,8 @@ final class ReplenishmentSemanticsTests: XCTestCase {
                 resetSemantics: .nonResettingAllowance)], collectedAt: date)
         }
         let prior = snapshot(95, at: date)
+        XCTAssertEqual(QuotaFormatting.nextEventLabel(prior.windows[0]), "额度类型")
+        XCTAssertEqual(QuotaFormatting.nextEventValue(prior.windows[0]), "无周期重置")
         let first = planner.planSuccessfulRefresh(accountID: id, accountName: "pack", previousSnapshot: nil,
             newSnapshot: prior, settings: AccountReminderSettings(), ledger: ReminderLedger(), now: date)
         let second = planner.planSuccessfulRefresh(accountID: id, accountName: "pack", previousSnapshot: prior,
