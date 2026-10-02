@@ -36,7 +36,7 @@ extension Provider {
         case .deepSeek: "ProviderDeepSeek"
         case .venice: "ProviderVenice"
         case .qwenCloud: "ProviderQwenCloud"
-        case .raycastAI, .t3Chat, .zoomMate: nil
+        case .raycastAI, .t3Chat, .zoomMate, .typeSafe: nil
         case .hyper: nil
         case .deepInfra: "ProviderDeepInfra"
         case .kiloCode: "ProviderKiloCode"
@@ -75,6 +75,7 @@ extension Provider {
 
     var systemIconName: String? {
         switch self {
+        case .typeSafe: "puzzlepiece.extension.fill"
         case .raycastAI: "sparkles"
         case .t3Chat: "bubble.left.and.bubble.right.fill"
         case .zoomMate: "video.fill"

@@ -92,7 +92,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .ibmBob, .devPass, .warp:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud, .xaiAPI:
+        case .typeSafe, .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud, .xaiAPI:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
             return currency.map { currency in
                 [WidgetQuotaMetric(

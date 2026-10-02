@@ -17,6 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
+            (.typeSafe, "TypeSafe"),
             (.qwenCloud, "Qwen Cloud"),
             (.raycastAI, "Raycast AI"), (.t3Chat, "T3 Chat"), (.zoomMate, "ZoomMate"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
@@ -88,6 +89,7 @@ enum DemoMode {
         let short = window("demo.five-hour", "5 小时额度", .fiveHour, 36)
         let weekly = window("demo.weekly", "每周额度", .weekly, 71)
         let windows: [QuotaWindow] = switch provider {
+        case .typeSafe: [WalletExpansionHTTP.walletWindow(id: "typesafe.balance", wallet: .init(currency: "credits（币种未提供）", total: 4.98, isMonetary: false))]
         case .qwenCloud: [window("qwenCloud.per5Hour", "5 小时额度", .fiveHour, 3), window("qwenCloud.per1Week", "每周额度", .weekly, 15), window("qwenCloud.per1Month", "每月额度", .monthly, 25)]
         case .raycastAI: [.init(id: "raycast.ai_credits", name: "AI credits", scope: nil, period: .other,
             usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400), unit: "credits",

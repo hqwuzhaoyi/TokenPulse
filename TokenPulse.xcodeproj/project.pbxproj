@@ -20,12 +20,15 @@
 		E22100000000000000000004 /* CodebuffProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000001; };
 		E22100000000000000000005 /* CodebuffProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000002; };
 		E22000000000000000000003 /* ClinePassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000001; };
+		F35700000000000000000003 /* TypeSafeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35700000000000000000001; };
 		F35200000000000000000003 /* QwenCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35200000000000000000001; };
 		F35300000000000000000003 /* HostedWebProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35300000000000000000001; };
 		E22000000000000000000004 /* ClinePassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000001; };
+		F35700000000000000000004 /* TypeSafeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35700000000000000000001; };
 		F35200000000000000000004 /* QwenCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35200000000000000000001; };
 		F35300000000000000000004 /* HostedWebProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35300000000000000000001; };
 		E22000000000000000000005 /* ClinePassProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000002; };
+		F35700000000000000000005 /* TypeSafeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35700000000000000000002; };
 		F35200000000000000000005 /* QwenCloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35200000000000000000002; };
 		F35300000000000000000005 /* HostedWebProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35300000000000000000002; };
 		AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000001001; };
@@ -327,9 +330,11 @@
 		E22100000000000000000001 /* CodebuffProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CodebuffProvider.swift; sourceTree = SOURCE_ROOT; };
 		E22100000000000000000002 /* CodebuffProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CodebuffProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		E22000000000000000000001 /* ClinePassProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClinePassProvider.swift; sourceTree = SOURCE_ROOT; };
+		F35700000000000000000001 /* TypeSafeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/TypeSafeProvider.swift; sourceTree = SOURCE_ROOT; };
 		F35200000000000000000001 /* QwenCloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QwenCloudProvider.swift; sourceTree = SOURCE_ROOT; };
 		F35300000000000000000001 /* HostedWebProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HostedWebProviders.swift; sourceTree = SOURCE_ROOT; };
 		E22000000000000000000002 /* ClinePassProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClinePassProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		F35700000000000000000002 /* TypeSafeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/TypeSafeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F35200000000000000000002 /* QwenCloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QwenCloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F35300000000000000000002 /* HostedWebProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/HostedWebProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QuotaDatePrecisionTests.swift; sourceTree = SOURCE_ROOT; };
@@ -571,6 +576,7 @@
 				E22900000000000000000001 /* NeuralwattProvider.swift */,
 				E22100000000000000000001 /* CodebuffProvider.swift */,
 				E22000000000000000000001 /* ClinePassProvider.swift */,
+				F35700000000000000000001 /* TypeSafeProvider.swift */,
 				F35200000000000000000001 /* QwenCloudProvider.swift */,
 				F35300000000000000000001 /* HostedWebProviders.swift */,
 				2E6200000000000000000001 /* MoonshotProvider.swift */,
@@ -619,6 +625,7 @@
 				E22900000000000000000002 /* NeuralwattProviderTests.swift */,
 				E22100000000000000000002 /* CodebuffProviderTests.swift */,
 				E22000000000000000000002 /* ClinePassProviderTests.swift */,
+				F35700000000000000000002 /* TypeSafeProviderTests.swift */,
 				F35200000000000000000002 /* QwenCloudProviderTests.swift */,
 				F35300000000000000000002 /* HostedWebProviderTests.swift */,
 				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
@@ -923,6 +930,7 @@
 				E22900000000000000000003 /* NeuralwattProvider.swift in Sources */,
 				E22100000000000000000003 /* CodebuffProvider.swift in Sources */,
 				E22000000000000000000003 /* ClinePassProvider.swift in Sources */,
+				F35700000000000000000003 /* TypeSafeProvider.swift in Sources */,
 				F35200000000000000000003 /* QwenCloudProvider.swift in Sources */,
 				F35300000000000000000003 /* HostedWebProviders.swift in Sources */,
 				2E6200000000000000000003 /* MoonshotProvider.swift in Sources */,
@@ -970,6 +978,7 @@
 				E22900000000000000000005 /* NeuralwattProviderTests.swift in Sources */,
 				E22100000000000000000005 /* CodebuffProviderTests.swift in Sources */,
 				E22000000000000000000005 /* ClinePassProviderTests.swift in Sources */,
+				F35700000000000000000005 /* TypeSafeProviderTests.swift in Sources */,
 				F35200000000000000000005 /* QwenCloudProviderTests.swift in Sources */,
 				F35300000000000000000005 /* HostedWebProviderTests.swift in Sources */,
 				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
@@ -1067,6 +1076,7 @@
 				E22900000000000000000004 /* NeuralwattProvider.swift in Sources */,
 				E22100000000000000000004 /* CodebuffProvider.swift in Sources */,
 				E22000000000000000000004 /* ClinePassProvider.swift in Sources */,
+				F35700000000000000000004 /* TypeSafeProvider.swift in Sources */,
 				F35200000000000000000004 /* QwenCloudProvider.swift in Sources */,
 				F35300000000000000000004 /* HostedWebProviders.swift in Sources */,
 				2E6200000000000000000004 /* MoonshotProvider.swift in Sources */,
