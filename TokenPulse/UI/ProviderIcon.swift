@@ -34,6 +34,7 @@ extension Provider {
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
+        case .abacus: nil
         case .venice: "ProviderVenice"
         case .hyper: nil
         case .deepInfra: "ProviderDeepInfra"
@@ -74,6 +75,7 @@ extension Provider {
     var systemIconName: String? {
         switch self {
         case .codebuff: "terminal"
+        case .abacus: "square.grid.3x3.fill"
         case .neuralwatt: "bolt.circle"
         case .aixy: "network"
         case .hyper: "bolt.circle"

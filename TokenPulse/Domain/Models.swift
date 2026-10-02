@@ -33,6 +33,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case xaiAPI
     case ibmBob
     case warp, v0, devPass
+    case abacus
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
@@ -93,6 +94,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .warp: "Warp"
         case .v0: "v0"
         case .devPass: "DevPass"
+        case .abacus: "Abacus AI"
         }
     }
 }

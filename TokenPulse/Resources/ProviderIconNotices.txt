@@ -38,6 +38,8 @@ The GitKraken AI mark uses the official GitLens symbol from GitKraken/vscode-git
 
 The Hugging Face SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/huggingface.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official huggingface/huggingface_hub source tree was checked and did not supply a reusable SVG provider mark; the existing licensed Lobe vector source is used.
 
+Abacus AI uses the platform SF Symbol square.grid.3x3.fill as a generic compute indicator. No external Abacus artwork is imported.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.
