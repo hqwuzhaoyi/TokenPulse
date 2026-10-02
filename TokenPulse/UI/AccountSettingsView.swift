@@ -322,7 +322,6 @@ private struct AccountPreferencesView: View {
         }
     }
 
-    @ViewBuilder
     private func supportsQuotaReminders(_ configuration: AccountConfiguration) -> Bool {
         guard configuration.account.provider.balancePresentation != .walletOnly else { return false }
         guard configuration.account.provider.balancePresentation == .mixed,
@@ -337,6 +336,7 @@ private struct AccountPreferencesView: View {
         return snapshot.windows.contains { $0.wallet?.isMonetary == true }
     }
 
+    @ViewBuilder
     private func walletReminderControls(configuration: AccountConfiguration) -> some View {
         let currencies = monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows
             .compactMap(\.wallet).filter(\.isMonetary).map(\.currency).uniqued() ?? []
