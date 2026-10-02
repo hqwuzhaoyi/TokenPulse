@@ -12,6 +12,11 @@
 | 66 Alibaba Token Plan | sol_gateway | 按官方 CLI 实现 AK/SK 签名与 HTTPS 查询 |
 | 67 Nous Portal | sol_web | 独立设备 OAuth 链与账户 credits 查询 |
 | 68 JetBrains AI | sol_copilot | 个人额度远程协议 |
-| 69 OpenAI API | sol_wallet | 真实余额接口与 legacy 兼容边界 |
+| 69 OpenAI API | sol_wallet | 已合入 `444a1ba`；Legacy 余额，7 项 XCTest 通过；Pi 运行中 |
 
 sol_regional 负责 Nous 设备本地凭证与快照同步的架构审查。Root 负责集成、中央清单和串行 Xcode 验证。新增实现稳定后安排针对性的 Pi 回归，前一批 10 组结果保留。
+
+## 已执行验证
+
+- `444a1ba`：新增 OpenAI Legacy 7 项 XCTest，0 失败。日志 `/tmp/tokenpulse-wave4-openai.log`，结果 `/tmp/tokenpulse-wave4-openai.xcresult`。此为定向验证，不替代本轮最终全套测试。
+- Pi 新任务 `01-openai-legacy` 使用独立代码快照，运行目录 `/tmp/tokenpulse-wave4-pi`。
