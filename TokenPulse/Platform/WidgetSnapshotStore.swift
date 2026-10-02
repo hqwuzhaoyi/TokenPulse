@@ -15,6 +15,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var walletFailure: RefreshFailure? = nil
     var providerPlanName: String? = nil
     var isNoPlan: Bool? = nil
+    var quotaStatusText: String? = nil
 
     var id: UUID { account.id }
 
@@ -37,6 +38,14 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     }
 
     var displayMetrics: [WidgetQuotaMetric] {
+        let metrics = baseDisplayMetrics
+        if let status = quotaStatusText, !metrics.contains(where: { $0.window != nil }) {
+            return [.init(id: "account.quotaStatus", title: "套餐状态", window: nil, statusText: status)]
+        }
+        return metrics
+    }
+
+    private var baseDisplayMetrics: [WidgetQuotaMetric] {
         if isNoPlan == true { return [.init(id: "noPlan", title: "套餐与 Key 上限", window: nil, statusText: "按量计费，无上限")] }
         let visible = QuotaPolicy.windows(windows, provider: account.provider, plan: subscriptionPlan, surface: .widget)
         if account.provider.balancePresentation == .mixed {
@@ -248,7 +257,8 @@ actor WidgetSnapshotStore {
                 walletCollectedAt: state.snapshot?.walletCollectedAt,
                 walletFailure: state.snapshot?.walletFailure,
                 providerPlanName: state.snapshot?.providerPlanName,
-                isNoPlan: state.snapshot?.isNoPlan
+                isNoPlan: state.snapshot?.isNoPlan,
+                quotaStatusText: state.snapshot?.quotaStatusText
             )
         }
         try save(snapshots, isDemoMode: isDemoMode)
