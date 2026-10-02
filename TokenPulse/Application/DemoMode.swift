@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"), (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"),
+            (.copilot, "GitHub Copilot Free"), (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,14 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .ibmBob: [
+            QuotaWindow(id: "ibmBob.personal.solo.user", name: "Bobcoins", scope: "Personal · Solo", period: .monthly,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(10 * 86_400), unit: "Bobcoins",
+                        exactCounts: DecimalQuotaCounts(used: 10, remaining: 30, total: 40)),
+            QuotaWindow(id: "ibmBob.work.platform.user", name: "Bobcoins（预算未提供）", scope: "Work · Platform", period: .monthly,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(20 * 86_400), unit: "Bobcoins",
+                        exactCounts: DecimalQuotaCounts(used: 12.5))
+        ]
         case .xaiAPI: [
             QuotaWindow(id: "xaiAPI.team.demo.wallet.USD", name: "已入账预付余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

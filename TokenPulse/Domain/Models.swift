@@ -10,6 +10,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case copilot
     case volcengine
     case xaiAPI
+    case ibmBob
 
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .xaiAPI }
@@ -35,6 +36,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .copilot: "GitHub Copilot"
         case .volcengine: "火山方舟"
         case .xaiAPI: "xAI API"
+        case .ibmBob: "IBM Bob"
         }
     }
 }

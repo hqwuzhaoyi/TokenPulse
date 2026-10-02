@@ -43,6 +43,7 @@ extension Provider {
         case .copilot: "ProviderCopilot"
         case .volcengine: "ProviderVolcengine"
         case .xaiAPI: "ProviderXAIAPI"
+        case .ibmBob: "ProviderIBMBob"
         }
     }
 

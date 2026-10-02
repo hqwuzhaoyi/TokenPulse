@@ -201,7 +201,7 @@ private struct AccountQuotaView: View {
                             }
                             let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
                             ForEach(detailWindows) { window in
-                                if window.scope == nil || state.account.provider == .qoderInternational {
+                                if window.scope == nil || [.qoderInternational, .ibmBob, .volcengine].contains(state.account.provider) {
                                     QuotaWindowView(window: window)
                                 } else {
                                     LabeledContent(
@@ -586,6 +586,10 @@ private struct AddAccountView: View {
                         }
                         if provider == .xaiAPI {
                             Text("输入 TeamID:ManagementKey，使用英文冒号。需要管理 Key 和账单读取权限，推理 Key 无效。余额是已入账值，账期内可能高于控制台实时余额。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if provider == .ibmBob {
+                            Text("通用 API Key 输入 apikey:Key；登录 JWT 输入 token:JWT。推理专用 Key 不适用。各实例和团队的 Bobcoins 预算分别展示，不换算成货币。登录 token 到期后需更新。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         SecureField(credentialLabel, text: $key)

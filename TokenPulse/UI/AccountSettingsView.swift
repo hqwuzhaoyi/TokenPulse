@@ -191,7 +191,7 @@ private struct AccountPreferencesView: View {
                                 LabeledContent("套餐", value: plan)
                             }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
-                                if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational].contains(configuration.account.provider) {
+                                if window.scope == nil || [.qoderInternational, .zai, .zhipu, .miniMaxChina, .miniMaxInternational, .ibmBob, .volcengine].contains(configuration.account.provider) {
                                     QuotaWindowView(window: window)
                                 } else {
                                     LabeledContent(
@@ -217,24 +217,27 @@ private struct AccountPreferencesView: View {
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
                     }
                 }
-                if configuration.account.provider != .poe {
+                if showsReminderControls {
                     Section("提醒") {
+                        if showsQuotaAlertControls {
                         Toggle(configuration.account.provider.hasMonetaryWallet ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
                             var settings = configuration.reminders; settings.quotaAlertsEnabled = value
                             Task { await monitor.updateReminders(settings, accountID: accountID) }
                         }))
+                        }
                         if configuration.account.provider.hasMonetaryWallet {
                             walletReminderControls(configuration: configuration)
                         } else {
-                            if configuration.account.provider != .qoderInternational &&
-                                (configuration.account.provider != .stepFun || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil }) == true) {
+                            if showsResetReminderControl {
                                 Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
                                     var settings = configuration.reminders; settings.resetRemindersEnabled = value
                                     Task { await monitor.updateReminders(settings, accountID: accountID) }
                                 }))
                             }
-                            TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
-                            Button("保存阈值") { saveQuotaThresholds(configuration) }
+                            if showsQuotaAlertControls {
+                                TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
+                                Button("保存阈值") { saveQuotaThresholds(configuration) }
+                            }
                         }
                         if let error { Text(error).foregroundStyle(.red) }
                         Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
@@ -268,6 +271,10 @@ private struct AccountPreferencesView: View {
                         }
                         if configuration.account.provider == .xaiAPI {
                             Text("输入 TeamID:ManagementKey，使用英文冒号。需要管理 Key 和账单读取权限，推理 Key 无效。余额是已入账值，账期内可能高于控制台实时余额。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .ibmBob {
+                            Text("通用 API Key 输入 apikey:Key；登录 JWT 输入 token:JWT。推理专用 Key 不适用。各实例和团队的 Bobcoins 预算分别展示，不换算成货币。登录 token 到期后需更新。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
@@ -320,6 +327,23 @@ private struct AccountPreferencesView: View {
             thresholds = monitor.configuration(for: accountID)?.reminders.thresholds.map { String($0) }.joined(separator: ",") ?? "80,95,100"
             loadWalletThreshold()
         }
+    }
+
+    private var showsQuotaAlertControls: Bool {
+        guard let provider = monitor.configuration(for: accountID)?.account.provider else { return false }
+        guard provider == .ibmBob else { return true }
+        return monitor.states.first { $0.id == accountID }?.snapshot?.windows.contains { $0.usedPercentage != nil } == true
+    }
+
+    private var showsResetReminderControl: Bool {
+        guard let provider = monitor.configuration(for: accountID)?.account.provider, provider != .qoderInternational else { return false }
+        guard provider == .ibmBob || provider == .stepFun else { return true }
+        return monitor.states.first { $0.id == accountID }?.snapshot?.windows.contains { $0.resetsAt != nil } == true
+    }
+
+    private var showsReminderControls: Bool {
+        guard let provider = monitor.configuration(for: accountID)?.account.provider, provider != .poe else { return false }
+        return provider != .ibmBob || showsQuotaAlertControls || showsResetReminderControl
     }
 
     @ViewBuilder

@@ -339,8 +339,7 @@ struct NotificationPlanner: Sendable {
         let candidates = snapshot.windows.compactMap { window -> (Date, String)? in
             guard window.wallet == nil,
                   !window.isUnlimited,
-                  let usedPercentage = window.usedPercentage,
-                  usedPercentage > 0,
+                  (window.usedPercentage.map { $0 > 0 } ?? window.exactCounts?.used.map { $0 > 0 } ?? false),
                   let resetAt = window.resetsAt,
                   Int64(exactly: (resetAt.timeIntervalSince1970 * 1000).rounded()) != nil,
                   resetAt > now else { return nil }
