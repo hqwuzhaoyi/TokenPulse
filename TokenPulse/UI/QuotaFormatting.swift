@@ -35,7 +35,7 @@ enum QuotaFormatting {
     }
 
     static func effectiveUsedPercentage(_ window: QuotaWindow) -> Double? {
-        guard !window.isUnlimited else { return nil }
+        guard window.wallet == nil, !window.isUnlimited else { return nil }
         return window.isExhausted == true ? 100 : window.usedPercentage
     }
 
@@ -48,6 +48,16 @@ enum QuotaFormatting {
         let value = count(value)
         guard value != "未提供", let unit, !unit.isEmpty else { return value }
         return "\(value) \(unit)"
+    }
+
+    static func money(_ value: Decimal?, currency: String) -> String {
+        guard let value else { return "未提供" }
+        return money(value, currency: currency)
+    }
+
+    static func balance(_ value: Decimal?, wallet: WalletBalance) -> String {
+        guard let value else { return "未提供" }
+        return "\(value.formatted(.number.precision(.fractionLength(0...8)))) \(wallet.currency)"
     }
 
     static func money(_ value: Decimal, currency: String) -> String {

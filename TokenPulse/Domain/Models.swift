@@ -94,8 +94,33 @@ struct QuotaPolicy {
 struct WalletBalance: Codable, Equatable, Sendable {
     let currency: String
     let total: Decimal
-    let granted: Decimal
-    let toppedUp: Decimal
+    let granted: Decimal?
+    let toppedUp: Decimal?
+    /// False for non-currency units such as Poe points. They have no monetary reminder policy.
+    let isMonetary: Bool
+
+    init(currency: String, total: Decimal, granted: Decimal? = nil,
+         toppedUp: Decimal? = nil, isMonetary: Bool = true) {
+        self.currency = currency
+        self.total = total
+        self.granted = granted
+        self.toppedUp = toppedUp
+        self.isMonetary = isMonetary
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case currency, total, granted, toppedUp, isMonetary
+    }
+
+    init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        currency = try values.decode(String.self, forKey: .currency)
+        total = try values.decode(Decimal.self, forKey: .total)
+        granted = try values.decodeIfPresent(Decimal.self, forKey: .granted)
+        toppedUp = try values.decodeIfPresent(Decimal.self, forKey: .toppedUp)
+        // Existing DeepSeek snapshots predate the unit classification.
+        isMonetary = try values.decodeIfPresent(Bool.self, forKey: .isMonetary) ?? true
+    }
 }
 
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
