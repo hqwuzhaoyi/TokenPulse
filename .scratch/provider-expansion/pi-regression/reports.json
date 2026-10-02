@@ -1,0 +1,139 @@
+[
+  {
+    "task": "01-web-session",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "73f15e1db3682db987e8d8e6db36261dcf284c57",
+      "workingChanges": " M TokenPulse.xcodeproj/project.pbxproj\n M TokenPulse/Application/DemoMode.swift\n M TokenPulse/Domain/Models.swift\n M TokenPulse/Platform/WidgetSnapshotStore.swift\n M TokenPulse/Providers/ProviderIntegration.swift\n M TokenPulse/Providers/WebSessionContainer.swift\n M TokenPulse/UI/ProviderIcon.swift\n?? TokenPulse/Providers/TypeSafeProvider.swift\n?? TokenPulseTests/TypeSafeProviderTests.swift\n",
+      "frozenAt": "2026-10-02T22:29:56.203747"
+    },
+    "report": "01-web-session.md",
+    "reportState": "completed"
+  },
+  {
+    "task": "02-decimal-reminders",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "afeaf454e3e7a793e02f5c07fb9dd9c380d0f340",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T22:43:35.201026"
+    },
+    "report": "02-decimal-reminders.md",
+    "reportState": "completed-reviewed"
+  },
+  {
+    "task": "03-hosted-web",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "afeaf454e3e7a793e02f5c07fb9dd9c380d0f340",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T22:43:35.325515"
+    },
+    "report": "03-hosted-web.md",
+    "reportState": "completed-reviewed"
+  },
+  {
+    "task": "04-gateways",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.176672",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "04-gateways.md",
+    "reportState": "completed"
+  },
+  {
+    "task": "05-regional",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.292987",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "05-regional.md",
+    "reportState": "completed-reviewed"
+  },
+  {
+    "task": "06-org-sessions",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.407814",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "06-org-sessions.md",
+    "reportState": "completed"
+  },
+  {
+    "task": "07-billing-sessions",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.516708",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "07-billing-sessions.md",
+    "reportState": "completed"
+  },
+  {
+    "task": "08-research-providers",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.630605",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "08-research-providers.md",
+    "reportState": "completed"
+  },
+  {
+    "task": "09-coding-sessions",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.743498",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "09-coding-sessions.md",
+    "reportState": "completed"
+  },
+  {
+    "task": "10-surfaces-icons",
+    "provider": "cch",
+    "model": "glm-5.3",
+    "snapshot": {
+      "source": "/Users/wuzhaoyi/workspace/TokenPulse",
+      "commit": "0477a437124f559b46e041aee015208545d989df",
+      "workingChanges": "",
+      "frozenAt": "2026-10-02T23:18:47.855467",
+      "note": "Queued task updated to 71-provider code with 607 passing XCTest results"
+    },
+    "report": "10-surfaces-icons.md",
+    "reportState": "completed"
+  }
+]

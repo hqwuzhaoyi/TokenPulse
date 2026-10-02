@@ -1,0 +1,122 @@
+[
+  {
+    "id": "PI01-1",
+    "finding": "Claude legacy session lacks source identity; new logins unbound",
+    "status": "fixed",
+    "commit": "7f9061e",
+    "validation": "619-test full run passed including seven new scope tests"
+  },
+  {
+    "id": "PI01-2",
+    "finding": "WK representable keeps old browser after same-site restart",
+    "status": "fixed",
+    "commit": "0477a43",
+    "validation": "source identity fix; simulator/unsigned build passed, no live login UI claim"
+  },
+  {
+    "id": "PI02-1",
+    "finding": "stale quota observations regress cycles, alerts and schedules",
+    "status": "fixed",
+    "owner": "sol_wallet",
+    "commit": "a09e810 + 816e422",
+    "validation": "629-test full run passed; preserves cycles, schedules, empty frames, separate wallet ordering and binding cleanup"
+  },
+  {
+    "id": "PI02-2",
+    "finding": "legacy Chutes floating-point false exhaustion",
+    "status": "fixed",
+    "commit": "1ea96f2",
+    "validation": "native red/green and 619-test full run passed"
+  },
+  {
+    "id": "PI02-3",
+    "finding": "tiny nonzero balances rendered as zero",
+    "status": "fixed",
+    "commit": "378dae7",
+    "validation": "shared formatting regression passed"
+  },
+  {
+    "id": "PI03-1",
+    "finding": "T3 null primary reset does not use valid fallback",
+    "status": "fixed",
+    "commit": "f0c198f",
+    "validation": "14 hosted/Qwen regression tests passed"
+  },
+  {
+    "id": "PI03-2",
+    "finding": "Qwen no-plan response receives possibly historical tier label",
+    "status": "fixed",
+    "commit": "f0c198f",
+    "validation": "14 hosted/Qwen regression tests passed"
+  },
+  {
+    "id": "ROOT-1",
+    "finding": "ZoomMate alternate-host retry also includes non-auth HTTP 4xx",
+    "status": "fixed",
+    "commit": "46c8aee",
+    "validation": "three failing request-count assertions reproduced then 10 related tests passed"
+  },
+  {
+    "id": "PI05",
+    "finding": "Regional group audit found no reproducible issue",
+    "status": "report-reviewed",
+    "validation": "Pi native production-source probes; no duplicate XCTest additions required"
+  },
+  {
+    "id": "PI04",
+    "finding": "Gateway regression report found no reproducible issue",
+    "status": "report-reviewed",
+    "validation": "Pi reports 135 native checks; gateway XCTest full runs passed"
+  },
+  {
+    "id": "PI06-1",
+    "finding": "Manus derives zero used when remaining exceeds nominal allowance",
+    "status": "fixed",
+    "commit": "e6e6932",
+    "validation": "Keeps reported quantities and leaves inferred usage unknown; covered in 629-test full run"
+  },
+  {
+    "id": "PI07",
+    "finding": "Abacus Perplexity Notion report found no reproducible issue",
+    "status": "report-reviewed",
+    "validation": "Pi reports 41 native checks; provider XCTest passed"
+  },
+  {
+    "id": "PI08-F1-F2",
+    "finding": "Mistral multi-argument flight push and Sakana inline-title variants",
+    "status": "fixed-pending-final-test",
+    "commit": "1863fec",
+    "validation": "Bounded offline robustness improvement, not a claimed live outage; parser tests passed within last full run, which separately found an API-kind guard regression"
+  },
+  {
+    "id": "PI08-F3",
+    "finding": "Replicate rejects incomplete enumeration at traversal bound",
+    "status": "not-changed-by-design",
+    "reason": "Returning a partial candidate list could silently omit organizations and auto-select the wrong scope; the complete bounded enumeration rule is retained"
+  },
+  {
+    "id": "PI08-license",
+    "finding": "Report did not find three icon notices",
+    "status": "observation-corrected",
+    "reason": "ProviderIconNotices.txt lines 41/43/45 explicitly record Replicate/Mistral/Sakana sources, pinned commit, copyright and MIT license; full MIT text also present"
+  },
+  {
+    "id": "PI09",
+    "finding": "Coding provider report found no reproducible issue",
+    "status": "report-reviewed",
+    "validation": "Pi reports 44 native checks in Swift 5 mode; actual Swift 6 Xcode tests separately passed"
+  },
+  {
+    "id": "PI10",
+    "finding": "Cross-surface registration and icons found no reproducible issue",
+    "status": "report-reviewed",
+    "validation": "71 mappings, 53 image sets and 15 SF entries independently verified by root; Pi ran static/script/parse checks"
+  },
+  {
+    "id": "ROOT-2",
+    "finding": "Legacy API-key envelopes without identity can retain the previous Key cache on replacement failure",
+    "status": "fixed-pending-final-test",
+    "commit": "e0f45d2 + 66778f3",
+    "validation": "Native red/green reproduced stale cache/cloud merge; new tests passed; original wrong-kind guard restored after full-suite failure"
+  }
+]
