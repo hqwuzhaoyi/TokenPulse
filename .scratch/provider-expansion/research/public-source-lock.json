@@ -179,5 +179,14 @@
     "manifest_url": "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/darwin_arm64.json",
     "observed_manifest_version": "1.2.15",
     "observed_manifest_sha256": "77342945c5cc25837c8ff2254620185f955f6b805fe8227bd7ae9f0d9f11250b"
+  },
+  {
+    "repo": "jetbrains-central-cli-release",
+    "commit": "1.11.0-893e3e103dac07cd29ab1b6b57c877adcaaf7351-dirty",
+    "path": "central_1.11.0_linux_x86_64.tar.gz",
+    "url": "https://jetbrains-central-cli.s3.eu-west-1.amazonaws.com/central/1.11.0/central_1.11.0_linux_x86_64.tar.gz",
+    "sha256": "34c7e468870fdc57d60261034760f72b85c4a9e3f2dbfb9dec006b413f62ae4c",
+    "largeArtifact": true,
+    "binarySHA256": "07d76becc367762e31f59ecbf744a967ce5ef1cbf395b4fc05835e6fb244a042"
   }
 ]

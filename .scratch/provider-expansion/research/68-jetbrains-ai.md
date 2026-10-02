@@ -1,6 +1,6 @@
 # 68 JetBrains AI：账户级远程额度研究
 
-调查日期：2026-10-02；静态发布包补核：2026-10-03。结论：**个人远程 quota 的 HTTPS 请求、JWT 头、JSON schema、AI credits 转换与 refill 时间已从固定官方 Central CLI 发布包建立；原生初始导入签发和完整认证 fallback 链仍未闭合，状态 protocol-gap**。本地 XML 不满足独立刷新；个人/license、企业 shared pool 与公开许可证 API 不能混为一种额度。真实账号/实体设备观察不作为当前验收门槛。
+调查日期：2026-10-02；静态发布包补核：2026-10-03。结论：**个人license的初始TokenTransfer导入、JBA refresh、Register→ProvideAccess、额度查询与fallback已从固定官方Central1.11.0发布包闭合并实现。当前`.jetBrainsAI`已完成，图标为通用SF terminal；旧protocol-gap结论只记录先前调查阶段**。本地 XML 不满足独立刷新；个人/license、企业 shared pool 与公开许可证 API 不能混为一种额度。真实账号/实体设备观察不作为当前验收门槛。
 
 ## 来源与版本
 
@@ -35,7 +35,7 @@ Central CLI 官方文档说明 OAuth 2.0 PKCE 对 JetBrains Account 登录，随
 4. Watch 使用有效可续期凭证，在手机离线、IDE/Central CLI 停止时直连查询，跨 token expiry 续期重读，记录具体设备、OS、时间与脱敏结果。
 5. 验证角色撤销、套餐改变、top-up、shared pool 耗尽、账号切换和 stale cache 的表示。
 
-缺少完整原生初始导入签发与认证 fallback 组合，当前 provider 尚未实现。按调整后的验收，只要求原生实现与图标；真实账号/Watch观察不再是实施前硬门槛。仍须保持 entitlement、shared/sub-limit、单位/周期、身份与生命周期正确。
+该阶段尚缺完整原生初始导入签发与认证 fallback 组合；后文新增静态调用链与实现已解除此缺口。按调整后的验收，只要求原生实现与图标；真实账号/Watch观察不再是实施前硬门槛。仍须保持 entitlement、shared/sub-limit、单位/周期、身份与生命周期正确。
 
 
 ## 2026-10-03 再核查：个人远程 quota 存在，但协议未交付
@@ -72,7 +72,7 @@ Go Quota schema（`internal/auth/jbai/quota.go`）为：license string；current
 
 FormatQuotaPeriod 静态实现将 last/next 除1000、余数乘1000000后构造 time，即毫秒 epoch；直到时间 until 不应替代 refill.next。tariff/top-up 各有独立 available，不能把企业 limit 和 shared pool 合成另一份可花钱包。当前公开 Account API 那13 paths没有quota，不再用它的缺失否定上述发布包路线。
 
-### 已建立的 direct-refresh 与未闭合的初始输入
+### 静态调查初版：direct-refresh 与当时未闭合的初始输入
 
 classic `Refresh`（`client.go:146`，`0x8e2440...0x8e2620`）调用同一个空体 platformPost，path `/user/v5/auth/jwt/refresh/v3`，使用旧 AIPlatform JWT 的 Grazie-Authenticate-JWT；response 有 token string，CLI本地为结果设置 now+24h。这已证明原生 token 重取的具体请求形态，不是只能提供一次性24h读数。没有证据表明这里消耗一个独立一次性 refresh secret；也没有服务器级证据保证旧 JWT 刷新一定不撤销另一设备 JWT，因此双端互不撤销是后续观察项，不能混写为已验证。
 
@@ -80,8 +80,54 @@ CLI `canUseJBAIFastRefresh` 的本地条件包含已有 AI token、无 org user 
 
 官方 `login export` 的 TokenTransfer v1 **不含 ai_token/AIPlatform JWT**。静态字段为 version、refresh_token、environment、server_url可选、ai_access {type, org_id, workspace_id, license_id}、EAPToSAccepted、analytics选择。编码为 `central-` + Base64 JSON，license输入要求 license_id 与已接受EAP terms；不能写成“把 login export 输出当 AI JWT 粘贴即可”。这次没有运行 export，也没有读取 tokens.enc/Keychain/IDE。
 
-已找到 `ProvideAccess` 的 POST `/auth/jetbrains-jwt/provide-access/license/v2`、licenseId JSON 与 Bearer JBA access；`Register`、JBA RefreshTokens、importJCPTransfer 函数及 loopback OAuth callback `http://127.0.0.1:19515/callback`、central-cli audience线索也存在。**尚未把 TokenTransfer 导入→受支持 JBA OAuth client/token mint→Register/ProvideAccess→quota 及失败 fallback，完整固定为供本 App 直接使用的原生初始授权/配置协议。**当前不能用内置 CLI client 身份、猜想 client 参数或未审清的续期分支替代这段组合，也不能要求用户解密 IDE state来填名义provider。
+已找到 `ProvideAccess` 的 POST `/auth/jetbrains-jwt/provide-access/license/v2`、licenseId JSON 与 Bearer JBA access；`Register`、JBA RefreshTokens、importJCPTransfer 函数及 loopback OAuth callback `http://127.0.0.1:19515/callback`、central-cli audience线索也存在。**此静态调查初版当时尚未把TokenTransfer导入→JBA refresh→Register/ProvideAccess→quota及fallback完整固定；下节已补齐。**当前不能用内置 CLI client 身份、猜想 client 参数或未审清的续期分支替代这段组合，也不能要求用户解密 IDE state来填名义provider。
 
 稳定身份本身可以用合法初始登录/导入的 lineage 绑定，在原生续期时保持，不强行要求 quota.license 等于 token transfer.license_id，也不把未知个人JWT claims当新增硬门槛。代码缺口是完整合法初始发行和fallback契约；缺测试账号、Watch和稳定claims文档本身均不是当前关票理由。若以后补齐该链，可在不改变设备直连 ADR 的前提下实现个人原生 provider，并保留许可/seat来源、tariff/top-up与时间语义。
 
-**本轮 status=protocol-gap。**没有新增一次性名义provider或只加图标；没有真实授权/查询、未知二进制执行、IDE/CLI状态或用户凭证读取。原生实现+图标仍是用户当前验收；真实账号/实体设备仅是后续观察。本次已将剩余障碍从“找不到quota endpoint/schema”缩小到“原生初始导入发行及完整认证fallback链未闭合”。
+**上述调查阶段status=protocol-gap；后续补证和实现已解除，不作为当前阻塞。**没有新增一次性名义provider或只加图标；没有真实授权/查询、未知二进制执行、IDE/CLI状态或用户凭证读取。原生实现+图标仍是用户当前验收；真实账号/实体设备仅是后续观察。本次已将剩余障碍从“找不到quota endpoint/schema”缩小到“原生初始导入发行及完整认证fallback链未闭合”。
+
+
+## 2026-10-03 认证调用链闭合与原生实现
+
+固定artifact仍为上节官方1.11.0 archive/binary SHA，不以dirty源码revision冒充可复取源码。新增[auth-chain工具](68-static-tools/auth-chain.py)和[固定提取](68-static-tools/auth-chain-evidence.json)、[类型提取](68-static-tools/auth-types-evidence.json)、[展示/签发运算](68-static-tools/display-and-mint-evidence.json)。本次没有运行Central或installer，没有读取CLI状态、Keychain或任何真实用户凭证；工具仅解析固定公开ELF。
+
+### 初始导入与认证 fallback
+
+| 链条 | 固定代码证据 | native契约 |
+| --- | --- | --- |
+| TokenTransfer导入 | importJCPTransfer global0x16b1e00指向RefreshJBA0x8eb1c0 | 用户主动`central login export`得到central-+Base64 JSON；仅version1、environment=prod、ai_access.type=license、license_id和已接受EAP条款 |
+| JBA refresh | oauth.RefreshTokens0x8cb760、tokenRequest0x8cd380；ResolveURLs0x8ab3e0 | POST https://oauth.account.jetbrains.com/oauth2/token，form grant_type=refresh_token/client_id=central-cli/refresh_token；无client secret、PKCE、redirect或新CLI登录 |
+| 完成个人license授权 | completeLicenseLogin global0x16b1d58指向SignInJBAI0x8ec240；后者顺序调用Register0x8e13e0和ProvideAccess0x8e1a00 | 以JBA access Bearer POST https://auth.grazie.ai/auth/jetbrains-jwt/register，body{}，成功200/201；再POST /auth/jetbrains-jwt/provide-access/license/v2，JSON licenseId，返回token和可选expiresAt |
+| direct AI refresh及fallback | jbaBackend.RefreshWithInfo0x8e7920：0x16b1cc8→RefreshJBAI，0x16b1cc0→RefreshJBA，0x16b1cd0→SignInJBAI | AIJWT过期且JBA仍有效时先direct refresh；失败可重新Register/Provide。JBA失效或signing401时refresh JBA，再重新签发；重试有界，不遍历staging/enterprise |
+
+JBA response是access_token/id_token/refresh_token。官方RefreshTokens在0x8cb9de检查返回refresh_token为空则保留传入旧值，证明客户端兼容无替换返回；**不能据此证明服务不轮换或同一grant跨设备并发安全**。新RT先checkpoint，再解析ID token身份/签发；ID解析、Register、Provide或quota失败不会恢复旧RT为可重放状态。只从固定HTTPS mint返回的ID token取得标准sub，或已证jba_login；不相信export里的用户声明。已有绑定的subject改变立即停止。缓存身份是已验证个人subject+issuer+用户选定且服务器签发成功的license+shared账号UUID；不猜quota.license与license_id等价，RT/device/候选ID不混入同scope快照身份。
+
+原发行public client_id=central-cli仅用于用户主动导入官方export后的兼容refresh。TokenPulse不创建冒充CLI的OAuth登录、不复制secret，也不要求另外注册客户端才凭空阻塞这条已授权导入路线。请求Grazie-Agent标识TokenPulse本身。
+
+ProvideAccess的正expiresAt按毫秒epoch；固定CLI先初始化24h默认，再在<=0/缺失分支沿用。TokenPulse统一初始与direct mint采用相同默认，明确这是客户端策略，不声称服务精确期限或永久key；正数过期/超界拒绝。相关指令与类型已固定到工具，真实服务器生命周期未观察。
+
+### 使用率与分段的实际展示依据
+
+`writeQuotaOutput`0xc421c0...0xc42b20、quota field type offsets共同建立current是已用：0xc423a8取offset0x10 current，0xc423dc取offset0x20 maximum，除creditScale后0xc424ec计算current/maximum、乘100画usage bar。tariff的current/maximum/available(0x38/0x48/0x58)与topUp(0x68/0x78/0x88)按同顺序传入credits used/remaining格式；0xc42476把二者available相加作summary remaining。100000来自jbai.init构造0x186a0与Credits/DivRound共用global0x16d2270。
+
+实现显示实际tariff与top-up两段，不把aggregate再显示为另一份可花余额，不从套餐价推限额。金额原始值以Decimal解码和checked除100000、逆乘一致性验证；它是非货币AI credits。未知计数/限额不补0，无分母只显示已用/剩余。refill.next是reset、last标周期；不拿until当reset，当前也不推断top-up的到期语义。
+
+### 每设备持久化、候选与真实保存边界
+
+复用Nous的device-local vault/CAS接口，使用JetBrains专属metadata和coordinator，不硬套Nous schema或修改其token流程。手机和Watch分别主动导入独立新登录的export，Watch详情有SecureField入口并检查当前账号expectedIdentity。全部JWT/RT只在本设备Keychain，永不进入synchronizable secret store；同一RT的非secret摘要当前设备所有账号共用的持久ledger记录到目标UUID，删除/取消也保留。换UUID、换license或JSON包装不能重放已使用/unknown RT。没有跨设备global锁，也不能检测同family不同RT；UI明确不复用手机export，不能把这项说成已验证双端同链安全。
+
+独立新grant从始至终先写candidate record：new→oauthPending(CAS后才POST)→identityPending(新RT及mint response先保存)→jbaReady→ready。网络结果未知封uncertain，不自动再次消费；中间态可在本次账号/同grant内恢复而不回到原export RT。每次resume先claim新的UI lease，取消只清本attempt的候选，晚结果/旧页cleanup不能删新attempt或复活tombstone。已有active的同grant导入只是继续现链，不复制RT到candidate或给active添加候选cleanup所有权。
+
+验证页返回的是prepare receipt：**不会抢占旧active**。iPhone账号表单用户真正点保存、或已有账号replace，才由ProviderScopedStore.save在vault actor内核对候选/active baseline generation后CAS激活。先封activationPending再写active，只有完整ready+scope+quota验证才接管。签发/额度失败、取消、尚未点保存均保留旧Ready；active代际变化/删除拒旧receipt。UI晚handoff只ack当前同grant的最新值，不把旧encoded写回覆盖已轮换RT。Watch成功回调还核验真实active marker/scope后才关闭。
+
+未保存候选可激活期固定一小时；过期再访问会清secret，spent marker继续保留。关闭授权sheet并返回账号表单不算取消整个添加；返回说明明确要求保存。此候选寿命不是远程token期限，不能用于宣称长期后台刷新。长期独立refresh只由实际已保存active grant执行。
+
+### 验证事实与验收
+
+- 固定artifact的只读auth常量/函数槽提取实际重复一致；未提交大binary。
+- 实际Swift6生产小module与macOS XCTest：31 tests、0 failures，日志/tmp/tokenpulse-jetbrains-small/test.log；包含真实vault/router、初始签发、精确credits、rotation checkpoint故障、scope、取消/跨UUID重放、候选旧Ready保持、真实save/CAS、stale handoff、不同flight与一小时过期。
+- 主线程实际iOS/Watch工程组合曾通过JetBrains31+Nous23共54 tests（dece27b）；本次新增统一TTL用例与最终全量/unsigned/Pi结果由主线程记录。没有把macOS排除的iOS集成用例当成已跑。
+- `.jetBrainsAI`入口、客户端、双端本地凭证路由、App/Watch/widget/demo、生产与测试PBX注册齐备；PBX使用主线程已修的独立A442 IDs，不覆盖XKiro。
+- 图标存在：SF terminal通用工具图标。官方JetBrains/logos固定3f21b4a2eeaf930823c8987c373feb49e4c58753的许可要求原色及额外商用许可，不适合当前template tint；固定Lobe只提供Junie产品图标，未冒用为账户整体。Notices明确未导入JetBrains artwork。
+
+当前按用户最新“实现+图标存在”验收完成本票。未登录真实账号、未对照实际credit页、未观察真实RT rotation/撤销/Watch脱离手机运行；这些保留为未观察事实，不再作为研究硬门槛。企业/shared pool/Central Server与staging不在本次个人license范围，不自动扩展。
