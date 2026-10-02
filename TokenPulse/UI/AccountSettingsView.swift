@@ -227,7 +227,7 @@ private struct AccountPreferencesView: View {
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                             if configuration.account.provider != .qoderInternational &&
-                                (configuration.account.provider != .stepFun || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil }) == true) &&
+                                (![Provider.stepFun, .synthetic].contains(configuration.account.provider) || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.resetsAt != nil && $0.resetSemantics == nil }) == true) &&
                                 (configuration.account.provider.balancePresentation != .mixed || monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows.contains(where: { $0.wallet == nil && $0.resetsAt != nil }) == true) {
                                 Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
                                     var settings = configuration.reminders; settings.resetRemindersEnabled = value

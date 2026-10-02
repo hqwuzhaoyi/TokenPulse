@@ -41,11 +41,12 @@ extension Provider {
         case .stepFun: "ProviderStepFun"
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
+        case .synthetic: nil
         }
     }
 
     var systemIconName: String? {
-        nil
+        self == .synthetic ? "puzzlepiece.extension.fill" : nil
     }
 }
 

@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"),
+            (.copilot, "GitHub Copilot Free"), (.synthetic, "Synthetic"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,16 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .synthetic: [
+            QuotaWindow(id: "synthetic.five_hour", name: "5 小时滚动额度", scope: nil, period: .fiveHour,
+                        usedPercentage: 20, remainingCount: 600, totalCount: 750, resetsAt: nil,
+                        resetSemantics: .continuousReplenishment, nextReplenishmentAt: now.addingTimeInterval(300)),
+            QuotaWindow(id: "synthetic.weekly", name: "每周滚动额度", scope: nil, period: .weekly,
+                        usedPercentage: 2, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        resetSemantics: .continuousReplenishment, nextReplenishmentAt: now.addingTimeInterval(600)),
+            QuotaWindow(id: "synthetic.search_hourly", name: "每小时额度", scope: "Search", period: .other,
+                        usedPercentage: 10, remainingCount: 225, totalCount: 250, resetsAt: now.addingTimeInterval(1800), unit: "次请求")
+        ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),
             window("copilot.chat", "Chat", .monthly, 30),

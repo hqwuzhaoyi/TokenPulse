@@ -14,6 +14,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
+    case synthetic
 
     var id: String { rawValue }
     var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI }
@@ -43,6 +44,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .stepFun: "StepFun"
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
+        case .synthetic: "Synthetic"
         }
     }
 }
