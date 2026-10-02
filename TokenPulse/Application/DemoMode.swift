@@ -38,6 +38,7 @@ enum DemoMode {
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
             (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"),
             (.abacus, "Abacus AI"),
+            (.perplexity, "Perplexity API"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -326,6 +327,7 @@ enum DemoMode {
         ]
         case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
         case .abacus: [QuotaWindow(id: "abacus.computePoints", name: "Compute points 额度", scope: nil, period: .other, usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(15 * 86_400), unit: "compute points", exactCounts: .init(used: 250, remaining: 750, total: 1000))]
+        case .perplexity: [QuotaWindow(id: "perplexity.apiCredits.USD", name: "API credits 余额", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil, wallet: .init(currency: "USD", total: Decimal(string: "3.20")!))]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

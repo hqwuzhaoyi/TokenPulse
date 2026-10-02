@@ -34,6 +34,7 @@ extension Provider {
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
+        case .perplexity: "ProviderPerplexity"
         case .abacus: nil
         case .venice: "ProviderVenice"
         case .hyper: nil

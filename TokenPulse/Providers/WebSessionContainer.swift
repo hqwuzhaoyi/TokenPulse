@@ -198,6 +198,7 @@ extension Provider {
     var webLoginProfile: WebProviderLoginProfile? {
         switch self {
         case .abacus: AbacusProviderClient.loginProfile
+        case .perplexity: PerplexityProviderClient.loginProfile
         default: nil
         }
     }

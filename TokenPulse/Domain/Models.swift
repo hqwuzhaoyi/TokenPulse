@@ -33,15 +33,17 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case xaiAPI
     case ibmBob
     case warp, v0, devPass
+    case perplexity
     case abacus
 
     var id: String { rawValue }
     var requiresRegion: Bool { self == .moonshot || self == .alibabaCodingPlan }
-    var hasMonetaryWallet: Bool { [.xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice].contains(self) }
+    var hasMonetaryWallet: Bool { [.xaiAPI, .xKiro, .zenMux, .commandCode, .amp, .neuralwatt, .deepSeek, .vercelAIGateway, .newAPI, .moonshot, .atlasCloud, .kiloCode, .deepInfra, .venice, .perplexity].contains(self) }
     var hasWalletBalance: Bool { hasMonetaryWallet || [.poe, .codebuff, .hyper].contains(self) }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
         case .deepSeek, .vercelAIGateway, .newAPI, .poe, .moonshot, .atlasCloud, .hyper, .venice, .xaiAPI: .walletOnly
+        case .perplexity: .walletOnly
         case .xKiro, .zenMux, .commandCode, .amp, .codebuff, .neuralwatt, .kiloCode, .deepInfra: .mixed
         default: .none
         }
@@ -94,6 +96,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .warp: "Warp"
         case .v0: "v0"
         case .devPass: "DevPass"
+        case .perplexity: "Perplexity API"
         case .abacus: "Abacus AI"
         }
     }

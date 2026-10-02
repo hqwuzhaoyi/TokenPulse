@@ -116,6 +116,7 @@
 		F20000000000000000000006 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000007 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
 		FA0900000000000000000002 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A330040000000000000002 /* PerplexityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330040000000000000001; };
 		A330010000000000000002 /* AbacusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330010000000000000001; };
 		A2200B0000000000000002 /* VeniceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200B0000000000000001; };
 		A220090000000000000002 /* HyperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220090000000000000001; };
@@ -125,6 +126,7 @@
 		A220010000000000000002 /* WalletExpansionHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220010000000000000001; };
 		F20000000000000000000008 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
 		FA0900000000000000000003 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A330040000000000000003 /* PerplexityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330040000000000000001; };
 		A330010000000000000003 /* AbacusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330010000000000000001; };
 		A2200B0000000000000003 /* VeniceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200B0000000000000001; };
 		A220090000000000000003 /* HyperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220090000000000000001; };
@@ -135,6 +137,7 @@
 		F20000000000000000000009 /* QoderProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003; };
 		F2000000000000000000000A /* WalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000004; };
 		FA0900000000000000000005 /* WalletProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000004; };
+		A330050000000000000002 /* PerplexityProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330050000000000000001; };
 		A330030000000000000002 /* AbacusProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330030000000000000001; };
 		A330020000000000000002 /* SessionQuotaTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330020000000000000001; };
 		A2200C0000000000000002 /* VeniceProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200C0000000000000001; };
@@ -392,6 +395,7 @@
 		F20000000000000000000001 /* QoderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000002 /* DeepSeekProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepSeekProvider.swift; sourceTree = SOURCE_ROOT; };
 		FA0900000000000000000001 /* WalletProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WalletProvider.swift; sourceTree = SOURCE_ROOT; };
+		A330040000000000000001 /* PerplexityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/PerplexityProvider.swift; sourceTree = SOURCE_ROOT; };
 		A330010000000000000001 /* AbacusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AbacusProvider.swift; sourceTree = SOURCE_ROOT; };
 		A2200B0000000000000001 /* VeniceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/VeniceProvider.swift; sourceTree = SOURCE_ROOT; };
 		A220090000000000000001 /* HyperProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HyperProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -402,6 +406,7 @@
 		F20000000000000000000003 /* QoderProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000004 /* WalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletTests.swift; sourceTree = SOURCE_ROOT; };
 		FA0900000000000000000004 /* WalletProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A330050000000000000001 /* PerplexityProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PerplexityProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A330030000000000000001 /* AbacusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AbacusProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A330020000000000000001 /* SessionQuotaTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SessionQuotaTestSupport.swift; sourceTree = SOURCE_ROOT; };
 		A2200C0000000000000001 /* VeniceProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/VeniceProviderTests.swift; sourceTree = SOURCE_ROOT; };
@@ -556,6 +561,7 @@
 				F20000000000000000000001 /* QoderProvider.swift */,
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
 				FA0900000000000000000001 /* WalletProvider.swift */,
+				A330040000000000000001 /* PerplexityProvider.swift */,
 				A330010000000000000001 /* AbacusProvider.swift */,
 				A2200B0000000000000001 /* VeniceProvider.swift */,
 				A220090000000000000001 /* HyperProvider.swift */,
@@ -638,6 +644,7 @@
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
 				FA0900000000000000000004 /* WalletProviderTests.swift */,
+				A330050000000000000001 /* PerplexityProviderTests.swift */,
 				A330030000000000000001 /* AbacusProviderTests.swift */,
 				A330020000000000000001 /* SessionQuotaTestSupport.swift */,
 				A2200C0000000000000001 /* VeniceProviderTests.swift */,
@@ -903,6 +910,7 @@
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
+				A330040000000000000002 /* PerplexityProvider.swift in Sources */,
 				A330010000000000000002 /* AbacusProvider.swift in Sources */,
 				A2200B0000000000000002 /* VeniceProvider.swift in Sources */,
 				A220090000000000000002 /* HyperProvider.swift in Sources */,
@@ -994,6 +1002,7 @@
                 C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
 				FA0900000000000000000005 /* WalletProviderTests.swift in Sources */,
+				A330050000000000000002 /* PerplexityProviderTests.swift in Sources */,
 				A330030000000000000002 /* AbacusProviderTests.swift in Sources */,
 				A330020000000000000002 /* SessionQuotaTestSupport.swift in Sources */,
 				A2200C0000000000000002 /* VeniceProviderTests.swift in Sources */,
@@ -1046,6 +1055,7 @@
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
+				A330040000000000000003 /* PerplexityProvider.swift in Sources */,
 				A330010000000000000003 /* AbacusProvider.swift in Sources */,
 				A2200B0000000000000003 /* VeniceProvider.swift in Sources */,
 				A220090000000000000003 /* HyperProvider.swift in Sources */,
