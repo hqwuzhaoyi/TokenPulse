@@ -1,6 +1,6 @@
 # 46: Augment Code 当期 credits
 
-**Status:** implemented — current integration/icon criteria met; aggregate tests delegated to root
+**Status:** done
 
 **Type:** integration
 

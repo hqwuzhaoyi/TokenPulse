@@ -1,6 +1,6 @@
 # 50: Notion AI 工作区额度
 
-**Status:** implemented
+**Status:** done
 
 **Type:** integration
 

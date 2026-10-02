@@ -1,6 +1,6 @@
 # 58: Zed 编辑预测与支出限额
 
-**Status:** implemented — current integration/icon criteria met; aggregate tests delegated to root
+**Status:** done
 
 **Type:** integration
 

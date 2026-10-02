@@ -2,9 +2,11 @@
 
 用户于 2026-09-08 指示“先把其他的一起都实现了”，允许先开发全部功能，随后做真实账号与实机验收。任务索引中的复选框继续表示完整验收，不能以构建成功替代。
 
-## 提供商扩展最新快照（2026-10-02，c5e3382）
+## 提供商扩展最新快照（2026-10-02，0477a43文档基线）
 
-46个提供商代码入口已集成：原有9个、首批8个、第二批29个。扩展tracker共69票，其中37张代码票已按用户最新“图标存在”标准关闭，7张研究票待验证，25张接入票未实施（24张依赖已解除）。图标检查见[验收记录](../.scratch/provider-expansion/icon-acceptance.md)。root已实际执行465项完整XCTest、0 failures，并完成unsigned App/Watch/两端Widgets目标构建。新增卡片AX/重点截图及添加菜单已抽查，完整UI和真实账号/物理Watch/iCloud/生产接口与通知未因此通过；审查修复和最终重新验证已完成。当前范围见[提供商表](../README.md#提供商与登录方式)和[第二批记录](../.scratch/provider-expansion/wave2-progress.md)，最终证据由root维护[统一验证记录](../.scratch/provider-expansion/validation-record.md)。
+71个代码入口已集成：9原有+8首批+29第二批+25第三批。69票中62张integration全部done/current gate[x]，7张研究awaiting-validation、没有伪接入；最新关票以完整实现+图标存在为准，历史真实清单不伪勾。71图标无缺失，56资产映射/53 image sets与15 SF映射/8个有效系统符号，共18个明确通用图标，见[图标验收](../.scratch/provider-expansion/icon-acceptance.md)。
+
+root实际完成71入口607项完整XCTest、0 failures，日志/tmp/tokenpulse-wave3-all71-v2.log；unsigned71多目标构建进行中，等待root记录。Pi10冻结审查改用cch/glm-5.3、4并发，只有01报告完成，发现Claude旧scope和WK重启；WK在0477a43修复、Claude由sol_web处理，不能写成Pi全通过或后续修复已全测。当前范围见[71入口表](../README.md#提供商与登录方式)和[第三批记录](../.scratch/provider-expansion/wave3-progress.md)，最终结果留root维护[统一验证记录](../.scratch/provider-expansion/validation-record.md)。本次不动报告目录/validation-record；真实生产/账号/物理Watch/iCloud/完整UI仍保留观测缺口。
 
 下方原始功能Ticket编号与历史验证保持原意，和provider-expansion的01–69编号不是同一票据集。
 

@@ -1,6 +1,6 @@
 # 51: Perplexity API credits
 
-**Status:** implemented
+**Status:** done
 
 **Type:** integration
 

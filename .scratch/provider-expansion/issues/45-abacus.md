@@ -1,6 +1,6 @@
 # 45: Abacus AI Compute points
 
-**Status:** implemented
+**Status:** done
 
 **Type:** integration
 

@@ -12,7 +12,8 @@
     "assignee": "sol_regional",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 2,
@@ -27,7 +28,8 @@
     "assignee": "sol_regional",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 3,
@@ -42,7 +44,8 @@
     "assignee": "sol_copilot",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 4,
@@ -61,7 +64,8 @@
     "implementationRecord": "../../docs/moonshot-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 5,
@@ -80,7 +84,8 @@
     "implementationRecord": "../../docs/alibaba-coding-plan-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 6,
@@ -99,7 +104,8 @@
     "implementationRecord": "../../docs/factory-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 7,
@@ -118,7 +124,8 @@
     "implementationRecord": "../../docs/synthetic-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 8,
@@ -137,7 +144,8 @@
     "implementationRecord": "../../docs/v2ex-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 9,
@@ -152,7 +160,8 @@
     "assignee": "sol_wallet",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 10,
@@ -167,7 +176,8 @@
     "assignee": "sol_wallet",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 11,
@@ -182,7 +192,8 @@
     "assignee": "root",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 12,
@@ -197,7 +208,8 @@
     "assignee": "sol_gateway",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 13,
@@ -209,10 +221,14 @@
     ],
     "kind": "integration",
     "upstream": "sub2api",
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/13-sub2api.md",
     "wave": 3,
-    "assignee": "sol_gateway"
+    "assignee": "sol_gateway",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/sub2api-provider-integration.md"
   },
   {
     "number": 14,
@@ -224,10 +240,14 @@
     ],
     "kind": "integration",
     "upstream": "bifrost",
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/14-bifrost.md",
     "wave": 3,
-    "assignee": "sol_gateway"
+    "assignee": "sol_gateway",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/bifrost-provider-integration.md"
   },
   {
     "number": 15,
@@ -239,10 +259,14 @@
     ],
     "kind": "integration",
     "upstream": "liteLLM",
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/15-litellm.md",
     "wave": 3,
-    "assignee": "sol_gateway"
+    "assignee": "sol_gateway",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/litellm-provider-integration.md"
   },
   {
     "number": 16,
@@ -273,7 +297,8 @@
     "implementationRecord": "../../docs/command-code-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 17,
@@ -304,7 +329,8 @@
     "implementationRecord": "../../docs/amp-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 18,
@@ -335,7 +361,8 @@
     "implementationRecord": "../../docs/atlas-cloud-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 19,
@@ -366,7 +393,8 @@
     "implementationRecord": "../../docs/chutes-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 20,
@@ -397,7 +425,8 @@
     "implementationRecord": "../../docs/clinepass-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 21,
@@ -428,7 +457,8 @@
     "implementationRecord": "../../docs/codebuff-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 22,
@@ -459,7 +489,8 @@
     "implementationRecord": "../../docs/deepinfra-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 23,
@@ -490,7 +521,8 @@
     "implementationRecord": "../../docs/devpass-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 24,
@@ -521,7 +553,8 @@
     "implementationRecord": "../../docs/gitkraken-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 25,
@@ -552,7 +585,8 @@
     "implementationRecord": "../../docs/hugging-face-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 26,
@@ -583,7 +617,8 @@
     "implementationRecord": "../../docs/hyper-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 27,
@@ -614,7 +649,8 @@
     "implementationRecord": "../../docs/ibm-bob-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 28,
@@ -645,7 +681,8 @@
     "implementationRecord": "../../docs/kilo-code-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 29,
@@ -676,7 +713,8 @@
     "implementationRecord": "../../docs/neuralwatt-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 30,
@@ -707,7 +745,8 @@
     "implementationRecord": "../../docs/v0-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 31,
@@ -738,7 +777,8 @@
     "implementationRecord": "../../docs/venice-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 32,
@@ -769,7 +809,8 @@
     "implementationRecord": "../../docs/warp-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 33,
@@ -800,7 +841,8 @@
     "implementationRecord": "../../docs/xkiro-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 34,
@@ -831,7 +873,8 @@
     "implementationRecord": "../../docs/zenmux-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 35,
@@ -862,7 +905,8 @@
     "implementationRecord": "../../docs/aixy-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 36,
@@ -893,7 +937,8 @@
     "implementationRecord": "../../docs/clawrouter-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 37,
@@ -917,10 +962,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/37-llm-proxy.md",
     "wave": 3,
-    "assignee": "sol_gateway"
+    "assignee": "sol_gateway",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/llm-proxy-provider-integration.md"
   },
   {
     "number": 38,
@@ -951,7 +1000,8 @@
     "implementationRecord": "../../docs/xai-api-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 39,
@@ -982,7 +1032,8 @@
     "implementationRecord": "../../docs/volcengine-provider-integration.md",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 40,
@@ -1010,7 +1061,8 @@
     "assignee": "sol_web",
     "validationRecord": "validation-record.md",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 41,
@@ -1035,10 +1087,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/41-xiaomi-coding-plan.md",
     "wave": 3,
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/xiaomi-coding-plan-integration.md"
   },
   {
     "number": 42,
@@ -1063,10 +1119,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/42-qoder.md",
     "wave": 3,
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/qoder-mainland-integration.md"
   },
   {
     "number": 43,
@@ -1091,10 +1151,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/43-ollama-cloud.md",
     "wave": 3,
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/ollama-cloud-integration.md"
   },
   {
     "number": 44,
@@ -1119,10 +1183,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/44-devin.md",
     "wave": 3,
-    "assignee": "sol_web"
+    "assignee": "sol_web",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/devin-provider-integration.md"
   },
   {
     "number": 45,
@@ -1147,10 +1215,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/45-abacus.md",
     "wave": 3,
-    "assignee": "sol_wallet"
+    "assignee": "sol_wallet",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/abacus-integration.md"
   },
   {
     "number": 46,
@@ -1175,10 +1247,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/46-augment.md",
     "wave": 3,
-    "assignee": "sol_copilot"
+    "assignee": "sol_copilot",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/augment-code-provider-integration.md"
   },
   {
     "number": 47,
@@ -1203,10 +1279,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/47-longcat.md",
     "wave": 3,
-    "assignee": "sol_regional"
+    "assignee": "sol_regional",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/longcat-integration.md"
   },
   {
     "number": 48,
@@ -1231,10 +1311,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/48-manus.md",
     "wave": 3,
-    "assignee": "sol_web"
+    "assignee": "sol_web",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/manus-provider-integration.md"
   },
   {
     "number": 49,
@@ -1259,10 +1343,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/49-mistral.md",
     "wave": 3,
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/mistral-provider-integration.md"
   },
   {
     "number": 50,
@@ -1287,10 +1375,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/50-notion-ai.md",
     "wave": 3,
-    "assignee": "sol_wallet"
+    "assignee": "sol_wallet",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/notion-ai-integration.md"
   },
   {
     "number": 51,
@@ -1315,10 +1407,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/51-perplexity.md",
     "wave": 3,
-    "assignee": "sol_wallet"
+    "assignee": "sol_wallet",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/perplexity-integration.md"
   },
   {
     "number": 52,
@@ -1348,7 +1444,10 @@
     "wave": 3,
     "assignee": "root",
     "acceptanceBasis": "provider-icon-exists",
-    "implementationRecord": "../../docs/qwen-cloud-integration.md"
+    "implementationRecord": "../../docs/qwen-cloud-integration.md",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43"
   },
   {
     "number": 53,
@@ -1378,7 +1477,10 @@
     "wave": 3,
     "assignee": "root",
     "acceptanceBasis": "provider-icon-exists",
-    "implementationRecord": "../../docs/raycast-ai-integration.md"
+    "implementationRecord": "../../docs/raycast-ai-integration.md",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43"
   },
   {
     "number": 54,
@@ -1403,10 +1505,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/54-replicate.md",
     "wave": 3,
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/replicate-provider-integration.md"
   },
   {
     "number": 55,
@@ -1431,10 +1537,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/55-sakana.md",
     "wave": 3,
-    "assignee": "sol_research"
+    "assignee": "sol_research",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/sakana-provider-integration.md"
   },
   {
     "number": 56,
@@ -1464,7 +1574,10 @@
     "wave": 3,
     "assignee": "root",
     "acceptanceBasis": "provider-icon-exists",
-    "implementationRecord": "../../docs/t3-chat-integration.md"
+    "implementationRecord": "../../docs/t3-chat-integration.md",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43"
   },
   {
     "number": 57,
@@ -1494,7 +1607,10 @@
     "wave": 3,
     "assignee": "root",
     "acceptanceBasis": "provider-icon-exists",
-    "implementationRecord": "../../docs/typesafe-integration.md"
+    "implementationRecord": "../../docs/typesafe-integration.md",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43"
   },
   {
     "number": 58,
@@ -1519,10 +1635,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/58-zed.md",
     "wave": 3,
-    "assignee": "sol_copilot"
+    "assignee": "sol_copilot",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/zed-provider-integration.md"
   },
   {
     "number": 59,
@@ -1552,7 +1672,10 @@
     "wave": 3,
     "assignee": "root",
     "acceptanceBasis": "provider-icon-exists",
-    "implementationRecord": "../../docs/zoommate-integration.md"
+    "implementationRecord": "../../docs/zoommate-integration.md",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43"
   },
   {
     "number": 60,
@@ -1584,7 +1707,8 @@
     "assignee": "sol_regional",
     "validationCommit": "c5e3382",
     "acceptanceBasis": "provider-icon-exists",
-    "acceptanceRecord": "icon-acceptance.md"
+    "acceptanceRecord": "icon-acceptance.md",
+    "iconAcceptance": "icon-acceptance.md"
   },
   {
     "number": 61,
@@ -1609,10 +1733,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "in-progress",
+    "status": "done",
     "file": "issues/61-grok-bot.md",
     "wave": 3,
-    "assignee": "sol_copilot"
+    "assignee": "sol_copilot",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/grok-bot-provider-integration.md"
   },
   {
     "number": 62,
@@ -1637,10 +1765,14 @@
       "保存真实登录、查询及 Watch 独立刷新验收结论；无账号凭证或设备时保留未验收项，不将合成响应测试当作真实接入证明。",
       "更新支持范围、登录方式、字段含义和验证边界；研究来源固定版本，发现契约不可用时记录具体阻塞。"
     ],
-    "status": "ready-for-agent",
+    "status": "done",
     "file": "issues/62-windsurf.md",
     "wave": 3,
-    "assignee": "sol_web"
+    "assignee": "sol_web",
+    "iconAcceptance": "icon-acceptance.md",
+    "validationRecord": "validation-record.md",
+    "integrationBaseline": "0477a43",
+    "implementationRecord": "../../docs/windsurf-provider-integration.md"
   },
   {
     "number": 63,

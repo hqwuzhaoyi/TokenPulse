@@ -8,7 +8,7 @@
 
 ## 功能
 
-- **多提供商、多账号**：46 个代码入口，涵盖订阅、API 钱包和托管网关；同一提供商可配置多个账号。入口落地与真实账号可用性分别验收，完整范围见下表。
+- **多提供商、多账号**：71 个代码入口，涵盖订阅、API 钱包和自托管网关；同一提供商可配置多个账号。62 张接入票已按用户最新“完整实现+图标存在”标准关闭，真实生产兼容和设备观测仍分别记录。
 - **独立查询**：iPhone 和 Watch 各自向提供商查询；Watch 获取配置及凭证后，无需手机代查额度。
 - **账号管理**：首页通过 Edit 拖动账号卡片排序；左滑卡片或进入账号设置可删除账号，清理凭证、额度和提醒，并通过 iCloud 同步删除结果。Watch 同步全部账号，每个账号保留独立额度窗口。
 - **同步控制**：iCloud 同步开关、手动同步、最近同步时间、失败提示；点击同步时图标旋转反馈。
@@ -19,7 +19,7 @@
 
 ## 提供商与登录方式
 
-下表列出 **46 个已落地代码入口**，不表示每家真实账号或手机/Watch 授权已通过。原有 9 个入口之外，首批 8 个、第二批 29 个均保留真实验收边界；第二批特别包括百炼 Key 查询兼容性、Cursor 嵌入授权及 Warp 移动客户端约束。详见各行说明和[第二批记录](.scratch/provider-expansion/wave2-progress.md)。
+下表列出 **71 个已落地代码入口**：原有9个、首批8个、第二批29个、第三批25个。全部图标均存在，接入票按用户当前标准已关闭；这不表示每家真实账号、手机登录或物理Watch流程都已观测通过。百炼Key兼容、嵌入登录、反自动化限制及Warp移动上下文等边界仍见各行说明和[第三批记录](.scratch/provider-expansion/wave3-progress.md)。7张研究票未作为正式入口加入。
 
 | 提供商 | 登录方式 | 桌面小组件主要内容 |
 | --- | --- | --- |
@@ -69,6 +69,31 @@
 | [xAI API](docs/xai-api-provider-integration.md) | Team ID 与有账单权限的 Management Key | 已入账 USD 团队预付余额，可能不同于实时余额；与 SuperGrok 分开 |
 | [火山方舟](docs/volcengine-provider-integration.md) | AccessKey ID 与 SecretAccessKey | Coding Plan 与 Agent Plan（AFP）分别展示，设备独立签名 |
 | [Cursor](docs/cursor-mobile-integration.md) | 账号隔离的手机网页登录/原生轮询路线；到期重登 | Cursor Models、Other Models 与实际额外 USD 支出预算；非钱包 |
+| [sub2api](docs/sub2api-provider-integration.md) | 每账号部署地址与分组 Key | 钱包、分组/订阅额度及限流分别显示，单位不混用 |
+| [Bifrost](docs/bifrost-provider-integration.md) | 网关地址与虚拟 Key | Key、提供商与模型的独立 USD 预算，非钱包 |
+| [LiteLLM](docs/litellm-provider-integration.md) | 部署地址与虚拟 Key | 当前 Key 绑定的用户/团队预算，未知上限不称无限 |
+| [LLM API Key Proxy](docs/llm-proxy-provider-integration.md) | 每账号代理地址与 Key | 各上游 quota groups，已用百分比与真实 reset；不触发代理强制刷新 |
+| [小米 Coding Plan](docs/xiaomi-coding-plan-integration.md) | MiMo 控制台隔离网页登录 | Coding Plan 多窗口与服务明确单位的余额，辅助失败单独标注 |
+| [Qoder 国内版](docs/qoder-mainland-integration.md) | qoder.com.cn 隔离网页登录 | 个人与团队 credits 池；与国际设备授权入口分开 |
+| [Ollama Cloud](docs/ollama-cloud-integration.md) | ollama.com 账号页隔离网页登录 | Session 与 Weekly 使用率，仅采用可见额度块与报告日期 |
+| [Devin](docs/devin-provider-integration.md) | 隔离网页登录并明确选择组织 | 当前组织额度/钱包，来源与组织身份绑定 |
+| [Abacus AI](docs/abacus-integration.md) | 隔离网页登录 | 组织 compute points 与实际给出的账期；非美元钱包 |
+| [Augment Code](docs/augment-code-provider-integration.md) | 账号隔离网页登录 | 已用/剩余 credits 原数，未确认总额时不造百分比 |
+| [LongCat](docs/longcat-integration.md) | LongCat 控制台隔离网页登录 | 主 Token 包、补充燃料总包及到期子集，余额不相加为总池 |
+| [Manus](docs/manus-provider-integration.md) | 隔离网页登录，取得必要 session | 各类 credits 和有效分母，非货币余额不触发低余额提醒 |
+| [Mistral](docs/mistral-provider-integration.md) | Ory 会话网页登录，官方域名与 CSRF 绑定 | API/Vibe 各窗口与明确币种净余额；未提供组件不补零 |
+| [Notion AI](docs/notion-ai-integration.md) | 隔离网页登录，用户选择可见工作区 | 所选用户/工作区基础 AI allowance，与 Custom Agents/付费 credits 分开 |
+| [Perplexity API](docs/perplexity-integration.md) | 账单网页登录会话，支持完整分块 Cookie | API credits 钱包；反自动化/WK兼容仍保留限制说明 |
+| [Qwen Cloud](docs/qwen-cloud-integration.md) | Qwen Cloud 个人 Token Plan 控制台登录 | 5 小时/每周/账期套餐窗口，与百炼 Coding Plan 分开 |
+| [Raycast AI](docs/raycast-ai-integration.md) | 隔离网页登录 | AI credits 原数及实际续期时间，缺计数不补分母 |
+| [Replicate](docs/replicate-provider-integration.md) | 账单网页登录并选择个人/组织 | 对应账户预付 USD 余额，推理 API Token 不替代账单会话 |
+| [Sakana AI](docs/sakana-provider-integration.md) | 隔离网页登录，验证实际 Auth.js 会话/完整 chunks | 5 小时/每周额度与服务 credits；仅明确币种才启用货币提醒 |
+| [T3 Chat](docs/t3-chat-integration.md) | t3.chat 隔离网页登录 | 4 小时与月度使用率，仅解析指定 tRPC 流引用 |
+| [TypeSafe](docs/typesafe-integration.md) | TypeSafe 控制台隔离网页登录 | 余额及套餐；无明确币种时显示非货币 credits，不猜 USD |
+| [Zed](docs/zed-provider-integration.md) | Zed 网页账户隔离登录 | 编辑预测与实际支出预算，非现金钱包 |
+| [ZoomMate](docs/zoommate-integration.md) | Zoom 父域隔离网页登录 | AI credits/无限/停用/超额付费按实际状态分开 |
+| [Grok Bot](docs/grok-bot-provider-integration.md) | 独立的 Cursor 账号授权范围 | Grok Bot 额度，和 Cursor 模型池、SuperGrok 分开 |
+| [Windsurf](docs/windsurf-provider-integration.md) | Windsurf 本域隔离网页登录 | 自己的账号/组织 Connect 额度，不复用 Devin 的账号数据 |
 
 DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情包含总可用、赠送和充值余额。账号设置可选择概览及提醒币种，低余额默认阈值为 CNY 10 元或 USD 2 美元，可修改。持续低余额只提醒一次，余额恢复后再次降低才重新提醒；余额不足以调用 API 时也会提醒，并合并同次通知。钱包不显示已用百分比或周期重置时间。
 
@@ -77,6 +102,10 @@ DeepSeek 直接展示 API 返回的币种与金额，不做汇率换算；详情
 New API 每个账号可配置不同的网关（公网 HTTPS，明确的私网地址可用 HTTP），地址末尾的 `/v1` 会自动移除；更新地址或 Key 后会清除旧余额和提醒身份。公共 `/api/status` 请求不携带 Key。USD/CNY 余额支持低余额提醒，TOKENS、CUSTOM 或未知币种不会被当作货币；不会用历史充值总量推断套餐百分比。私网连接的系统权限、iPhone/Watch 实机可达性、iCloud Keychain 到达和真实 Key 失效尚待验收。
 
 Qoder 采用参考项目的非公开接口。设备凭证的自动续期不可用，源码核验与真实账号验证边界见 [提供商接入说明](docs/provider-integration.md)。到期时间只表示到期，不推断额度已重置。
+
+网页登录为各服务账号新建临时容器，只提取允许域名、路径及必要Cookie/存储字段；多工作区或组织由用户选择，查询前复核范围。到期后重新登录，关闭或重启登录清理旧临时会话。明确未发额度、未配置预算或套餐不适用可显示服务确认的状态，和网络失败/未知字段区分，不制造0%或无限。
+
+71个入口的图标均已实查：56个映射到53套image sets，15个使用8种可用SF Symbol。SF入口及DevPass/Warp/Zed的3套通用SVG共18个通用图标，不冒称官方品牌logo。来源/许可见[图标记录](.scratch/provider-expansion/icon-acceptance.md)与ProviderIconNotices。
 
 Copilot 授权页会显示 VS Code / Copilot 客户端身份，TokenPulse 使用该公开客户端进行非官方接入。只请求 `read:user`，无需粘贴 `gh` 或其他应用的 token。额度查询使用非公开内部接口；未发放项省略，无限项显示“无限”，超额付费与耗尽分别显示。凭证失效后可从账号设置重新授权，详见 [接入与验证边界](docs/provider-integration.md#github-copilot)。
 
@@ -137,11 +166,12 @@ xcodebuild test -project TokenPulse.xcodeproj -scheme TokenPulse \
 
 Keychain 测试需要模拟器默认本地签名，测试时不要设置 `CODE_SIGNING_ALLOWED=NO`。
 
-- 截至集成提交 **c5e3382**，完整 iPhone 模拟器 XCTest **465 项通过，0 failures**，覆盖原有功能及 46 个入口的契约/边界、身份隔离、精确数量、混合提醒与演示。该数值包含本轮审查修复及其回归。
-- 同一提交的 unsigned TokenPulse target 完整构建通过，覆盖 App、Watch、两端 Widgets 与资产目录。日志为本机 `/tmp/tokenpulse-sol-wave2-verified.log` 和 `/tmp/tokenpulse-sol-wave2-verified-unsigned.log`；既有版本的签名构建、iPhone 真机安装与启动属于历史证据。
+- 全部71个入口整合后，root实际运行完整iPhone模拟器XCTest **607项通过，0 failures**，日志 `/tmp/tokenpulse-wave3-all71-v2.log`、结果包 `/tmp/tokenpulse-wave3-all71-v2.xcresult`。此前第二批465项是历史基线；607项不等于后续Pi发现/修复已全部复测。
+- 71入口unsigned App/Watch/两端Widgets构建正在由root统一执行，结果待[统一验证记录](.scratch/provider-expansion/validation-record.md)补齐。历史版本的unsigned/签名构建、iPhone真机安装与启动属于各自版本证据。
 - 用户已反馈 MiniMax 与 GLM 真实查询成功，Watch App 可启动。
 - root 已抽查新增账号卡片的可访问性信息，重点截图核对混合钱包、单位、持续补充、日期、IBM 未提供预算和 Warp 到期，添加表单菜单可打开。完整 UI/各尺寸组件、真实授权流程与物理设备仍未验收；首批截图也不替代本批完整视觉验收。
-- 按用户最新“图标存在即可”验收标准，46个provider均通过图标检查，37张接入票已关闭。9个provider采用通用图标，详见[图标验收](.scratch/provider-expansion/icon-acceptance.md)。真实账号/设备验证记录保留，不再阻塞关票；另有7张研究票与25张未实施接入票（24张已解除依赖）。审查修复与最终验证详见[扩展进度](.scratch/provider-expansion/README.md)及由 root 维护的[统一验证记录](.scratch/provider-expansion/validation-record.md)。
+- 62张接入票已按最新图标存在标准关闭；真实账号、生产接口/权限/单位、凭证生命周期、iCloud到达、物理Watch手机离线直查及完整组件/通知仍保留实际未验证说明，已不阻塞关票。7张研究票仍未完成，也没有伪列为已接入提供商。
+- 10个Pi冻结快照审查仍在运行：最初zcode/glm-5.3-flash出现503，现改为cch/glm-5.3、4并发；只有报告01已完成。该报告发现Claude旧会话scope及WK重启问题，root在0477a43修复WK重建，Claude修复由sol_web进行；不宣称Pi全通过或这些后续变更已包含在607项结果中。报告和最终回归由root维护。
 
 详细范围与证据见 [实现验收记录](docs/implementation-status.md) 和 [提供商接入说明](docs/provider-integration.md)。
 

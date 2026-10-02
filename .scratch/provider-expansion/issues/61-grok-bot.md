@@ -1,6 +1,6 @@
 # 61: Grok Bot 独立周额度
 
-**Status:** implemented — current integration/icon criteria met; aggregate tests delegated to root
+**Status:** done
 
 **Type:** integration
 

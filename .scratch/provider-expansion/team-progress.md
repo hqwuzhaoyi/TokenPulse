@@ -1,6 +1,6 @@
 # Sol 团队执行记录
 
-> 最新决定（2026-10-02）：用户将接入票验收简化为图标存在。46个现有provider均通过，37张实现票已关闭，解除24张后继票的依赖。下文保留此前测试及真实验证事实；其中“真实验证阻塞关票”的旧口径已被本决定替代。见[图标验收](icon-acceptance.md)。
+> 最新状态（2026-10-02，0477a43文档快照）：用户按完整实现+图标存在验收。全部71个provider无缺图，62张integration已done，7张research仍awaiting-validation。下文历史46入口/37票及旧真实门槛不代表当前状态；真实观测事实保留，Pi与后续构建结果不伪称完成。见[图标验收](icon-acceptance.md)。
 
 启动日期：2026-10-02。用户要求创建 Sol teams 开始实施；6 个工作者使用 gpt-6.1-sol，独立 worktree 开发，root 统一集成。集成分支：feature/provider-expansion-sol。
 
@@ -30,7 +30,7 @@
 
 ## 状态含义
 
-`implemented-awaiting-real-validation` 表示代码已集成但整票未通过真实验收；`awaiting-validation` 表示研究已交付但实际可行性未通过。`ready-for-agent` 是票据准备状态，有未完成 blockers 时仍不可领取。自动测试、unsigned build、静态语义检查和真实账号/物理设备证据分别记录，不互相替代。
+当前 `done` 表示接入实现齐全且图标存在，符合用户2026-10-02的新关票规则；真实账号/物理设备不是当前关票门槛，但不得伪称已观测。`awaiting-validation` 只用于7张实际可行性未通过的研究票。`implemented-awaiting-real-validation`、`ready-for-agent`等为历史阶段状态；自动测试、unsigned build、静态语义检查和真实观测仍分别记录。
 
 ## 基线及首批集成
 
@@ -47,10 +47,18 @@
 - 当时首批 8 张为 implemented-awaiting-real-validation；7 张研究票为 awaiting-validation；剩余 54 张未实施，其中 29 张无前置阻塞。这29张随后进入第二批，不能继续沿用该历史剩余数描述当前状态。
 - 工作者首批交付与交叉检查已结束；后继票保留原依赖门槛。完整命令、发现和限制见[统一验证记录](validation-record.md)。
 
-## 第二批集成快照（c082bba）
+## 第二批集成快照（历史：c082bba / c5e3382）
 
 - 已集成第二批29票，含后续交付的60 Cursor；加首批8票共37张代码票，9个原有入口加37个新增入口共46个。
 - root 已实际执行完整 XCTest：457 tests、0 failures，日志 `/tmp/tokenpulse-sol-wave2-full46.log`；unsigned全目标构建成功，日志 `/tmp/tokenpulse-sol-wave2-unsigned.log`。这是初始c082bba基线；最终c5e3382已完成465项测试（0失败）及unsigned全目标构建，结果见统一验证记录。
 - 新增卡片AX与重点截图（混合钱包、单位、持续补充、日期、IBM未知分母、Warp到期）已由root抽查，添加菜单可打开；完整UI/组件与真实账号/权限/生产契约、凭证生命周期、iCloud到达、手机离线后的物理Watch直查、真实通知未因此完成。审查发现的提醒开关联动、部分数量、DevPass无上限状态及Decimal静默舍入已修复并重新验证。
 - 37张代码票统一 `implemented-awaiting-real-validation`，7张研究票继续 `awaiting-validation`，25张依赖票未实施并保留blockers。没有completed票；自动验证未放行依赖验收门槛。
 - 共享改动覆盖混合额度/钱包与独立提醒、持续补充/非周期额度、只给日期的边界、Decimal精确计数、部分余额失败的旧观测时间和身份隔离；详细交付见[第二批记录](wave2-progress.md)。最终命令/结果/UI与限制由root继续写入[统一验证记录](validation-record.md)。
+
+## 第三批收束（0477a43文档快照）
+
+- 全部25张第三批接入票已集成，共71个provider（9+8+29+25）。62张integration均done，7张research保持awaiting-validation；无未实施integration，历史实机复选框不伪勾。
+- root实际完成71入口607项XCTest、0 failures；unsigned71构建仍在进行，最新结果由root写入validation-record。此前465项与其它构建只是各自历史版本。
+- root实查71个图标无缺失：56映射/53套image sets，15个SF映射/8种存在的系统符号。15个SF加DevPass/Warp/Zed3个通用SVG共18通用图标；兼容符号不冒称品牌logo，详[图标验收](icon-acceptance.md)。
+- 第三批加入受限Cookie/localStorage会话、显式组织/工作区选择、scope/hash/expiry复核、明确空额度文案和各类单位，详[wave3记录](wave3-progress.md)。这些代码和合成测试不证明所有生产账户可用。
+- Pi10任务从503的zcode/glm-5.3-flash改用cch/glm-5.3，4并发，仅01报告完成；报告发现Claude旧scope/WK重启，WK在0477a43修复，Claude由sol_web修复。其余报告、修复复现与重新验证由root继续管理，不写全过。
