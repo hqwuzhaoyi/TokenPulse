@@ -19,6 +19,7 @@ enum DemoMode {
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
             (.commandCode, "Command Code"),
+            (.amp, "Amp"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -115,6 +116,18 @@ enum DemoMode {
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
+        case .amp: [
+            QuotaWindow(id: "amp.free", name: "Amp Free · 逐小时补充", scope: nil,
+                        usedPercentage: 40, remainingCount: 6, totalCount: 10, resetsAt: nil, unit: "USD",
+                        resetSemantics: .continuousReplenishment),
+            QuotaWindow(id: "amp.orb", name: "Orb 账期额度", scope: nil, period: .monthly,
+                        usedPercentage: 20, remainingCount: 600, totalCount: 750,
+                        resetsAt: Date(timeIntervalSince1970: (now.timeIntervalSince1970 / 86_400).rounded(.down) * 86_400 + 12 * 86_400),
+                        unit: "小时", resetDatePrecision: .day),
+            QuotaWindow(id: "amp.wallet.USD", name: "个人美元余额", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "10.205")!))
         ]
         case .commandCode: [
             QuotaWindow(id: "commandCode.five-hour", name: "5 小时消费限额", scope: nil, period: .fiveHour,

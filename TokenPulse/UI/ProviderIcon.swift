@@ -42,6 +42,7 @@ extension Provider {
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
         case .commandCode: "ProviderCommandCode"
+        case .amp: "ProviderAmp"
         }
     }
 
