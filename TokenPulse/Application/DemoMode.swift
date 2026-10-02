@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"), (.clinePass, "ClinePass"),
+            (.neuralwatt, "Neuralwatt"),
             (.codebuff, "Codebuff"),
             (.moonshot, "Moonshot 国内 API 钱包"), (.moonshot, "Moonshot 国际 API 钱包"),
             (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
@@ -139,6 +140,16 @@ enum DemoMode {
             QuotaWindow(id: "codebuff.balance", name: "剩余 credits", scope: nil, usedPercentage: nil,
                 remainingCount: nil, totalCount: nil, resetsAt: nil,
                 wallet: WalletBalance(currency: "credits", total: 650, isMonetary: false))
+        ]
+        case .neuralwatt: [
+            QuotaWindow(id: "neuralwatt.subscription", name: "订阅能量额度", scope: nil, period: .monthly,
+                usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400),
+                unit: "kWh", exactCounts: .init(used: 4, remaining: 6, total: 10)),
+            QuotaWindow(id: "neuralwatt.key", name: "Key 支出限额", scope: nil, usedPercentage: 25,
+                remainingCount: nil, totalCount: nil, resetsAt: nil, unit: "USD",
+                exactCounts: .init(used: 5, remaining: 15, total: 20)),
+            QuotaWindow(id: "neuralwatt.wallet", name: "API 钱包余额", scope: nil, usedPercentage: nil,
+                remainingCount: nil, totalCount: nil, resetsAt: nil, wallet: WalletBalance(currency: "USD", total: 15))
         ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,

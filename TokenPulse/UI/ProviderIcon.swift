@@ -42,6 +42,7 @@ extension Provider {
         case .newAPI: "ProviderNewAPI"
         case .copilot: "ProviderCopilot"
         case .clinePass: "ProviderClinePass"
+        case .neuralwatt: nil
         case .codebuff: nil
         case .moonshot: "ProviderMoonshot"
         case .factory: "ProviderFactory"
@@ -51,6 +52,7 @@ extension Provider {
     var systemIconName: String? {
         switch self {
         case .codebuff: "terminal"
+        case .neuralwatt: "bolt.circle"
         default: nil
         }
     }

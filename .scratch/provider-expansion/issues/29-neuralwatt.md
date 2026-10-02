@@ -1,6 +1,6 @@
 # 29: Neuralwatt 订阅与钱包
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/neuralwatt.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## 第二批实现记录
+
+已接通账号输入、固定端点、分单位展示、适用提醒、Widget/Watch 与演示数据。新增请求及边界回归测试；完整集成执行与真实账号/物理设备仍待验证。详情见对应提供商接入文档。
