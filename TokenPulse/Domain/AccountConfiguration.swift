@@ -1,5 +1,11 @@
 import Foundation
 
+enum AlibabaTokenPlanSite: String, Codable, CaseIterable, Identifiable, Sendable {
+    case domestic, international
+    var id: String { rawValue }
+    var displayName: String { self == .domestic ? "阿里云国内站" : "Alibaba Cloud 国际站" }
+}
+
 struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {
     var account: SubscriptionAccount
     var reminders: AccountReminderSettings

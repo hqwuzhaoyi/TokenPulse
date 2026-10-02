@@ -2,12 +2,6 @@ import Foundation
 import CryptoKit
 import CoreFoundation
 
-enum AlibabaTokenPlanSite: String, Codable, CaseIterable, Identifiable, Sendable {
-    case domestic, international
-    var id: String { rawValue }
-    var displayName: String { self == .domestic ? "阿里云国内站" : "Alibaba Cloud 国际站" }
-}
-
 struct AlibabaTokenPlanCredential: Sendable {
     let keys: VolcengineAccessKeys
     let region: ProviderRegion
