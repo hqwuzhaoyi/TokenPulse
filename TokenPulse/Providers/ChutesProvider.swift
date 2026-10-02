@@ -108,15 +108,22 @@ struct ChutesProviderClient: Sendable {
         let remaining = payload.remaining?.value
         let reportedUsed = payload.usage?.value
         guard total != nil || remaining != nil || reportedUsed != nil else { return nil }
-        let used = reportedUsed ?? total.flatMap { total in remaining.map { max(total - $0, 0) } }
-        let left = remaining ?? total.flatMap { total in used.map { max(total - $0, 0) } }
-        let exact = total.flatMap { total in used.flatMap { used in left.map { DecimalQuotaCounts(used: used, remaining: $0, total: total) } } }
+        let used = reportedUsed ?? total.flatMap { total in remaining.flatMap { exactDifference(total, $0) } }
+        let left = remaining ?? total.flatMap { total in used.flatMap { exactDifference(total, $0) } }
+        let exact = DecimalQuotaCounts(used: used, remaining: left, total: total)
         let percentage = total.flatMap { total in used.map { NSDecimalNumber(decimal: $0 / total * 100).doubleValue } }.flatMap { $0.isFinite ? $0 : nil }
         return .init(id: "chutes.\(id)", name: name, scope: nil, period: period,
                      isExhausted: total.flatMap { total in used.map { $0 >= total } }, usedPercentage: percentage,
                      remainingCount: left.map { NSDecimalNumber(decimal: $0).doubleValue },
                      totalCount: total.map { NSDecimalNumber(decimal: $0).doubleValue },
                      resetsAt: payload.reset, unit: "USD 预算", exactCounts: exact)
+    }
+
+    /// Preserve reported amounts when their derived difference is not exact.
+    private static func exactDifference(_ lhs: Decimal, _ rhs: Decimal) -> Decimal? {
+        var lhs = lhs, rhs = rhs, result = Decimal()
+        guard NSDecimalSubtract(&result, &lhs, &rhs, .plain) == .noError, !result.isNaN else { return nil }
+        return max(result, 0)
     }
 
     private static func window(_ payload: [String: Any], id: String, name: String, period: QuotaPeriod,

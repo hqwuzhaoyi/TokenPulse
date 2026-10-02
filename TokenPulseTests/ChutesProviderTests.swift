@@ -52,7 +52,10 @@ final class ChutesProviderTests: XCTestCase {
         let missing = try ChutesProviderClient.snapshot(Data(#"{"subscription":true,"four_hour":{"usage":1}}"#.utf8), accountID: UUID(), collectedAt: Date())
         XCTAssertNil(missing.windows[0].usedPercentage)
         XCTAssertNil(missing.windows[0].totalCount)
-        XCTAssertNil(missing.windows[0].exactCounts)
+        XCTAssertEqual(missing.windows[0].exactCounts?.used, 1)
+        XCTAssertNil(missing.windows[0].exactCounts?.total)
+        XCTAssertNil(missing.windows[0].exactCounts?.remaining)
+        XCTAssertTrue(QuotaFormatting.usage(missing.windows[0]).hasPrefix("已用 1"))
         XCTAssertNil(missing.windows[0].isExhausted)
         let spent = try ChutesProviderClient.snapshot(Data(#"{"subscription":true,"four_hour":{"usage":11,"cap":10}}"#.utf8), accountID: UUID(), collectedAt: Date())
         XCTAssertEqual(spent.windows[0].isExhausted, true)
@@ -62,6 +65,50 @@ final class ChutesProviderTests: XCTestCase {
         XCTAssertThrowsError(try ChutesProviderClient.snapshot(Data(#"{"subscription":true,"four_hour":{"usage":0,"cap":0}}"#.utf8), accountID: UUID(), collectedAt: Date())) {
             XCTAssertEqual($0 as? RefreshFailure, .noQuotaWindows)
         }
+    }
+
+    func testPartialBudgetFieldsKeepKnownDecimalAmountsAcrossSerialization() throws {
+        let text = "1.234567890123456789"
+        let cases: [(String, Decimal?, Decimal?, Decimal?)] = [
+            ("usage", Decimal(string: text), nil, nil),
+            ("remaining", nil, Decimal(string: text), nil),
+            ("cap", nil, nil, Decimal(string: text)),
+        ]
+        for (field, used, remaining, total) in cases {
+            let data = Data("{\"subscription\":true,\"four_hour\":{\"\(field)\":\"\(text)\"}}".utf8)
+            let snapshot = try ChutesProviderClient.snapshot(data, accountID: UUID(), collectedAt: Date())
+            let counts = try XCTUnwrap(snapshot.windows.first?.exactCounts)
+            XCTAssertEqual(counts.used, used)
+            XCTAssertEqual(counts.remaining, remaining)
+            XCTAssertEqual(counts.total, total)
+            XCTAssertNil(snapshot.windows.first?.usedPercentage)
+            XCTAssertNil(snapshot.windows.first?.isExhausted)
+            XCTAssertNotEqual(QuotaFormatting.usage(snapshot.windows[0]), "未提供")
+            let restored = try JSONDecoder().decode(QuotaSnapshot.self, from: JSONEncoder().encode(snapshot))
+            XCTAssertEqual(restored.windows.first?.exactCounts, counts)
+        }
+    }
+
+    func testInexactDerivedUsageCannotErasePositiveRemainingOrClaimExhaustion() throws {
+        let data = Data(#"{"subscription":true,"four_hour":{"cap":"100000000000000000","remaining":"0.0000000000000000000001"}}"#.utf8)
+        let snapshot = try ChutesProviderClient.snapshot(data, accountID: UUID(), collectedAt: Date())
+        let window = try XCTUnwrap(snapshot.windows.first)
+        XCTAssertNil(window.exactCounts?.used)
+        XCTAssertEqual(window.exactCounts?.total, Decimal(string: "100000000000000000"))
+        XCTAssertEqual(window.exactCounts?.remaining, Decimal(string: "0.0000000000000000000001"))
+        XCTAssertNil(window.isExhausted)
+        XCTAssertNil(window.usedPercentage)
+    }
+
+    func testNearFullExactBudgetDoesNotTriggerHundredPercentFromRoundedDisplay() throws {
+        let date = Date(timeIntervalSince1970: 100), id = UUID()
+        let data = Data(#"{"subscription":true,"four_hour":{"usage":"99999999999999999","cap":"100000000000000000","remaining":1}}"#.utf8)
+        let snapshot = try ChutesProviderClient.snapshot(data, accountID: id, collectedAt: date)
+        XCTAssertEqual(snapshot.windows.first?.isExhausted, false)
+        let result = NotificationPlanner().planSuccessfulRefresh(accountID: id, accountName: "Chutes", previousSnapshot: nil,
+                                                               newSnapshot: snapshot, settings: AccountReminderSettings(thresholds: [100]),
+                                                               ledger: ReminderLedger(), now: date)
+        XCTAssertTrue(result.operations.isEmpty)
     }
 
     func testUnknownFieldsBooleanNumbersAndUnitsAreNeverGuessed() {
