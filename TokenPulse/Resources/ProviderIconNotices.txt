@@ -26,6 +26,8 @@ ProviderKiloCode: Kilo-Org/kilocode commit 622ed1f5ae5af2d864908a0bb759b0c9121d4
 
 ProviderDeepInfra: deepinfra/docs commit f21a19294a8b7d71239dec271a01250b4b9ca08f, asset logo/light.svg (wordmark viewBox cropped to its 32x32 symbol; paths unchanged), Copyright (c) 2023 Mintlify (repository LICENSE); DeepInfra mark belongs to DeepInfra, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
 
+Hyper uses the platform SF Symbol bolt.circle as a generic indicator, not a copied brand mark. The official charmbracelet/pi-hyper-provider tree and Lobe Icons were checked; no suitable Hyper brand SVG was found. No external Hyper artwork is imported.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

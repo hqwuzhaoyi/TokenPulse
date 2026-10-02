@@ -1,6 +1,6 @@
 # 26: Hyper Hypercredits 余额
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/hyper.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+Hyper APIKey/固定Bearer GET、非负数值HC、纯非货币余额展示/Watch/widget/演示、无货币/百分比提醒和共用安全账号生命周期已实现。4个HyperProviderTests覆盖类型/零/负/缺失、精确值、请求/提醒、恢复隔离与删除。品牌SVG未发现，采用原生bolt.circle通用图标并记录来源边界。完整App/相关tests iOS Swift6静态检查、PBX/diff通过；真实账号/设备/iCloud、XCTest执行与unsigned目标构建保留未验收。详见 `docs/hyper-integration.md`。

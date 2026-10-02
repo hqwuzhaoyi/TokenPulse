@@ -32,12 +32,14 @@
 		F20000000000000000000006 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000007 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
 		FA0900000000000000000002 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A220090000000000000002 /* HyperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220090000000000000001; };
 		A220070000000000000002 /* DeepInfraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220070000000000000001; };
 		A220050000000000000002 /* KiloCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220050000000000000001; };
 		A220020000000000000002 /* AtlasCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220020000000000000001; };
 		A220010000000000000002 /* WalletExpansionHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220010000000000000001; };
 		F20000000000000000000008 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
 		FA0900000000000000000003 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A220090000000000000003 /* HyperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220090000000000000001; };
 		A220070000000000000003 /* DeepInfraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220070000000000000001; };
 		A220050000000000000003 /* KiloCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220050000000000000001; };
 		A220020000000000000003 /* AtlasCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220020000000000000001; };
@@ -45,6 +47,7 @@
 		F20000000000000000000009 /* QoderProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003; };
 		F2000000000000000000000A /* WalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000004; };
 		FA0900000000000000000005 /* WalletProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000004; };
+		A2200A0000000000000002 /* HyperProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200A0000000000000001; };
 		A220080000000000000002 /* DeepInfraProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220080000000000000001; };
 		A220060000000000000002 /* KiloCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220060000000000000001; };
 		A220040000000000000002 /* AtlasCloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220040000000000000001; };
@@ -239,6 +242,7 @@
 		F20000000000000000000001 /* QoderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000002 /* DeepSeekProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepSeekProvider.swift; sourceTree = SOURCE_ROOT; };
 		FA0900000000000000000001 /* WalletProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WalletProvider.swift; sourceTree = SOURCE_ROOT; };
+		A220090000000000000001 /* HyperProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HyperProvider.swift; sourceTree = SOURCE_ROOT; };
 		A220070000000000000001 /* DeepInfraProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepInfraProvider.swift; sourceTree = SOURCE_ROOT; };
 		A220050000000000000001 /* KiloCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KiloCodeProvider.swift; sourceTree = SOURCE_ROOT; };
 		A220020000000000000001 /* AtlasCloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AtlasCloudProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -246,6 +250,7 @@
 		F20000000000000000000003 /* QoderProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000004 /* WalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletTests.swift; sourceTree = SOURCE_ROOT; };
 		FA0900000000000000000004 /* WalletProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A2200A0000000000000001 /* HyperProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/HyperProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A220080000000000000001 /* DeepInfraProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DeepInfraProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A220060000000000000001 /* KiloCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KiloCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		A220040000000000000001 /* AtlasCloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AtlasCloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
@@ -396,6 +401,7 @@
 				F20000000000000000000001 /* QoderProvider.swift */,
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
 				FA0900000000000000000001 /* WalletProvider.swift */,
+				A220090000000000000001 /* HyperProvider.swift */,
 				A220070000000000000001 /* DeepInfraProvider.swift */,
 				A220050000000000000001 /* KiloCodeProvider.swift */,
 				A220020000000000000001 /* AtlasCloudProvider.swift */,
@@ -416,6 +422,7 @@
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
 				FA0900000000000000000004 /* WalletProviderTests.swift */,
+				A2200A0000000000000001 /* HyperProviderTests.swift */,
 				A220080000000000000001 /* DeepInfraProviderTests.swift */,
 				A220060000000000000001 /* KiloCodeProviderTests.swift */,
 				A220040000000000000001 /* AtlasCloudProviderTests.swift */,
@@ -677,6 +684,7 @@
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
+				A220090000000000000002 /* HyperProvider.swift in Sources */,
 				A220070000000000000002 /* DeepInfraProvider.swift in Sources */,
 				A220050000000000000002 /* KiloCodeProvider.swift in Sources */,
 				A220020000000000000002 /* AtlasCloudProvider.swift in Sources */,
@@ -711,6 +719,7 @@
                 C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
 				FA0900000000000000000005 /* WalletProviderTests.swift in Sources */,
+				A2200A0000000000000002 /* HyperProviderTests.swift in Sources */,
 				A220080000000000000002 /* DeepInfraProviderTests.swift in Sources */,
 				A220060000000000000002 /* KiloCodeProviderTests.swift in Sources */,
 				A220040000000000000002 /* AtlasCloudProviderTests.swift in Sources */,
@@ -759,6 +768,7 @@
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
 				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
+				A220090000000000000003 /* HyperProvider.swift in Sources */,
 				A220070000000000000003 /* DeepInfraProvider.swift in Sources */,
 				A220050000000000000003 /* KiloCodeProvider.swift in Sources */,
 				A220020000000000000003 /* AtlasCloudProvider.swift in Sources */,

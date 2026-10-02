@@ -34,6 +34,7 @@ extension Provider {
         case .superGrok: "ProviderSuperGrok"
         case .qoderInternational: "ProviderQoder"
         case .deepSeek: "ProviderDeepSeek"
+        case .hyper: nil
         case .deepInfra: "ProviderDeepInfra"
         case .kiloCode: "ProviderKiloCode"
         case .atlasCloud: "ProviderAtlasCloud"
@@ -48,7 +49,7 @@ extension Provider {
     }
 
     var systemIconName: String? {
-        nil
+        self == .hyper ? "bolt.circle" : nil
     }
 }
 
