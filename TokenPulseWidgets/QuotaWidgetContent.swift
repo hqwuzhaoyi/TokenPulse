@@ -910,6 +910,9 @@ private struct AccountStatus: View {
             Text("刷新失败 · 保留旧数据")
                 .font(.system(size: fontSize))
                 .foregroundStyle(.orange)
+        } else if account.walletFailure != nil {
+            Text(QuotaFormatting.walletCollectionStatus(failure: account.walletFailure, collectedAt: account.walletCollectedAt) ?? "余额为旧数据")
+                .font(.caption2).foregroundStyle(.orange)
         } else if account.walletAvailable == false {
             Text(QuotaFormatting.walletUnavailableBadge)
                 .font(.system(size: fontSize))

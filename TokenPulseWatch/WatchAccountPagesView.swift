@@ -221,6 +221,9 @@ private struct WatchAccountPage: View {
                         LabeledContent("可手动重置", value: QuotaFormatting.remainingResets(snapshot.remainingResetCount))
                             .font(.caption2)
                     }
+                    if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                        Text(status).font(.caption2).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
+                    }
                     if snapshot.walletAvailable == false {
                         Label(QuotaFormatting.walletUnavailableBadge, systemImage: "exclamationmark.circle.fill")
                             .font(.caption2).foregroundStyle(.orange)

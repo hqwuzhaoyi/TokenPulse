@@ -174,6 +174,7 @@ final class QuotaMonitor: ObservableObject {
             guard credentialRevisions[accountID, default: 0] == revision,
                   let currentIndex = states.firstIndex(where: { $0.id == accountID }) else { return }
             guard snapshot.accountID == accountID else { throw RefreshFailure.unreadableResponse }
+            snapshot = snapshot.retainingWalletAfterPartialFailure(from: scopedPrevious?.snapshot)
             states[currentIndex].snapshot = snapshot
             states[currentIndex].lastFailure = nil
             await onFreshSnapshot?(states[currentIndex], scopedPrevious)

@@ -11,6 +11,8 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var walletCurrency: String? = nil
     var walletAvailable: Bool? = nil
     var quotaExceeded: Bool? = nil
+    var walletCollectedAt: Date? = nil
+    var walletFailure: RefreshFailure? = nil
     var providerPlanName: String? = nil
 
     var id: UUID { account.id }
@@ -232,6 +234,8 @@ actor WidgetSnapshotStore {
                 walletCurrency: settingsByID[state.id]?.walletCurrency,
                 walletAvailable: state.snapshot?.walletAvailable,
                 quotaExceeded: state.snapshot?.quotaExceeded,
+                walletCollectedAt: state.snapshot?.walletCollectedAt,
+                walletFailure: state.snapshot?.walletFailure,
                 providerPlanName: state.snapshot?.providerPlanName
             )
         }

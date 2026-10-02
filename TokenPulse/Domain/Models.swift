@@ -228,7 +228,7 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
 
 struct QuotaSnapshot: Codable, Equatable, Sendable {
     let accountID: UUID
-    let windows: [QuotaWindow]
+    var windows: [QuotaWindow]
     let collectedAt: Date
     var subscriptionPlan: SubscriptionPlan? = nil
     var remainingResetCount: Int? = nil
@@ -237,6 +237,23 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     /// A one-way identity for web-session cache matching; never contains cookies.
     var sourceCredentialFingerprint: String? = nil
     var providerPlanName: String? = nil
+    var walletCollectedAt: Date? = nil
+    var walletFailure: RefreshFailure? = nil
+
+    func retainingWalletAfterPartialFailure(from previous: QuotaSnapshot?) -> QuotaSnapshot {
+        guard walletFailure != nil else { return self }
+        var result = self
+        result.windows.removeAll { $0.wallet != nil }
+        result.walletCollectedAt = nil
+        result.walletAvailable = nil
+        guard let previous, previous.accountID == accountID,
+              let identity = sourceCredentialFingerprint, identity == previous.sourceCredentialFingerprint else { return result }
+        let wallets = previous.windows.filter { $0.wallet != nil }
+        result.windows.append(contentsOf: wallets)
+        if !wallets.isEmpty { result.walletCollectedAt = previous.walletCollectedAt ?? previous.collectedAt }
+        result.walletAvailable = previous.walletAvailable
+        return result
+    }
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)

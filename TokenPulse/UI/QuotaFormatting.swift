@@ -1,6 +1,17 @@
 import Foundation
 
 enum QuotaFormatting {
+    static func walletCollectionStatus(failure: RefreshFailure?, collectedAt: Date?) -> String? {
+        guard failure != nil || collectedAt != nil else { return nil }
+        let time = collectedAt.map { "钱包采集于 \(resetDate($0))" } ?? "暂无成功钱包数据"
+        if let failure {
+            if let collectedAt {
+                return "钱包为旧数据（采集于 \(resetDate(collectedAt))）；刷新失败：\(failure.displayName)。"
+            }
+            return "钱包刷新失败：\(failure.displayName)。\(time)。"
+        }
+        return time
+    }
     static func remainingResets(_ count: Int?) -> String {
         guard let count else { return "未提供" }
         return "\(count.formatted()) 次"

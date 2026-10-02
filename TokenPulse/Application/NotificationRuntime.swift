@@ -196,7 +196,9 @@ final class NotificationRuntime: ObservableObject {
             subscriptionPlan: snapshot.subscriptionPlan,
             remainingResetCount: snapshot.remainingResetCount,
             walletAvailable: snapshot.walletAvailable,
-            quotaExceeded: snapshot.quotaExceeded
+            quotaExceeded: snapshot.quotaExceeded,
+            walletCollectedAt: snapshot.walletCollectedAt,
+            walletFailure: snapshot.walletFailure
         )
     }
 

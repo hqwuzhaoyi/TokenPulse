@@ -220,7 +220,10 @@ private struct AccountQuotaView: View {
                                 )
                             }
                             // The collapsed summary above already carries the 余额不足 / 额度已用尽 badge.
-                            Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
+                            if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                                Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
+                            }
+                            Text("\(snapshot.walletFailure == nil ? "更新于" : "套餐更新于") \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -361,6 +364,9 @@ private struct AccountSummaryView: View {
                     ForEach(summaryWindows) { window in
                         CompactQuotaWindowView(window: window)
                     }
+                }
+                if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                    Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
                 }
                 if snapshot.quotaExceeded == true {
                     Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
