@@ -34,6 +34,9 @@ enum DemoMode {
             (.venice, "Venice"),
             (.commandCode, "Command Code"),
             (.amp, "Amp"),
+            (.replicate, "Replicate"),
+            (.mistral, "Mistral"),
+            (.sakana, "Sakana AI"),
             (.gitKraken, "GitKraken AI"),
             (.huggingFace, "Hugging Face ZeroGPU"),
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
@@ -360,6 +363,29 @@ enum DemoMode {
                         exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100))
         ]
         case .alibabaCodingPlan: [short, weekly, window("alibabaCodingPlan.monthly", "账期额度", .monthly, 48)]
+        case .sakana: [
+            QuotaWindow(id: "sakana.five-hour", name: "5-hour allowance", scope: nil, period: .fiveHour,
+                        usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(2 * 3_600)),
+            QuotaWindow(id: "sakana.weekly", name: "Weekly allowance", scope: nil, period: .weekly,
+                        usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3 * 86_400)),
+            QuotaWindow(id: "sakana.balance.credits", name: "Service credits (currency not provided)", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "$ credits", total: Decimal(string: "123.45")!, isMonetary: false))
+        ]
+        case .mistral: [
+            QuotaWindow(id: "mistral.api", name: "Billing allowance", scope: "API", period: .monthly,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86_400)),
+            QuotaWindow(id: "mistral.vibe", name: "Billing allowance", scope: "Vibe", period: .monthly,
+                        usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86_400)),
+            QuotaWindow(id: "mistral.wallet.EUR", name: "Available balance", scope: nil,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "EUR", total: Decimal(string: "20.35")!))
+        ]
+        case .replicate: [
+            QuotaWindow(id: "replicate.wallet.USD", name: "Prepaid USD balance", scope: "Demo personal account",
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        wallet: WalletBalance(currency: "USD", total: Decimal(string: "80.25")!))
+        ]
         case .deepSeek: [
             QuotaWindow(id: "deepseek.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,

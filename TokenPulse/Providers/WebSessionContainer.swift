@@ -216,6 +216,9 @@ extension Provider {
                 storageKeys: ["auth1_session"], storagePrefixes: [DevinWebSession.organizationPrefix], makeCredentials: { _, storage, accountID, _ in
                     try DevinWebSession.credentials(storage: storage, accountID: accountID)
                 })
+        case .replicate: ReplicateProviderClient.loginProfile
+        case .mistral: MistralProviderClient.loginProfile
+        case .sakana: SakanaProviderClient.loginProfile
         default: nil
         }
     }

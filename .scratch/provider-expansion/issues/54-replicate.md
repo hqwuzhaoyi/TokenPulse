@@ -1,6 +1,6 @@
 # 54: Replicate 预付钱包
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/replicate.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## 当前交付 — 2026-10-02
+
+已实现隔离网页登录/账户候选选择、会话scope与身份保存/同步/删除、selected账单账户查询、Decimal USD钱包、Watch直连/Widget/演示/低余额策略、注册与PBX、5个合成测试。ProviderReplicate SVG imageset实际存在并映射，固定Lobe MIT来源/许可已记录。[范围与未验证限制](../../../docs/replicate-provider-integration.md)。parse/PBX/diff通过；XCTest与整体build由root统一执行，工作者没有运行Xcode/模拟器或访问真实凭证。按最新“实现+图标存在”标准关闭，历史真实设备清单仍未冒充通过。

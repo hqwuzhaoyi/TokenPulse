@@ -38,6 +38,12 @@ The GitKraken AI mark uses the official GitLens symbol from GitKraken/vscode-git
 
 The Hugging Face SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/huggingface.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official huggingface/huggingface_hub source tree was checked and did not supply a reusable SVG provider mark; the existing licensed Lobe vector source is used.
 
+The Replicate SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/replicate.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official replicate/replicate-python source tree did not supply a reusable provider SVG; the existing licensed Lobe source is used.
+
+The Mistral SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/mistral.svg. Copyright (c) 2023 LobeHub, MIT License (included below). The official mistralai/client-python source tree had no reusable provider SVG; the existing licensed Lobe source is used.
+
+The Sakana AI SVG mark is derived from Lobe Icons (https://github.com/lobehub/lobe-icons) commit 79b551cf26aab9ea4ac701fb807160950a5b860f, packages/static-svg/icons/sakana.svg. Copyright (c) 2023 LobeHub, MIT License (included below). Official SakanaAI/AI-Scientist commit 1de1dbc1f4ee2c5f61e9c94348d55eb51d7fa2eb tree has no reusable provider SVG; the existing licensed Lobe source is used.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.

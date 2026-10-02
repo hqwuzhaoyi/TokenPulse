@@ -54,6 +54,8 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
         let weekly = visible.filter { $0.period == .weekly }
         let fiveHour = visible.filter { $0.period == .fiveHour }
         switch account.provider {
+        case .mistral, .sakana:
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .codex:
             let weeklyMetric = WidgetQuotaMetric(
                 id: "weekly", title: "每周已用",
@@ -92,7 +94,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .chutes, .cursor, .volcengine, .ibmBob, .devPass, .warp, .windsurf, .manus, .devin:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .typeSafe, .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud, .xaiAPI:
+        case .typeSafe, .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud, .xaiAPI, .replicate:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
             return currency.map { currency in
                 [WidgetQuotaMetric(

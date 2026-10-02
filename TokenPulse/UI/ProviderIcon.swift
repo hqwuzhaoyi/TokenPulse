@@ -73,6 +73,9 @@ extension Provider {
         case .devin: "ProviderDevin"
         case .manus: "ProviderManus"
         case .windsurf: "ProviderWindsurf"
+        case .replicate: "ProviderReplicate"
+        case .mistral: "ProviderMistral"
+        case .sakana: "ProviderSakana"
         }
     }
 

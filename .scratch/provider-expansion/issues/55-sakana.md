@@ -1,6 +1,6 @@
 # 55: Sakana AI 额度与余额
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Type:** integration
 
@@ -10,7 +10,7 @@
 
 ## 当前验收标准（用户于2026-10-02调整）
 
-- [ ] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
 
 下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
 
@@ -31,3 +31,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/sakana.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## 当前交付 — 2026-10-02
+
+已实现隔离WebProfile/实际Auth.js family与连续chunks验证/安全scope/账号源指纹、只读billing与辅助余额、限定Usage limit卡片、5h/week/UTC、Decimal显式币种余额及未知$服务credits（不伪USD）、mixed UI/Watch/Widget/Demo/适用提醒/注册/PBX/5个合成方法。ProviderSakana矢量模板imageset实际存在、映射和Lobe MIT来源记录齐全。[实现与未验证边界](../../../docs/sakana-provider-integration.md)。parse/PBX/diff通过，root统一执行实际测试/build；未使用真实会话，不将框架cookie默认名/匿名登录页当signed-in证据。最新标准done，历史实机项仍未冒充通过。
