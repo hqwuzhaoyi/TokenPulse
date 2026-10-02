@@ -1,4 +1,5 @@
 import Foundation
+import Network
 import XCTest
 @testable import TokenPulse
 
@@ -69,7 +70,7 @@ final class NewAPIProviderTests: XCTestCase {
     func testAddressNormalizationAndTrustBoundary() throws {
         XCTAssertEqual(try GatewayServerAddress(" https://EXAMPLE.com:443/proxy/v1/ ").value, "https://example.com/proxy")
         XCTAssertEqual(try GatewayServerAddress("https://example.com/v1").endpoint("api/status").path, "/api/status")
-        for address in ["", "http://example.com", "http://192.168.1.2", "http://localhost", "https://user:pass@example.com",
+        for address in ["", "http://example.com", "https://user:pass@example.com",
                         "https://example.com?key=secret", "https://example.com#secret", "https://example.com/?", "https://example.com/#",
                         "https://example.com:0", "https://example.com:65536", "https://example.com/a/../b", "https://example.com/%2e%2e/b",
                         "https://example.com/a%2Fb", "https://exa mple.com", "https://example.com\\evil"] {
@@ -80,6 +81,84 @@ final class NewAPIProviderTests: XCTestCase {
         for target in ["https://other.example.com", "http://example.com", "https://example.com:8443"] {
             XCTAssertFalse(GatewayServerAddress.sameOrigin(root, URL(string: target)!))
         }
+    }
+
+    func testPrivateHTTPAddressRangesNormalizationAndIPConfusionRefusal() throws {
+        let accepted = ["localhost", "127.0.0.1", "127.255.255.254", "10.0.0.1", "10.255.255.254",
+                        "172.16.0.1", "172.31.255.254", "192.168.0.1", "192.168.255.254", "169.254.1.1",
+                        "[::1]", "[fc00::1]", "[fdff::abcd]", "[fe80::1]", "[febf::1]", "relay.local", "lab.relay.local"]
+        for host in accepted {
+            XCTAssertNoThrow(try GatewayServerAddress("http://\(host):8080/v1"), host)
+        }
+        XCTAssertEqual(try GatewayServerAddress("HTTP://RELAY.LOCAL.:80/v1/").value, "http://relay.local")
+        XCTAssertEqual(try GatewayServerAddress("http://LOCALHOST:80").value, "http://localhost")
+        XCTAssertEqual(try GatewayServerAddress("http://[0:0:0:0:0:0:0:1]:80/v1").value, "http://[::1]")
+        XCTAssertEqual(try GatewayServerAddress("http://127.0.0.1:443").url.port, 443)
+        let rejected = ["8.8.8.8", "100.64.0.1", "172.15.255.255", "172.32.0.1", "192.169.0.1", "169.253.1.1",
+                        "0.0.0.0", "255.255.255.255", "224.0.0.1", "[::]", "[fec0::1]", "[fe7f::1]", "[ff02::1]",
+                        "[2001:db8::1]", "[::ffff:127.0.0.1]", "[::ffff:192.168.1.2]", "[::127.0.0.1]",
+                        "[fe80::1%25en0]", "127.1", "127.0.1", "2130706433", "0177.0.0.1", "127.00.0.1",
+                        "0x7f000001", "0x7f.0.0.1", "%31%32%37.0.0.1", "localhost.example.com", "relay.local.evil",
+                        "local", ".local", "-relay.local", "relay-.local", "relay..local", "relay%2elocal"]
+        for host in rejected {
+            XCTAssertThrowsError(try GatewayServerAddress("http://\(host)"), host)
+        }
+        let original = URL(string: "http://127.0.0.1/path")!
+        XCTAssertTrue(GatewayServerAddress.sameOrigin(original, URL(string: "http://127.0.0.1:80/new")!))
+        XCTAssertFalse(GatewayServerAddress.sameOrigin(original, URL(string: "http://127.0.0.1:443/new")!))
+        XCTAssertFalse(GatewayServerAddress.sameOrigin(original, URL(string: "https://127.0.0.1/new")!))
+    }
+
+    func testGatewayTransportRejectsPublicHTTPWithoutSendingRequest() async throws {
+        do {
+            _ = try await GatewayProviderTransport().data(for: URLRequest(url: URL(string: "http://example.com/api/status")!))
+            XCTFail("Public HTTP must fail before URLSession sends anything")
+        } catch let error as ProviderIntegrationError {
+            XCTAssertEqual(error, .invalidCredentialData)
+        }
+    }
+
+    func testAppDeclaresOnlyBoundedLocalATSExceptions() throws {
+        let ats = try XCTUnwrap(Bundle.main.infoDictionary?["NSAppTransportSecurity"] as? [String: Any])
+        XCTAssertEqual(ats["NSAllowsLocalNetworking"] as? Bool, true)
+        XCTAssertNotEqual(ats["NSAllowsArbitraryLoads"] as? Bool, true)
+        let exceptions = try XCTUnwrap(ats["NSExceptionDomains"] as? [String: [String: Any]])
+        XCTAssertEqual(Set(exceptions.keys), Set(["127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16", "::1", "fc00::/7", "fe80::/10"]))
+        XCTAssertTrue(exceptions.values.allSatisfy { $0["NSExceptionAllowsInsecureHTTPLoads"] as? Bool == true })
+        XCTAssertNotNil(Bundle.main.infoDictionary?["NSLocalNetworkUsageDescription"] as? String)
+    }
+
+    func testProductionGatewayTransportReachesLoopbackHTTPWithoutCredentials() async throws {
+        // Bind only loopback and allocate a temporary port. No provider account,
+        // stored key, LAN deployment or user credential participates in this test.
+        let parameters = NWParameters.tcp
+        parameters.requiredLocalEndpoint = .hostPort(host: "127.0.0.1", port: .any)
+        let listener = try NWListener(using: parameters)
+        defer { listener.cancel() }
+        let ready = expectation(description: "loopback HTTP fixture ready")
+        listener.stateUpdateHandler = { state in
+            if case .ready = state { ready.fulfill() }
+        }
+        let recorder = NewAPILoopbackHTTP()
+        let queue = DispatchQueue(label: "com.tokenpulse.tests.gateway-loopback")
+        listener.newConnectionHandler = { connection in
+            connection.start(queue: queue)
+            Task { await recorder.serve(connection) }
+        }
+        listener.start(queue: queue)
+        await fulfillment(of: [ready], timeout: 5)
+        let port = try XCTUnwrap(listener.port)
+        let address = try GatewayServerAddress("http://127.0.0.1:\(port.rawValue)/v1")
+        var request = URLRequest(url: address.endpoint("api/status"))
+        request.timeoutInterval = 5
+        let (data, response) = try await GatewayProviderTransport().data(for: request)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        XCTAssertEqual(String(data: data, encoding: .utf8), #"{"success":true,"data":{"quota_display_type":"USD"}}"#)
+        let observed = await recorder.requests
+        XCTAssertEqual(observed.count, 1)
+        XCTAssertTrue(observed[0].hasPrefix("GET /api/status HTTP/1.1"))
+        XCTAssertFalse(observed[0].lowercased().contains("authorization:"))
+        XCTAssertFalse(observed[0].lowercased().contains("cookie:"))
     }
 
     func testRequestContractPublicStatusHasNoCredentialAndPreservesPrefix() async throws {
@@ -345,5 +424,29 @@ private actor NewAPIHeldQuery: QuotaQuerying {
         let ready = waiters.filter { $0.0 <= credentials.count }
         waiters.removeAll { $0.0 <= credentials.count }
         for (_, waiter) in ready { waiter.resume() }
+    }
+}
+
+private actor NewAPILoopbackHTTP {
+    private(set) var requests: [String] = []
+    func serve(_ connection: NWConnection) async {
+        var request = Data()
+        do {
+            while request.range(of: Data("\r\n\r\n".utf8)) == nil {
+                let chunk: Data = try await withCheckedThrowingContinuation { continuation in
+                    connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, complete, error in
+                        if let error { continuation.resume(throwing: error) }
+                        else if let data, !data.isEmpty { continuation.resume(returning: data) }
+                        else { continuation.resume(throwing: URLError(.networkConnectionLost)) }
+                    }
+                }
+                request.append(chunk)
+                guard request.count <= 16384 else { throw URLError(.dataLengthExceedsMaximum) }
+            }
+            requests.append(String(decoding: request, as: UTF8.self))
+            let body = #"{"success":true,"data":{"quota_display_type":"USD"}}"#
+            let reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: \(body.utf8.count)\r\nConnection: close\r\n\r\n\(body)"
+            connection.send(content: Data(reply.utf8), completion: .contentProcessed { _ in connection.cancel() })
+        } catch { connection.cancel() }
     }
 }

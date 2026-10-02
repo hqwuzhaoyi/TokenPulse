@@ -1,6 +1,6 @@
 # 12: New API 自定义地址与余额查询
 
-**Status:** implemented-awaiting-integrated-validation (private HTTP deferred; real-account/device acceptance pending)
+**Status:** implemented-awaiting-integrated-validation (bounded private HTTP implemented; real-account/device acceptance pending)
 
 **Type:** integration
 
@@ -47,7 +47,7 @@
 
 ### Explicitly incomplete / unverified
 
-- **Private-network HTTP is not implemented.** All HTTP addresses are refused with UI explanation. No ATS exception or arbitrary-load relaxation was introduced. The private HTTP portion of acceptance criterion 2 remains open until device/simulator ATS and local-network behavior is validated and a bounded policy is implemented.
+- **Private-network HTTP implementation has been added in the follow-up below.** Its simulator URLSession test and physical-device permission/ATS behavior still require execution and verification; authored tests do not satisfy runtime acceptance.
 - No real New API credential was read or used. Real account success, invalid/expired Key, iPhone and Watch independent refresh with the other device offline, iCloud Keychain/config arrival and credential deletion propagation, and real widget/notification display remain unverified.
 - Only static checks have passed on this branch; request-contract and parsing tests are authored but not yet executed. The remaining dependency gate for tickets 13/14/15/37 is not satisfied merely by this implementation.
 
@@ -56,3 +56,19 @@
 - Pulse contract study: [397c8fc4 Docs/providers/newapi.md](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/newapi.md) and corresponding service source.
 - Primary accounting implementation: [QuantumNous/new-api 1a4166d8 controller/billing.go](https://github.com/QuantumNous/new-api/blob/1a4166d8e8ba9802d2ca56fe8ecf0ed5404e80d5/controller/billing.go). Confirms `remain + used`, usage multiplied by 100, display conversion and sentinel, while account-vs-key scope depends on a server setting not returned by these replies.
 - Icon: [Lobe Icons a94750e3 packages/static-svg/icons/newapi.svg](https://github.com/lobehub/lobe-icons/blob/a94750e3f5f8fc33757b839d85030e742284e43a/packages/static-svg/icons/newapi.svg), Copyright (c) 2023 LobeHub, MIT. Explicit 24×24 dimensions, black fill, preserve-vector and template intent. Official repository chiefly provides raster brand art; the existing vector source is used.
+
+
+## Private HTTP follow-up (2026-10-02)
+
+- HTTP root validation now allows only strict dotted-decimal loopback `127.0.0.0/8`, RFC1918 `10/8`, `172.16/12`, `192.168/16`, IPv4 link-local `169.254/16`, exact `localhost`, explicit well-formed `.local` DNS names, and IPv6 loopback/ULA/link-local (`::1`, `fc00::/7`, `fe80::/10`). IPv6 uses `inet_pton` validation and `inet_ntop` canonicalization. Trailing DNS dots/case and HTTP port 80 normalize; HTTPS defaults remain port 443. Public HTTP, DNS names merely resolving to private space, short/decimal/octal/hex/encoded IPv4, mapped/compatible IPv6 and IPv6 scope IDs are refused. Scoped IPv6 literal URLs are intentionally unsupported; use an explicit `.local` address for a link-local deployment requiring an interface scope.
+- Gateway transport checks the initial URL itself and rejects public HTTP before URLSession. Same-origin checks compare protocol-specific defaults, retaining the scheme/host/port redirect boundary. Ephemeral sessions wait for connectivity while the first local-network permission decision is pending, with a bounded 30-second resource timeout.
+- Both querying app plists declare `NSAllowsLocalNetworking` and bounded `NSExceptionDomains` entries with `NSExceptionAllowsInsecureHTTPLoads` for the exact private CIDRs above. No `NSAllowsArbitraryLoads`, WebView exception, public-domain exception or broad `0.0.0.0/0` range is added. iPhone adds `NSLocalNetworkUsageDescription`; widgets consume snapshots and receive no network exceptions. Watch carries the ATS declarations; Apple TN3179 says watchOS has no local-network privacy permission gate, which does not establish real Watch reachability.
+- Added tests for accepted/rejected range boundaries and obfuscated literals, IPv6/default-port canonicalization, production-transport public HTTP refusal, the built app's bounded ATS dictionary, and a temporary `NWListener` bound only to `127.0.0.1`. The last test sends `/api/status` through production `GatewayProviderTransport`, verifies HTTP 200/public fixture data and absence of Authorization/Cookie headers, and cancels the listener after the test. It uses no stored Key or real account and makes no LAN/provider request.
+- Follow-up static checks actually passed: Swift syntax parse for provider/tests; isolated address/transport and loopback fixture semantic typecheck in Swift 6 mode against the local macOS Foundation/Darwin/Network SDK; App/Watch plist lint; `git diff --check`. No xcodebuild, simulator or XCTest execution was run by this agent. Root must execute the added loopback test within its integration slot and retain physical-device permission/Watch/real-account acceptance as pending.
+- Shared add/update UI was left untouched per root instructions; root must replace the first implementation's “HTTPS only / HTTP unsupported” text with the supported bounded private HTTP behavior when integrating this commit.
+
+### Apple official references examined through agent-reach's webpage backend
+
+- [NSAllowsLocalNetworking](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity/nsallowslocalnetworking): local names and IPv4/IPv6; iOS 17 IP default restriction and local-network declaration of intent.
+- [NSExceptionDomains](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity/nsexceptiondomains): iOS 17 supports IP and CIDR dictionary keys, with per-domain insecure HTTP settings.
+- [TN3179 Understanding local network privacy](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy): iPhone usage description, permission handling and `waitsForConnectivity`; watchOS has no local-network privacy feature. These docs justify the bounded declarations but do not substitute for runtime verification.

@@ -150,7 +150,7 @@ StepFun 的 Token Plan 积分池和 Coding Plan 五小时／每周额度通过�
 
 每个服务账号绑定 HTTPS 服务器根地址及普通网关 Key。地址保存在 `ProviderCredentialEnvelope.metadata["serverAddress"]`，与 Key 作为整体由本机 Keychain 保存，并通过已开启的 iCloud Keychain 路径同步；账号配置的非秘密地址及凭证摘要用于显示和验证同步缓存。Watch 获得这份凭证后使用同一设备端客户端自行请求。关闭 iCloud 时仍使用本机凭证及账号配置。
 
-地址移除尾斜杠和尾 `/v1`，保留合法的部署路径前缀；拒绝用户信息、查询、片段、路径穿越、编码分隔符及 HTTP。私网 HTTP 尚未实现，也未在 iOS/watchOS 验证 ATS 及本地网络权限。默认网关传输使用无 Cookie 的临时会话，同源重定向仅限原 scheme/host/port，跨源请求在转发前拒绝。
+地址移除尾斜杠和尾 `/v1`，保留合法的部署路径前缀；拒绝用户信息、查询、片段、路径穿越和编码分隔符。HTTP 仅接受严格字面量的本机/RFC1918/链路本地 IPv4、IPv6 loopback/ULA/link-local、localhost 和明确的 .local；公网 HTTP 与混淆 IP 格式拒绝。App/Watch 已配置有界私网 ATS 例外，iPhone 包含本地网络用途说明。生产传输的本机无凭证测试已准备，iOS/watchOS 真机 ATS、权限与局域网可达性仍待验证。默认网关传输使用无 Cookie 的临时会话，同源重定向仅限原 scheme/host/port，跨源请求在转发前拒绝。
 
 请求为 `GET /v1/dashboard/billing/subscription`、`GET /v1/dashboard/billing/usage` 和 `GET /api/status`。前两项使用 Bearer Key，公共 status 不携带凭证，并在每次采集重新读取单位设置。余额为 `hard_limit_usd - total_usage / 100`，使用 Decimal 保存货币金额。历史“剩余加已用”不是套餐上限，不生成百分比或周期重置。只有 status 明确 USD/CNY 或旧版 `display_in_currency: true` 时可显示货币；TOKENS 显示 Token 数量，CUSTOM/未知单位不补币种或零余额。三项 limit 同为 100000000 时识别无限 Key，并移除金额。缺少赠送和充值明细保留 nil。
 
@@ -158,4 +158,4 @@ StepFun 的 Token Plan 积分池和 Coding Plan 五小时／每周额度通过�
 
 契约依据：[Pulse 397c8fc4 接入研究](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/newapi.md)；直接核验 [New API 1a4166d8 controller/billing.go](https://github.com/QuantumNous/new-api/blob/1a4166d8e8ba9802d2ca56fe8ecf0ed5404e80d5/controller/billing.go)。源码与合成响应仅能验证契约，不能证明真实部署或双端查询成功。
 
-验证边界：没有读取真实用户 Key、访问真实 New API 账号或进行 iPhone/Watch 真机、iCloud Keychain 与私网 HTTP 验收。完整 target 构建及自动测试结果记录在票据 12。
+验证边界：没有读取真实用户 Key、访问真实 New API 账号或进行 iPhone/Watch 真机、iCloud Keychain 与私网 HTTP 真机验收。完整 target 构建及自动测试结果记录在票据 12。
