@@ -106,6 +106,9 @@ final class HostedWebProviderTests: XCTestCase {
         XCTAssertEqual(QuotaFormatting.usage(disabled), "已用尽")
         let unlimited = try ZoomMateProviderClient.snapshot(Data(#"{"data":{"credit_status":{"is_unlimited":true}}}"#.utf8), accountID: UUID(), collectedAt: now).windows[0]
         XCTAssertTrue(unlimited.isUnlimited); XCTAssertNil(unlimited.usedPercentage)
+        let suspended = try ZoomMateProviderClient.snapshot(Data(#"{"data":{"credit_status":{"is_unlimited":true,"is_quota_available":false}}}"#.utf8), accountID: UUID(), collectedAt: now)
+        XCTAssertEqual(suspended.quotaStatusText, "服务当前不允许使用这项额度")
+        XCTAssertTrue(suspended.windows[0].isUnlimited)
         XCTAssertNil(HostedWebHTTP.epoch(1e30, millisecondsOnly: true))
         XCTAssertThrowsError(try ZoomMateProviderClient.token(Data(#"{"success":false,"data":{"nak":"still-rejected"}}"#.utf8)))
         XCTAssertThrowsError(try ZoomMateProviderClient.snapshot(Data(#"{"data":{"credit_status":{"is_unlimited":1}}}"#.utf8), accountID: UUID(), collectedAt: now))

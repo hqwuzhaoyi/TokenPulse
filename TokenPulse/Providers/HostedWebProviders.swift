@@ -261,6 +261,7 @@ struct ZoomMateProviderClient: Sendable {
             remainingCount: nil, totalCount: nil, resetsAt: HostedWebHTTP.epoch(status.cycle_end_date, millisecondsOnly: true), unit: "credits",
             overagePermitted: status.allow_overage, overageCount: status.overage_credit?.nonnegative.map { NSDecimalNumber(decimal: $0).doubleValue },
             exactCounts: status.is_unlimited == true ? nil : .init(used: used, remaining: remaining, total: total))
-        return .init(accountID: accountID, windows: [window], collectedAt: collectedAt)
+        return .init(accountID: accountID, windows: [window], collectedAt: collectedAt,
+            quotaStatusText: status.is_quota_available == false ? "服务当前不允许使用这项额度" : nil)
     }
 }
