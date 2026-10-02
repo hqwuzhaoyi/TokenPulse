@@ -117,7 +117,7 @@ struct ManusProviderClient: Sendable {
 
     /// NSDecimalSubtract can silently round and still return noError. Verify by subtracting back.
     private static func exactUsage(size: Decimal, left: Decimal) -> Decimal? {
-        guard left <= size else { return 0 }
+        guard left <= size else { return nil }
         var size = size, left = left, used = Decimal(), recoveredLeft = Decimal()
         guard NSDecimalSubtract(&used, &size, &left, .plain) == .noError, !used.isNaN,
               NSDecimalSubtract(&recoveredLeft, &size, &used, .plain) == .noError,

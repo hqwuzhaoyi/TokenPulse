@@ -121,6 +121,17 @@ final class ManusProviderTests: XCTestCase {
             newSnapshot: snapshot, settings: AccountReminderSettings(thresholds: [100]), ledger: ReminderLedger(), now: date)
         XCTAssertFalse(planned.operations.contains { if case .deliver(let message) = $0 { return message.kind == .quotaAlert }; return false })
     }
+    func testRemainingAboveNominalAllowancePreservesCountsWithoutInventingUsed() throws {
+        let raw = #"{"proMonthlyCredits":"200","periodicCredits":"300"}"#
+        let snapshot = try ManusProviderClient.snapshot(Data(raw.utf8), accountID: UUID(), collectedAt: Date())
+        let window = try XCTUnwrap(snapshot.windows.first)
+        XCTAssertEqual(window.exactCounts?.remaining, 300)
+        XCTAssertEqual(window.exactCounts?.total, 200)
+        XCTAssertNil(window.exactCounts?.used)
+        XCTAssertNil(window.usedPercentage)
+        XCTAssertEqual(window.isExhausted, false)
+    }
+
 }
 
 private actor ManusTransport: ProviderTransport {

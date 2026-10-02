@@ -15,3 +15,5 @@ ProviderManus图标已存在：Lobe Icons commit `2df73b8899ec387eb94b96ecb6b87b
 未读取真实session_id、未运行Xcode或模拟器，未执行真实Manus账号／设备刷新；这些真实验证仍明确未做，依据用户2026-10-02标准不阻塞关票。
 
 数值防御补充：size-left使用NSDecimalSubtract并逆减法验证恢复原left；若不能精确表示，只让used／percentage保持nil，原始remaining／total仍完整展示。极值1e17容量与1e-22残额不得被舍入为100%已用，也不能触发100%告警；该回归计入第8个Manus测试。
+
+Pi回归：剩余额度大于服务给出的名义额度时，两项原值继续保留，不据此捏造used=0或0%使用率；新增对应XCTest。
