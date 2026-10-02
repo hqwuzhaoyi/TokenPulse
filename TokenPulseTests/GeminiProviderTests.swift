@@ -7,6 +7,25 @@ final class GeminiProviderTests: XCTestCase {
     private let load = #"{"currentTier":{"id":"standard-tier","name":"Code Assist"},"cloudaicompanionProject":"actual-project"}"#
     private let buckets = #"{"buckets":[{"modelId":"gemini-pro","remainingFraction":0.7,"resetTime":"2026-10-04T00:00:00Z"},{"modelId":"gemini-pro","remainingFraction":0.2,"resetTime":"2026-10-03T16:00:00Z"},{"modelId":"gemini-flash","remainingFraction":1}]}"#
 
+    func testInvalidConfiguredProjectFailsBeforeAuthorizationOrDiscoveryHTTPS() async throws {
+        let time = instant, transport = GeminiFixtureTransport([])
+        let session = try GoogleNativeOAuth(clientID: "123-test.apps.googleusercontent.com", transport: transport, now: { time }).begin(provider: .gemini)
+        let callback = URL(string: "\(session.callbackURL!)?code=x&state=\(session.state!)")!
+        let client = GeminiProviderClient(transport: transport, now: { time })
+        for directDiscovery in [false, true] {
+            do {
+                if directDiscovery { _ = try await client.discoverProject(token: "fixture", configuredProject: "my project!") }
+                else { _ = try await client.authorize(callback: callback, session: session, accountID: UUID(), configuredProject: "my project!") }
+                XCTFail("Invalid project must fail before HTTPS")
+            } catch {
+                guard case ProviderIntegrationError.unsupportedLogin(let message) = error else { return XCTFail("Expected project input feedback") }
+                XCTAssertTrue(message.contains("项目 ID 格式无效"))
+            }
+        }
+        let requests = await transport.requests
+        XCTAssertTrue(requests.isEmpty)
+    }
+
     func testLimitingBucketKeepsItsOwnResetWithoutInventedPoolsOrPeriod() throws {
         let snapshot = try GeminiProviderClient.snapshot(Data(buckets.utf8), accountID: UUID(), collectedAt: instant)
         XCTAssertEqual(snapshot.windows.map(\.name), ["gemini-flash", "gemini-pro"])

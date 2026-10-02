@@ -5,6 +5,7 @@ struct GoogleNativeOAuthLoginView: View {
     let provider: Provider
     let accountID: UUID
     var requestedScopes: [String] = GoogleNativeOAuth.scopes
+    let validateProject: @Sendable (String?) throws -> String?
     let complete: @Sendable (URL, ProviderLoginSession, UUID, String?) async throws -> String
     let onCredential: (String) -> Void
     @StateObject private var model = GoogleNativeOAuthLoginModel()
@@ -29,7 +30,7 @@ struct GoogleNativeOAuthLoginView: View {
                 if model.busy { ProgressView("正在授权并验证额度") }
                 else {
                     Button("使用 Google 账户授权") {
-                        model.start(provider: provider, accountID: accountID, clientID: clientID.trimmingCharacters(in: .whitespacesAndNewlines), project: project.trimmingCharacters(in: .whitespacesAndNewlines), scopes: requestedScopes, complete: complete, onCredential: onCredential)
+                        model.start(provider: provider, accountID: accountID, clientID: clientID.trimmingCharacters(in: .whitespacesAndNewlines), project: project, scopes: requestedScopes, validateProject: validateProject, complete: complete, onCredential: onCredential)
                     }.disabled(clientID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
                 if let error = model.message { Text(error).foregroundStyle(.orange) }
@@ -48,13 +49,16 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
     private var runID: UUID?
 
     func start(provider: Provider, accountID: UUID, clientID: String, project: String, scopes: [String],
+               validateProject: @escaping @Sendable (String?) throws -> String?,
                complete: @escaping @Sendable (URL, ProviderLoginSession, UUID, String?) async throws -> String,
                onCredential: @escaping (String) -> Void) {
         cancel()
         message = nil
         let id = UUID(); runID = id
         do {
-            let pending = try GoogleNativeOAuth(clientID: clientID, transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init, requestedScopes: scopes).begin(provider: provider)
+            let prepared = try GoogleNativeOAuth(clientID: clientID, transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init, requestedScopes: scopes)
+                .begin(provider: provider, configuredProject: project, validateProject: validateProject)
+            let pending = prepared.session
             busy = true
             let session = ASWebAuthenticationSession(url: pending.authorizationURL, callbackURLScheme: pending.callbackURL?.scheme) { [weak self] callback, error in
                 Task { @MainActor [weak self] in
@@ -67,7 +71,7 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
                     }
                     self.task = Task { @MainActor [weak self] in
                         do {
-                            let encoded = try await complete(callback, pending, accountID, project.isEmpty ? nil : project)
+                            let encoded = try await complete(callback, pending, accountID, prepared.project)
                             try Task.checkCancellation()
                             guard let self, self.runID == id else { return }
                             self.busy = false; self.runID = nil

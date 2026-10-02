@@ -30,6 +30,14 @@ struct GoogleNativeOAuth: Sendable {
         return .init(provider: provider, authorizationURL: url.url!, userCode: nil, deviceCode: nil, state: state, codeVerifier: verifier, callbackURL: callback, pollingInterval: nil, expiresAt: now().addingTimeInterval(600), metadata: ["clientID": clientID])
     }
 
+    /// Validate user configuration before creating a browser authorization attempt.
+    /// Project formats belong to the provider, not the shared Google client-ID rules.
+    func begin(provider: Provider, configuredProject: String?,
+               validateProject: @Sendable (String?) throws -> String?) throws -> (session: ProviderLoginSession, project: String?) {
+        let project = try validateProject(configuredProject)
+        return (try begin(provider: provider), project)
+    }
+
     func callbackCode(_ callback: URL, session: ProviderLoginSession) throws -> String {
         guard session.metadata["clientID"] == clientID, session.callbackURL == (try Self.redirectURL(clientID: clientID)),
               let expires = session.expiresAt, expires > now(),

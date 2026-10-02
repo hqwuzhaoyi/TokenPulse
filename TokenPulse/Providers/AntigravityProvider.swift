@@ -20,10 +20,10 @@ struct AntigravityProviderClient: Sendable {
     }
 
     func authorize(callback: URL, session: ProviderLoginSession, accountID: UUID, configuredProject: String?) async throws -> String {
+        let project = try Self.validateConfiguredProject(configuredProject)
         guard session.provider == .antigravity, let clientID = session.metadata["clientID"] else { throw RefreshFailure.invalidCredential }
         let oauth = GoogleNativeOAuth(clientID: clientID, transport: transport, now: now, requestedScopes: Self.scopes)
         var envelope = try await oauth.exchange(callback: callback, session: session)
-        let project = try Self.project(configuredProject, required: false)
         var body: [String: Any] = ["metadata": ["ideType": "IDE_UNSPECIFIED", "platform": "PLATFORM_UNSPECIFIED",
                                                    "pluginType": "PLUGIN_UNSPECIFIED", "ideName": "TokenPulse"]]
         if let project { body["cloudaicompanionProject"] = project }
@@ -99,6 +99,12 @@ struct AntigravityProviderClient: Sendable {
         return value
     }
 
+    static func validateConfiguredProject(_ value: String?) throws -> String? {
+        let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines)
+        do { return try project(trimmed, required: false) }
+        catch { throw ProviderIntegrationError.unsupportedLogin("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。") }
+    }
+
     static func fingerprint(_ envelope: ProviderCredentialEnvelope, accountID: UUID) throws -> String {
         guard envelope.provider == .antigravity, envelope.kind == .oauth,
               let subject = envelope.accountID, !subject.isEmpty,
@@ -139,7 +145,7 @@ struct AntigravityProviderClient: Sendable {
         guard let summary = try? JSONDecoder().decode(Summary.self, from: data),
               summary.groups != nil || summary.buckets != nil else { throw RefreshFailure.unreadableResponse }
         // Root buckets are the deprecated compatibility field; don't double-count them with groups.
-        let groups = summary.groups.map { $0.map { ($0.displayName, $0.buckets ?? []) } } ?? [(nil, summary.buckets ?? [])]
+        let groups = summary.groups.map { $0.map { (normalizedName($0.displayName), $0.buckets ?? []) } } ?? [(nil, summary.buckets ?? [])]
         var seen: Set<String> = []
         var windows: [QuotaWindow] = []
         for (group, buckets) in groups {
@@ -162,7 +168,7 @@ struct AntigravityProviderClient: Sendable {
                 }
                 let fraction = enabled ? bucket.remainingFraction : nil
                 let amount = enabled ? bucket.remainingAmount?.value : nil
-                let name = (bucket.displayName?.isEmpty == false ? bucket.displayName! : bucket.bucketId) + (enabled ? "" : "（未启用）")
+                let name = (normalizedName(bucket.displayName) ?? bucket.bucketId) + (enabled ? "" : "（未启用）")
                 windows.append(.init(id: "antigravity.bucket.\(bucket.bucketId)", name: name, scope: group,
                     period: period, isExhausted: fraction.map { $0 == 0 } ?? amount.map { $0 == 0 },
                     usedPercentage: fraction.map { $0 == 0 ? 100 : min((1 - $0) * 100, Double(100).nextDown) }, remainingCount: nil, totalCount: nil,
@@ -172,5 +178,12 @@ struct AntigravityProviderClient: Sendable {
         }
         return .init(accountID: accountID, windows: windows, collectedAt: collectedAt,
                      quotaStatusText: windows.isEmpty ? "未返回模型组额度" : nil)
+    }
+
+    private static func normalizedName(_ value: String?) -> String? {
+        value.flatMap {
+            let trimmed = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? nil : trimmed
+        }
     }
 }

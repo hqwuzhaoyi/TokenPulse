@@ -13,7 +13,7 @@ struct ProviderSignInView: View {
         NavigationStack {
             Group {
                 if provider == .gemini {
-                    GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, complete: { callback, pending, id, project in
+                    GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, validateProject: GeminiProviderClient.validateConfiguredProject, complete: { callback, pending, id, project in
                         try await GeminiProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
                             .authorize(callback: callback, session: pending, accountID: id, configuredProject: project)
                     }, onCredential: completion)
@@ -22,6 +22,7 @@ struct ProviderSignInView: View {
                         Text("需要账号已获得 Antigravity 访问权限；Google 可能拒绝自有客户端的授权或查询。")
                             .font(.footnote).padding(.horizontal)
                         GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, requestedScopes: AntigravityProviderClient.scopes,
+                            validateProject: AntigravityProviderClient.validateConfiguredProject,
                             complete: { callback, session, id, project in
                                 try await AntigravityProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
                                     .authorize(callback: callback, session: session, accountID: id, configuredProject: project)

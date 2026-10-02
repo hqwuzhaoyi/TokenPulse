@@ -18,6 +18,8 @@ TokenPulse直接向Google Cloud Code quota summary查询模型组额度，不启
 
 本实现保留这一已核实集合，未擅猜Gemini三scope已足够。官方CLI使用这些scope不代表每个都必需，也不保证Google向任意自有iOS client授予内部scope或Antigravity entitlement。实际被拒绝时显示授权/权限错误；不会伪装为Google客户端、开通服务或绕过访问限制。
 
+用户填写的项目 ID 在打开授权浏览器前通过提供商校验器检查；直接调用授权接口也先校验，非法输入显示项目 ID 提示，不发 token/userinfo 请求。额度组与 bucket 名称去除首尾空白，空组名视为缺失，空 bucket 名回退稳定 bucket ID。
+
 授权完成后只POST `loadCodeAssist`，metadata的IDE/platform/plugin为UNSPECIFIED、ideName为TokenPulse。仅currentTier/paidTier的已激活身份与实际managed/用户配置项目可继续；allowedTiers只是可选资格，不能用来自动onboard。项目验证错误会失败。随后POST `retrieveUserQuotaSummary`并成功解码真实额度才保存凭证。
 
 凭证身份包含provider、本地account UUID、Google subject、clientID和resolved项目；轮换access/refresh token不改变身份。敏感凭证走现有系统安全存储、同步与删除机制，手机/Watch分别直连刷新。没有密码或token进入URL参数、quota缓存或日志。撤销/过期刷新失败保留旧缓存并请求重新登录，不删除别的账号。403表示查询权限不足，401为凭证错误，429限流；quota响应URL必须等于请求固定端点，transport拒绝重定向。

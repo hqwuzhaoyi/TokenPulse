@@ -11,6 +11,7 @@ struct GeminiProviderClient: Sendable {
     private struct Load: Decodable { let currentTier: Tier?; let paidTier: Tier?; let cloudaicompanionProject: String? }
 
     func discoverProject(token: String, configuredProject: String?) async throws -> Project {
+        let configuredProject = try Self.validateConfiguredProject(configuredProject)
         var body: [String: Any] = ["metadata": ["ideType": "IDE_UNSPECIFIED", "platform": "PLATFORM_UNSPECIFIED", "pluginType": "PLUGIN_UNSPECIFIED", "ideName": "TokenPulse"]]
         if let configuredProject, !configuredProject.isEmpty { body["cloudaicompanionProject"] = configuredProject }
         let data = try await rpc("loadCodeAssist", token: token, body: body)
@@ -23,6 +24,7 @@ struct GeminiProviderClient: Sendable {
     }
 
     func authorize(callback: URL, session: ProviderLoginSession, accountID: UUID, configuredProject: String?) async throws -> String {
+        let configuredProject = try Self.validateConfiguredProject(configuredProject)
         guard session.provider == .gemini, let client = session.metadata["clientID"] else { throw RefreshFailure.invalidCredential }
         var envelope = try await GoogleNativeOAuth(clientID: client, transport: transport, now: now).exchange(callback: callback, session: session)
         try Task.checkCancellation()
@@ -54,6 +56,13 @@ struct GeminiProviderClient: Sendable {
 
     static func validProject(_ value: String) -> Bool {
         !value.isEmpty && value.count <= 256 && value.utf8.allSatisfy { (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 58 || $0 == 46 }
+    }
+    static func validateConfiguredProject(_ value: String?) throws -> String? {
+        guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else { return nil }
+        guard validProject(value) else {
+            throw ProviderIntegrationError.unsupportedLogin("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。")
+        }
+        return value
     }
     static func fingerprint(_ envelope: ProviderCredentialEnvelope) throws -> String {
         guard envelope.provider == .gemini, envelope.kind == .oauth, GoogleNativeOAuth.headerSafe(envelope.accessToken),

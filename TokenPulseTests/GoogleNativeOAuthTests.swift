@@ -4,6 +4,23 @@ import XCTest
 @testable import TokenPulse
 
 final class GoogleNativeOAuthTests: XCTestCase {
+    func testProviderProjectValidationPrecedesNativeSessionAndRetainsProviderRules() throws {
+        let instant = Date(timeIntervalSince1970: 1000)
+        let auth = GoogleNativeOAuth(clientID: "123-test.apps.googleusercontent.com", transport: GoogleFixtureTransport([]), now: { instant })
+        for (provider, validator) in [(Provider.antigravity, AntigravityProviderClient.validateConfiguredProject), (.gemini, GeminiProviderClient.validateConfiguredProject)] as [(Provider, @Sendable (String?) throws -> String?)] {
+            XCTAssertThrowsError(try GoogleNativeOAuth(clientID: "invalid-client", transport: GoogleFixtureTransport([]), now: { instant }).begin(provider: provider, configuredProject: "my project!", validateProject: validator)) {
+                guard case ProviderIntegrationError.unsupportedLogin(let message) = $0 else { return XCTFail("Expected project input feedback") }
+                XCTAssertTrue(message.contains("项目 ID 格式无效"))
+            }
+            let prepared = try auth.begin(provider: provider, configuredProject: "  valid-project \n", validateProject: validator)
+            XCTAssertEqual(prepared.project, "valid-project")
+            XCTAssertEqual(prepared.session.provider, provider)
+            XCTAssertNil(try auth.begin(provider: provider, configuredProject: " \n", validateProject: validator).project)
+        }
+        // Preserve each provider's existing accepted project syntax rather than imposing one UI whitelist.
+        XCTAssertEqual(try auth.begin(provider: .antigravity, configuredProject: "project_alias", validateProject: AntigravityProviderClient.validateConfiguredProject).project, "project_alias")
+        XCTAssertThrowsError(try auth.begin(provider: .gemini, configuredProject: "project_alias", validateProject: GeminiProviderClient.validateConfiguredProject))
+    }
     private let client = "12345-test.apps.googleusercontent.com"
     private let now = Date(timeIntervalSince1970: 1000)
     private let token = #"{"access_token":"synthetic-access","refresh_token":"synthetic-refresh","expires_in":3600,"token_type":"Bearer"}"#

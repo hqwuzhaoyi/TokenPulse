@@ -30,3 +30,7 @@
 ## Evidence
 
 [研究报告](../research/65-antigravity.md)与[接入说明](../../../docs/antigravity-integration.md)记录官方归档版本/摘要、descriptor offsets、scope和权限边界。旧真实设备验证要求不再作为当前关票条件；合成测试不证明供应商对所有第三方客户端开放。
+
+## Pi05 follow-up — 2026-10-03
+
+非法配置项目现在在共享原生浏览器准备和AG直接authorize入口前校验并显示输入提示；Gemini相同入口同步修正，provider原规则保持独立。空白group scope归一nil、bucket名trim后fallback稳定ID。补四项回归：AG零请求+提示、名称边界、Gemini直接/发现零请求、共享准备顺序/归一值/不同provider规则。实际Foundation回归执行零请求与名称fallback通过；Swift parse、小module和共享准备XCTest语义检查通过。完整XCTest交root串行，不运行Xcode。

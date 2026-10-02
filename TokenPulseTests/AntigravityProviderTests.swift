@@ -6,6 +6,36 @@ final class AntigravityProviderTests: XCTestCase {
     private let time = Date(timeIntervalSince1970: 1_000)
     private let summary = #"{"groups":[{"displayName":"Gemini","buckets":[{"bucketId":"gemini-5h","displayName":"Gemini 组","window":"5h","remainingFraction":0.04,"resetTime":"2026-10-04T12:00:00Z"}]}]}"#
 
+    func testInvalidConfiguredProjectFailsBeforeTokenExchangeWithInputMessage() async throws {
+        let instant = time, transport = AntigravityFixtureTransport(summary: summary)
+        let session = try GoogleNativeOAuth(clientID: antigravityFixtureClient, transport: transport, now: { instant }, requestedScopes: AntigravityProviderClient.scopes).begin(provider: .antigravity)
+        let callback = URL(string: "\(session.callbackURL!)?code=fixture&state=\(session.state!)")!
+        do {
+            _ = try await AntigravityProviderClient(transport: transport, now: { instant }).authorize(callback: callback, session: session, accountID: UUID(), configuredProject: "my project!")
+            XCTFail("Invalid project must fail before authorization exchange")
+        } catch {
+            guard case ProviderIntegrationError.unsupportedLogin(let message) = error else { return XCTFail("Expected project input feedback") }
+            XCTAssertTrue(message.contains("项目 ID 格式无效"))
+        }
+        let requests = await transport.requests()
+        XCTAssertTrue(requests.isEmpty)
+    }
+
+    func testBlankGroupAndBucketNamesDoNotAddEmptyScopesOrLeadingWhitespace() throws {
+        for group in ["", " \t\n "] {
+            let data = try JSONSerialization.data(withJSONObject: ["groups": [["displayName": group, "buckets": [
+                ["bucketId": "fallback", "displayName": " \t\n", "remainingFraction": 0.5],
+                ["bucketId": "named", "displayName": "  Gemini  \n", "remainingFraction": 0.5]
+            ]]]])
+            let snapshot = try AntigravityProviderClient.snapshot(data, accountID: UUID(), collectedAt: time)
+            XCTAssertNil(snapshot.windows[0].scope)
+            XCTAssertEqual(snapshot.windows[0].displayName, "fallback")
+            XCTAssertEqual(snapshot.windows[1].displayName, "Gemini")
+        }
+        let data = Data(#"{"groups":[{"displayName":"  Group  ","buckets":[{"bucketId":"b","displayName":"  Bucket  "}]}]}"#.utf8)
+        XCTAssertEqual(try AntigravityProviderClient.snapshot(data, accountID: UUID(), collectedAt: time).windows.first?.displayName, "Group Bucket")
+    }
+
     func testRealBucketsPreserveFractionInt64UnknownAndDisabledWithoutInventingUnits() throws {
         let data = Data(#"{"groups":[{"displayName":"Models","buckets":[{"bucketId":"ratio","window":"weekly","remainingFraction":0},{"bucketId":"amount","window":"future-window","remainingAmount":"9223372036854775807"},{"bucketId":"zero","remainingAmount":0},{"bucketId":"unknown"},{"bucketId":"disabled","disabled":true,"remainingFraction":0,"resetTime":"2026-10-04T12:00:00Z"}]}],"buckets":[{"bucketId":"deprecated","remainingFraction":0.5}]}"#.utf8)
         let snapshot = try AntigravityProviderClient.snapshot(data, accountID: UUID(), collectedAt: time)
