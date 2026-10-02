@@ -182,6 +182,7 @@ final class NotificationRuntime: ObservableObject {
         guard !isEnabled else { return settings }
         var disabled = settings
         disabled.quotaAlertsEnabled = false
+        disabled.walletAlertsEnabled = false
         disabled.resetRemindersEnabled = false
         return disabled
     }
