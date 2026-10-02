@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000032; };
+		AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000031; };
+		AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000031; };
 		AE2000000000000000000025 /* GitKrakenProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000022; };
 		AE2000000000000000000024 /* GitKrakenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000021; };
 		AE2000000000000000000023 /* GitKrakenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000021; };
@@ -221,6 +224,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AE2000000000000000000032 /* HuggingFaceProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/HuggingFaceProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000031 /* HuggingFaceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HuggingFaceProvider.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000022 /* GitKrakenProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GitKrakenProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000021 /* GitKrakenProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GitKrakenProvider.swift; sourceTree = SOURCE_ROOT; };
 		AE2000000000000000000012 /* AmpProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AmpProviderTests.swift; sourceTree = SOURCE_ROOT; };
@@ -398,6 +403,7 @@
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
 				E11000000000000000000001 /* ElevenLabsProvider.swift */,
 				AE2000000000000000000001 /* CommandCodeProvider.swift */,
+				AE2000000000000000000031 /* HuggingFaceProvider.swift */,
 				AE2000000000000000000021 /* GitKrakenProvider.swift */,
 				AE2000000000000000000011 /* AmpProvider.swift */,
 				57EF0000000000000000000C /* StepFunProviderTests.swift */,
@@ -413,6 +419,7 @@
 				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
 				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
 				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
+				AE2000000000000000000032 /* HuggingFaceProviderTests.swift */,
 				AE2000000000000000000022 /* GitKrakenProviderTests.swift */,
 				AE2000000000000000000012 /* AmpProviderTests.swift */,
 				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
@@ -680,6 +687,7 @@
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
 				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
 				AE2000000000000000000023 /* GitKrakenProvider.swift in Sources */,
 				AE2000000000000000000013 /* AmpProvider.swift in Sources */,
 				57EF00000000000000000002 /* StepFunProvider.swift in Sources */,
@@ -706,6 +714,7 @@
 				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
 				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
 				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
+				AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */,
 				AE2000000000000000000025 /* GitKrakenProviderTests.swift in Sources */,
 				AE2000000000000000000015 /* AmpProviderTests.swift in Sources */,
 				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
@@ -762,6 +771,7 @@
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
 				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
 				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,
 				AE2000000000000000000024 /* GitKrakenProvider.swift in Sources */,
 				AE2000000000000000000014 /* AmpProvider.swift in Sources */,
 				57EF00000000000000000003 /* StepFunProvider.swift in Sources */,

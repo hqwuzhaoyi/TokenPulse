@@ -21,6 +21,7 @@ enum DemoMode {
             (.commandCode, "Command Code"),
             (.amp, "Amp"),
             (.gitKraken, "GitKraken AI"),
+            (.huggingFace, "Hugging Face ZeroGPU"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -117,6 +118,11 @@ enum DemoMode {
             QuotaWindow(id: "newAPI.balance", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: WalletBalance(currency: "USD", total: 13.155))
+        ]
+        case .huggingFace: [
+            QuotaWindow(id: "huggingFace.zeroGPU", name: "GPU time quota", scope: "ZeroGPU",
+                        usedPercentage: 25, remainingCount: 1800, totalCount: 2400,
+                        resetsAt: now.addingTimeInterval(8 * 3_600), unit: "GPU s")
         ]
         case .gitKraken: [
             QuotaWindow(id: "gitKraken.personal", name: "Personal AI credits", scope: nil,

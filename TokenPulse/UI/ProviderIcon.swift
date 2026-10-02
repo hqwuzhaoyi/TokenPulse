@@ -44,6 +44,7 @@ extension Provider {
         case .commandCode: "ProviderCommandCode"
         case .amp: "ProviderAmp"
         case .gitKraken: "ProviderGitKraken"
+        case .huggingFace: "ProviderHuggingFace"
         }
     }
 
