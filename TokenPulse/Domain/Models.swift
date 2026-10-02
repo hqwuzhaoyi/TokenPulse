@@ -14,13 +14,14 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
+    case venice
     case hyper
     case deepInfra
     case kiloCode
     case atlasCloud
 
     var id: String { rawValue }
-    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .atlasCloud || self == .kiloCode || self == .deepInfra }
+    var hasMonetaryWallet: Bool { self == .deepSeek || self == .vercelAIGateway || self == .newAPI || self == .atlasCloud || self == .kiloCode || self == .deepInfra || self == .venice }
     var hasWalletBalance: Bool { hasMonetaryWallet || self == .poe || self == .hyper }
     var balancePresentation: ProviderBalancePresentation {
         switch self {
@@ -29,6 +30,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .kiloCode: .mixed
         case .deepInfra: .mixed
         case .hyper: .walletOnly
+        case .venice: .walletOnly
         default: .none
         }
     }
@@ -51,6 +53,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .stepFun: "StepFun"
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
+        case .venice: "Venice"
         case .hyper: "Hyper"
         case .deepInfra: "DeepInfra"
         case .kiloCode: "Kilo Code"

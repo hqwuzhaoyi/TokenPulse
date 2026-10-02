@@ -209,6 +209,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .hyper:
             return try await HyperProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .venice:
+            return try await VeniceProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -248,6 +251,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "DeepInfra API Key")
         case .hyper:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Hyper API Key")
+        case .venice:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Venice API Key")
         case .deepSeek:
             return .init(provider: provider, method: .apiKey, credentialLabel: "DeepSeek API Key")
         case .elevenLabs:
@@ -268,7 +273,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String, serverAddress: String? = nil) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .atlasCloud || provider == .kiloCode || provider == .deepInfra || provider == .hyper else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .atlasCloud || provider == .kiloCode || provider == .deepInfra || provider == .hyper || provider == .venice else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -306,7 +311,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -323,7 +328,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -341,7 +346,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice:
             return .init(credential: credential, changed: false)
         }
     }

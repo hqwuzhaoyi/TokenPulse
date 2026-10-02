@@ -28,6 +28,8 @@ ProviderDeepInfra: deepinfra/docs commit f21a19294a8b7d71239dec271a01250b4b9ca08
 
 Hyper uses the platform SF Symbol bolt.circle as a generic indicator, not a copied brand mark. The official charmbracelet/pi-hyper-provider tree and Lobe Icons were checked; no suitable Hyper brand SVG was found. No external Hyper artwork is imported.
 
+ProviderVenice: lobehub/lobe-icons commit 79b551cf26aab9ea4ac701fb807160950a5b860f, asset packages/static-svg/icons/venice.svg, Copyright (c) 2023 LobeHub, MIT License. Changes: black template fill and explicit SVG dimensions; packaged with vector preservation.
+
 TokenPulse changes: replace currentColor with black for template rendering, set explicit SVG dimensions, and package in an Xcode asset catalog. Vector paths are unchanged.
 
 The names and marks belong to their respective owners; their use identifies compatible services and does not imply endorsement.
