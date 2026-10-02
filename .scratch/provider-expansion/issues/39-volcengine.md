@@ -1,6 +1,6 @@
 # 39: 火山方舟 Coding 与 Agent Plan
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-integrated-validation
 
 **Type:** integration
 
@@ -24,3 +24,16 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/volcengine.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence (2026-10-02)
+
+- `.volcengine` now uses AK/SK composite secure entry, account-bound Keychain envelope and a computed source fingerprint. App and Watch sign two fixed Top OpenAPI GET actions locally; no arkcli, model completion or host/region override exists. All default redirects are refused.
+- Coding/Agent scopes and IDs remain separate. One failed/unsubscribed action preserves the other's valid result; both-failure priorities distinguish credentials, rate limit, server/network, malformed response and no subscription. Unknown/missing metrics are not zero, Quota=0 windows are absent, seconds/ms resets are read without inventing a cycle.
+- Card/detail/widget/Watch consume normal quota snapshots; demo includes both scopes. Existing percentage and explicit-reset reminders apply; AFP is not a monetary wallet. Local restore/delete and credential changes reuse the synchronized scoped-credential pipeline.
+- Official Python SDK signing source pinned at `d88be4d8028e35563b27ff1bafe3c1f7ed1ab656` was inspected via agent-reach GitHub. Independent Python reference vectors for Coding/Agent/Unicode queries match executed production Swift signer output byte-for-byte in an offline macOS driver (three vectors passed). Synthetic AK/SK only; no network or credential discovery.
+- Production foundation-compatible source (all Domain/Providers plus Monitor/Demo/Reminder) emitted a temporary Swift 6 testable module; new `VolcengineProviderTests` semantic typecheck passed with the real XCTest Swift overlay. PBX plist lint and `git diff --check` passed. No xcodebuild or simulator started; XCTest runtime and unsigned full App/Widgets/Watch build still pending root integration.
+- Lobe Icons fixed commit `a94750e3f5f8fc33757b839d85030e742284e43a`, asset `packages/static-svg/icons/volcengine.svg`, MIT copyright/notice recorded; black 24x24 template vector image set mapped. Actual resource compilation pending.
+- No real AK/SK, Volcengine account or device validation occurred. No claim that the weakly sourced usage contract or offline signature has been accepted by a live deployment. Real login/API permissions, failure, sync arrival and Watch independent refresh remain open.
+
+Detailed login, units, exact verification commands/scope and sources: [Volcengine integration](../../../docs/volcengine-provider-integration.md).

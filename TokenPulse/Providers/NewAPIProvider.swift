@@ -110,7 +110,9 @@ extension ProviderCredentialEnvelope {
     }
 
     var sourceCredentialIdentity: String? {
-        provider == .newAPI ? gatewayIdentity : metadata["sourceCredentialFingerprint"]
+        if provider == .newAPI { return gatewayIdentity }
+        if provider == .volcengine { return (try? VolcengineAccessKeys(accessToken))?.fingerprint }
+        return metadata["sourceCredentialFingerprint"]
     }
 
     /// Scope is canonical server + key; metadata order and trailing /v1 are irrelevant.

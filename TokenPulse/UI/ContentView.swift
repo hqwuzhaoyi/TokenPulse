@@ -576,6 +576,10 @@ private struct AddAccountView: View {
                     if isDemoMode {
                         Label("使用示例数据，无需登录或 API Key。", systemImage: "play.circle")
                     } else if usesAPIKey {
+                        if provider == .volcengine {
+                            Text("输入 AccessKeyID:SecretAccessKey，使用英文冒号。两个套餐分别查询；AK/SK 仅保存在系统安全存储中。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel, text: $key)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()

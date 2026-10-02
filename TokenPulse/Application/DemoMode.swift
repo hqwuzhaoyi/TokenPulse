@@ -17,7 +17,7 @@ enum DemoMode {
             (.zhipu, "智谱国内版"), (.miniMaxInternational, "MiniMax 国际版"),
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
-            (.copilot, "GitHub Copilot Free"),
+            (.copilot, "GitHub Copilot Free"), (.volcengine, "火山方舟"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -71,6 +71,12 @@ enum DemoMode {
         case .claude: [short, weekly, window("demo.sonnet", "每周额度", .weekly, 24, scope: "Sonnet")]
         case .codex: [short, weekly, window("demo.spark", "5 小时额度", .fiveHour, 18, scope: "GPT-5.3-Codex-Spark")]
         case .openCodeGo: [short, weekly, window("demo.monthly", "每月额度", .monthly, 48)]
+        case .volcengine: [
+            window("volcengine.coding.fiveHour", "5 小时额度", .fiveHour, 12, scope: "Coding Plan"),
+            window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
+            QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
+                        usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
+        ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),
             window("copilot.chat", "Chat", .monthly, 30),

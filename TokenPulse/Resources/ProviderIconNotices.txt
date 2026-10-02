@@ -250,3 +250,5 @@ Vercel asset license
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+Volcengine vector mark: https://github.com/lobehub/lobe-icons, commit a94750e3f5f8fc33757b839d85030e742284e43a, packages/static-svg/icons/volcengine.svg. Copyright (c) 2023 LobeHub; MIT License reproduced above. Official Volcengine SDK repositories did not provide an appropriate vector service mark; existing Lobe Icons source used. TokenPulse sets black fill and explicit 24x24 dimensions and preserves vector/template rendering.

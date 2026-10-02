@@ -262,6 +262,10 @@ private struct AccountPreferencesView: View {
                             Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
+                        if configuration.account.provider == .volcengine {
+                            Text("输入 AccessKeyID:SecretAccessKey，使用英文冒号。两个套餐分别查询；AK/SK 仅保存在系统安全存储中。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {

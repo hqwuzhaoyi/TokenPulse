@@ -141,7 +141,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         self.provider = provider
         if let transport { self.transport = transport }
         else if provider == .newAPI { self.transport = GatewayProviderTransport() }
-        else if provider == .elevenLabs { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else if provider == .elevenLabs || provider == .volcengine { self.transport = URLSessionProviderTransport.rejectingRedirects() }
         else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
@@ -175,6 +175,9 @@ struct ProviderQuotaClient: QuotaQuerying {
                 .quota(accountID: accountID, credential: envelope)
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .volcengine:
+            return try await VolcengineProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .copilot:
             return try await CopilotProviderClient(transport: transport, now: now)
@@ -226,6 +229,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "Z.ai 国际版 Coding Plan Key")
         case .openCodeGo:
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
+        case .volcengine:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "AccessKeyID:SecretAccessKey")
         case .newAPI:
             return .init(provider: provider, method: .apiKey, credentialLabel: "New API Key")
         case .deepSeek:
@@ -248,6 +253,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String, serverAddress: String? = nil) throws -> String {
+        if provider == .volcengine { return try VolcengineAccessKeys(apiKey).envelope().encoded() }
         guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
@@ -286,7 +292,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .volcengine:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -303,7 +309,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .volcengine:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -321,7 +327,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .volcengine:
             return .init(credential: credential, changed: false)
         }
     }
