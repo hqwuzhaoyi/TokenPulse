@@ -330,7 +330,10 @@ extension HybridWalletReminderTests {
         config.reminders.resetRemindersEnabled = false
         let feedback = await runtime.setEnabled(true, configurations: [config], states: [state])
         XCTAssertEqual(feedback, .enabled)
-        try await runtime.fresh(state: state, previous: nil, settings: settings)
+        let resumed = AccountQuotaState(account: account, snapshot: QuotaSnapshot(
+            accountID: account.id, windows: snapshot.windows,
+            collectedAt: snapshot.collectedAt.addingTimeInterval(1)))
+        try await runtime.fresh(state: resumed, previous: state, settings: settings)
         let enabled = await adapter.delivered
         XCTAssertEqual(Set(enabled.map(\.kind)), Set([.quotaAlert, .walletAlert]))
         XCTAssertTrue(settings.effectiveWalletAlertsEnabled)
