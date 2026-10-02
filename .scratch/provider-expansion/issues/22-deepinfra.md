@@ -1,6 +1,6 @@
 # 22: DeepInfra 钱包与支出上限
 
-**Status:** ready-for-agent
+**Status:** implemented-awaiting-validation
 
 **Type:** integration
 
@@ -24,3 +24,7 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/deepinfra.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+## Implementation record (2026-10-02)
+
+已实现倒置Decimal账本/待支出、纯钱包或正上限混合额度、独立提醒/Widget/Watch/演示/APIKey安全流程和licensed icon。6个DeepInfraProviderTests覆盖请求、类型/零/欠费/限额、恢复隔离及删除。完整App iOS Swift6 module/测试静态typecheck和PBX/diff检查通过。XCTest执行、unsigned资源构建与真实账号/设备/iCloud未验收，清单保持开放。详见 `docs/deepinfra-integration.md`。

@@ -60,3 +60,14 @@ enum WalletDecimalArithmetic {
         return min(max(value, 0), 100)
     }
 }
+
+/// These routes state JSON numbers; strings and booleans are schema errors.
+struct WalletNumericDecimal: Decodable {
+    let amount: Decimal
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        guard (try? container.decode(String.self)) == nil else { throw RefreshFailure.unreadableResponse }
+        amount = try container.decode(Decimal.self)
+        guard !amount.isNaN else { throw RefreshFailure.unreadableResponse }
+    }
+}
