@@ -5,6 +5,7 @@ import WebKit
 
 final class StepFunProviderTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_790_000_000)
+    private let noPlanBody = #"{"status":1,"five_hour_usage_left_rate":0,"five_hour_usage_reset_time":"0","weekly_usage_left_rate":0,"weekly_usage_reset_time":"0","plan_credit_rate_limit":{"subscription_credit_left_rate":0,"topup_credit_left_rate":0,"credit_buckets":[]}}"#
     private let tokenBody = #"{"status":1,"plan_family":2,"five_hour_usage_left_rate":0,"five_hour_usage_reset_time":"0","weekly_usage_left_rate":0,"weekly_usage_reset_time":"0","plan_credit_rate_limit":{"subscription_credit_left_rate":0.9999462,"topup_credit_left_rate":0,"credit_buckets":[{"type":1,"credit_total":"1600000000","credit_residual":"1599913834","expire_at":"1791187256","next_reset_at":"0"}]}}"#
 
     func testTokenPlanSumsOnlyCreditsAndExpiryDoesNotCreateAReset() throws {
@@ -56,7 +57,8 @@ final class StepFunProviderTests: XCTestCase {
         XCTAssertEqual(QuotaFormatting.usage(window), "75% 已用")
         let topUpOnly = try json(#"{"status":1,"plan_credit_rate_limit":{"subscription_credit_left_rate":0,"topup_credit_left_rate":0.75}}"#)
         XCTAssertEqual(try StepFunProviderClient.windows(topUpOnly, now: now).first?.usedPercentage, 25)
-        XCTAssertTrue(try StepFunProviderClient.windows(["status": 1], now: now).isEmpty)
+        XCTAssertTrue(try StepFunProviderClient.windows(json(noPlanBody), now: now).isEmpty)
+        XCTAssertThrowsError(try StepFunProviderClient.windows(["status": 1], now: now))
     }
 
     func testInvalidBucketsBooleanNumbersAndMissingRatesDoNotBecomeZero() throws {
@@ -179,7 +181,7 @@ final class StepFunProviderTests: XCTestCase {
                 XCTFail("Expected failure")
             } catch { XCTAssertEqual(error as? RefreshFailure, expected) }
         }
-        let snapshot = try await ProviderQuotaClient(provider: .stepFun, transport: StepFunTransportStub([.response(200, #"{"status":1}"#)]), now: { [now] in now })
+        let snapshot = try await ProviderQuotaClient(provider: .stepFun, transport: StepFunTransportStub([.response(200, noPlanBody)]), now: { [now] in now })
             .quota(for: id, credential: encoded)
         XCTAssertTrue(snapshot.windows.isEmpty)
         XCTAssertEqual(snapshot.collectedAt, now)
@@ -252,7 +254,7 @@ final class StepFunProviderTests: XCTestCase {
         let id = UUID()
         let store = StepFunMemoryStore()
         let transport = StepFunTransportStub([.response(200, tokenBody), .failure(.timedOut),
-                                              .response(200, #"{"status":1}"#), .response(500, "{}")])
+                                              .response(200, noPlanBody), .response(500, "{}")])
         let client = ProviderQuotaClient(provider: .stepFun, transport: transport, now: { [now] in now })
         let monitor = QuotaMonitor(accountStore: store, credentialStore: store, quotaClient: client)
         await monitor.start(refresh: false)
@@ -275,6 +277,99 @@ final class StepFunProviderTests: XCTestCase {
         let saved = try await store.credential(for: id)
         XCTAssertNil(saved)
     }
+
+    func testExplicitMalformedFieldsAreFailuresInsteadOfNoPlan() throws {
+        for body in malformedBodies {
+            XCTAssertThrowsError(try StepFunProviderClient.windows(json(body), now: now)) {
+                XCTAssertEqual($0 as? RefreshFailure, .unreadableResponse, body)
+            }
+        }
+        XCTAssertTrue(try StepFunProviderClient.windows(json(noPlanBody), now: now).isEmpty)
+        let partial = try StepFunProviderClient.windows(json(#"{"status":1,"five_hour_usage_left_rate":0.25,"five_hour_usage_reset_time":"1790000010"}"#), now: now)
+        XCTAssertEqual(partial.map(\.id), ["stepfun.5h"])
+    }
+
+    @MainActor
+    func testMalformedPlanRefreshPreservesTheCachedPlanAndCollectionTime() async throws {
+        let id = UUID()
+        let store = StepFunMemoryStore()
+        let transport = StepFunTransportStub([.response(200, tokenBody)] + malformedBodies.map { .response(200, $0) })
+        let client = ProviderQuotaClient(provider: .stepFun, transport: transport, now: { [now] in now })
+        let monitor = QuotaMonitor(accountStore: store, credentialStore: store, quotaClient: client)
+        await monitor.start(refresh: false)
+        await monitor.addAccount(name: "Token Plan", credential: try session(site: .china, id: id), provider: .stepFun, accountID: id)
+        let initial = try XCTUnwrap(monitor.states.first?.snapshot)
+        for _ in malformedBodies {
+            await monitor.refresh(accountID: id)
+            XCTAssertEqual(monitor.states.first?.snapshot, initial)
+            XCTAssertEqual(monitor.states.first?.lastFailure, .unreadableResponse)
+        }
+        let stored = await store.load()
+        XCTAssertEqual(stored.first?.snapshot, initial)
+    }
+
+    @MainActor
+    func testDismissalAndSiteSwitchDuringCookieReadCannotQueryTheOldSite() async throws {
+        for switching in [false, true] {
+            let cookies = HeldStepFunCookieReader(cookies: [cookie("Oasis-Token", "fixture", domain: StepFunSite.china.host),
+                                                          cookie("Oasis-Webid", "device", domain: StepFunSite.china.host)])
+            var queried: [String] = []
+            var saved: [String] = []
+            let model = StepFunSessionLoginModel(accountID: UUID(), onCredential: { saved.append($0) },
+                readCookies: { _ in await cookies.read() }, query: { _, credential in queried.append(credential) },
+                loadPage: { _, _ in })
+            model.start(site: .china)
+            let task = try XCTUnwrap(model.beginVerification())
+            await cookies.waitForRead()
+            if switching { model.start(site: .international) } else { model.close() }
+            await cookies.release()
+            await task.value
+            XCTAssertTrue(task.isCancelled)
+            XCTAssertTrue(queried.isEmpty)
+            XCTAssertTrue(saved.isEmpty)
+            XCTAssertFalse(model.verifying)
+            if switching { XCTAssertEqual(model.container?.scope.host, StepFunSite.international.host) }
+            model.close()
+        }
+    }
+
+    @MainActor
+    func testClosingLoginCancelsAnAlreadyStartedQueryAndNeverSavesItsCredential() async throws {
+        let cookies = [cookie("Oasis-Token", "fixture", domain: StepFunSite.china.host),
+                       cookie("Oasis-Webid", "device", domain: StepFunSite.china.host)]
+        let query = CancellableStepFunQuery()
+        var saved: [String] = []
+        let model = StepFunSessionLoginModel(accountID: UUID(), onCredential: { saved.append($0) },
+            readCookies: { _ in cookies }, query: { _, _ in try await query.run() }, loadPage: { _, _ in })
+        model.start(site: .china)
+        let task = try XCTUnwrap(model.beginVerification())
+        await query.waitForQuery()
+        model.close()
+        await task.value
+        XCTAssertTrue(task.isCancelled)
+        XCTAssertTrue(saved.isEmpty)
+        XCTAssertFalse(model.verifying)
+        let wasCancelled = await query.wasCancelled
+        XCTAssertTrue(wasCancelled)
+    }
+
+    private var malformedBodies: [String] { [
+        #"{"status":1}"#,
+        #"{"status":1,"plan_credit_rate_limit":"bad"}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"credit_buckets":["bad"]}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"credit_buckets":"bad"}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"credit_buckets":null}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"subscription_credit_left_rate":"nan"}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"subscription_credit_left_rate":true}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"subscription_credit_left_rate":1.1}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"topup_credit_left_rate":-0.1}}"#,
+        #"{"status":1,"five_hour_usage_left_rate":0.25,"five_hour_usage_reset_time":"bad"}"#,
+        #"{"status":1,"weekly_usage_left_rate":0.25,"weekly_usage_reset_time":false}"#,
+        #"{"status":1,"five_hour_usage_left_rate":0.25,"five_hour_usage_reset_time":"1790000010","weekly_usage_left_rate":0.75,"weekly_usage_reset_time":"bad"}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"credit_buckets":[{"credit_total":"10","credit_residual":"5","expire_at":"nan"}]}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"credit_buckets":[{"credit_total":"10","credit_residual":"5","next_reset_at":-1}]}}"#,
+        #"{"status":1,"plan_credit_rate_limit":{"credit_buckets":[{"credit_total":"10","credit_residual":"5","expire_at":"1e300"}]}}"#,
+    ] }
 
     func testClaudeCookieExtractionKeepsEitherSessionVariantAndDropsUnrelatedCookies() throws {
         for name in ["sessionKey", "sessionKeyV3"] {
@@ -326,4 +421,43 @@ private actor StepFunMemoryStore: AccountStateStoring, CredentialStoring {
     func save(_ credential: String, for accountID: UUID) { credentials[accountID] = credential }
     func credential(for accountID: UUID) -> String? { credentials[accountID] }
     func deleteCredential(for accountID: UUID) { credentials[accountID] = nil }
+}
+
+private actor HeldStepFunCookieReader {
+    private let cookies: [HTTPCookie]
+    private var pending: CheckedContinuation<[HTTPCookie], Never>?
+    private var waiter: CheckedContinuation<Void, Never>?
+    init(cookies: [HTTPCookie]) { self.cookies = cookies }
+    func read() async -> [HTTPCookie] {
+        await withCheckedContinuation {
+            pending = $0
+            waiter?.resume()
+            waiter = nil
+        }
+    }
+    func waitForRead() async {
+        if pending != nil { return }
+        await withCheckedContinuation { waiter = $0 }
+    }
+    func release() {
+        pending?.resume(returning: cookies)
+        pending = nil
+    }
+}
+
+private actor CancellableStepFunQuery {
+    private var started = false
+    private var waiter: CheckedContinuation<Void, Never>?
+    private(set) var wasCancelled = false
+    func run() async throws {
+        started = true
+        waiter?.resume()
+        waiter = nil
+        do { try await Task.sleep(for: .seconds(30)) }
+        catch { wasCancelled = Task.isCancelled; throw error }
+    }
+    func waitForQuery() async {
+        if started { return }
+        await withCheckedContinuation { waiter = $0 }
+    }
 }

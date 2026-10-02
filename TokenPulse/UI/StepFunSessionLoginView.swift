@@ -25,7 +25,7 @@ struct StepFunSessionLoginView: View {
                 Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal)
             }
             Button(model.verifying ? "正在验证" : "完成登录并验证") {
-                Task { await model.verify() }
+                model.beginVerification()
             }
             .buttonStyle(.borderedProminent).disabled(model.verifying)
             Button("清除会话并重新登录") { model.start(site: site) }.disabled(model.verifying)
@@ -48,10 +48,30 @@ final class StepFunSessionLoginModel: ObservableObject {
     private var completed = false
     private var runID = UUID()
     private var site = StepFunSite.china
+    private var verificationTask: Task<Void, Never>?
+    private let readCookies: @MainActor (WebSessionContainer) async -> [HTTPCookie]
+    private let query: @MainActor (UUID, String) async throws -> Void
+    private let loadPage: @MainActor (WebSessionContainer, URL) -> Void
 
-    init(accountID: UUID, onCredential: @escaping (String) -> Void) {
+    init(accountID: UUID, onCredential: @escaping (String) -> Void,
+         readCookies: @escaping @MainActor (WebSessionContainer) async -> [HTTPCookie] = { container in
+             await withCheckedContinuation { continuation in
+                 container.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies {
+                     continuation.resume(returning: $0)
+                 }
+             }
+         },
+         query: @escaping @MainActor (UUID, String) async throws -> Void = { accountID, credential in
+             _ = try await ProviderQuotaClient(provider: .stepFun).quota(for: accountID, credential: credential)
+         },
+         loadPage: @escaping @MainActor (WebSessionContainer, URL) -> Void = { container, url in
+             container.webView.load(URLRequest(url: url))
+         }) {
         self.accountID = accountID
         self.onCredential = onCredential
+        self.readCookies = readCookies
+        self.query = query
+        self.loadPage = loadPage
     }
 
     func start(site: StepFunSite) {
@@ -61,28 +81,43 @@ final class StepFunSessionLoginModel: ObservableObject {
         completed = false
         let container = WebSessionContainer(scope: .init(provider: .stepFun, accountID: accountID, host: site.host))
         self.container = container
-        container.webView.load(URLRequest(url: site.usageURL))
+        loadPage(container, site.usageURL)
     }
 
     func close() {
         runID = UUID()
+        verificationTask?.cancel()
+        verificationTask = nil
         container?.close()
         container = nil
         verifying = false
     }
 
-    func verify() async {
-        guard !verifying, !completed, let container, !container.closed else { return }
+    @discardableResult
+    func beginVerification() -> Task<Void, Never>? {
+        guard verificationTask == nil, !verifying, !completed, container?.closed == false else { return nil }
+        let run = runID
+        let task = Task { @MainActor in
+            await verify(expectedRun: run)
+            if runID == run { verificationTask = nil }
+        }
+        verificationTask = task
+        return task
+    }
+
+    private func verify(expectedRun: UUID) async {
+        guard runID == expectedRun, !Task.isCancelled, !verifying, !completed,
+              let container, !container.closed else { return }
         let run = runID
         let selectedSite = site
         verifying = true
         defer { if runID == run { verifying = false } }
         do {
-            let cookies: [HTTPCookie] = await withCheckedContinuation { continuation in
-                container.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { continuation.resume(returning: $0) }
-            }
+            let cookies = await readCookies(container)
+            // Cookie reads may complete after dismissal or a region change. Do not send that old session.
+            guard runID == run, !container.closed, !Task.isCancelled else { return }
             let credential = try StepFunSession.credential(cookies: cookies, site: selectedSite, accountID: accountID, now: Date())
-            _ = try await ProviderQuotaClient(provider: .stepFun).quota(for: accountID, credential: credential)
+            try await query(accountID, credential)
             guard runID == run, !container.closed, !Task.isCancelled else { return }
             completed = true
             onCredential(credential)

@@ -138,27 +138,47 @@ struct StepFunProviderClient: Sendable {
             throw message.contains("auth") || message.contains("token")
                 ? RefreshFailure.invalidCredential : RefreshFailure.unreadableResponse
         }
-        let coding = [("five_hour", "stepfun.5h", QuotaPeriod.fiveHour, "5 小时额度"),
-                      ("weekly", "stepfun.weekly", .weekly, "每周额度")].compactMap { key, id, period, name -> QuotaWindow? in
-            guard let reset = timestamp(root["\(key)_usage_reset_time"]),
-                  let left = fraction(root["\(key)_usage_left_rate"]) else { return nil }
-            return QuotaWindow(id: id, name: name, scope: nil, period: period, isExhausted: left == 0,
-                               usedPercentage: (1 - left) * 100, remainingCount: nil, totalCount: nil, resetsAt: reset)
+        let lanes = [("five_hour", "stepfun.5h", QuotaPeriod.fiveHour, "5 小时额度"),
+                     ("weekly", "stepfun.weekly", .weekly, "每周额度")]
+        var coding: [QuotaWindow] = []
+        var zeroedCoding = true
+        for (key, id, period, name) in lanes {
+            let left = try statedFraction(root["\(key)_usage_left_rate"])
+            let reset = try statedTimestamp(root["\(key)_usage_reset_time"])
+            if let reset {
+                guard let left else { throw RefreshFailure.unreadableResponse }
+                coding.append(QuotaWindow(id: id, name: name, scope: nil, period: period,
+                                          isExhausted: left == 0, usedPercentage: (1 - left) * 100,
+                                          remainingCount: nil, totalCount: nil, resetsAt: reset))
+            }
+            // A missing lane is not a confirmed absent lane. The pinned no-plan fixture explicitly zeroes both.
+            zeroedCoding = zeroedCoding && left == 0 && number(root["\(key)_usage_reset_time"]) == 0
+        }
+        let credit: [String: Any]?
+        if let stated = root["plan_credit_rate_limit"] {
+            guard let dictionary = stated as? [String: Any] else { throw RefreshFailure.unreadableResponse }
+            credit = dictionary
+        } else { credit = nil }
+        let subscription = try statedFraction(credit?["subscription_credit_left_rate"])
+        let topUp = try statedFraction(credit?["topup_credit_left_rate"])
+        let entries: [[String: Any]]?
+        if let stated = credit?["credit_buckets"] {
+            guard let list = stated as? [Any] else { throw RefreshFailure.unreadableResponse }
+            entries = try list.map {
+                guard let entry = $0 as? [String: Any] else { throw RefreshFailure.unreadableResponse }
+                return entry
+            }
+        } else { entries = nil }
+        // Validate explicit inactive-plan fields too; malformed data must not turn into a no-plan observation.
+        let buckets = try (entries ?? []).map { entry -> (Double, Double, Date?, Date?) in
+            guard let total = number(entry["credit_total"]), total > 0,
+                  let residual = number(entry["credit_residual"]), residual >= 0, residual <= total else {
+                throw RefreshFailure.unreadableResponse
+            }
+            return (total, residual, try statedTimestamp(entry["expire_at"]), try statedTimestamp(entry["next_reset_at"]))
         }
         if !coding.isEmpty { return coding }
-        if ["five_hour_usage_reset_time", "weekly_usage_reset_time"].contains(where: { timestamp(root[$0]) != nil }) {
-            throw RefreshFailure.unreadableResponse
-        }
-        guard let credit = root["plan_credit_rate_limit"] as? [String: Any] else { return [] }
-        if let entries = credit["credit_buckets"] as? [[String: Any]], !entries.isEmpty {
-            // Never silently discard an invalid bucket and present a partial aggregate as the whole pool.
-            let buckets = try entries.map { entry -> (Double, Double, Date?, Date?) in
-                guard let total = number(entry["credit_total"]), total > 0,
-                      let residual = number(entry["credit_residual"]), residual >= 0, residual <= total else {
-                    throw RefreshFailure.unreadableResponse
-                }
-                return (total, residual, timestamp(entry["expire_at"]), timestamp(entry["next_reset_at"]))
-            }
+        if !buckets.isEmpty {
             let total = buckets.reduce(0) { $0 + $1.0 }
             let remaining = buckets.reduce(0) { $0 + $1.1 }
             guard total.isFinite, remaining.isFinite else { throw RefreshFailure.unreadableResponse }
@@ -168,13 +188,31 @@ struct StepFunProviderClient: Sendable {
                                 resetsAt: buckets.compactMap { $0.3 }.filter { $0 > now }.min(), unit: "积分",
                                 expiresAt: buckets.filter { $0.1 > 0 }.compactMap { $0.2 }.filter { $0 > now }.min())]
         }
-        // A zero fraction without buckets is ambiguous (also sent for a plan the account does not have).
-        let subscription = fraction(credit["subscription_credit_left_rate"]).flatMap { $0 > 0 ? $0 : nil }
-        let topUp = fraction(credit["topup_credit_left_rate"]).flatMap { $0 > 0 ? $0 : nil }
-        guard let left = subscription ?? topUp else { return [] }
-        return [QuotaWindow(id: "stepfun.credits", name: "Token Plan 积分额度", scope: nil, period: .other,
-                            usedPercentage: (1 - left) * 100, remainingCount: nil, totalCount: nil,
-                            resetsAt: nil, unit: "积分")]
+        // No sizes: prefer the subscription fraction, never add unlike pools.
+        if let left = subscription.flatMap({ $0 > 0 ? $0 : nil }) ?? topUp.flatMap({ $0 > 0 ? $0 : nil }) {
+            return [QuotaWindow(id: "stepfun.credits", name: "Token Plan 积分额度", scope: nil, period: .other,
+                                usedPercentage: (1 - left) * 100, remainingCount: nil, totalCount: nil,
+                                resetsAt: nil, unit: "积分")]
+        }
+        // Only the fully zeroed synthetic fixture in pinned StepFunParsingTests establishes this contract.
+        guard zeroedCoding, subscription == 0, topUp == 0, entries?.isEmpty == true else {
+            throw RefreshFailure.unreadableResponse
+        }
+        return []
+    }
+
+    private static func statedFraction(_ value: Any?) throws -> Double? {
+        guard let value else { return nil }
+        guard let number = fraction(value) else { throw RefreshFailure.unreadableResponse }
+        return number
+    }
+
+    private static func statedTimestamp(_ value: Any?) throws -> Date? {
+        guard let value else { return nil }
+        guard let stamp = number(value), stamp >= 0 else { throw RefreshFailure.unreadableResponse }
+        if stamp == 0 { return nil }
+        guard let date = timestamp(stamp) else { throw RefreshFailure.unreadableResponse }
+        return date
     }
 
     private static func number(_ value: Any?) -> Double? {
@@ -186,6 +224,9 @@ struct StepFunProviderClient: Sendable {
         number(value).flatMap { 0...1 ~= $0 ? $0 : nil }
     }
     static func timestamp(_ value: Any?) -> Date? {
-        number(value).flatMap { $0 > 0 ? Date(timeIntervalSince1970: $0 > 10_000_000_000 ? $0 / 1000 : $0) : nil }
+        guard let stamp = number(value), stamp > 0 else { return nil }
+        let seconds = stamp > 10_000_000_000 ? stamp / 1000 : stamp
+        guard seconds <= 253_402_300_799 else { return nil }
+        return Date(timeIntervalSince1970: seconds)
     }
 }
