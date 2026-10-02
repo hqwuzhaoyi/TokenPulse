@@ -50,6 +50,10 @@ final class DevinProviderTests: XCTestCase {
     func testExplicitNoAllocationClearsQuotaWhileMissingAndMalformedValuesNeverBecomeZero() throws {
         let noQuota = try DevinProviderClient.snapshot(Data(#"{"has_quota_allocation":false,"daily_percentage":0,"weekly_percentage":0}"#.utf8), accountID: UUID(), collectedAt: Date())
         XCTAssertTrue(noQuota.windows.isEmpty)
+        XCTAssertEqual(noQuota.quotaStatusText, "当前组织未分配套餐额度")
+        let hidden = try DevinProviderClient.snapshot(Data(#"{"daily_percentage":1,"weekly_percentage":2,"hide_daily_quota":true,"hide_weekly_quota":true}"#.utf8), accountID: UUID(), collectedAt: Date())
+        XCTAssertTrue(hidden.windows.isEmpty)
+        XCTAssertEqual(hidden.quotaStatusText, "套餐额度由服务隐藏")
         for body in ["{}", #"{"daily_percentage":true}"#, #"{"daily_percentage":"nan"}"#,
                      #"{"daily_percentage":101}"#, #"{"daily_percentage":2,"daily_reset_at":"bad"}"#] {
             XCTAssertThrowsError(try DevinProviderClient.snapshot(Data(body.utf8), accountID: UUID(), collectedAt: Date())) {

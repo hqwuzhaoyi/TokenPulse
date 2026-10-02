@@ -36,7 +36,7 @@ enum DemoMode {
             (.synthetic, "Synthetic"), (.v2ex, "V2EX"), (.xKiro, "xKiro"), (.zenMux, "ZenMux"),
             (.alibabaCodingPlan, "百炼 Coding Plan"), (.chutes, "Chutes 订阅预算"), (.cursor, "Cursor 模型池"),
             (.volcengine, "火山方舟"), (.xaiAPI, "xAI API 团队余额"), (.ibmBob, "IBM Bob 团队预算"),
-            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"),
+            (.warp, "Warp"), (.v0, "v0"), (.devPass, "DevPass"), (.devin, "Devin"), (.manus, "Manus"), (.windsurf, "Windsurf"),
         ]
         return examples.enumerated().map { index, example in
             SubscriptionAccount(
@@ -154,6 +154,12 @@ enum DemoMode {
             window("volcengine.coding.weekly", "每周额度", .weekly, 41.5, scope: "Coding Plan"),
             QuotaWindow(id: "volcengine.agent.fiveHour", name: "5 小时额度", scope: "Agent Plan", period: .fiveHour,
                         usedPercentage: 25, remainingCount: 750, totalCount: 1000, resetsAt: now.addingTimeInterval(3600), unit: "AFP")
+        ]
+        case .windsurf: [
+            QuotaWindow(id: "windsurf.daily", name: "每日额度", scope: nil, period: .other, usedPercentage: 32,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(14400)),
+            QuotaWindow(id: "windsurf.weekly", name: "每周额度", scope: nil, period: .weekly, usedPercentage: 16,
+                        remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(259200))
         ]
         case .manus: [
             QuotaWindow(id: "manus.refresh", name: "每日恢复额度", scope: nil, period: .other, usedPercentage: 75,

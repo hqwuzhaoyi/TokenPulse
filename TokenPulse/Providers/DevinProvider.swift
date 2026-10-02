@@ -117,10 +117,16 @@ struct DevinProviderClient: Sendable {
             windows.append(QuotaWindow(id: "devin.overage", name: "超额使用余额", scope: nil, usedPercentage: nil,
                 remainingCount: nil, totalCount: nil, resetsAt: nil, wallet: WalletBalance(currency: "USD", total: balance)))
         }
-        guard !windows.isEmpty || reply.has_quota_allocation == false else { throw RefreshFailure.unreadableResponse }
+        let hasHiddenFigure = (reply.hide_daily_quota == true && reply.daily_percentage != nil)
+            || (reply.hide_weekly_quota == true && reply.weekly_percentage != nil)
+        guard !windows.isEmpty || reply.has_quota_allocation == false || hasHiddenFigure else { throw RefreshFailure.unreadableResponse }
         let plan = [reply.plan_name, reply.planName, reply.plan, reply.tier].compactMap { $0 }
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.first { !$0.isEmpty }
+        let status: String? = reply.has_quota_allocation == false ? "当前组织未分配套餐额度"
+            : reply.hide_daily_quota == true && reply.hide_weekly_quota == true ? "套餐额度由服务隐藏"
+                : reply.hide_daily_quota == true ? "每日额度由服务隐藏"
+                    : reply.hide_weekly_quota == true ? "每周额度由服务隐藏" : nil
         return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt, providerPlanName: plan,
-            walletCollectedAt: balance == nil ? nil : collectedAt)
+            walletCollectedAt: balance == nil ? nil : collectedAt, quotaStatusText: status)
     }
 }

@@ -70,6 +70,7 @@ extension Provider {
         case .devPass: "ProviderDevPass"
         case .devin: "ProviderDevin"
         case .manus: "ProviderManus"
+        case .windsurf: "ProviderWindsurf"
         }
     }
 

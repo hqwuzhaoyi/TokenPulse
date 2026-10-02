@@ -6,7 +6,7 @@ Devin 从添加或设置里的网页登录入口进入账号独立的临时 WKWe
 
 iPhone与Watch直接 `GET https://app.devin.ai/api/<internal-org>/billing/quota/usage`，以Bearer token与 `x-cog-org-id` 绑定所选组织。只在404时尝试同组织的 `api/organizations/<id>` 路径；认证、限流、网络或服务器失败不试别的组织，保留同身份旧snapshot／采集时间。没有读取Mac/editor数据库、缓存计划或借用其plan name的路径。
 
-`daily_percentage`、`weekly_percentage` 为已用0–100百分比，真实0.4保持0.4%，不乘100，不当剩余比例。只对未隐藏且has_quota_allocation未明确false的窗口展示额度，明确false是无分配，绝不画两枚假满额度环。reset使用明确ISO offset／epoch秒或毫秒；缺值不猜。套餐名只用远程响应；overage_balance是USD余额，明确cents字段才除100，保持Decimal、不合并到quota百分比。mixed卡片、详情、Watch、widget保留两种quota及余额；额度和货币提醒独立。
+`daily_percentage`、`weekly_percentage` 为已用0–100百分比，真实0.4保持0.4%，不乘100，不当剩余比例。只对未隐藏且has_quota_allocation未明确false的窗口展示额度，明确false是无分配，绝不画两枚假满额度环；quotaStatusText显示组织无分配或服务隐藏的静态状态，不遮挡有效weekly／余额窗口。reset使用明确ISO offset／epoch秒或毫秒；缺值不猜。套餐名只用远程响应；overage_balance是USD余额，明确cents字段才除100，保持Decimal、不合并到quota百分比。mixed卡片、详情、Watch、widget保留两种quota及余额；额度和货币提醒独立。
 
 官方来源：[Devin API Overview](https://docs.devin.ai/api-reference/overview)与[官方介绍／登录入口](https://docs.devin.ai/)在2026-10-02读取。官方公开v3 API使用cog_ service-user凭证和组织／企业scope；本票app.devin.ai网页会话路由不是公开v3 API，也不使用公开API Key替代网页登录。网页key结构、组织请求和响应语义依照[Pulse固定397c8fc4 Devin说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/devin.md)及同版本DevinUsageService、测得的devin-quota-usage fixture。按契约独立适配，未复制LevelDB／编辑器读取器；固定上游曾在2026-09-14测过此网页路由，本文不将其冒充本机账号验证。
 
