@@ -15,6 +15,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case newAPI
     case sub2api
     case bifrost
+    case liteLLM
     case copilot
     case clinePass
     case clawRouter
@@ -67,6 +68,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .newAPI: "New API"
         case .sub2api: "sub2api"
         case .bifrost: "Bifrost"
+        case .liteLLM: "LiteLLM"
         case .copilot: "GitHub Copilot"
         case .clinePass: "ClinePass"
         case .clawRouter: "ClawRouter"

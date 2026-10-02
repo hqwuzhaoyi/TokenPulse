@@ -3,7 +3,7 @@ import CryptoKit
 import Foundation
 
 extension Provider {
-    var requiresGatewayAddress: Bool { [.newAPI, .sub2api, .bifrost].contains(self) }
+    var requiresGatewayAddress: Bool { [.newAPI, .sub2api, .bifrost, .liteLLM].contains(self) }
 }
 
 enum GatewayCredentials {
@@ -84,7 +84,10 @@ enum GatewayQuotaSupport {
                       transport: any ProviderTransport, query: [URLQueryItem] = [],
                       header: String = "Authorization") async throws -> (Data, HTTPURLResponse) {
         var parts = URLComponents(url: base.endpoint(route), resolvingAgainstBaseURL: false)!
-        if !query.isEmpty { parts.queryItems = query }
+        if !query.isEmpty {
+            parts.queryItems = query
+            parts.percentEncodedQuery = parts.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+        }
         var request = URLRequest(url: parts.url!)
         request.httpMethod = "GET"
         request.cachePolicy = .reloadIgnoringLocalCacheData

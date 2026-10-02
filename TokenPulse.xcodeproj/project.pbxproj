@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        6A8E00000000000000000123 /* LiteLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000121; };
+        6A8E00000000000000000124 /* LiteLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000121; };
+        6A8E00000000000000000125 /* LiteLLMProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000122; };
         6A8E00000000000000000113 /* BifrostProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000111; };
         6A8E00000000000000000114 /* BifrostProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000111; };
         6A8E00000000000000000115 /* BifrostProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000112; };
@@ -320,6 +323,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        6A8E00000000000000000121 /* LiteLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/LiteLLMProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000122 /* LiteLLMProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/LiteLLMProviderTests.swift; sourceTree = SOURCE_ROOT; };
         6A8E00000000000000000111 /* BifrostProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/BifrostProvider.swift; sourceTree = SOURCE_ROOT; };
         6A8E00000000000000000112 /* BifrostProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/BifrostProviderTests.swift; sourceTree = SOURCE_ROOT; };
         6A8E00000000000000000101 /* GatewayQuotaSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GatewayQuotaSupport.swift; sourceTree = SOURCE_ROOT; };
@@ -611,6 +616,8 @@
                 6A8E00000000000000000001 /* VolcengineProvider.swift */,
                 6A8E00000000000000000002 /* VolcengineProviderTests.swift */,
                 6A8E00000000000000000101 /* GatewayQuotaSupport.swift */,
+                6A8E00000000000000000121 /* LiteLLMProvider.swift */,
+                6A8E00000000000000000122 /* LiteLLMProviderTests.swift */,
                 6A8E00000000000000000111 /* BifrostProvider.swift */,
                 6A8E00000000000000000112 /* BifrostProviderTests.swift */,
                 6A8E00000000000000000102 /* Sub2APIProvider.swift */,
@@ -921,6 +928,7 @@
                 6A8E00000000000000000013 /* XAIAPIProvider.swift in Sources */,
                 6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */,
                 6A8E00000000000000000104 /* GatewayQuotaSupport.swift in Sources */,
+                6A8E00000000000000000123 /* LiteLLMProvider.swift in Sources */,
                 6A8E00000000000000000113 /* BifrostProvider.swift in Sources */,
                 6A8E00000000000000000106 /* Sub2APIProvider.swift in Sources */,
                 6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
@@ -1000,6 +1008,7 @@
                 6A8E00000000000000000035 /* IBMBobProviderTests.swift in Sources */,
                 6A8E00000000000000000015 /* XAIAPIProviderTests.swift in Sources */,
                 6A8E00000000000000000005 /* VolcengineProviderTests.swift in Sources */,
+                6A8E00000000000000000125 /* LiteLLMProviderTests.swift in Sources */,
                 6A8E00000000000000000115 /* BifrostProviderTests.swift in Sources */,
                 6A8E00000000000000000108 /* Sub2APIProviderTests.swift in Sources */,
                 6A7E00000000000000000005 /* NewAPIProviderTests.swift in Sources */,
@@ -1066,6 +1075,7 @@
                 6A8E00000000000000000014 /* XAIAPIProvider.swift in Sources */,
                 6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */,
                 6A8E00000000000000000105 /* GatewayQuotaSupport.swift in Sources */,
+                6A8E00000000000000000124 /* LiteLLMProvider.swift in Sources */,
                 6A8E00000000000000000114 /* BifrostProvider.swift in Sources */,
                 6A8E00000000000000000107 /* Sub2APIProvider.swift in Sources */,
                 6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
