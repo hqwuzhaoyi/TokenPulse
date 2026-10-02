@@ -12,6 +12,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var walletAvailable: Bool? = nil
     var quotaExceeded: Bool? = nil
     var providerPlanName: String? = nil
+    var isNoPlan: Bool? = nil
 
     var id: UUID { account.id }
 
@@ -34,6 +35,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     }
 
     var displayMetrics: [WidgetQuotaMetric] {
+        if isNoPlan == true { return [.init(id: "noPlan", title: "套餐与 Key 上限", window: nil, statusText: "按量计费，无上限")] }
         let visible = QuotaPolicy.windows(windows, provider: account.provider, plan: subscriptionPlan, surface: .widget)
         if account.provider.balancePresentation == .mixed {
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
@@ -73,7 +75,7 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
                 : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
         case .claude:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .factory:
+        case .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .factory, .devPass:
             return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
         case .deepSeek, .vercelAIGateway:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
@@ -92,12 +94,14 @@ struct WidgetQuotaMetric: Identifiable {
     let id: String
     let title: String
     let window: QuotaWindow?
+    var statusText: String? = nil
 
     var displayTitle: String {
         window?.wallet?.isMonetary == true ? "钱包余额" : title
     }
 
     var valueText: String {
+        if let statusText { return statusText }
         guard let window else { return "未提供" }
         if let wallet = window.wallet {
             return QuotaFormatting.balance(wallet.total, wallet: wallet)
@@ -233,7 +237,8 @@ actor WidgetSnapshotStore {
                 walletCurrency: settingsByID[state.id]?.walletCurrency,
                 walletAvailable: state.snapshot?.walletAvailable,
                 quotaExceeded: state.snapshot?.quotaExceeded,
-                providerPlanName: state.snapshot?.providerPlanName
+                providerPlanName: state.snapshot?.providerPlanName,
+                isNoPlan: state.snapshot?.isNoPlan
             )
         }
         try save(snapshots, isDemoMode: isDemoMode)

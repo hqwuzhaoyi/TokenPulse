@@ -461,3 +461,13 @@ TokenPulse changes: white fill changed to black for template rendering; added ma
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+
+DevPass generic integration icon (not the DevPass or LLMGateway brand mark)
+Source: https://github.com/qunqin24/Pulse
+Commit: 397c8fc4f1bd52180a452d2f3f0c099def97cf69
+Asset: Sources/Pulse/Resources/extension.svg
+License: Apache License 2.0, repository LICENSE. Full license reproduced in the Factory Droid section above.
+Copyright: qunqin24/Pulse contributors; asset and LICENSE state no specific copyright year.
+TokenPulse changes: currentColor changed to black, explicit dimensions changed to 24x24; vector paths unchanged.
+Official LLMGateway repository logo was inspected at 8e280f73fb38540e0db5e026f8419ce138e05b43 (apps/docs/components/logo.tsx) under AGPLv3. This generic Apache2 asset follows the pinned provider reference and is used as a non-brand alternative.

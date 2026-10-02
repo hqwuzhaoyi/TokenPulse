@@ -14,6 +14,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
     case stepFun
     case newAPI
     case copilot
+    case devPass
     case factory
 
     var id: String { rawValue }
@@ -44,6 +45,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .stepFun: "StepFun"
         case .newAPI: "New API"
         case .copilot: "GitHub Copilot"
+        case .devPass: "DevPass"
         case .factory: "Factory"
         }
     }
@@ -233,6 +235,7 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     /// A one-way identity for web-session cache matching; never contains cookies.
     var sourceCredentialFingerprint: String? = nil
     var providerPlanName: String? = nil
+    var isNoPlan: Bool? = nil
 
     func windows(for provider: Provider, surface: QuotaSurface) -> [QuotaWindow] {
         QuotaPolicy.windows(windows, provider: provider, plan: subscriptionPlan, surface: surface)

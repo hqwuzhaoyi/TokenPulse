@@ -164,6 +164,9 @@ private struct WatchAccountPage: View {
                     .foregroundStyle(.secondary)
 
                 if let snapshot = state.snapshot {
+                    if snapshot.isNoPlan == true {
+                        Text("按量计费，无套餐或 Key 上限").font(.caption2)
+                    }
                     ForEach(snapshot.windows(for: state.account.provider, surface: .detail)) { window in
                         if let wallet = window.wallet {
                             VStack(alignment: .leading, spacing: 3) {

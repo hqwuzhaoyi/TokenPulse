@@ -18,6 +18,7 @@ enum DemoMode {
             (.stepFun, "StepFun Token Plan"), (.stepFun, "StepFun Coding Plan"),
             (.newAPI, "New API 钱包"),
             (.copilot, "GitHub Copilot Free"),
+            (.devPass, "DevPass"),
             (.factory, "Factory Standard / Core"), (.factory, "Factory Standard / Premium"),
         ]
         return examples.enumerated().map { index, example in
@@ -80,6 +81,17 @@ enum DemoMode {
                window("factory.rate.core.weekly", "每周额度", .weekly, 25, scope: "Core"),
                QuotaWindow(id: "factory.extraUsage", name: "附加用量余额", scope: nil, usedPercentage: nil,
                            remainingCount: 2500, totalCount: nil, resetsAt: nil, unit: "cents（币种未提供）")]
+        case .devPass: [
+            QuotaWindow(id: "devpass.premium_weekly", name: "Premium 每周额度", scope: nil, period: .weekly,
+                        usedPercentage: 50, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(3 * 86400),
+                        unit: "USD credits", exactCounts: .init(used: 5, remaining: 5, total: 10)),
+            QuotaWindow(id: "devpass.cycle", name: "账期 credits", scope: nil, period: .other,
+                        usedPercentage: 25, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "USD credits", exactCounts: .init(used: 25, remaining: 75, total: 100)),
+            QuotaWindow(id: "devpass.key_limit", name: "Key 累计限额", scope: nil, period: .other,
+                        usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        unit: "USD credits", exactCounts: .init(used: 40, remaining: 60, total: 100))
+        ]
         case .copilot: [
             window("copilot.premium_interactions", "Premium requests", .monthly, 60),
             window("copilot.chat", "Chat", .monthly, 30),

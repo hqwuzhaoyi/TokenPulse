@@ -179,6 +179,9 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .factory:
             return try await FactoryProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .devPass:
+            return try await DevPassProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .copilot:
             return try await CopilotProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -231,6 +234,8 @@ struct ProviderAuthenticationController: Sendable {
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
         case .factory:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Factory API Key")
+        case .devPass:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "DevPass API Key")
         case .newAPI:
             return .init(provider: provider, method: .apiKey, credentialLabel: "New API Key")
         case .deepSeek:
@@ -253,7 +258,7 @@ struct ProviderAuthenticationController: Sendable {
     }
 
     func credential(provider: Provider, apiKey: String, serverAddress: String? = nil) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .factory else {
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .factory || provider == .devPass else {
             throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -291,7 +296,7 @@ struct ProviderAuthenticationController: Sendable {
             )
         case .stepFun:
             throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .factory:
+        case .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .factory, .devPass:
             throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
         }
     }
@@ -308,7 +313,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .factory:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .factory, .devPass:
             throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
         }
     }
@@ -326,7 +331,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .factory:
+        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .factory, .devPass:
             return .init(credential: credential, changed: false)
         }
     }

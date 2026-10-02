@@ -1,6 +1,6 @@
 # 23: DevPass 套餐与 Key 限额
 
-**Status:** ready-for-agent
+**Status:** implemented; static verification passed; central build/test and real-account acceptance pending
 
 **Type:** integration
 
@@ -24,3 +24,16 @@
 ## Evidence
 
 参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/devpass.md)。上游实现与合成响应只作为线索，真实账号验收仍须执行。
+
+
+## Implementation evidence
+
+- `.devPass` public Key/controller/direct-query/account lifecycle routing, exact premium/cycle/key-limit quantities, no-plan state, Watch/widget/demo and non-brand Apache2 vector asset implemented.
+- Pinned Pulse397c8fc4 and current official Usage API documentation at theopenco/llmgateway8e280f73 were checked through agent-reach GitHub/gh. Ordinary Key, three USD decimal budgets and null weekly reset semantics are documented.
+- `DecimalQuotaCounts` shared API retains exact original amounts; budgets are not WalletBalance. Known PAYG without limits is successful `isNoPlan`, invalid or unknown shapes fail without clearing old data.
+- Seven DevPass tests cover contracts, exact decimals beyond Double precision/old cache coding, none/unknown-plan distinction, invalid types/overflow, independent alerts/reset policy/widgets/demo and isolated account restoration/replacement/deletion.
+- Full App module and test Swift6 typecheck passed; no central README/CONTEXT/manifest change. More in docs/devpass-provider-integration.md.
+
+Central unsigned App/Widgets/Watch build and simulator XCTest execution, real API Key, iCloud arrival, physical standalone Watch, quota reset/lifetime and visual notification/widget evidence remain unaccepted; fixtures never count as production proof.
+
+生产 DevPass 解析代码 macOS 合成 smoke 另通过：超出 Double 整数精度的 Decimal 原值、精确相减、快照编码、已知 no-plan、非有限/负数/溢出/下溢拒绝。此检查不是模拟器 XCTest 或真实 Key 查询。

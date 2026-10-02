@@ -337,6 +337,9 @@ private struct AccountSummaryView: View {
 
             if let snapshot = state.snapshot {
                 Divider()
+                if snapshot.isNoPlan == true {
+                    Text("当前按量计费，没有套餐或 Key 用量上限").font(.subheadline).foregroundStyle(.secondary)
+                }
                 let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
                 if state.account.provider.balancePresentation == .walletOnly &&
                     (state.account.provider != .newAPI || summaryWindows.contains(where: { $0.wallet?.isMonetary == true })) {
