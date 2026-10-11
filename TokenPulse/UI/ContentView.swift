@@ -93,12 +93,12 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $showingAddAccount) {
-                    AddAccountView(isDemoMode: runtime.isDemoMode) { name, key, provider, accountID in
+                    AddAccountView(isDemoMode: runtime.isDemoMode, existingProviders: Set(monitor.states.map { $0.account.provider })) { name, key, provider, accountID in
                         let previousCount = monitor.states.count
                         await monitor.addAccount(name: name, credential: key, provider: provider, accountID: accountID)
                         return monitor.states.count > previousCount
                     }
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
                 }
             }
@@ -575,22 +575,28 @@ private struct AddAccountView: View {
     @State private var showingLogin = false
     @State private var loginMessage: String?
     let isDemoMode: Bool
+    let existingProviders: Set<Provider>
     let save: (String, String, Provider, UUID) async -> Bool
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("服务") {
-                    Picker("提供商", selection: $provider) {
-                        ForEach(Provider.allCases) { provider in
-                            Label {
-                                Text(provider.displayName)
-                            } icon: {
-                                ProviderIcon(provider: provider, size: 20)
-                            }
-                            .tag(provider)
+                    NavigationLink {
+                        ProviderSelectionView(selection: $provider, existingProviders: existingProviders)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ProviderIcon(provider: provider, size: 24)
+                            Text(provider.displayName)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Text("更换")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                         }
+                        .padding(.vertical, 6)
                     }
+                    .disabled(saving)
                 }
 
                 Section {
@@ -759,6 +765,127 @@ struct AlibabaTokenPlanSitePicker: View {
             ForEach(AlibabaTokenPlanSite.allCases) { site in
                 Text(site.displayName).tag(Optional(site))
             }
+        }
+    }
+}
+
+
+/// A searchable destination keeps the full catalog accessible without a long menu.
+private struct ProviderSelectionView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selection: Provider
+    let existingProviders: Set<Provider>
+    @State private var query = ""
+
+    private var providers: [Provider] {
+        Provider.allCases.sorted {
+            $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending
+        }
+    }
+
+    private var results: [Provider] {
+        let terms = query.split(whereSeparator: { $0.isWhitespace })
+        return providers.filter { provider in
+            let text = "\(provider.displayName) \(provider.rawValue) \(aliases(for: provider))"
+                .replacingOccurrences(of: ".", with: "")
+            return terms.allSatisfy {
+                text.localizedStandardContains(String($0).replacingOccurrences(of: ".", with: ""))
+            }
+        }
+    }
+
+    private var isSearching: Bool {
+        !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var groups: [(title: String, providers: [Provider])] {
+        let remaining = providers.filter { !existingProviders.contains($0) }
+        let grouped = Dictionary(grouping: remaining) { provider in
+            let first = String(provider.displayName.prefix(1)).uppercased()
+            return first.range(of: "^[A-Z]$", options: .regularExpression) != nil ? first : "其他"
+        }
+        return grouped.keys.sorted { a, b in
+            if a == "其他" { return false }
+            if b == "其他" { return true }
+            return a < b
+        }.map { (title: $0, providers: grouped[$0] ?? []) }
+    }
+
+    var body: some View {
+        List {
+            if isSearching {
+                Section("搜索结果 · \(results.count)") {
+                    ForEach(results) { provider in row(provider) }
+                }
+            } else {
+                if !existingProviders.isEmpty {
+                    Section("已添加的服务") {
+                        ForEach(providers.filter { existingProviders.contains($0) }) { provider in
+                            row(provider)
+                        }
+                    }
+                }
+                ForEach(groups, id: \.title) { group in
+                    Section(group.title) {
+                        ForEach(group.providers) { provider in row(provider) }
+                    }
+                }
+            }
+        }
+        .navigationTitle("选择提供商")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "搜索名称，如 Claude、智谱")
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
+        .scrollDismissesKeyboard(.interactively)
+        .overlay {
+            if isSearching && results.isEmpty {
+                ContentUnavailableView.search(text: query)
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+
+    private func row(_ provider: Provider) -> some View {
+        Button {
+            selection = provider
+            dismiss()
+        } label: {
+            HStack(spacing: 14) {
+                ProviderIcon(provider: provider, size: 24)
+                    .frame(width: 32, height: 32)
+                Text(provider.displayName)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                if selection == provider {
+                    Image(systemName: "checkmark")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .accessibilityHidden(true)
+                }
+            }
+            .padding(.vertical, 6)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .accessibilityAddTraits(selection == provider ? .isSelected : [])
+    }
+
+    private func aliases(for provider: Provider) -> String {
+        switch provider {
+        case .claude: "Anthropic Claude Code"
+        case .codex: "OpenAI ChatGPT"
+        case .zhipu, .zai: "智谱 Zhipu Zai GLM"
+        case .alibabaCodingPlan, .alibabaTokenPlan: "Alibaba 百炼 阿里 通义 Qwen"
+        case .volcengine: "Volcengine 火山 豆包 方舟"
+        case .kimiCode, .moonshot: "月之暗面 Kimi Moonshot"
+        case .stepFun: "阶跃星辰 StepFun"
+        case .deepSeek: "深度求索 DeepSeek"
+        case .xiaomiCodingPlan: "小米 Xiaomi Mimo"
+        case .qwenCloud: "通义 千问 Qwen"
+        default: ""
         }
     }
 }
