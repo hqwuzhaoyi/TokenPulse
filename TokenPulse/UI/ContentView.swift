@@ -81,7 +81,9 @@ struct ContentView: View {
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 8)
-                        .background(.regularMaterial)
+                        .modifier(FloatingGlassSurface())
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
                     }
                 }
                 .toolbar {
@@ -115,7 +117,11 @@ struct ContentView: View {
         }
         .disabled(runtime.isSwitchingMode)
         .overlay {
-            if runtime.isSwitchingMode { ProgressView("正在切换模式") }
+            if runtime.isSwitchingMode {
+                ProgressView("正在切换模式")
+                    .padding(24)
+                    .modifier(FloatingGlassSurface())
+            }
         }
         .confirmationDialog("删除账号？", isPresented: Binding(
             get: { !accountsToDelete.isEmpty },
@@ -593,7 +599,7 @@ private struct AddAccountView: View {
                             Spacer()
                             Text("更换")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.secondary)
                         }
                         .padding(.vertical, 6)
                     }
@@ -825,14 +831,18 @@ private struct ProviderSelectionView: View {
                             row(provider)
                         }
                     }
+                    .modifier(ProviderSectionIndexLabel(title: "★"))
                 }
                 ForEach(groups, id: \.title) { group in
                     Section(group.title) {
                         ForEach(group.providers) { provider in row(provider) }
                     }
+                    .modifier(ProviderSectionIndexLabel(title: group.title == "其他" ? "#" : group.title))
                 }
             }
         }
+        .listStyle(.plain)
+        .modifier(ProviderSectionIndexVisibility(isSearching: isSearching))
         .navigationTitle("选择提供商")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always),
@@ -888,6 +898,51 @@ private struct ProviderSelectionView: View {
         case .xiaomiCodingPlan: "小米 Xiaomi Mimo"
         case .qwenCloud: "通义 千问 Qwen"
         default: ""
+        }
+    }
+}
+
+
+private struct ProviderSectionIndexLabel: ViewModifier {
+    let title: String
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.sectionIndexLabel(title)
+        } else {
+            content
+        }
+    }
+}
+
+private struct ProviderSectionIndexVisibility: ViewModifier {
+    let isSearching: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.listSectionIndexVisibility(isSearching ? .hidden : .visible)
+        } else {
+            content
+        }
+    }
+}
+
+/// Glass belongs to the floating controls; data surfaces remain opaque and legible.
+private struct FloatingGlassSurface: ViewModifier {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if reduceTransparency || contrast == .increased {
+            content.background(Color(uiColor: .secondarySystemBackground),
+                               in: RoundedRectangle(cornerRadius: 20))
+        } else if #available(iOS 26.0, *) {
+            content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 20))
+        } else {
+            content.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
         }
     }
 }
