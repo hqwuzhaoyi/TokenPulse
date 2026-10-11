@@ -589,7 +589,7 @@ private struct AddAccountView: View {
                             ProviderIcon(provider: provider, size: 24)
                                 .foregroundStyle(Color.primary)
                             Text(provider.displayName)
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(Color.primary)
                             Spacer()
                             Text("更换")
                                 .font(.subheadline)
@@ -858,7 +858,7 @@ private struct ProviderSelectionView: View {
                     .foregroundStyle(Color.primary)
                     .frame(width: 32, height: 32)
                 Text(provider.displayName)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(Color.primary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 8)
                 if selection == provider {
