@@ -587,6 +587,7 @@ private struct AddAccountView: View {
                     } label: {
                         HStack(spacing: 12) {
                             ProviderIcon(provider: provider, size: 24)
+                                .foregroundStyle(Color.primary)
                             Text(provider.displayName)
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -854,6 +855,7 @@ private struct ProviderSelectionView: View {
         } label: {
             HStack(spacing: 14) {
                 ProviderIcon(provider: provider, size: 24)
+                    .foregroundStyle(Color.primary)
                     .frame(width: 32, height: 32)
                 Text(provider.displayName)
                     .foregroundStyle(.primary)
