@@ -59,6 +59,15 @@
 - 证据：`/tmp/tokenpulse-release-2026092202-tests.log`、`/tmp/tokenpulse-release-2026092202-archive.log`、`/tmp/tokenpulse-release-2026092202-upload.log`、`/tmp/tokenpulse-release-2026092202-verification.json`。
 - 上传成功表示 App Store Connect 已接收并开始处理；处理完成及测试组可用状态仍需在 TestFlight 页面确认。
 
+### Provider 扩展构建 2026101101
+
+- **0.1.0 (2026101101)** 已于 2026-10-11 20:35:51（UTC+8）上传成功。Apple 返回 `Uploaded package is processing`、`Upload succeeded`，命令结果为 `EXPORT SUCCEEDED`。
+- 发布源码提交 `b63b700`，包含 78 个 provider；沿用该提交此前完整 XCTest 773 项通过、0 失败的结果，本次未重复运行测试。
+- 本次 Release 归档成功；iPhone、Watch 和两个 Widget 的版本一致，四个包均通过签名验证，对应 dSYM UUID 全部匹配。上传日志没有符号上传失败警告。
+- 归档：`/Users/wuzhaoyi/Library/Developer/Xcode/Archives/2026-10-11/TokenPulse-2026101101.xcarchive`。
+- 证据：`/tmp/tokenpulse-release-2026101101-archive.log`、`/tmp/tokenpulse-release-2026101101-upload.log`、`/tmp/tokenpulse-release-2026101101-verification.json`。
+- Apple 已接收并开始处理；尚未确认处理完成、测试组可用或外部测试审核状态。
+
 ## 提交说明
 
 先完成新构建上传并选择该构建，再把下面的英文说明填写到 Beta App Review Information 的 Notes 中，并在审核消息中回复。不要把示例文字当作用户名或密码填写。不要在旧构建仍被审核时声称演示模式已经可用。
