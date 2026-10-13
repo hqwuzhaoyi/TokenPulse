@@ -1,21 +1,70 @@
 import Foundation
+import CryptoKit
 #if os(iOS)
 import Combine
 import SwiftUI
 import WebKit
 #endif
 
+/// New logins bind a local UUID. Legacy sessions keep a stable actual-session/org identity without inventing one.
+enum ClaudeWebSession {
+    static let origin = "https://claude.ai"
+    static let policy = CookieWebSessionPolicy(domains: ["claude.ai"], path: "/api", names: ["sessionKey", "sessionKeyV3"],
+                                              requiredAnyNames: ["sessionKey", "sessionKeyV3"])
+
+    static func credential(accountID: UUID, cookieHeader: String, organizationID: String,
+                           expiresAt: Date? = nil) throws -> ProviderCredentialEnvelope {
+        guard validOrganization(organizationID) else { throw RefreshFailure.invalidCredential }
+        return try WebProviderSession.credential(provider: .claude, origin: origin, accountID: accountID,
+            accessToken: canonicalHeader(cookieHeader), expiresAt: expiresAt,
+            metadata: ["cookieFormat": "restrictedHeader", "organizationID": organizationID])
+    }
+
+    static func fingerprint(_ credential: ProviderCredentialEnvelope) throws -> String {
+        guard credential.provider == .claude, credential.kind == .session,
+              credential.metadata["cookieFormat"] == "restrictedHeader",
+              let organization = credential.metadata["organizationID"], validOrganization(organization),
+              credential.metadata["origin"].map({ $0 == origin }) != false else { throw RefreshFailure.invalidCredential }
+        let header = try canonicalHeader(credential.accessToken)
+        if credential.metadata["webSessionFormat"] == "v1" { return try WebProviderSession.fingerprint(credential) }
+        guard credential.metadata["webSessionFormat"] == nil,
+              credential.metadata["localAccountID"].map({ UUID(uuidString: $0) != nil }) != false else {
+            throw RefreshFailure.invalidCredential
+        }
+        let data = try JSONEncoder().encode([Provider.claude.rawValue, origin, header, organization])
+        return SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+    }
+
+    static func validate(_ credential: ProviderCredentialEnvelope, accountID: UUID, now: Date) throws -> String {
+        let identity = try fingerprint(credential)
+        guard credential.expiresAt.map({ $0 > now }) != false else { throw RefreshFailure.invalidCredential }
+        if credential.metadata["webSessionFormat"] == "v1" {
+            try WebProviderSession.validate(credential, provider: .claude, accountID: accountID, origins: [origin], now: now)
+        } else if let owner = credential.metadata["localAccountID"], UUID(uuidString: owner) != accountID {
+            throw RefreshFailure.invalidCredential
+        }
+        return identity
+    }
+
+    static func canonicalHeader(_ header: String) throws -> String {
+        let values = try policy.values(in: header)
+        return policy.names.compactMap { name in values[name].map { "\(name)=\($0)" } }.joined(separator: "; ")
+    }
+
+    private static func validOrganization(_ value: String) -> Bool {
+        !value.isEmpty && value.utf8.count <= 256 && value.utf8.allSatisfy {
+            (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 95
+        }
+    }
+}
+
 struct ClaudeProviderClient: Sendable {
     let transport: any ProviderTransport
     let now: @Sendable () -> Date
 
     func quota(accountID: UUID, credential: ProviderCredentialEnvelope) async throws -> ProviderQueryResult {
-        guard credential.kind == .session,
-              credential.metadata["cookieFormat"] == "restrictedHeader",
-              let organizationID = credential.metadata["organizationID"],
-              !organizationID.isEmpty else {
-            throw RefreshFailure.invalidCredential
-        }
+        let identity = try ClaudeWebSession.validate(credential, accountID: accountID, now: now())
+        let organizationID = credential.metadata["organizationID"]!
 
         let endpoint = URL(string: "https://claude.ai/api/organizations")!
             .appending(path: organizationID)
@@ -23,7 +72,8 @@ struct ClaudeProviderClient: Sendable {
         var request = URLRequest(url: endpoint)
         request.timeoutInterval = 20
         request.cachePolicy = .reloadIgnoringLocalCacheData
-        Self.applyWebHeaders(to: &request, cookieHeader: credential.accessToken)
+        request.httpShouldHandleCookies = false
+        Self.applyWebHeaders(to: &request, cookieHeader: try ClaudeWebSession.canonicalHeader(credential.accessToken))
 
         do {
             let (data, response) = try await ProviderHTTP.send(request, transport: transport)
@@ -32,7 +82,7 @@ struct ClaudeProviderClient: Sendable {
             let windows = Self.windows(root)
             guard !windows.isEmpty else { throw RefreshFailure.noQuotaWindows }
             return .init(
-                snapshot: QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: now()),
+                snapshot: QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: now(), sourceCredentialFingerprint: identity),
                 updatedCredential: nil
             )
         } catch {
@@ -106,53 +156,55 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
     @Published private(set) var organizations: [ClaudeOrganization] = []
     @Published private(set) var message: String?
 
+    private var container: WebSessionContainer?
+    private let accountID: UUID
     private var sessionHeader: String?
     private var sessionExpiresAt: Date?
     private let onCredential: (String) -> Void
 
-    init(onCredential: @escaping (String) -> Void) {
+    init(accountID: UUID = UUID(), onCredential: @escaping (String) -> Void) {
+        self.accountID = accountID
         self.onCredential = onCredential
     }
 
     func start() {
         guard webView == nil else { return }
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = .nonPersistent()
-        let view = WKWebView(frame: .zero, configuration: configuration)
+        let container = WebSessionContainer(scope: .init(provider: .claude, accountID: accountID, host: "claude.ai"))
+        self.container = container
+        let view = container.webView
         view.navigationDelegate = self
         webView = view
         view.load(URLRequest(url: URL(string: "https://claude.ai/login")!))
     }
 
+    func close() {
+        container?.close()
+        webView = nil
+        container = nil
+        sessionHeader = nil
+        organizations = []
+    }
+
     func select(_ organization: ClaudeOrganization) {
         guard let sessionHeader else { return }
         do {
-            let credential = try ProviderCredentialEnvelope(
-                provider: .claude,
-                kind: .session,
-                accessToken: sessionHeader,
-                expiresAt: sessionExpiresAt,
-                metadata: ["cookieFormat": "restrictedHeader", "organizationID": organization.id]
-            ).encoded()
+            let credential = try ClaudeWebSession.credential(accountID: accountID, cookieHeader: sessionHeader,
+                organizationID: organization.id, expiresAt: sessionExpiresAt).encoded()
             onCredential(credential)
         } catch {
-            message = "无法保存 Claude 登录信息"
+            message = L10n.text("无法保存 Claude 登录信息")
         }
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
-            guard let self else { return }
-            var names: Set<String> = []
-            let sessionCookies = cookies.filter {
-                ["sessionKey", "sessionKeyV3"].contains($0.name)
-                    && ($0.domain == "claude.ai" || $0.domain == ".claude.ai")
-                    && !$0.value.isEmpty
-                    && names.insert($0.name).inserted
-            }
-            guard !sessionCookies.isEmpty else { return }
-            let header = sessionCookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
-            let expiresAt = sessionCookies.compactMap(\.expiresDate).min()
+            guard let self, self.container?.closed == false else { return }
+            guard let selection = try? WebSessionCookiePolicy.select(cookies,
+                names: ["sessionKey", "sessionKeyV3"], requiredNames: [],
+                requiredAnyNames: ["sessionKey", "sessionKeyV3"], domains: ["claude.ai"],
+                path: "/api/bootstrap", now: Date()) else { return }
+            let header = selection.header
+            let expiresAt = selection.expiresByName.values.min()
             Task { @MainActor in await self.loadOrganizations(cookieHeader: header, expiresAt: expiresAt) }
         }
     }
@@ -170,7 +222,8 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
             configuration.httpCookieStorage = nil
             configuration.urlCache = nil
             let (data, response) = try await URLSession(configuration: configuration).data(for: request)
-            guard (response as? HTTPURLResponse)?.statusCode == 200,
+            guard container?.closed == false,
+                  (response as? HTTPURLResponse)?.statusCode == 200,
                   let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let account = root["account"] as? [String: Any],
                   let memberships = account["memberships"] as? [[String: Any]] else { return }
@@ -180,11 +233,11 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
                 let name = (organization["name"] as? String) ?? id
                 return ClaudeOrganization(id: id, name: name)
             }
-            message = organizations.isEmpty ? "登录成功，但未返回可选组织" : nil
+            message = organizations.isEmpty ? L10n.text("登录成功，但未返回可选组织") : nil
         } catch is CancellationError {
             return
         } catch {
-            message = "无法读取 Claude 组织，请稍后重试"
+            message = L10n.text("无法读取 Claude 组织，请稍后重试")
         }
     }
 }
@@ -192,8 +245,8 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
 struct ClaudeSessionLoginView: View {
     @StateObject private var model: ClaudeSessionLoginModel
 
-    init(onCredential: @escaping (String) -> Void) {
-        _model = StateObject(wrappedValue: ClaudeSessionLoginModel(onCredential: onCredential))
+    init(accountID: UUID = UUID(), onCredential: @escaping (String) -> Void) {
+        _model = StateObject(wrappedValue: ClaudeSessionLoginModel(accountID: accountID, onCredential: onCredential))
     }
 
     var body: some View {
@@ -216,6 +269,7 @@ struct ClaudeSessionLoginView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .onDisappear { model.close() }
     }
 }
 

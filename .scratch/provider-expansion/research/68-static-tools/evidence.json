@@ -1,0 +1,396 @@
+{
+  "artifact": {
+    "url": "https://jetbrains-central-cli.s3.eu-west-1.amazonaws.com/central/1.11.0/central_1.11.0_linux_x86_64.tar.gz",
+    "archiveSHA256": "34c7e468870fdc57d60261034760f72b85c4a9e3f2dbfb9dec006b413f62ae4c",
+    "binarySHA256": "07d76becc367762e31f59ecbf744a967ce5ef1cbf395b4fc05835e6fb244a042",
+    "go": "go1.25.0",
+    "vcsRevision": "893e3e103dac07cd29ab1b6b57c877adcaaf7351",
+    "vcsModified": true
+  },
+  "types": [
+    {
+      "address": 14856064,
+      "fields": [
+        {
+          "name": "Version",
+          "offset": 0,
+          "tag": "json:\"version\"",
+          "type": "int"
+        },
+        {
+          "name": "RefreshToken",
+          "offset": 8,
+          "tag": "json:\"refresh_token\"",
+          "type": "string"
+        },
+        {
+          "name": "Environment",
+          "offset": 24,
+          "tag": "json:\"environment\"",
+          "type": "string"
+        },
+        {
+          "name": "ServerURL",
+          "offset": 40,
+          "tag": "json:\"server_url,omitempty\"",
+          "type": "string"
+        },
+        {
+          "name": "AIAccess",
+          "offset": 56,
+          "tag": "json:\"ai_access,omitzero\"",
+          "type": "auth.TokenTransferAIAccess"
+        },
+        {
+          "name": "EAPToSAccepted",
+          "offset": 120,
+          "tag": "json:\"eap_tos_accepted,omitempty\"",
+          "type": "bool"
+        },
+        {
+          "name": "GoogleAnalyticsAccepted",
+          "offset": 128,
+          "tag": "json:\"google_analytics_accepted\"",
+          "type": "*bool"
+        }
+      ],
+      "kind": 25,
+      "name": "auth.TokenTransfer"
+    },
+    {
+      "address": 14728992,
+      "fields": [
+        {
+          "name": "Type",
+          "offset": 0,
+          "tag": "json:\"type,omitempty\"",
+          "type": "string"
+        },
+        {
+          "name": "OrgID",
+          "offset": 16,
+          "tag": "json:\"org_id,omitempty\"",
+          "type": "string"
+        },
+        {
+          "name": "WorkspaceID",
+          "offset": 32,
+          "tag": "json:\"workspace_id,omitempty\"",
+          "type": "string"
+        },
+        {
+          "name": "LicenseID",
+          "offset": 48,
+          "tag": "json:\"license_id,omitempty\"",
+          "type": "string"
+        }
+      ],
+      "kind": 25,
+      "name": "auth.TokenTransferAIAccess"
+    },
+    {
+      "address": 14832160,
+      "fields": [
+        {
+          "name": "License",
+          "offset": 0,
+          "tag": "json:\"license\"",
+          "type": "string"
+        },
+        {
+          "name": "Current",
+          "offset": 16,
+          "tag": "json:\"-\"",
+          "type": "jbai.QuotaAmount"
+        },
+        {
+          "name": "Maximum",
+          "offset": 32,
+          "tag": "json:\"-\"",
+          "type": "jbai.QuotaAmount"
+        },
+        {
+          "name": "Until",
+          "offset": 48,
+          "tag": "json:\"until\"",
+          "type": "int64"
+        },
+        {
+          "name": "TariffQuota",
+          "offset": 56,
+          "tag": "json:\"tariffQuota\"",
+          "type": "jbai.QuotaBucket"
+        },
+        {
+          "name": "TopUpQuota",
+          "offset": 104,
+          "tag": "json:\"topUpQuota\"",
+          "type": "jbai.QuotaBucket"
+        }
+      ],
+      "kind": 25,
+      "name": "jbai.Quota"
+    },
+    {
+      "address": 14832416,
+      "fields": [
+        {
+          "name": "License",
+          "offset": 0,
+          "tag": "json:\"license\"",
+          "type": "string"
+        },
+        {
+          "name": "Current",
+          "offset": 16,
+          "tag": "json:\"-\"",
+          "type": "jbai.QuotaAmount"
+        },
+        {
+          "name": "Maximum",
+          "offset": 32,
+          "tag": "json:\"-\"",
+          "type": "jbai.QuotaAmount"
+        },
+        {
+          "name": "Until",
+          "offset": 48,
+          "tag": "json:\"until\"",
+          "type": "int64"
+        },
+        {
+          "name": "TariffQuota",
+          "offset": 56,
+          "tag": "json:\"tariffQuota\"",
+          "type": "jbai.QuotaBucket"
+        },
+        {
+          "name": "TopUpQuota",
+          "offset": 104,
+          "tag": "json:\"topUpQuota\"",
+          "type": "jbai.QuotaBucket"
+        }
+      ],
+      "kind": 25,
+      "name": "jbai.QuotaAlias"
+    },
+    {
+      "address": 14532224,
+      "fields": [
+        {
+          "name": "Amount",
+          "offset": 0,
+          "tag": "json:\"amount\"",
+          "type": "decimal.Decimal"
+        }
+      ],
+      "kind": 25,
+      "name": "jbai.QuotaAmount"
+    },
+    {
+      "address": 14664736,
+      "fields": [
+        {
+          "name": "Current",
+          "offset": 0,
+          "tag": "json:\"current\"",
+          "type": "jbai.QuotaAmount"
+        },
+        {
+          "name": "Maximum",
+          "offset": 16,
+          "tag": "json:\"maximum\"",
+          "type": "jbai.QuotaAmount"
+        },
+        {
+          "name": "Available",
+          "offset": 32,
+          "tag": "json:\"available\"",
+          "type": "jbai.QuotaAmount"
+        }
+      ],
+      "kind": 25,
+      "name": "jbai.QuotaBucket"
+    },
+    {
+      "address": 14576928,
+      "fields": [
+        {
+          "name": "Last",
+          "offset": 0,
+          "tag": "",
+          "type": "int64"
+        },
+        {
+          "name": "Next",
+          "offset": 8,
+          "tag": "",
+          "type": "int64"
+        }
+      ],
+      "kind": 25,
+      "name": "jbai.QuotaRefill"
+    },
+    {
+      "address": 14576768,
+      "fields": [
+        {
+          "name": "JWT",
+          "offset": 0,
+          "tag": "",
+          "type": "string"
+        },
+        {
+          "name": "ExpiresAt",
+          "offset": 16,
+          "tag": "",
+          "type": "time.Time"
+        }
+      ],
+      "kind": 25,
+      "name": "jbai.Token"
+    }
+  ],
+  "functions": [
+    {
+      "end": 9315872,
+      "file": "github.com/JetBrains/central-cli/internal/auth/jbai/client.go",
+      "line": 146,
+      "name": "github.com/JetBrains/central-cli/internal/auth/jbai.(*Client).Refresh",
+      "start": 9315392
+    },
+    {
+      "end": 9316192,
+      "file": "github.com/JetBrains/central-cli/internal/auth/jbai/client.go",
+      "line": 166,
+      "name": "github.com/JetBrains/central-cli/internal/auth/jbai.(*Client).GetQuota",
+      "start": 9315872
+    },
+    {
+      "end": 9316544,
+      "file": "github.com/JetBrains/central-cli/internal/auth/jbai/client.go",
+      "line": 183,
+      "name": "github.com/JetBrains/central-cli/internal/auth/jbai.(*Client).QuotaRefill",
+      "start": 9316192
+    },
+    {
+      "end": 9324064,
+      "file": "github.com/JetBrains/central-cli/internal/auth/jbai/client.go",
+      "line": 286,
+      "name": "github.com/JetBrains/central-cli/internal/auth/jbai.(*Client).platformPost",
+      "start": 9321120
+    },
+    {
+      "end": 9324160,
+      "file": "github.com/JetBrains/central-cli/internal/auth/jbai/client.go",
+      "line": 302,
+      "name": "github.com/JetBrains/central-cli/internal/auth/jbai.(*Client).platformPost.deferwrap1",
+      "start": 9324064
+    },
+    {
+      "end": 9325952,
+      "file": "github.com/JetBrains/central-cli/internal/auth/jbai/quota.go",
+      "line": 46,
+      "name": "github.com/JetBrains/central-cli/internal/auth/jbai.QuotaAmount.Credits",
+      "start": 9325856
+    },
+    {
+      "end": 9350496,
+      "file": "github.com/JetBrains/central-cli/internal/auth/quota_token.go",
+      "line": 32,
+      "name": "github.com/JetBrains/central-cli/internal/auth.ResolveQuotaToken",
+      "start": 9349312
+    },
+    {
+      "end": 9351296,
+      "file": "github.com/JetBrains/central-cli/internal/auth/refresh_jba.go",
+      "line": 29,
+      "name": "github.com/JetBrains/central-cli/internal/auth.(*Tokens).canUseJBAIFastRefresh",
+      "start": 9351168
+    },
+    {
+      "end": 9352512,
+      "file": "github.com/JetBrains/central-cli/internal/auth/refresh_jba.go",
+      "line": 54,
+      "name": "github.com/JetBrains/central-cli/internal/auth.RefreshJBA",
+      "start": 9351616
+    },
+    {
+      "end": 9353376,
+      "file": "github.com/JetBrains/central-cli/internal/auth/refresh_jba.go",
+      "line": 84,
+      "name": "github.com/JetBrains/central-cli/internal/auth.RefreshJBAI",
+      "start": 9352512
+    },
+    {
+      "end": 9357568,
+      "file": "github.com/JetBrains/central-cli/internal/auth/token_transfer.go",
+      "line": 53,
+      "name": "github.com/JetBrains/central-cli/internal/auth.EncodeTokenTransfer",
+      "start": 9357184
+    },
+    {
+      "end": 9358624,
+      "file": "github.com/JetBrains/central-cli/internal/auth/token_transfer.go",
+      "line": 71,
+      "name": "github.com/JetBrains/central-cli/internal/auth.DecodeTokenTransfer",
+      "start": 9357568
+    },
+    {
+      "end": 9359456,
+      "file": "github.com/JetBrains/central-cli/internal/auth/token_transfer.go",
+      "line": 105,
+      "name": "github.com/JetBrains/central-cli/internal/auth.ValidateTokenTransfer",
+      "start": 9358624
+    },
+    {
+      "end": 9374464,
+      "file": "github.com/JetBrains/central-cli/internal/auth/token_transfer.go",
+      "line": 73,
+      "name": "github.com/JetBrains/central-cli/internal/auth.DecodeTokenTransfer.func1",
+      "start": 9374432
+    },
+    {
+      "end": 10170976,
+      "file": "github.com/JetBrains/central-cli/internal/session/token_transfer.go",
+      "line": 21,
+      "name": "github.com/JetBrains/central-cli/internal/session.ImportTokenTransfer",
+      "start": 10169088
+    },
+    {
+      "end": 10171872,
+      "file": "github.com/JetBrains/central-cli/internal/session/token_transfer.go",
+      "line": 45,
+      "name": "github.com/JetBrains/central-cli/internal/session.ImportTokenTransfer.func1",
+      "start": 10170976
+    },
+    {
+      "end": 10174176,
+      "file": "github.com/JetBrains/central-cli/internal/session/token_transfer.go",
+      "line": 73,
+      "name": "github.com/JetBrains/central-cli/internal/session.importJCPTransfer",
+      "start": 10171872
+    },
+    {
+      "end": 10174304,
+      "file": "github.com/JetBrains/central-cli/internal/session/token_transfer.go",
+      "line": 114,
+      "name": "github.com/JetBrains/central-cli/internal/session.importJCPTransfer.func1",
+      "start": 10174176
+    },
+    {
+      "end": 10208928,
+      "file": "github.com/JetBrains/central-cli/cmd/wire/cliutil/quota.go",
+      "line": 133,
+      "name": "github.com/JetBrains/central-cli/cmd/wire/cliutil.FormatQuotaPeriod",
+      "start": 10208032
+    },
+    {
+      "end": 12791520,
+      "file": "github.com/JetBrains/central-cli/cmd/wire/commands/auth/transfer.go",
+      "line": 127,
+      "name": "github.com/JetBrains/central-cli/cmd/wire/commands/auth.readTokenTransferInput",
+      "start": 12790112
+    }
+  ]
+}

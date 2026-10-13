@@ -1,0 +1,150 @@
+[
+  {
+    "task": "01-openai-legacy",
+    "finding": "Numeric JSON with more than Decimal capacity can round during Foundation decoding",
+    "status": "documented-limit-not-expanded",
+    "evidence": "Swift6 production WalletNumericDecimal extraction reproduces rounding for a 41-significant-digit synthetic USD value; normal 19/38 digit tests and invalid-type tests pass",
+    "decision": "This round keeps the existing Foundation Decimal numeric model rather than adding a raw-JSON arbitrary-precision parser. No actual provider payload demonstrates this magnitude. The report remains archived as a known numeric representation limit; not reported as a fixed defect."
+  },
+  {
+    "task": "02-alibaba-token-plan",
+    "status": "reviewed-no-findings",
+    "decision": "Production signer/parser synthetic probes and independent signature calculation passed; root additionally found and fixed Widget visibility separately in 8c6427b. Nine real XCTest passed."
+  },
+  {
+    "task": "03-google-oauth",
+    "finding": "Transient userinfo failure loses initial completed grant and requires new authorization",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Add bounded retry to read-only userinfo, never repeat authorization-code POST. Keep unverified identity out of persistent credentials. Rename misleading classification-only test.",
+    "commit": "5c3e5e6",
+    "validation": "Twelve Google OAuth XCTest passed in /tmp/tokenpulse-wave4-cloud-providers-run.log; 55 combined tests zero failures."
+  },
+  {
+    "task": "03-google-oauth",
+    "finding": "Active transport cancellation silently hides login result",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Show retry message for cancellation while active run is still current and task is not cancelled. Actual onDisappear/new-run cancellation remains silent. Pi theory that rejecting redirect necessarily emits cancelled is not established; no such causal claim adopted.",
+    "commit": "5c3e5e6",
+    "validation": "Twelve Google OAuth XCTest passed in /tmp/tokenpulse-wave4-cloud-providers-run.log; 55 combined tests zero failures."
+  },
+  {
+    "task": "03-google-oauth",
+    "finding": "Syntactically safe but unlikely Google client ID prefixes accepted",
+    "status": "not-adopted",
+    "decision": "Validation checks safe Google suffix and redirect syntax; Google decides whether an ID exists. Do not invent undocumented prefix length/numeric format restrictions."
+  },
+  {
+    "task": "04-gemini",
+    "status": "reviewed-no-findings",
+    "decision": "Independent parser/project/identity/refresh probes passed. Root corrected a test API typo separately (5dd15e5); all 12 Gemini XCTest pass."
+  },
+  {
+    "task": "05-antigravity",
+    "finding": "Project input validation runs after OAuth and produces response error for bad input",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Validate user project before opening OAuth and before direct authorize exchange; use provider-specific validation and a useful input message.",
+    "commit": "1a7716f",
+    "validation": "713 full XCTest zero failures, including four new input/label regressions."
+  },
+  {
+    "task": "05-antigravity",
+    "finding": "Empty group displayName becomes empty scope and leading-space label",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Normalize empty/whitespace optional labels to nil or bucket ID fallback.",
+    "commit": "1a7716f",
+    "validation": "713 full XCTest zero failures, including four new input/label regressions."
+  },
+  {
+    "task": "06-kiro",
+    "finding": "Widget exhaustive switch missing Kiro",
+    "status": "already-fixed-and-tested",
+    "commit": "ca87270",
+    "decision": "Root compilation found and fixed independently; subsequent 24 Kiro and 709 full XCTest pass."
+  },
+  {
+    "task": "06-kiro",
+    "finding": "Same-expiry overage credit entries rejected",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Official schema has no pack ID or aggregation contract. Keep other quota pools and expose a stable unknown cohort with real expiry; do not add counts or fabricate per-pack identity.",
+    "commit": "92fff7b",
+    "validation": "29 Kiro XCTest pass, zero failures, /tmp/tokenpulse-wave4-kiro-pi-fix.log"
+  },
+  {
+    "task": "06-kiro",
+    "finding": "ACTIVE trial without expiry displayed without end date",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Keep valid ACTIVE quota and label expiry as unknown. Non-resetting does not imply never expires; reject/drop suggestion not adopted.",
+    "commit": "92fff7b",
+    "validation": "29 Kiro XCTest pass, zero failures, /tmp/tokenpulse-wave4-kiro-pi-fix.log"
+  },
+  {
+    "task": "06-kiro",
+    "finding": "Hardcoded service profile ARNs rather than metadata",
+    "status": "not-adopted",
+    "decision": "Locked official portal uses these same personal IdP profile mappings. Current supported IdPs match; unused meta value is not authoritative."
+  },
+  {
+    "task": "07-nous-vault",
+    "finding": "Expired pending/uncertain token retains unusable refresh secret",
+    "status": "fixed-and-xctest-verified",
+    "decision": "CAS terminal transition clears no-longer-usable refresh token; preserve no-replay and generation guards.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
+  },
+  {
+    "task": "07-nous-vault",
+    "finding": "iPhone may rebind identity on re-login unlike Watch",
+    "status": "not-adopted",
+    "decision": "Intentional account-owner behavior consistent with other providers: phone rebind clears old scope/cache; Watch authorizes against shared selected scope. Pi itself confirmed no old-scope reuse."
+  },
+  {
+    "task": "08-nous-quota-login",
+    "finding": "Device-code begin WAF response classified as invalid credentials",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Treat mitigated/rate-limited startup consistently with other Nous endpoints.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
+  },
+  {
+    "task": "08-nous-quota-login",
+    "finding": "Transient identity GET after successful device grant loses login",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Bounded read-only account retry without replaying successful device grant POST or storing unverified identity.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
+  },
+  {
+    "task": "08-nous-quota-login",
+    "finding": "Phone rebind leaves Watch silently showing old account indefinitely",
+    "status": "not-reproduced-control-flow-contradiction",
+    "decision": "Monitor binds credential against current config before network query; mismatch clears wrong-scope cache and fails explicitly. Add real merge/rebind regression; do not adopt static trace that skipped this guard.",
+    "validation": "Actual Monitor phone-rebind/Watch stale vault regression passed among 23 Nous tests."
+  },
+  {
+    "task": "root-nous-review",
+    "finding": "Rollover remaining above nominal monthly allowance inferred as zero used; zero partial count omitted; missing monthly reset marked non-resetting",
+    "status": "fixed-and-xctest-verified",
+    "decision": "Preserve unknown used/percentage, explicit zero counts, and unknown reset time rather than inventing usage or no-reset semantics.",
+    "commit": "ac6c429",
+    "validation": "23 NousPortalTests passed, zero failures, /tmp/tokenpulse-wave4-nous-tests.log"
+  },
+  {
+    "task": "regional-nous-review",
+    "finding": "After grant completion and failed identity reads, manual Continue could POST consumed device code",
+    "status": "fixed-and-xctest-verified",
+    "commit": "ac6c429",
+    "decision": "Remember consumed code until session expiry; exhausted post-grant validation clears login session. Actual DeviceLoginModel retry starts new grant and cannot replay previous code."
+  },
+  {
+    "task": "09-jetbrains-protocol",
+    "finding": "Direct AI mint renewal ignored positive server expiresAt and always used 24 hours",
+    "status": "already-fixed-and-xctest-verified",
+    "commit": "379d5dd",
+    "decision": "Both initial and direct mint now share expiry handling. Positive milliseconds are validated; missing/nonpositive sentinel retains pinned official CLI 24h client default. The default is not a claim of precise server expiry. Verified in 773 full XCTest."
+  },
+  {
+    "task": "10-jetbrains-lifecycle",
+    "status": "reviewed-no-findings",
+    "decision": "Independent production-code actor/vault/Monitor scenarios confirm candidate-only prepare, save-time activation, old active preservation, checkpoint/CAS/tombstones, no local RT replay and no stale UI rollback. Three harness failures were identified as fixture/assertion mistakes, not reported as product defects. Root actual JetBrains XCTest includes 32 cases."
+  }
+]

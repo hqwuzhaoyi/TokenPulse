@@ -2,17 +2,50 @@ import SwiftUI
 
 struct ProviderSignInView: View {
     let provider: Provider
+    var accountID: UUID = UUID()
     let completion: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var login = DeviceLoginModel()
+    @StateObject private var login: DeviceLoginModel
     @State private var attempt = 0
+
+    init(provider: Provider, accountID: UUID = UUID(), loginModel: DeviceLoginModel? = nil,
+         completion: @escaping (String) -> Void) {
+        self.provider = provider
+        self.accountID = accountID
+        self.completion = completion
+        _login = StateObject(wrappedValue: loginModel ?? DeviceLoginModel())
+    }
 
     var body: some View {
         NavigationStack {
             Group {
-                if provider == .claude {
-                    ClaudeSessionLoginView(onCredential: completion)
+                if provider == .jetBrainsAI {
+                    JetBrainsImportView(accountID: accountID, completion: completion)
+                } else if provider == .gemini {
+                    GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, validateProject: GeminiProviderClient.validateConfiguredProject, complete: { callback, pending, id, project in
+                        try await GeminiProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
+                            .authorize(callback: callback, session: pending, accountID: id, configuredProject: project)
+                    }, onCredential: completion)
+                } else if provider == .antigravity {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("需要账号已获得 Antigravity 访问权限；Google 可能拒绝自有客户端的授权或查询。")
+                            .font(.footnote).padding(.horizontal)
+                        GoogleNativeOAuthLoginView(provider: provider, accountID: accountID, requestedScopes: AntigravityProviderClient.scopes,
+                            validateProject: AntigravityProviderClient.validateConfiguredProject,
+                            complete: { callback, session, id, project in
+                                try await AntigravityProviderClient(transport: URLSessionProviderTransport.rejectingRedirects(), now: Date.init)
+                                    .authorize(callback: callback, session: session, accountID: id, configuredProject: project)
+                            }, onCredential: completion)
+                    }
+                } else if provider == .claude {
+                    ClaudeSessionLoginView(accountID: accountID, onCredential: completion)
+                } else if provider == .cursor || provider == .grokBot {
+                    CursorSessionLoginView(provider: provider, accountID: accountID, onCredential: completion)
+                } else if provider == .stepFun {
+                    StepFunSessionLoginView(accountID: accountID, onCredential: completion)
+                } else if let profile = provider.webLoginProfile {
+                    WebProviderSessionLoginView(provider: provider, profile: profile, accountID: accountID, onCredential: completion)
                 } else {
                     Form {
                         if let session = login.session {
@@ -25,8 +58,12 @@ struct ProviderSignInView: View {
                                             .textSelection(.enabled)
                                     }
                                 }
+                                if provider == .nousPortal {
+                                    Text("iPhone 与 Watch 需分别授权同一账号。授权页可能显示 Hermes CLI。")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
                                 Link(destination: session.authorizationURL) {
-                                    Label("前往 \(provider.displayName) 授权", systemImage: "safari")
+                                    Label(L10n.format("前往 %@ 授权", provider.displayName), systemImage: "safari")
                                         .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(.borderedProminent)
@@ -37,7 +74,11 @@ struct ProviderSignInView: View {
                             }
                             if login.message == nil {
                                 Section {
-                                    ProgressView(login.reconnecting ? "正在恢复连接，授权码仍然有效" : "正在等待授权结果")
+                                    if provider == .copilot {
+                                        Text("GitHub 授权页会显示 VS Code / Copilot 客户端。TokenPulse 使用其公开客户端，仅请求 read:user 权限。这是非官方接入，请手动输入本页授权码。")
+                                            .font(.footnote)
+                                    }
+                                    ProgressView(login.reconnecting ? L10n.text("正在恢复连接，授权码仍然有效") : L10n.text("正在等待授权结果"))
                                 }
                             }
                         } else if login.message == nil {
@@ -47,7 +88,7 @@ struct ProviderSignInView: View {
                             Section {
                                 Label(message, systemImage: "exclamationmark.triangle")
                                     .foregroundStyle(.orange)
-                                Button(login.session == nil ? "重新授权" : "继续等待", systemImage: "arrow.clockwise") {
+                                Button(login.session == nil ? L10n.text("重新授权") : L10n.text("继续等待"), systemImage: "arrow.clockwise") {
                                     attempt += 1
                                 }
                             }
@@ -55,11 +96,11 @@ struct ProviderSignInView: View {
                     }
                     .task(id: scenePhase == .active ? attempt : -1) {
                         guard scenePhase == .active else { return }
-                        await login.authorize(provider: provider, completion: completion)
+                        await login.authorize(provider: provider, accountID: accountID, completion: completion)
                     }
                 }
             }
-            .navigationTitle("登录 \(provider.displayName)")
+            .navigationTitle(L10n.format("登录 %@", provider.displayName))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -89,7 +130,7 @@ final class DeviceLoginModel: ObservableObject {
         self.sleep = sleep
     }
 
-    func authorize(provider: Provider, completion: (String) -> Void) async {
+    func authorize(provider: Provider, accountID: UUID? = nil, completion: (String) -> Void) async {
         guard !completed else { return }
         let runID = UUID()
         activeRunID = runID
@@ -97,12 +138,13 @@ final class DeviceLoginModel: ObservableObject {
         message = nil
         do {
             if session == nil {
-                let pending = try await controller.beginLogin(provider: provider)
+                let pending = try await controller.beginLogin(provider: provider, accountID: accountID)
                 try Task.checkCancellation()
                 guard activeRunID == runID else { return }
                 session = pending
             }
-            guard let pending = session else { return }
+            guard var pending = session else { return }
+            if provider == .copilot { try await sleep(pending.pollingInterval ?? 5) }
             var networkFailures = 0
             while !Task.isCancelled {
                 guard activeRunID == runID else { return }
@@ -128,6 +170,15 @@ final class DeviceLoginModel: ObservableObject {
                     completion(credential)
                     return
                 case .pending(let retryAfter):
+                    if provider == .copilot {
+                        pending = ProviderLoginSession(
+                            provider: pending.provider, authorizationURL: pending.authorizationURL,
+                            userCode: pending.userCode, deviceCode: pending.deviceCode, state: pending.state,
+                            codeVerifier: pending.codeVerifier, callbackURL: pending.callbackURL,
+                            pollingInterval: retryAfter, expiresAt: pending.expiresAt, metadata: pending.metadata
+                        )
+                        session = pending
+                    }
                     try await sleep(retryAfter)
                 }
             }
@@ -139,13 +190,51 @@ final class DeviceLoginModel: ObservableObject {
             case .unsupportedLogin(let reason): message = reason
             case .loginExpired:
                 session = nil
-                message = "授权已过期，请重新开始。"
-            case .network: message = "网络暂不可用，请恢复连接后继续授权。"
-            default: message = "登录未完成，请重试或检查账号授权设置。"
+                message = L10n.text("授权已过期，请重新开始。")
+            case .invalidCredential where provider == .copilot:
+                session = nil
+                message = L10n.text("GitHub 授权已拒绝或失效，请重新开始。")
+            case .network: message = L10n.text("网络暂不可用，请恢复连接后继续授权。")
+            default: message = L10n.text("登录未完成，请重试或检查账号授权设置。")
             }
         } catch {
             guard !Task.isCancelled, activeRunID == runID else { return }
-            message = "登录未完成，请重试。"
+            message = L10n.text("登录未完成，请重试。")
         }
     }
 }
+
+#if DEBUG
+extension DeviceLoginModel {
+    /// An isolated device-code flow for visual checks. No requests leave this fixture transport.
+    static func authorizationFixture(failingInitially: Bool = false) -> DeviceLoginModel {
+        DeviceLoginModel(controller: ProviderAuthenticationController(
+            transport: AuthorizationFixtureTransport(failingInitially: failingInitially)),
+            sleep: { try await Task.sleep(for: .seconds(max(1, $0))) })
+    }
+}
+
+private actor AuthorizationFixtureTransport: ProviderTransport {
+    private var remainingFailures: Int
+
+    init(failingInitially: Bool) {
+        remainingFailures = failingInitially ? 3 : 0
+    }
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        let body: String
+        if request.url?.path == "/login/device/code" {
+            body = #"{"user_code":"TEST-CODE","device_code":"visual-fixture","verification_uri":"https://github.com/login/device","expires_in":900,"interval":1}"#
+        } else {
+            if remainingFailures > 0 {
+                remainingFailures -= 1
+                throw ProviderIntegrationError.network
+            }
+            body = #"{"error":"authorization_pending"}"#
+        }
+        let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil,
+                                       headerFields: ["Content-Type": "application/json"])!
+        return (Data(body.utf8), response)
+    }
+}
+#endif

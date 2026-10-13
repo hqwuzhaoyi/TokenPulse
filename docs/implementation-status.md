@@ -1,6 +1,22 @@
 # 全部 Tickets 实现与验收记录
 
-用户于 2026-09-08 指示“先把其他的一起都实现了”，允许先开发全部功能，随后做真实账号与实机验收。任务索引中的复选框继续表示完整验收，不能以构建成功替代。
+用户于 2026-09-08 指示“先把其他的一起都实现了”，允许先开发全部功能，随后做真实账号与实机验收。早期任务索引和下方历史记录的复选框仍保留原完整验收含义；2026-10-03 提供商扩展按最新“完整实现+图标存在”标准验收，两种范围不混写。
+
+## 提供商扩展最终快照（2026-10-03）
+
+78个代码入口已集成，69张扩展票全部按“实现完成+图标存在”标准完成。原7张研究票已依据固定官方协议转入实际原生接入，未以调查或图标单独冒充实现。
+
+| 版本 | 已执行验证 | 边界 |
+| --- | --- | --- |
+| `379d5dd`，78入口 | 773项完整XCTest零失败；unsigned App、Watch、两端Widgets构建成功 | 真实账号、生产兼容、物理Watch、iCloud及完整视觉观察仍单独记录 |
+| 第四批10组Pi | 冻结源码独立回归全部交付；采用问题已修复并经实际XCTest验证 | Pi的脚本/静态审读不称作完整XCTest；误报、未采纳建议和Decimal表示上限有记录 |
+| 图标78/78 | 62个SVG映射/57套资产、16个SF映射/8种系统符号，缺失0；PBX560个定义ID唯一 | 19个通用图标不冒称官方品牌logo |
+
+日志 `/tmp/tokenpulse-wave4-final.log`，结果 `/tmp/tokenpulse-wave4-final.xcresult`，构建 `/tmp/tokenpulse-wave4-final-unsigned.log`。见[78入口表](../README.md#提供商与登录方式)、[本批Pi](../.scratch/provider-expansion/pi-wave4/README.md)、[图标验收](../.scratch/provider-expansion/icon-acceptance.md)和[统一验证记录](../.scratch/provider-expansion/validation-record.md)。
+
+Google两入口需要自配iOS OAuth client与服务资格；OpenAI Legacy仅兼容旧余额接口。Nous每设备独立device grant，JetBrains每设备独立导入官方export，两者旋转秘密留本机；共享账号配置、额度与提醒记录。此前71入口638项测试及上一批10组Pi保留为历史，不混同最新结果。
+
+下方原始功能Ticket编号与历史验证保持原意，和provider-expansion的01–69编号不是同一票据集。
 
 ## 实现映射
 

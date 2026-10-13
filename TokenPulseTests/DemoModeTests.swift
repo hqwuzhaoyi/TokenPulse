@@ -2,6 +2,23 @@ import XCTest
 @testable import TokenPulse
 
 final class DemoModeTests: XCTestCase {
+    func testNativeLanguageFallbackDoesNotChangeDemoIdentityOrQuota() throws {
+        let accounts = DemoMode.accounts()
+        let account = try XCTUnwrap(accounts.first { $0.name == "演示 · Claude" })
+        let snapshot = DemoMode.snapshot(accountID: account.id, provider: account.provider)
+        XCTAssertEqual(L10n.text("主屏幕", language: "en"), "Home")
+        XCTAssertEqual(L10n.text("主屏幕", language: "zh-Hans"), "主屏幕")
+        XCTAssertEqual(L10n.text("主屏幕", language: "fr"), "Home")
+        XCTAssertEqual(L10n.demoAccountName(account, language: "en"), "Demo · Claude")
+        XCTAssertEqual(L10n.demoAccountName(account, language: "zh-Hans"), "演示 · Claude")
+        let custom = SubscriptionAccount(name: "演示 · 我的 Claude", provider: .claude)
+        XCTAssertEqual(L10n.demoAccountName(custom, language: "en"), custom.name)
+        XCTAssertEqual(snapshot.accountID, account.id)
+        XCTAssertEqual(snapshot.windows.first?.usedPercentage, 36)
+        XCTAssertEqual(account.name, "演示 · Claude")
+        XCTAssertEqual(snapshot.windows.first?.id, "demo.five-hour")
+    }
+
     @MainActor
     func testDemoCoversEveryProviderAndSupportsAccountOperationsWithoutCredentials() async throws {
         let suite = "com.tokenpulse.tests.demo.\(UUID().uuidString)"

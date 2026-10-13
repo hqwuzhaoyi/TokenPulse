@@ -1,4 +1,7 @@
 import SwiftUI
+#if DEBUG
+import WidgetKit
+#endif
 
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -8,6 +11,7 @@ struct ContentView: View {
     @State private var accountsToDelete: [SubscriptionAccount] = []
     @State private var linkedAccount: UUID?
     @State private var selectedTab = AppTab.home
+    @State private var resetPreviewDate = Date()
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -32,6 +36,11 @@ struct ContentView: View {
                         }
                     } else {
                         List {
+                            if !runtime.isDemoMode, monitor.states.contains(where: { $0.account.provider == .codex }),
+                               let status = monitor.codexResetStatus,
+                               status.hasVisiblePreview(at: resetPreviewDate) {
+                                CodexResetSection(status: status, unavailable: monitor.codexResetUnavailable, now: resetPreviewDate)
+                            }
                             if monitor.hasPendingCredentialCleanup {
                                 Section {
                                     Button("重试凭证清理", systemImage: "arrow.clockwise.circle") {
@@ -81,7 +90,9 @@ struct ContentView: View {
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 8)
-                        .background(.regularMaterial)
+                        .modifier(FloatingGlassSurface())
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
                     }
                 }
                 .toolbar {
@@ -93,12 +104,12 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $showingAddAccount) {
-                    AddAccountView(isDemoMode: runtime.isDemoMode) { name, key, provider in
+                    AddAccountView(isDemoMode: runtime.isDemoMode, existingProviders: Set(monitor.states.map { $0.account.provider })) { name, key, provider, accountID in
                         let previousCount = monitor.states.count
-                        await monitor.addAccount(name: name, credential: key, provider: provider)
+                        await monitor.addAccount(name: name, credential: key, provider: provider, accountID: accountID)
                         return monitor.states.count > previousCount
                     }
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
                 }
             }
@@ -115,7 +126,11 @@ struct ContentView: View {
         }
         .disabled(runtime.isSwitchingMode)
         .overlay {
-            if runtime.isSwitchingMode { ProgressView("正在切换模式") }
+            if runtime.isSwitchingMode {
+                ProgressView("正在切换模式")
+                    .padding(24)
+                    .modifier(FloatingGlassSurface())
+            }
         }
         .confirmationDialog("删除账号？", isPresented: Binding(
             get: { !accountsToDelete.isEmpty },
@@ -150,10 +165,15 @@ struct ContentView: View {
                 selectedTab = .home
             }
         }
+        .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { date in
+            resetPreviewDate = date
+        }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
+            resetPreviewDate = Date()
             Task { await monitor.applicationDidBecomeActive() }
         }
+        .modifier(AuthorizationFixturePresentation())
     }
 }
 
@@ -176,454 +196,422 @@ private struct AddAccountButton: View {
     }
 }
 
-private struct AccountQuotaView: View {
-    @Environment(\.editMode) private var editMode
-    let state: AccountQuotaState
-    let walletCurrency: String?
-    let isRefreshing: Bool
-    let refresh: () async -> Void
-    @State private var isExpanded = false
+/// Glass belongs to the floating controls; data surfaces remain opaque and legible.
+private struct FloatingGlassSurface: ViewModifier {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if reduceTransparency || contrast == .increased {
+            content.background(Color(uiColor: .secondarySystemBackground),
+                               in: RoundedRectangle(cornerRadius: 20))
+        } else if #available(iOS 26.0, *) {
+            content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 20))
+        } else {
+            content.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+        }
+    }
+}
+
+private struct CodexResetSection: View {
+    let status: CodexResetStatus?
+    let unavailable: Bool
+    var now: Date = Date()
 
     var body: some View {
-        // Keep the disclosure content inside one List row, including during drag and delete.
-        VStack {
-            if editMode?.wrappedValue.isEditing == true {
-                AccountSummaryView(state: state, walletCurrency: walletCurrency)
-            } else {
-                DisclosureGroup(isExpanded: $isExpanded) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        if let snapshot = state.snapshot {
-                            if let plan = snapshot.subscriptionPlan, state.account.provider == .codex {
-                                LabeledContent("套餐", value: plan.displayName)
+        if let status, status.hasVisiblePreview(at: now) {
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let reset = status.data.scheduledReset {
+                        Label(L10n.text(reset.resetType == "banked" ? "重置次数发放预告" : "已公告 · 等待执行"), systemImage: "calendar.badge.clock")
+                            .font(.subheadline.weight(.semibold))
+                        if let date = reset.scheduledFor {
+                            Text(L10n.format("预定时间：%@", CodexResetStatus.dateText(date)))
+                            if date <= now {
+                                Text("预定时间已过，尚未确认执行。")
+                                    .foregroundStyle(Color.secondary)
                             }
-                            let detailWindows = snapshot.windows(for: state.account.provider, surface: .detail)
-                            ForEach(detailWindows) { window in
-                                if window.scope == nil || state.account.provider == .qoderInternational {
-                                    QuotaWindowView(window: window)
-                                } else {
-                                    LabeledContent(
-                                        window.displayName,
-                                        value: QuotaFormatting.usage(window)
-                                    )
-                                }
-                                if window.id != detailWindows.last?.id {
-                                    Divider()
-                                }
-                            }
-                            if state.account.provider == .codex {
-                                LabeledContent(
-                                    "可手动重置",
-                                    value: QuotaFormatting.remainingResets(snapshot.remainingResetCount)
-                                )
-                            }
-                            // The collapsed summary above already carries the 余额不足 / 额度已用尽 badge.
-                            Text("更新于 \(snapshot.collectedAt.formatted(date: .abbreviated, time: .shortened))")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("重置时间待定")
                         }
-                        if let failure = state.lastFailure {
-                            Label(
-                                QuotaFormatting.refreshFailure(failure, hasSnapshot: state.snapshot != nil),
-                                systemImage: "exclamationmark.triangle"
-                            )
-                            .font(.caption)
-                            .foregroundStyle(.orange)
+                        Text(reset.text).font(.subheadline)
+                    } else if let watch = status.activeWatch(at: now) {
+                        Label("AI 重置预测 · 非官方承诺", systemImage: "sparkles")
+                            .font(.subheadline.weight(.semibold))
+                        Text(L10n.format("预测时段：%@", watch.forecastWindow))
+                        if let chance = CodexResetStatus.chanceText(watch.resetChancePercent) {
+                            Text(L10n.format("预测概率 %@", chance))
                         }
-
-                        HStack {
-                            Text(isRefreshing ? "正在获取最新额度" : "刷新这个账号")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            AccountRefreshButton(
-                                accountName: state.account.name,
-                                isRefreshing: isRefreshing,
-                                refresh: refresh
-                            )
-                        }
+                        Text(watch.text).font(.subheadline)
+                        Text(L10n.format("有效至 %@", CodexResetStatus.dateText(watch.expiresAt)))
+                            .font(.caption).foregroundStyle(Color.secondary)
                     }
-                    .padding(.top, 8)
-                } label: {
-                    AccountSummaryView(state: state, walletCurrency: walletCurrency)
+                    if let latest = status.data.latestReset {
+                        Text(L10n.format(latest.resetType == "banked" ? "来源最近报告发放重置次数：%@" : "来源最近报告重置：%@",
+                                         CodexResetStatus.dateText(latest.announcedAt)))
+                            .font(.caption).foregroundStyle(Color.secondary)
+                    }
+                    Text(L10n.format("数据更新于 %@", CodexResetStatus.dateText(status.meta.generatedAt)))
+                        .font(.caption).foregroundStyle(Color.secondary)
+                    if unavailable {
+                        Text("重置预告暂时无法更新，当前显示上次数据")
+                            .font(.caption).foregroundStyle(Color.secondary)
+                    }
                 }
-                .disclosureGroupStyle(AccountDisclosureStyle())
+            } header: {
+                Text("Codex 重置预告")
+            } footer: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("开启通知及 Codex 账号的重置提醒后，刷新发现新预告时提醒。后台检查时间由系统安排。")
+                    Text("公告与预测来自第三方来源，不代表 OpenAI 官方承诺；实际额度以账号刷新结果为准。")
+                    Link("数据来源：Codex Resets", destination: CodexResetStatus.sourceURL)
+                        .foregroundStyle(Color.secondary)
+                        .accessibilityHint(L10n.format("打开数据来源 %@", CodexResetStatus.sourceURL.absoluteString))
+                }
             }
         }
     }
 }
 
-private struct AccountDisclosureStyle: DisclosureGroupStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+#if DEBUG
+/// Launch-only fixture routing for the isolated UI acceptance harness.
+/// Release builds contain no authorization fixture routes or transports.
+private struct AuthorizationFixturePresentation: ViewModifier {
+    @Environment(\.acceptanceRoutesDisabled) private var acceptanceRoutesDisabled
+    @State private var fixture: AuthorizationFixture?
+    @State private var checkedArguments = false
+    @State private var quotaFixture: QuotaAcceptanceFixture?
+    @State private var widgetFixture: WidgetAcceptanceFixture?
+    @State private var accountFixture = false
+    @State private var codexFixture: CodexAcceptanceScenario?
 
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Button {
-                withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) {
-                    configuration.isExpanded.toggle()
-                }
-            } label: {
-                HStack {
-                    configuration.label
-                    Image(systemName: "chevron.right")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(configuration.isExpanded ? 90 : 0))
-                        .accessibilityHidden(true)
-                }
-                .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-            .accessibilityValue(configuration.isExpanded ? "已展开" : "已收起")
-
-            QuotaDetailsLayout(expansion: configuration.isExpanded ? 1 : 0) {
-                configuration.content
-            }
-            .clipped()
-            .opacity(configuration.isExpanded ? 1 : 0)
-            .allowsHitTesting(configuration.isExpanded)
-            .accessibilityHidden(!configuration.isExpanded)
-        }
-    }
-}
-
-// Report the visible height on each animation frame so List moves the following rows with it.
-struct QuotaDetailsLayout: Layout {
-    var expansion: CGFloat
-
-    var animatableData: CGFloat {
-        get { expansion }
-        set { expansion = newValue }
-    }
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let size = subviews[0].sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
-        return CGSize(width: size.width, height: size.height * expansion)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        subviews[0].place(at: bounds.origin, anchor: .topLeading,
-                          proposal: ProposedViewSize(width: bounds.width, height: nil))
-    }
-}
-
-private struct AccountSummaryView: View {
-    let state: AccountQuotaState
-    let walletCurrency: String?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                ProviderIcon(provider: state.account.provider, size: 24)
-                    .foregroundStyle(.primary)
-                    .frame(width: 42, height: 42)
-                    .background(.quaternary, in: .circle)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(state.account.name)
-                        .font(.headline)
-                    Text(providerDescription)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                if state.lastFailure != nil {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
-                        .accessibilityLabel("上次刷新失败")
-                }
-            }
-
-            if let snapshot = state.snapshot {
-                Divider()
-                let summaryWindows = snapshot.windows(for: state.account.provider, surface: .summary)
-                if state.account.provider == .deepSeek {
-                    if let currency = selectedWalletCurrency(in: summaryWindows),
-                       let window = summaryWindows.first(where: { $0.wallet?.currency == currency }) {
-                        CompactQuotaWindowView(window: window)
-                    } else if let currency = walletCurrency {
-                        Text("所选币种 \(currency) 未提供")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("未返回钱包余额")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    if snapshot.walletAvailable == false {
-                        Label(QuotaFormatting.walletUnavailableBadge, systemImage: "exclamationmark.circle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
-                } else {
-                    ForEach(summaryWindows) { window in
-                        CompactQuotaWindowView(window: window)
-                    }
-                }
-                if snapshot.quotaExceeded == true {
-                    Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                }
-            } else {
-                Label("尚无额度数据", systemImage: "chart.bar.xaxis")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-        }
-        .padding(.vertical, 6)
-        .contentShape(.rect)
-    }
-
-    private var providerDescription: String {
-        guard state.account.provider == .codex,
-              let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
-        return "\(state.account.provider.displayName) · \(plan.displayName)"
-    }
-
-    private func selectedWalletCurrency(in windows: [QuotaWindow]) -> String? {
-        walletCurrency ?? windows.compactMap(\.wallet?.currency).first
-    }
-}
-
-private struct CompactQuotaWindowView: View {
-    let window: QuotaWindow
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            LabeledContent {
-                Text(usedValue)
-                    .bold()
-                    .monospacedDigit()
-            } label: {
-                Text(window.displayName)
-                    .font(.subheadline)
-            }
-            if window.wallet == nil {
-                LabeledContent(
-                    window.expiresAt == nil ? "下次重置" : "到期时间",
-                    value: QuotaFormatting.resetDate(window.expiresAt ?? window.resetsAt)
+    func body(content: Content) -> some View {
+        content
+            .sheet(item: $fixture) { fixture in
+                ProviderSignInView(
+                    provider: fixture.provider,
+                    accountID: UUID(uuidString: "FA000000-0000-0000-0000-000000000003")!,
+                    loginModel: fixture.isDevice
+                        ? DeviceLoginModel.authorizationFixture(failingInitially: fixture == .deviceRecovery)
+                        : nil,
+                    completion: { _ in }
                 )
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .environment(\.openURL, OpenURLAction { _ in .handled })
             }
-        }
-    }
-
-    private var usedValue: String {
-        if let wallet = window.wallet {
-            return QuotaFormatting.money(wallet.total, currency: wallet.currency)
-        }
-        return QuotaFormatting.usage(window)
-    }
-}
-
-private struct AccountRefreshButton: View {
-    let accountName: String
-    let isRefreshing: Bool
-    let refresh: () async -> Void
-
-    var body: some View {
-        Group {
-            if #available(iOS 26.0, *) {
-                button.buttonStyle(.glass)
-            } else {
-                button.buttonStyle(.borderless)
+            .sheet(item: $quotaFixture) { fixture in
+                QuotaAcceptanceFixtureView(fixture: fixture)
             }
-        }
-        .disabled(isRefreshing)
-        .accessibilityLabel("刷新 \(accountName)")
-    }
-
-    private var button: some View {
-        Button {
-            Task { await refresh() }
-        } label: {
-            if isRefreshing {
-                ProgressView()
-            } else {
-                Image(systemName: "arrow.clockwise")
+            .sheet(item: $widgetFixture) { fixture in
+                WidgetAcceptanceFixtureView(fixture: fixture)
             }
-        }
-        .frame(width: 44, height: 44)
-    }
-}
-
-struct QuotaWindowView: View {
-    let window: QuotaWindow
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("\(window.name)详情")
-                .font(.subheadline)
-                .bold()
-
-            if let scope = window.scope {
-                LabeledContent("范围", value: scope)
-            }
-
-            if let wallet = window.wallet {
-                WalletBalanceView(balance: wallet)
-            } else if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
-                ProgressView(value: min(max(percentage, 0), 100), total: 100)
-                    .accessibilityLabel("\(window.name)已用额度")
-                    .accessibilityValue(QuotaFormatting.percentage(percentage))
-            }
-
-            if let remaining = window.remainingCount {
-                LabeledContent("剩余", value: remainingValue(remaining))
-            } else if let total = window.totalCount {
-                LabeledContent("总量", value: QuotaFormatting.count(total, unit: window.unit))
-            }
-
-            if let expiresAt = window.expiresAt {
-                LabeledContent("到期时间", value: QuotaFormatting.resetDate(expiresAt))
-            } else {
-                TimelineView(.periodic(from: .now, by: 60)) { context in
-                    if window.needsUpdate(at: context.date) {
-                        Label("已到预计重置时间，等待刷新确认", systemImage: "clock.badge.exclamationmark")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
+            .sheet(isPresented: $accountFixture) { AccountAcceptanceFixtureView() }
+            .sheet(item: $codexFixture) { CodexAcceptanceFixtureView(scenario: $0).interactiveDismissDisabled() }
+            .onAppear {
+                guard !acceptanceRoutesDisabled, !checkedArguments else { return }
+                checkedArguments = true
+                let arguments = ProcessInfo.processInfo.arguments
+                if let marker = arguments.firstIndex(of: "-TokenPulseCodexFixture"),
+                   arguments.indices.contains(marker + 1) {
+                    codexFixture = CodexAcceptanceScenario(rawValue: arguments[marker + 1])
+                } else if arguments.contains("-TokenPulseAccountFixture") {
+                    accountFixture = true
+                } else if let marker = arguments.firstIndex(of: "-TokenPulseAuthorizationFixture"),
+                   arguments.indices.contains(marker + 1) {
+                    fixture = AuthorizationFixture(rawValue: arguments[marker + 1])
+                } else if let marker = arguments.firstIndex(of: "-TokenPulseQuotaFixture"),
+                          arguments.indices.contains(marker + 1) {
+                    quotaFixture = QuotaAcceptanceFixture(rawValue: arguments[marker + 1])
+                } else if let marker = arguments.firstIndex(of: "-TokenPulseWidgetFixture"),
+                          arguments.indices.contains(marker + 1),
+                          WidgetDebugFixture.supportedScenarios.contains(arguments[marker + 1]) {
+                    let familyMarker = arguments.firstIndex(of: "-TokenPulseWidgetFamily")
+                    let familyName = familyMarker.flatMap { arguments.indices.contains($0 + 1) ? arguments[$0 + 1] : nil } ?? "small"
+                    widgetFixture = WidgetAcceptanceFixture(scenario: arguments[marker + 1], familyName: familyName)
                 }
             }
+    }
+}
+
+private enum AuthorizationFixture: String, Identifiable {
+    case google, jetbrains, device, deviceRecovery
+    var id: String { rawValue }
+    var isDevice: Bool { self == .device || self == .deviceRecovery }
+    var provider: Provider {
+        switch self {
+        case .google: .gemini
+        case .jetbrains: .jetBrainsAI
+        case .device, .deviceRecovery: .copilot
         }
-        .padding(.vertical, 4)
-    }
-
-    private func remainingValue(_ remaining: Double) -> String {
-        guard let total = window.totalCount else { return QuotaFormatting.count(remaining, unit: window.unit) }
-        let values = "\(QuotaFormatting.count(remaining)) / \(QuotaFormatting.count(total))"
-        guard let unit = window.unit, !unit.isEmpty else { return values }
-        return "\(values) \(unit)"
     }
 }
 
-struct WalletBalanceView: View {
-    let balance: WalletBalance
-
-    var body: some View {
-        LabeledContent("总可用余额", value: QuotaFormatting.money(balance.total, currency: balance.currency))
-        LabeledContent("赠送余额", value: QuotaFormatting.money(balance.granted, currency: balance.currency))
-        LabeledContent("充值余额", value: QuotaFormatting.money(balance.toppedUp, currency: balance.currency))
+private enum QuotaAcceptanceFixture: String, Identifiable {
+    case wallet, budget, credits, gpu, hybrid, dateOnly, legacy
+    case characters, hours, unknownUnits, modelNames, manusRefill, ownedScope, payAsYouGo, teamPlan
+    var id: String { rawValue }
+    var provider: Provider {
+        switch self {
+        case .wallet: .deepSeek
+        case .budget: .chutes
+        case .credits: .poe
+        case .gpu: .huggingFace
+        case .hybrid: .xiaomiCodingPlan
+        case .dateOnly: .copilot
+        case .legacy: .miniMaxChina
+        case .characters: .elevenLabs
+        case .hours: .amp
+        case .unknownUnits, .modelNames: .antigravity
+        case .manusRefill: .manus
+        case .ownedScope: .aixy
+        case .payAsYouGo: .devPass
+        case .teamPlan: .xaiAPI
+        }
     }
 }
 
-private struct AddAccountView: View {
+private struct QuotaAcceptanceFixtureView: View {
+    let fixture: QuotaAcceptanceFixture
     @Environment(\.dismiss) private var dismiss
-    @State private var name = ""
-    @State private var key = ""
-    @State private var provider = Provider.miniMaxChina
-    @State private var saving = false
-    @State private var showingLogin = false
-    @State private var loginMessage: String?
-    let isDemoMode: Bool
-    let save: (String, String, Provider) async -> Bool
+
+    private var supplementalSnapshot: QuotaSnapshot? {
+        let id = UUID(uuidString: "FA000000-0000-0000-0000-000000000004")!
+        let now = Date(timeIntervalSince1970: 1_791_691_200)
+        switch fixture {
+        case .characters:
+            return .init(accountID: id, windows: try! ElevenLabsProviderClient.windows(Data(#"{"character_count":1,"character_limit":3}"#.utf8)), collectedAt: now)
+        case .hours:
+            let text = "Amp Megawatt Tier: agent usage $18.57 of $20 remaining (93%), orb usage 1h of 3h a1.small orb hours remaining (33%) - period 2026-09-13 to 2026-10-13, resets upon renewal in 27 days"
+            return try! AmpProviderClient.snapshot(JSONSerialization.data(withJSONObject: ["ok": true, "result": ["displayText": text]]), accountID: id, collectedAt: now)
+        case .unknownUnits:
+            return try! AntigravityProviderClient.snapshot(Data(#"{"groups":[{"buckets":[{"bucketId":"amount","displayName":"Original model 原文","remainingAmount":"1"}]}]}"#.utf8), accountID: id, collectedAt: now)
+        case .modelNames:
+            return try! AntigravityProviderClient.snapshot(Data(#"{"groups":[{"buckets":[{"bucketId":"enabled","displayName":"原始模型（未启用）","remainingFraction":0.5},{"bucketId":"disabled","displayName":"原始模型（未启用）","disabled":true,"remainingFraction":0.5}]}]}"#.utf8), accountID: id, collectedAt: now)
+        case .manusRefill:
+            return try! ManusProviderClient.snapshot(Data(#"{"refreshCredits":1,"maxRefreshCredits":3,"refreshInterval":"weekly"}"#.utf8), accountID: id, collectedAt: now)
+        case .ownedScope:
+            let budget: [String: Any] = ["id": "a", "scope": "team", "target_name": "Original target 原文", "shared": true,
+                "interval": "monthly", "enforcement": "monitor", "limit_usd": "10",
+                "applies_to": [["api_key_id": "key-a", "project_id": "project-a"]],
+                "spend_status": "available", "spend_usd": "1"]
+            let data = try! JSONSerialization.data(withJSONObject: ["object": "key.usage", "currency": "USD",
+                "key": ["id": "key-a", "project_id": "project-a"], "budgets": [budget]])
+            return try! AixyProviderClient.snapshot(data, accountID: id, collectedAt: now)
+        case .payAsYouGo:
+            return try! DevPassProviderClient.snapshot(Data(#"{"data":{"devPlan":"none","usage":"1","limit":"10"}}"#.utf8), accountID: id, collectedAt: now)
+        case .teamPlan:
+            return try! XAIAPIProviderClient.snapshot(Data(#"{"total":{"val":"-1234"}}"#.utf8), accountID: id, teamID: "original-team-原文", collectedAt: now)
+        default: return nil
+        }
+    }
+
+    private var windows: [QuotaWindow] {
+        if let supplementalSnapshot { return supplementalSnapshot.windows }
+        let time = Date(timeIntervalSince1970: 1_791_691_200)
+        var windows = DemoMode.snapshot(
+            accountID: UUID(uuidString: "FA000000-0000-0000-0000-000000000004")!,
+            provider: fixture.provider, now: time
+        ).windows
+        if fixture == .dateOnly {
+            windows = [QuotaWindow(
+                id: "copilot.premium_interactions", name: "Premium requests", scope: nil,
+                period: .monthly, usedPercentage: 25, remainingCount: nil, totalCount: nil,
+                resetsAt: time.addingTimeInterval(12 * 86_400), unit: "次",
+                exactCounts: DecimalQuotaCounts(used: 25, remaining: 75, total: 100),
+                resetDatePrecision: .day
+            )]
+        } else if fixture == .legacy {
+            windows = [QuotaWindow(id: "MiniMax-M2.5.interval", name: "5 小时额度", scope: "MiniMax-M2.5",
+                                   period: .fiveHour, usedPercentage: 36, remainingCount: nil,
+                                   totalCount: nil, resetsAt: time)]
+        }
+        return windows
+    }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("服务") {
-                    Picker("提供商", selection: $provider) {
-                        ForEach(Provider.allCases) { provider in
-                            Label {
-                                Text(provider.displayName)
-                            } icon: {
-                                ProviderIcon(provider: provider, size: 20)
-                            }
-                            .tag(provider)
-                        }
+            List {
+                if [.payAsYouGo, .teamPlan].contains(fixture), let snapshot = supplementalSnapshot {
+                    AccountQuotaView(state: .init(account: .init(id: snapshot.accountID, name: "Original account 原文", provider: fixture.provider), snapshot: snapshot),
+                                     walletCurrency: nil, isRefreshing: false, refresh: {})
+                } else {
+                    ForEach(windows) { window in
+                        QuotaWindowView(window: window, provider: fixture.provider)
                     }
-                }
-
-                Section {
-                    TextField("例如：工作账号", text: $name)
-                        .textContentType(.nickname)
-                } header: {
-                    Text("账号名称")
-                } footer: {
-                    Text("名称只用于区分你自己的多个服务账号。")
-                }
-
-                Section {
-                    if isDemoMode {
-                        Label("使用示例数据，无需登录或 API Key。", systemImage: "play.circle")
-                    } else if usesAPIKey {
-                        SecureField(credentialLabel, text: $key)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .submitLabel(.done)
-                    } else {
-                        Button(key.isEmpty ? "登录 \(provider.displayName)" : "重新登录", systemImage: "person.crop.circle.badge.checkmark") {
-                            showingLogin = true
-                        }
-                        if !key.isEmpty {
-                            Label("授权已完成", systemImage: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                        }
-                    }
-                    if let loginMessage {
-                        Label(loginMessage, systemImage: "exclamationmark.circle")
-                            .foregroundStyle(.red)
-                    }
-                } header: {
-                    Text(isDemoMode ? "演示账号" : "登录凭证")
-                } footer: {
-                    Text(isDemoMode ? "新账号仅在演示模式中使用。" : "凭证保存在系统安全存储中，不会写入额度数据或日志。")
                 }
             }
-            .navigationTitle("添加账号")
-            .navigationBarTitleDisplayMode(.inline)
-            .scrollDismissesKeyboard(.interactively)
-            .interactiveDismissDisabled(saving)
+            .navigationTitle(fixture.provider.displayName)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }.disabled(saving)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
-                        saving = true
-                        Task {
-                            do {
-                                let credential = isDemoMode ? "demo" : usesAPIKey
-                                    ? try ProviderAuthenticationController().credential(provider: provider, apiKey: key)
-                                    : key
-                                guard await save(isDemoMode ? "演示 · \(name)" : name, credential, provider) else {
-                                    loginMessage = "账号未保存，请重试。"
-                                    saving = false
-                                    return
-                                }
-                            } catch {
-                                loginMessage = "无法保存登录凭证"
-                                saving = false
-                                return
-                            }
-                            saving = false
-                            dismiss()
-                        }
-                    }
-                    .disabled(saving || name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                              || (!isDemoMode && key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
-                }
-                if saving {
-                    ToolbarItem(placement: .status) { ProgressView() }
-                }
-            }
-            .onChange(of: provider) { _, _ in key = ""; loginMessage = nil }
-            .sheet(isPresented: $showingLogin) {
-                ProviderSignInView(provider: provider) { credential in
-                    key = credential
-                    showingLogin = false
-                }
+                ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
             }
         }
     }
+}
 
-    private var usesAPIKey: Bool {
-        if case .apiKey = ProviderAuthenticationController().loginConfiguration(for: provider).method { return true }
-        return false
+private struct WidgetAcceptanceFixture: Identifiable {
+    let scenario: String
+    let familyName: String
+    var id: String { scenario + "." + familyName }
+    var family: WidgetFamily {
+        switch familyName {
+        case "medium": .systemMedium
+        case "large": .systemLarge
+        case "rectangular": .accessoryRectangular
+        case "circular": .accessoryCircular
+        case "inline": .accessoryInline
+        default: .systemSmall
+        }
     }
-
-    private var credentialLabel: String {
-        ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
+    var presentationFamily: WidgetPresentationFamily {
+        family == .systemLarge ? .large : family == .systemMedium ? .medium : .single
+    }
+    var size: CGSize {
+        switch familyName {
+        case "medium": CGSize(width: 338, height: 158)
+        case "large": CGSize(width: 338, height: 354)
+        case "rectangular": CGSize(width: 160, height: 72)
+        case "circular": CGSize(width: 76, height: 76)
+        case "inline": CGSize(width: 260, height: 30)
+        default: CGSize(width: 158, height: 158)
+        }
     }
 }
+
+private struct WidgetAcceptanceFixtureView: View {
+    let fixture: WidgetAcceptanceFixture
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            QuotaWidgetView(entry: WidgetDebugFixture.entry(scenario: fixture.scenario, family: fixture.presentationFamily), familyOverride: fixture.family)
+                // WidgetKit supplies standard home-screen content margins in its real host.
+                .padding(["small", "medium", "large"].contains(fixture.familyName) ? 16 : 0)
+                .frame(width: fixture.size.width, height: fixture.size.height)
+                .background(.black)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding()
+                .navigationTitle("TokenPulse")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+                }
+        }
+    }
+}
+
+private struct AccountAcceptanceFixtureView: View {
+    @StateObject private var monitor = DemoMode.makeMonitor(suiteName: "com.tokenpulse.i18n.account.\(UUID().uuidString)")
+    @State private var showingForm = true
+    @State private var savedAccountID: UUID?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if let id = savedAccountID, let state = monitor.states.first(where: { $0.id == id }) {
+                    AccountQuotaView(state: state, walletCurrency: nil, isRefreshing: false,
+                                     refresh: { await monitor.refresh(accountID: id) })
+                }
+            }
+            .navigationTitle("TokenPulse")
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } } }
+            .sheet(isPresented: $showingForm) {
+                AddAccountView(isDemoMode: false, existingProviders: []) { name, credential, provider, id in
+                    await monitor.addAccount(name: name, credential: credential, provider: provider, accountID: id)
+                    let saved = monitor.states.contains { $0.id == id }
+                    if saved { savedAccountID = id }
+                    return saved
+                }
+            }
+            .task { await monitor.start(refresh: false) }
+        }
+    }
+}
+private struct AcceptanceRoutesDisabledKey: EnvironmentKey {
+    nonisolated static let defaultValue = false
+}
+
+private extension EnvironmentValues {
+    var acceptanceRoutesDisabled: Bool {
+        get { self[AcceptanceRoutesDisabledKey.self] }
+        set { self[AcceptanceRoutesDisabledKey.self] = newValue }
+    }
+}
+
+private enum CodexAcceptanceScenario: String, Identifiable {
+    case scheduled, forecast, empty, historyOnly, expired, canceled, retainedFailure
+    var id: String { rawValue }
+}
+
+@MainActor
+private final class CodexAcceptanceSequence {
+    let scenario: CodexAcceptanceScenario
+    let now = Date()
+    private var calls = 0
+
+    init(scenario: CodexAcceptanceScenario) { self.scenario = scenario }
+
+    func next() throws -> CodexResetStatus {
+        calls += 1
+        if scenario == .retainedFailure, calls > 1 { throw URLError(.notConnectedToInternet) }
+        let announcement = CodexResetStatus.Announcement(
+            id: "fixture-announcement", resetType: "usage", announcedAt: now.addingTimeInterval(-120),
+            scheduledFor: now.addingTimeInterval(-60), text: "Original announcement 原文")
+        let watch = CodexResetStatus.Watch(
+            level: "high", resetChancePercent: 75, forecastWindow: "Original window 原文",
+            observedAt: now, expiresAt: now.addingTimeInterval(scenario == .expired ? -60 : 900),
+            text: "Original prediction 原文")
+        let empty = scenario == .empty || (scenario == .canceled && calls > 1)
+        return CodexResetStatus(
+            data: .init(latestReset: scenario == .historyOnly ? announcement : nil,
+                        scheduledReset: scenario == .scheduled ? announcement : nil,
+                        activeWatch: !empty && [.forecast, .expired, .canceled, .retainedFailure].contains(scenario) ? watch : nil),
+            meta: .init(generatedAt: now))
+    }
+}
+
+private struct CodexAcceptanceFixtureView: View {
+    @StateObject private var monitor: QuotaMonitor
+    @StateObject private var runtime: AppRuntime
+    @State private var ready = false
+    private let sequence: CodexAcceptanceSequence
+
+    init(scenario: CodexAcceptanceScenario) {
+        let suite = "com.tokenpulse.i18n.codex.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.set(false, forKey: "cloudSyncEnabled")
+        let account = DemoMode.accounts().first { $0.provider == .codex }!
+        let state = AccountQuotaState(account: account, snapshot: DemoMode.snapshot(accountID: account.id, provider: .codex))
+        defaults.set(try? JSONEncoder().encode([state]), forKey: "accountQuotaStates")
+        defaults.set(try? JSONEncoder().encode([AccountConfiguration(account: account)]), forKey: "accountConfigurations")
+        _monitor = StateObject(wrappedValue: DemoMode.makeMonitor(suiteName: suite))
+        let runtimeDefaults = UserDefaults(suiteName: suite + ".runtime")!
+        runtimeDefaults.set(false, forKey: "cloudSyncEnabled")
+        _runtime = StateObject(wrappedValue: AppRuntime(defaultsSuiteName: suite + ".runtime",
+                                                       demoSuiteName: suite + ".demo",
+                                                       widgetStore: WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite + ".widgets"))))
+        sequence = CodexAcceptanceSequence(scenario: scenario)
+    }
+
+    var body: some View {
+        Group {
+            if ready {
+                ContentView(monitor: monitor, runtime: runtime)
+                    .environment(\.acceptanceRoutesDisabled, true)
+                    .environment(\.openURL, OpenURLAction { _ in .handled })
+            } else { ProgressView() }
+        }
+        .task {
+            guard !ready else { return }
+            await monitor.start(refresh: false)
+            monitor.fetchCodexResets = { try sequence.next() }
+            if let accountID = monitor.states.first?.id { await monitor.refresh(accountID: accountID) }
+            ready = true
+        }
+    }
+}
+
+#else
+private struct AuthorizationFixturePresentation: ViewModifier {
+    func body(content: Content) -> some View { content }
+}
+#endif

@@ -6,17 +6,31 @@ struct AccountReminderSettings: Codable, Equatable, Sendable {
     var thresholds: [Double]
     var walletCurrency: String?
     var walletThresholds: [String: Decimal]?
+    /// nil retains the historical shared quota/wallet toggle for existing accounts.
+    var walletAlertsEnabled: Bool?
+    var effectiveWalletAlertsEnabled: Bool { walletAlertsEnabled ?? quotaAlertsEnabled }
 
     init(quotaAlertsEnabled: Bool = true,
          resetRemindersEnabled: Bool = true,
          thresholds: [Double] = [80, 95, 100],
          walletCurrency: String? = nil,
-         walletThresholds: [String: Decimal]? = nil) {
+         walletThresholds: [String: Decimal]? = nil,
+         walletAlertsEnabled: Bool? = nil) {
         self.quotaAlertsEnabled = quotaAlertsEnabled
         self.resetRemindersEnabled = resetRemindersEnabled
         self.thresholds = thresholds
         self.walletCurrency = walletCurrency
         self.walletThresholds = walletThresholds
+        self.walletAlertsEnabled = walletAlertsEnabled
+    }
+
+    mutating func setQuotaAlertsEnabled(_ enabled: Bool, provider: Provider) {
+        // On first editing a mixed account, freeze the previously effective
+        // wallet preference before the legacy nil fallback can follow quota.
+        if provider.balancePresentation == .mixed, walletAlertsEnabled == nil {
+            walletAlertsEnabled = effectiveWalletAlertsEnabled
+        }
+        quotaAlertsEnabled = enabled
     }
 
     func walletThreshold(for currency: String) -> Decimal {
@@ -32,6 +46,7 @@ enum ReminderNotificationKind: String, Codable, Equatable, Sendable {
     case expectedReset
     case confirmedReset
     case walletAlert
+    case codexResetPreview
 }
 
 struct ReminderNotification: Codable, Equatable, Sendable {
@@ -59,16 +74,22 @@ struct ReminderLedger: Codable, Equatable, Sendable {
     private var windowCycles: [WindowCycleState] = []
     private var pendingResetSchedules: [PendingResetSchedule] = []
     private var walletAlerts: [WalletAlertState]?
+    private var credentialIdentities: [UUID: String]?
+    private var quotaObservationTimes: [UUID: Date]?
 
     init() {}
 
     func merging(_ remote: ReminderLedger) -> ReminderLedger {
         var result = self
-        result.quotaAlerts.formUnion(remote.quotaAlerts)
-        result.expectedResets.formUnion(remote.expectedResets)
-        result.confirmedResets.formUnion(remote.confirmedResets)
+        func compatible(_ accountID: UUID) -> Bool {
+            guard let identity = result.credentialIdentities?[accountID] else { return true }
+            return remote.credentialIdentities?[accountID] == identity
+        }
+        result.quotaAlerts.formUnion(remote.quotaAlerts.filter { compatible($0.accountID) })
+        result.expectedResets.formUnion(remote.expectedResets.filter { compatible($0.accountID) })
+        result.confirmedResets.formUnion(remote.confirmedResets.filter { compatible($0.accountID) })
 
-        for state in remote.windowCycles {
+        for state in remote.windowCycles where compatible(state.accountID) {
             guard let local = result.cycleState(accountID: state.accountID, windowID: state.windowID) else {
                 result.setCycleState(state)
                 continue
@@ -78,7 +99,7 @@ struct ReminderLedger: Codable, Equatable, Sendable {
             }
         }
 
-        for state in remote.walletAlerts ?? [] {
+        for state in remote.walletAlerts ?? [] where compatible(state.accountID) {
             let local = result.walletAlertState(accountID: state.accountID, currency: state.currency)
             if local == nil || state.observedAt > local!.observedAt
                 || (state.observedAt == local!.observedAt && state.isActive) {
@@ -86,8 +107,41 @@ struct ReminderLedger: Codable, Equatable, Sendable {
             }
         }
 
+        for (accountID, observedAt) in remote.quotaObservationTimes ?? [:] where compatible(accountID) {
+            result.recordQuotaObservation(observedAt, accountID: accountID)
+        }
+
         // Pending requests belong to the local device. Only delivered/planned records merge.
         return result
+    }
+
+    /// Clears alert history when one account moves to another server or key.
+    /// Returns schedules to cancel before new-identity notifications are planned.
+    mutating func bindCredentialIdentity(_ identity: String, accountID: UUID) -> [String] {
+        guard credentialIdentities?[accountID] != identity else { return [] }
+        let obsolete = pendingSchedules(accountID: accountID).map(\.notificationID)
+        quotaAlerts = quotaAlerts.filter { $0.accountID != accountID }
+        expectedResets = expectedResets.filter { $0.accountID != accountID }
+        confirmedResets = confirmedResets.filter { $0.accountID != accountID }
+        windowCycles.removeAll { $0.accountID == accountID }
+        quotaObservationTimes?.removeValue(forKey: accountID)
+        walletAlerts?.removeAll { $0.accountID == accountID }
+        pendingResetSchedules.removeAll { $0.accountID == accountID }
+        if credentialIdentities == nil { credentialIdentities = [:] }
+        credentialIdentities?[accountID] = identity
+        return obsolete
+    }
+
+    /// Includes legacy window timestamps when the account-level field is absent.
+    func quotaObservedAt(accountID: UUID) -> Date? {
+        ([quotaObservationTimes?[accountID]] + windowCycles.filter { $0.accountID == accountID }.map { Optional($0.observedAt) })
+            .compactMap { $0 }.max()
+    }
+
+    mutating func recordQuotaObservation(_ observedAt: Date, accountID: UUID) {
+        guard observedAt > (quotaObservationTimes?[accountID] ?? .distantPast) else { return }
+        if quotaObservationTimes == nil { quotaObservationTimes = [:] }
+        quotaObservationTimes?[accountID] = observedAt
     }
 
     func containsQuotaAlert(accountID: UUID,
@@ -218,6 +272,8 @@ struct WindowCycleState: Codable, Equatable, Sendable {
     let resetAt: Date?
     let usedPercentage: Double?
     let observedAt: Date
+    /// The last known exact observation; absent in legacy reminder ledgers.
+    var exactCounts: DecimalQuotaCounts? = nil
 }
 
 struct PendingResetSchedule: Codable, Equatable, Sendable {
@@ -225,4 +281,8 @@ struct PendingResetSchedule: Codable, Equatable, Sendable {
     let notificationID: String
     let resetAt: Date
     let windowIDs: Set<String>
+    /// Rendered on this device; absent in older ledgers. Remote pending schedules never merge.
+    var notification: ReminderNotification? = nil
+    /// Stable display inputs for this pending request, independent of newer synchronized observations.
+    var notificationWindows: [QuotaWindow]? = nil
 }

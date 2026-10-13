@@ -1,0 +1,38 @@
+# 13: sub2api 分组额度与余额接入
+
+**Status:** done
+
+**Type:** integration
+
+**What to build:** 用户配置 sub2api 地址和分组 Key，在双端查看该分组实际提供的余额、配额、订阅或限流窗口。
+
+**Blocked by:** 12 — New API 自定义地址与余额查询
+
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+
+下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
+
+## 原 Acceptance criteria（历史）
+
+- [ ] 复用按账号绑定的网关地址；四种分组计费响应分别验证，响应正文拒绝 Key 时不能显示为空账号。
+- [ ] 货币、points 和 token 单位明确区分；无真实总额不绘制百分比，无实际重置时间不预排提醒。
+- [ ] 同一部署多个分组 Key 与多个部署间的配置、数据和提醒保持隔离。
+- [ ] 完成添加、凭证安全保存、多账号隔离、重新打开后恢复、账号删除与同步；iCloud 关闭时本机可用。
+- [ ] iPhone 与 Watch 分别直连提供商查询；Watch 已取得配置和凭证后，不依赖手机或 Mac 在线。
+- [ ] 账号卡片、详情、iPhone 小组件和 Watch 展示保持数值、单位、采集时间与过期状态一致；支持演示数据并保持演示与真实账号隔离。
+- [ ] 适用的额度告警、重置提醒或低余额提醒沿用现有规则；失败保留旧数据，缺失指标不补零，预计重置不等同于确认恢复。
+- [ ] 增加有意义的请求契约、解析边界、账号隔离和提醒行为验证；运行相关测试和完整 unsigned TokenPulse target 构建，覆盖 App、Widgets 与 Watch 资源。
+- [ ] 新增图标优先官方资产或既有 Lobe Icons 来源，固定来源版本、记录版权许可，并验证模板渲染与矢量资产。
+- [ ] 记录实际账号查询、凭证失效和双端独立刷新证据；没有凭证或设备时准确保留未验收项，模拟响应通过不能代替真实验收。
+- [ ] 更新提供商支持范围、登录说明、领域用语与验证边界。
+
+## Evidence
+
+参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/sub2api.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+
+## 2026-10-02 wave3 evidence
+
+`.sub2api` 完整注册，账号地址/Key安全保存和同步、scope/cache/reminder隔离、独立设备GET、四模式Decimal解析、正文凭证拒绝、App/Watch/widget/demo、只适用指标的提醒已实现。官方SVG源glyph资产存在，模板/矢量参数和LGPL来源许可已记录。新增Sub2APIProviderTests及必要小模块Swift6语义检查通过，parse/PBX/diff检查通过；未执行xcodebuild/模拟器/真实Key/真实设备验证，历史清单仍准确保留。root统一运行实际测试和构建。主源固定及全部字段、验证边界见[专属说明](../../../docs/sub2api-provider-integration.md)。

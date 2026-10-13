@@ -11,6 +11,12 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var walletCurrency: String? = nil
     var walletAvailable: Bool? = nil
     var quotaExceeded: Bool? = nil
+    var walletCollectedAt: Date? = nil
+    var walletFailure: RefreshFailure? = nil
+    var providerPlanName: String? = nil
+    var providerPlanPresentation: QuotaPlanPresentation? = nil
+    var isNoPlan: Bool? = nil
+    var quotaStatusText: String? = nil
 
     var id: UUID { account.id }
 
@@ -28,54 +34,72 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     }
 
     var ringMetrics: [WidgetQuotaMetric] {
-        let limit = account.provider == .openCodeGo || account.provider == .claude ? 3 : 2
+        let limit = account.provider == .openCodeGo || account.provider == .claude || account.provider == .copilot || account.provider == .synthetic || account.provider == .cursor || account.provider == .manus ? 3 : 2
         return Array(displayMetrics.prefix(limit))
     }
 
     var displayMetrics: [WidgetQuotaMetric] {
+        let metrics = baseDisplayMetrics
+        if let status = QuotaFormatting.quotaStatus(quotaStatusText, provider: account.provider), !metrics.contains(where: { $0.window != nil }) {
+            return [.init(id: "account.quotaStatus", title: L10n.text("套餐状态"), window: nil, statusText: status)]
+        }
+        return metrics
+    }
+
+    private var baseDisplayMetrics: [WidgetQuotaMetric] {
+        if isNoPlan == true { return [.init(id: "noPlan", title: L10n.text("套餐与 Key 上限"), window: nil, statusText: L10n.text("按量计费，无上限"))] }
         let visible = QuotaPolicy.windows(windows, provider: account.provider, plan: subscriptionPlan, surface: .widget)
+        if account.provider.balancePresentation == .mixed {
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: L10n.windowDisplayName($0, provider: account.provider), window: $0) }
+        }
         let weekly = visible.filter { $0.period == .weekly }
         let fiveHour = visible.filter { $0.period == .fiveHour }
         switch account.provider {
+        case .mistral, .sakana:
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: L10n.windowDisplayName($0, provider: account.provider), window: $0) }
         case .codex:
             let weeklyMetric = WidgetQuotaMetric(
-                id: "weekly", title: "每周已用",
+                id: "weekly", title: L10n.text("每周已用"),
                 window: weekly.first { $0.scope == nil }
             )
             guard let short = fiveHour.first(where: { $0.scope == nil }) else { return [weeklyMetric] }
             return [
                 WidgetQuotaMetric(
-                    id: "fiveHour", title: "5 小时已用",
+                    id: "fiveHour", title: L10n.text("5 小时已用"),
                     window: short
                 ),
                 weeklyMetric,
             ]
         case .openCodeGo:
             return visible.map {
-                WidgetQuotaMetric(id: $0.id, title: $0.name, window: $0)
+                WidgetQuotaMetric(id: $0.id, title: L10n.windowName($0, provider: account.provider), window: $0)
+            }
+        case .v0:
+            return [("v0.billing", "账期 credits"), ("v0.rate_limit", "消息限流")].map { id, title in
+                WidgetQuotaMetric(id: id, title: L10n.text(title), window: visible.first { $0.id == id })
             }
         case .superGrok:
-            return [WidgetQuotaMetric(id: "weekly", title: "每周已用", window: visible.first { $0.id == "superGrok.pool" })]
+            return [WidgetQuotaMetric(id: "weekly", title: L10n.text("每周已用"), window: visible.first { $0.id == "superGrok.pool" })]
         case .zai:
             return [
-                WidgetQuotaMetric(id: "weekly", title: "每周已用", window: weekly.first { $0.scope == nil }),
-                WidgetQuotaMetric(id: "fiveHour", title: "5 小时已用", window: fiveHour.first { $0.scope == nil }),
+                WidgetQuotaMetric(id: "weekly", title: L10n.text("每周已用"), window: weekly.first { $0.scope == nil }),
+                WidgetQuotaMetric(id: "fiveHour", title: L10n.text("5 小时已用"), window: fiveHour.first { $0.scope == nil }),
             ]
         case .miniMaxChina:
             let general = fiveHour.filter { $0.scope == nil }
             let selected = general.isEmpty ? fiveHour : general
             return selected.isEmpty
-                ? [WidgetQuotaMetric(id: "fiveHour", title: "5 小时已用", window: nil)]
-                : selected.map { WidgetQuotaMetric(id: $0.id, title: $0.scope.map { "\($0) 5 小时已用" } ?? "5 小时已用", window: $0) }
+                ? [WidgetQuotaMetric(id: "fiveHour", title: L10n.text("5 小时已用"), window: nil)]
+                : selected.map { WidgetQuotaMetric(id: $0.id, title: L10n.windowScope($0).map { L10n.format("%@ 5 小时已用", $0) } ?? L10n.text("5 小时已用"), window: $0) }
         case .claude:
-            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .qoderInternational, .kimiCode:
-            return visible.map { WidgetQuotaMetric(id: $0.id, title: $0.displayName, window: $0) }
-        case .deepSeek:
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: L10n.windowDisplayName($0, provider: account.provider), window: $0) }
+        case .jetBrainsAI, .nousPortal, .kiro, .antigravity, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .qoderInternational, .kimiCode, .elevenLabs, .poe, .zhipu, .miniMaxInternational, .stepFun, .copilot, .newAPI, .clinePass, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .ibmBob, .devPass, .warp, .windsurf, .manus, .devin, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot, .gemini:
+            return visible.map { WidgetQuotaMetric(id: $0.id, title: L10n.windowDisplayName($0, provider: account.provider), window: $0) }
+        case .openAIAPI, .typeSafe, .deepSeek, .vercelAIGateway, .moonshot, .atlasCloud, .xaiAPI, .replicate:
             let currency = walletCurrency ?? visible.compactMap(\.wallet?.currency).first
             return currency.map { currency in
                 [WidgetQuotaMetric(
-                    id: "wallet.\(currency)", title: currency,
+                    id: "wallet.\(currency)", title: account.provider == .typeSafe && currency == "credits（币种未提供）" ? L10n.text(currency) : currency,
                     window: visible.first { $0.wallet?.currency == currency }
                 )]
             } ?? []
@@ -88,22 +112,27 @@ struct WidgetQuotaMetric: Identifiable {
     let id: String
     let title: String
     let window: QuotaWindow?
+    var statusText: String? = nil
+
+    var displayTitle: String {
+        window?.wallet?.isMonetary == true ? L10n.text("钱包余额") : title
+    }
 
     var valueText: String {
-        guard let window else { return "未提供" }
+        if let statusText { return statusText }
+        guard let window else { return L10n.text("未提供") }
         if let wallet = window.wallet {
-            return QuotaFormatting.money(wallet.total, currency: wallet.currency)
+            return QuotaFormatting.balance(wallet.total, wallet: wallet)
         }
-        if window.isExhausted == true { return "已用尽" }
-        if window.isUnlimited { return "无限" }
+        if let overage = QuotaFormatting.overageDescription(window) { return overage }
+        if window.isExhausted == true { return L10n.text("已用尽") }
+        if window.isUnlimited { return L10n.text("无限") }
+        if let value = QuotaFormatting.exactCountSummary(window) { return value }
         if window.unit != nil, window.remainingCount != nil || window.totalCount != nil {
-            let remaining = QuotaFormatting.count(window.remainingCount)
-            let total = QuotaFormatting.count(window.totalCount)
-            let values = window.remainingCount == nil ? total : window.totalCount == nil ? remaining : "\(remaining) / \(total)"
-            return window.unit.map { "\(values) \($0)" } ?? values
+            return QuotaFormatting.usage(window)
         }
-        guard let value = window.usedPercentage, value.isFinite else { return "未提供" }
-        return value.formatted(.number.precision(.fractionLength(0...1))) + "%"
+        guard let value = window.usedPercentage, value.isFinite else { return L10n.text("未提供") }
+        return (value / 100).formatted(.percent.precision(.fractionLength(0...1)))
     }
 
     var ringFraction: Double? {
@@ -222,7 +251,13 @@ actor WidgetSnapshotStore {
                 subscriptionPlan: state.snapshot?.subscriptionPlan,
                 walletCurrency: settingsByID[state.id]?.walletCurrency,
                 walletAvailable: state.snapshot?.walletAvailable,
-                quotaExceeded: state.snapshot?.quotaExceeded
+                quotaExceeded: state.snapshot?.quotaExceeded,
+                walletCollectedAt: state.snapshot?.walletCollectedAt,
+                walletFailure: state.snapshot?.walletFailure,
+                providerPlanName: state.snapshot?.providerPlanName,
+                providerPlanPresentation: state.snapshot?.providerPlanPresentation,
+                isNoPlan: state.snapshot?.isNoPlan,
+                quotaStatusText: state.snapshot?.quotaStatusText
             )
         }
         try save(snapshots, isDemoMode: isDemoMode)

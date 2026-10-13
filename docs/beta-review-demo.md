@@ -5,7 +5,7 @@
 ## 审核步骤
 
 1. 打开 TokenPulse，在首次启动页面点击 **体验演示 / Try Demo**。已有账号时从 **设置 → 体验演示 / Try Demo** 进入。
-2. 首页展示六家服务的示例账号，包含 Codex Plus 和 Pro。展开卡片查看各额度窗口、重置时间和套餐信息；下拉或点击账号刷新按钮更新示例用量。
+2. 首页展示多家服务的示例账号，包含 Codex Plus 和 Pro。展开卡片查看各额度窗口、重置时间和套餐信息；下拉或点击账号刷新按钮更新示例用量。
 3. 点击 **＋**，选择提供商、输入账号名称并保存，不需要真实凭证。通过 **Edit** 排序；左滑删除或进入 **设置 → 具体账号 → 删除账号**。
 4. 在 **设置** 中开启通知，点击 **发送演示通知** 测试系统通知；在具体账号中修改额度告警、重置提醒和阈值。退出演示会取消尚未触发的演示提醒。
 5. 在 iPhone 主屏幕添加 TokenPulse 小组件，编辑组件并选择带“演示”字样的账号。中、大尺寸组件可选择多个账号；锁屏组件也可选择演示账号。
@@ -59,16 +59,38 @@
 - 证据：`/tmp/tokenpulse-release-2026092202-tests.log`、`/tmp/tokenpulse-release-2026092202-archive.log`、`/tmp/tokenpulse-release-2026092202-upload.log`、`/tmp/tokenpulse-release-2026092202-verification.json`。
 - 上传成功表示 App Store Connect 已接收并开始处理；处理完成及测试组可用状态仍需在 TestFlight 页面确认。
 
+### Provider 扩展构建 2026101101
+
+- **0.1.0 (2026101101)** 已于 2026-10-11 20:35:51（UTC+8）上传成功。Apple 返回 `Uploaded package is processing`、`Upload succeeded`，命令结果为 `EXPORT SUCCEEDED`。
+- 发布源码提交 `b63b700`，包含 78 个 provider；沿用该提交此前完整 XCTest 773 项通过、0 失败的结果，本次未重复运行测试。
+- 本次 Release 归档成功；iPhone、Watch 和两个 Widget 的版本一致，四个包均通过签名验证，对应 dSYM UUID 全部匹配。上传日志没有符号上传失败警告。
+- 归档：`/Users/wuzhaoyi/Library/Developer/Xcode/Archives/2026-10-11/TokenPulse-2026101101.xcarchive`。
+- 证据：`/tmp/tokenpulse-release-2026101101-archive.log`、`/tmp/tokenpulse-release-2026101101-upload.log`、`/tmp/tokenpulse-release-2026101101-verification.json`。
+- Apple 已接收并开始处理；尚未确认处理完成、测试组可用或外部测试审核状态。
+
 ## 提交说明
 
 先完成新构建上传并选择该构建，再把下面的英文说明填写到 Beta App Review Information 的 Notes 中，并在审核消息中回复。不要把示例文字当作用户名或密码填写。不要在旧构建仍被审核时声称演示模式已经可用。
 
 > Thank you for your feedback. The updated build includes a built-in demo mode that does not require an account, password, API key, or third-party subscription.
 >
-> On first launch, tap “体验演示 / Try Demo”. Alternatively, open Settings (“设置”) and tap “体验演示 / Try Demo”. The app displays clearly labeled sample accounts for all six supported providers, including Codex Plus and Pro.
+> On first launch, tap “体验演示 / Try Demo”. Alternatively, open Settings (“设置”) and tap “体验演示 / Try Demo”. The app displays clearly labeled sample accounts for supported providers, including Codex Plus and Pro.
 >
 > You can expand quota cards, refresh sample usage, add and delete demo accounts, reorder accounts using Edit, and configure quota alerts and reset reminders in Settings. Tap “发送演示通知” (Send Demo Notification) to test a system notification and allow notifications when prompted. To test widgets, add a TokenPulse widget and select an account whose name includes “演示” (Demo).
 >
 > The Apple Watch app also has its own “体验演示 / Try Demo” entry on the empty screen and in Watch Face Settings (“表盘设置”). You can browse and refresh sample accounts and select one for complications and widgets.
 >
 > Demo mode uses local sample data; it does not authenticate with third-party services or transfer demo data through iCloud. Tap “退出演示 / Exit Demo” to return to normal use. Please use the updated build for review.
+
+## 发布工具偏好（2026-10-11）
+
+用户指定后续 App Store Connect / TestFlight 发布优先尝试 [asc CLI](https://asccli.sh)。本机已通过 Homebrew 安装 `asc 5.14.1`；首次检查 `asc auth status` 显示无已配置身份、无环境凭据，尚未通过该工具上传构建。
+
+先使用本地 App Store Connect API Key 建立认证（团队 Key 需要 Key ID、Issuer ID 和 `.p8`，个人 Key 使用 CLI 对应参数），不要把私钥内容写入仓库、日志或聊天。Xcode 的既有登录不等同于 asc 已认证。认证后用 `asc auth status --validate` 检查，再对经过验证的新构建执行上传。使用 `asc builds upload --app 6809847584 --ipa <exported-ipa> --wait` 等命令前，核对本机版本帮助和本次发布范围。上传、TestFlight 分发和正式 App Store 提交是不同阶段，分别记录实际结果。
+
+认证后续结果：`TokenPulse` asc profile 已存入 System Keychain 并成为默认身份；`asc auth status --validate` 返回 `works`，`asc apps view --id 6809847584` 成功返回 TokenPulse / `com.tokenpulse.app`。认证与应用读取已验证，尚未用 asc 上传、分发或提交审核。
+
+
+## 2026-10-13 国际化构建已发布
+
+`0.1.0 (2026101301)` 已通过 asc 上传和处理，Beta审核APPROVED，Internal Beta/Public Beta均IN_BETA_TESTING。包含简体中文/英文、Codex重置预告及Watch/Widget显示修复；免登录演示审核说明已更新。完整源码、构建、签名、符号与分发记录见 [本次发布记录](releases/2026-10-13-testflight.md)。

@@ -10,14 +10,14 @@ struct AccountSettingsView: View {
         NavigationStack(path: $path) {
             List {
                 Section {
-                    Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                    Button(runtime.isDemoMode ? L10n.text("退出演示") : L10n.text("体验演示")) {
                         Task { await runtime.setDemoMode(!runtime.isDemoMode) }
                     }
                     .disabled(runtime.isSwitchingMode)
                 } footer: {
                     Text(runtime.isDemoMode
-                         ? "当前显示示例数据，可刷新、添加或删除演示账号。退出后恢复真实账号。"
-                         : "无需第三方账号即可体验额度、账号管理、提醒和小组件。")
+                         ? L10n.text("当前显示示例数据，可刷新、添加或删除演示账号。退出后恢复真实账号。")
+                         : L10n.text("无需第三方账号即可体验额度、账号管理、提醒和小组件。"))
                 }
                 if runtime.isDemoMode {
                     Section("同步") {
@@ -38,7 +38,7 @@ struct AccountSettingsView: View {
                             HStack(spacing: 10) {
                                 ProviderIcon(provider: configuration.account.provider, size: 24)
                                 VStack(alignment: .leading) {
-                                    Text(configuration.account.name)
+                                    Text(L10n.demoAccountName(configuration.account))
                                     Text(configuration.account.provider.displayName).font(.caption).foregroundStyle(.secondary)
                                 }
                             }
@@ -77,8 +77,8 @@ private struct NotificationSettingsSection: View {
                     Task {
                         let feedback = await notifications.sendDemoNotification()
                         monitor.setSynchronizationMessage(feedback == .enabled
-                            ? "演示通知已提交，可在通知中心查看。"
-                            : feedback.message)
+                            ? L10n.text("演示通知已提交，可在通知中心查看。")
+                            : L10n.text(feedback.message))
                         isUpdating = false
                     }
                 }
@@ -88,8 +88,8 @@ private struct NotificationSettingsSection: View {
             Text("通知")
         } footer: {
             Text(isDemoMode
-                 ? "演示提醒使用系统通知权限，仅用于示例账号。退出演示会取消未触发的演示提醒。"
-                 : "关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。")
+                 ? L10n.text("演示提醒使用系统通知权限，仅用于示例账号。退出演示会取消未触发的演示提醒。")
+                 : L10n.text("关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。"))
         }
     }
 
@@ -101,7 +101,7 @@ private struct NotificationSettingsSection: View {
                 configurations: monitor.configurations,
                 states: monitor.states
             )
-            monitor.setSynchronizationMessage(feedback.message)
+            monitor.setSynchronizationMessage(L10n.text(feedback.message))
             isUpdating = false
         }
     }
@@ -140,7 +140,7 @@ private struct CloudSyncSettingsSection: View {
             }
             .disabled(!settings.isEnabled)
             .allowsHitTesting(!settings.isSyncing)
-            .accessibilityValue(settings.isSyncing ? "正在同步" : "")
+            .accessibilityValue(settings.isSyncing ? L10n.text("正在同步") : "")
             if let error = settings.errorMessage {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .font(.caption).foregroundStyle(.orange)
@@ -171,6 +171,10 @@ private struct AccountPreferencesView: View {
     @State private var walletThreshold = ""
     @State private var error: String?
     @State private var credential = ""
+    @State private var serverAddress = ""
+    @State private var region: ProviderRegion?
+    @State private var organizationID = ""
+    @State private var tokenPlanSite: AlibabaTokenPlanSite?
     @State private var showingLogin = false
     @State private var showingDeleteConfirmation = false
 
@@ -183,12 +187,21 @@ private struct AccountPreferencesView: View {
                             if let plan = snapshot.subscriptionPlan, configuration.account.provider == .codex {
                                 LabeledContent("套餐", value: plan.displayName)
                             }
+                            if configuration.account.provider == .stepFun, snapshot.windows.isEmpty {
+                                Text("当前账号没有可用的 Step Plan")
+                            }
+                            if let plan = QuotaFormatting.providerPlanName(snapshot.providerPlanName, presentation: snapshot.providerPlanPresentation) {
+                                LabeledContent("套餐", value: plan)
+                            }
+                            if let status = QuotaFormatting.quotaStatus(snapshot.quotaStatusText, provider: configuration.account.provider) {
+                                Text(status).font(.subheadline).foregroundStyle(.secondary)
+                            }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
-                                if window.scope == nil || configuration.account.provider == .qoderInternational {
-                                    QuotaWindowView(window: window)
+                                if window.scope == nil || window.hasDetailValues {
+                                    QuotaWindowView(window: window, provider: configuration.account.provider)
                                 } else {
                                     LabeledContent(
-                                        window.displayName,
+                                        L10n.windowDisplayName(window, provider: configuration.account.provider),
                                         value: QuotaFormatting.usage(window)
                                     )
                                 }
@@ -204,32 +217,51 @@ private struct AccountPreferencesView: View {
                                 Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
                                     .foregroundStyle(.orange)
                             }
-                            Text("采集于 \(snapshot.collectedAt.formatted())").font(.caption)
+                            if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
+                                Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
+                            }
+                            Text(snapshot.walletFailure == nil
+                                 ? L10n.format("采集于 %@", snapshot.collectedAt.formatted())
+                                 : L10n.format("套餐采集于 %@", snapshot.collectedAt.formatted())).font(.caption)
                         } else { Text("尚无成功采集数据") }
                         if let failure = state.lastFailure { Text(failure.displayName).foregroundStyle(.orange) }
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
                     }
                 }
-                Section("提醒") {
-                    Toggle(configuration.account.provider == .deepSeek ? "低余额提醒" : "额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
-                        var settings = configuration.reminders; settings.quotaAlertsEnabled = value
-                        Task { await monitor.updateReminders(settings, accountID: accountID) }
-                    }))
-                    if configuration.account.provider == .deepSeek {
-                        walletReminderControls(configuration: configuration)
-                    } else {
-                        if configuration.account.provider != .qoderInternational {
+                let quotaRemindersAvailable = supportsQuotaReminders(configuration)
+                let walletRemindersAvailable = supportsWalletReminders(configuration)
+                let resetRemindersAvailable = supportsResetReminders(configuration)
+                if quotaRemindersAvailable || walletRemindersAvailable || resetRemindersAvailable {
+                    Section("提醒") {
+                        if quotaRemindersAvailable {
+                            Toggle("额度告警", isOn: Binding(get: { configuration.reminders.quotaAlertsEnabled }, set: { value in
+                                var settings = configuration.reminders
+                                settings.setQuotaAlertsEnabled(value, provider: configuration.account.provider)
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
+                            TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
+                            Button("保存阈值") { saveQuotaThresholds(configuration) }
+                        }
+                        if resetRemindersAvailable {
                             Toggle("重置提醒", isOn: Binding(get: { configuration.reminders.resetRemindersEnabled }, set: { value in
                                 var settings = configuration.reminders; settings.resetRemindersEnabled = value
                                 Task { await monitor.updateReminders(settings, accountID: accountID) }
                             }))
                         }
-                        TextField("阈值，例如 80,95,100", text: $thresholds).keyboardType(.numbersAndPunctuation)
-                        Button("保存阈值") { saveQuotaThresholds(configuration) }
+                        if walletRemindersAvailable {
+                            Toggle("低余额提醒", isOn: Binding(get: { configuration.reminders.effectiveWalletAlertsEnabled }, set: { value in
+                                var settings = configuration.reminders
+                                if configuration.account.provider.balancePresentation == .walletOnly {
+                                    settings.quotaAlertsEnabled = value; settings.walletAlertsEnabled = nil
+                                } else { settings.walletAlertsEnabled = value }
+                                Task { await monitor.updateReminders(settings, accountID: accountID) }
+                            }))
+                            walletReminderControls(configuration: configuration)
+                        }
+                        if let error { Text(error).foregroundStyle(.red) }
+                        Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
-                    if let error { Text(error).foregroundStyle(.red) }
-                    Text("后台刷新由系统安排，提醒可能延迟；两台设备离线时可能分别提醒。")
-                        .font(.caption).foregroundStyle(.secondary)
                 }
                 Section("Apple Watch") {
                     Toggle("在 Watch 显示", isOn: Binding(
@@ -246,6 +278,46 @@ private struct AccountPreferencesView: View {
                             Task { await monitor.replaceCredential("demo", accountID: accountID) }
                         }
                     } else if usesAPIKey(configuration.account.provider) {
+                        if configuration.account.provider.requiresRegion {
+                            ProviderRegionPicker(region: $region, usesCloudRegionNames: configuration.account.provider == .alibabaTokenPlan)
+                            if configuration.account.provider == .alibabaTokenPlan {
+                                AlibabaTokenPlanSitePicker(site: $tokenPlanSite)
+                            }
+                            Text(configuration.account.provider == .alibabaTokenPlan
+                                 ? L10n.text("选择北京或新加坡及账号所属站点。输入 AK:SK，不是 sk-sp 推理 Key；仅查询个人 Token Plan。更换地区或站点需要重新输入凭证。")
+                                 : configuration.account.provider == .moonshot
+                                 ? L10n.text("地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。")
+                                 : L10n.text("地区与凭证绑定。Key 查询兼容性待验证；要求控制台会话时不会显示零额度。"))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider.requiresGatewayAddress {
+                            TextField("服务器地址", text: $serverAddress)
+                                .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
+                            Text("更换地址或 Key 会清除该账号的旧余额与提醒记录。公网需 HTTPS；本机与明确的私网地址可使用 HTTP。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .gitKraken {
+                            TextField("组织 ID（可选）", text: $organizationID)
+                                .textInputAutocapitalization(.never).autocorrectionDisabled()
+                            Text("这是会过期的账户会话 Token，失效后请重新配置。留空读取默认组织；更换组织与 Token 会清除旧额度。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .volcengine {
+                            Text("输入 AccessKeyID:SecretAccessKey，使用英文冒号。两个套餐分别查询；AK/SK 仅保存在系统安全存储中。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .xaiAPI {
+                            Text("输入 TeamID:ManagementKey，使用英文冒号。需要管理 Key 和账单读取权限，推理 Key 无效。余额是已入账值，账期内可能高于控制台实时余额。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .ibmBob {
+                            Text("通用 API Key 输入 apikey:Key；登录 JWT 输入 token:JWT。推理专用 Key 不适用。各实例和团队的 Bobcoins 预算分别展示，不换算成货币。登录 token 到期后需更新。")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if configuration.account.provider == .openAIAPI {
+                            Text(L10n.text(OpenAIAPIProviderClient.connectionNotice))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                         Button("保存并刷新") {
@@ -254,14 +326,15 @@ private struct AccountPreferencesView: View {
                                     let encoded = usesAPIKey(configuration.account.provider)
                                         ? try ProviderAuthenticationController().credential(
                                             provider: configuration.account.provider,
-                                            apiKey: credential
+                                            apiKey: credential,
+                                            serverAddress: serverAddress, region: region, organizationID: organizationID, tokenPlanSite: tokenPlanSite
                                         )
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
-                                } catch { self.error = "无法保存凭证" }
+                                } catch { self.error = configuration.account.provider.requiresGatewayAddress ? L10n.text("请输入有效的服务器地址与 Key；地址不能包含用户信息、查询或片段。") : L10n.text("无法保存凭证") }
                             }
-                        }.disabled(credential.isEmpty)
+                        }.disabled(credential.isEmpty || configuration.account.provider.requiresRegion && region == nil || configuration.account.provider == .alibabaTokenPlan && tokenPlanSite == nil)
                     } else {
                         Button("重新登录 \(configuration.account.provider.displayName)") { showingLogin = true }
                     }
@@ -271,7 +344,15 @@ private struct AccountPreferencesView: View {
                 }
             } else { Text("账号配置尚未同步") }
         }
-        .navigationTitle(monitor.configuration(for: accountID)?.account.name ?? "账号")
+        .navigationTitle(monitor.configuration(for: accountID).map { L10n.demoAccountName($0.account) } ?? L10n.text("账号"))
+        .onAppear {
+            serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? ""
+            region = monitor.configuration(for: accountID)?.providerRegion
+            organizationID = monitor.configuration(for: accountID)?.organizationID ?? ""
+            tokenPlanSite = monitor.configuration(for: accountID)?.tokenPlanSite
+        }
+        .onChange(of: tokenPlanSite) { _, _ in credential = "" }
+        .onChange(of: region) { _, _ in credential = "" }
         .confirmationDialog("删除账号？", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
             Button("删除账号", role: .destructive) {
                 Task { if await monitor.deleteAccount(accountID: accountID) { dismiss() } }
@@ -279,12 +360,12 @@ private struct AccountPreferencesView: View {
             Button("取消", role: .cancel) {}
         } message: {
             Text(isDemoMode
-                 ? "将移除此演示账号及其示例数据。真实账号不受影响。"
-                 : "将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+                 ? L10n.text("将移除此演示账号及其示例数据。真实账号不受影响。")
+                 : L10n.text("将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。"))
         }
         .sheet(isPresented: $showingLogin) {
             if let provider = monitor.configuration(for: accountID)?.account.provider {
-                ProviderSignInView(provider: provider) { value in
+                ProviderSignInView(provider: provider, accountID: accountID) { value in
                     showingLogin = false
                     Task { await monitor.replaceCredential(value, accountID: accountID) }
                 }
@@ -296,10 +377,36 @@ private struct AccountPreferencesView: View {
         }
     }
 
+    private func supportsQuotaReminders(_ configuration: AccountConfiguration) -> Bool {
+        if configuration.account.provider == .augmentCode { return false }
+        guard configuration.account.provider.balancePresentation != .walletOnly else { return false }
+        guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else {
+            return configuration.account.provider != .ibmBob
+        }
+        return snapshot.windows.contains { $0.wallet == nil && !$0.isUnlimited && $0.usedPercentage != nil }
+    }
+
+    private func supportsResetReminders(_ configuration: AccountConfiguration) -> Bool {
+        guard configuration.account.provider.balancePresentation != .walletOnly,
+              ![Provider.qoderInternational, .qoderChina, .longCat].contains(configuration.account.provider) else { return false }
+        guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else { return false }
+        return snapshot.windows.contains {
+            $0.wallet == nil && !$0.isUnlimited && $0.resetSemantics == nil
+                && ($0.resetsAt != nil || $0.cycleID != nil || $0.usedPercentage != nil)
+        }
+    }
+
+    private func supportsWalletReminders(_ configuration: AccountConfiguration) -> Bool {
+        guard let snapshot = monitor.states.first(where: { $0.id == accountID })?.snapshot else {
+            return configuration.account.provider.hasMonetaryWallet
+        }
+        return snapshot.windows.contains { $0.wallet?.isMonetary == true }
+    }
+
     @ViewBuilder
     private func walletReminderControls(configuration: AccountConfiguration) -> some View {
         let currencies = monitor.states.first(where: { $0.id == accountID })?.snapshot?.windows
-            .compactMap(\.wallet?.currency).uniqued() ?? []
+            .compactMap(\.wallet).filter(\.isMonetary).map(\.currency).uniqued() ?? []
         if currencies.isEmpty {
             Text("成功刷新后可选择提醒币种。")
                 .font(.caption).foregroundStyle(.secondary)
@@ -321,7 +428,7 @@ private struct AccountPreferencesView: View {
                 let currency = configuration.reminders.walletCurrency ?? currencies[0]
                 let input = walletThreshold.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard let value = Decimal(string: input, locale: .autoupdatingCurrent), !value.isNaN, value >= 0 else {
-                    error = "请输入大于或等于 0 的金额。"
+                    error = L10n.text("请输入大于或等于 0 的金额。")
                     return
                 }
                 error = nil
@@ -340,7 +447,7 @@ private struct AccountPreferencesView: View {
         let values = pieces.compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
         guard values.count == pieces.count, !values.isEmpty,
               values.allSatisfy({ $0.isFinite && $0 > 0 && $0 <= 100 }) else {
-            error = "请输入 0 到 100 之间的比例，使用英文逗号分隔。"
+            error = L10n.text("请输入大于 0 且不超过 100 的比例，使用英文逗号分隔。")
             return
         }
         error = nil
@@ -363,7 +470,7 @@ private struct AccountPreferencesView: View {
     }
 
     private func credentialLabel(_ provider: Provider) -> String {
-        ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
+        L10n.text(ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key")
     }
 }
 

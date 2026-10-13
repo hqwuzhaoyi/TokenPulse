@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 enum ProviderCredentialKind: String, Codable, Sendable {
     case apiKey
@@ -113,13 +114,20 @@ protocol ProviderTransport: Sendable {
 
 struct URLSessionProviderTransport: ProviderTransport {
     let session: URLSession
+    private let allowsSameOriginRedirects: Bool
 
-    init(session: URLSession = .shared) {
+    init(session: URLSession = .shared, allowsSameOriginRedirects: Bool = true) {
         self.session = session
+        self.allowsSameOriginRedirects = allowsSameOriginRedirects
+    }
+
+    static func rejectingRedirects() -> Self {
+        .init(session: URLSession(configuration: .ephemeral), allowsSameOriginRedirects: false)
     }
 
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        try await session.data(for: request)
+        try await session.data(for: request,
+                               delegate: ProviderRedirectPolicy(origin: allowsSameOriginRedirects ? request.url : nil))
     }
 }
 
@@ -129,10 +137,13 @@ struct ProviderQuotaClient: QuotaQuerying {
     private let now: @Sendable () -> Date
 
     init(provider: Provider,
-         transport: any ProviderTransport = URLSessionProviderTransport(),
+         transport: (any ProviderTransport)? = nil,
          now: @escaping @Sendable () -> Date = Date.init) {
         self.provider = provider
-        self.transport = transport
+        if let transport { self.transport = transport }
+        else if provider.requiresGatewayAddress { self.transport = GatewayProviderTransport() }
+        else if provider.webLoginProfile != nil || [.jetBrainsAI, .antigravity, .gemini, .grokBot, .elevenLabs, .cursor, .volcengine, .alibabaTokenPlan, .xaiAPI, .ibmBob].contains(provider) { self.transport = URLSessionProviderTransport.rejectingRedirects() }
+        else { self.transport = URLSessionProviderTransport() }
         self.now = now
     }
 
@@ -143,8 +154,20 @@ struct ProviderQuotaClient: QuotaQuerying {
     func quotaResult(for accountID: UUID, credential: String) async throws -> ProviderQueryResult {
         let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
         switch provider {
+        case .gemini:
+            return try await GeminiProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .typeSafe:
+            return try await TypeSafeProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .qwenCloud:
+            return try await QwenCloudProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .raycastAI:
+            return try await RaycastAIProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .t3Chat:
+            return try await T3ChatProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .zoomMate:
+            return try await ZoomMateProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .miniMaxChina:
-            throw ProviderIntegrationError.unsupportedLogin("MiniMax 由既有客户端处理")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("MiniMax 由既有客户端处理"))
         case .claude:
             return try await ClaudeProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -154,17 +177,201 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .openCodeGo:
             return try await OpenCodeGoProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
-        case .zai:
-            return try await ZaiProviderClient(transport: transport, now: now)
+        case .miniMaxInternational:
+            return try await MiniMaxInternationalProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .zai, .zhipu:
+            return try await ZaiProviderClient(provider: provider, transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .superGrok:
             return try await SuperGrokProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .longCat:
+            return try await LongCatProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .ollamaCloud:
+            return try await OllamaCloudProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .qoderChina:
+            return try await QoderChinaProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .xiaomiCodingPlan:
+            return try await XiaomiCodingPlanProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .qoderInternational:
             return try await QoderProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
+        case .kiro:
+            return try await KiroProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .sakana:
+            return try await SakanaProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .mistral:
+            return try await MistralProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .replicate:
+            return try await ReplicateProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .factory:
+            return try await FactoryProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .huggingFace:
+            return try await HuggingFaceProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .gitKraken:
+            return try await GitKrakenProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .amp:
+            return try await AmpProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .commandCode:
+            return try await CommandCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .zenMux:
+            return try await ZenMuxProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .xKiro:
+            return try await XKiroProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .v2ex:
+            return try await V2EXProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .synthetic:
+            return try await SyntheticProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .ibmBob:
+            return try await IBMBobProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .xaiAPI:
+            return try await XAIAPIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .volcengine:
+            return try await VolcengineProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .devPass:
+            return try await DevPassProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .v0:
+            return try await V0ProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .jetBrainsAI:
+            return try await JetBrainsProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .nousPortal:
+            return try await NousPortalProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
+        case .windsurf:
+            return try await WindsurfProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .manus:
+            return try await ManusProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .devin:
+            return try await DevinProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .warp:
+            return try await WarpProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .copilot:
+            return try await CopilotProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
         case .kimiCode:
             return try await KimiCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .elevenLabs:
+            return try await ElevenLabsProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .poe:
+            return try await PoeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .vercelAIGateway:
+            return try await VercelAIGatewayProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .stepFun:
+            return try await StepFunProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .llmProxy:
+            return try await LLMProxyProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .liteLLM:
+            return try await LiteLLMProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .bifrost:
+            return try await BifrostProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .sub2api:
+            return try await Sub2APIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .newAPI:
+            return try await NewAPIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .codebuff:
+            return try await CodebuffProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .neuralwatt:
+            return try await NeuralwattProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .aixy:
+            return try await AixyProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .clawRouter:
+            return try await ClawRouterProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .clinePass:
+            return try await ClinePassProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .moonshot:
+            return try await MoonshotProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .antigravity:
+            return try await AntigravityProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .openAIAPI:
+            return try await OpenAIAPIProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .atlasCloud:
+            return try await AtlasCloudProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .kiloCode:
+            return try await KiloCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .deepInfra:
+            return try await DeepInfraProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .hyper:
+            return try await HyperProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .venice:
+            return try await VeniceProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .grokBot:
+            return try await GrokBotProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .zed:
+            return try await ZedProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .augmentCode:
+            return try await AugmentCodeProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .cursor:
+            return try await CursorProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .chutes:
+            return try await ChutesProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .alibabaTokenPlan:
+            return try await AlibabaTokenPlanProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .alibabaCodingPlan:
+            return try await AlibabaCodingPlanProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .abacus:
+            return try await AbacusProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .perplexity:
+            return try await PerplexityProviderClient(transport: transport, now: now)
+                .quota(accountID: accountID, credential: envelope)
+        case .notionAI:
+            return try await NotionAIProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
         case .deepSeek:
             return try await DeepSeekProviderClient(transport: transport, now: now)
@@ -175,27 +382,115 @@ struct ProviderQuotaClient: QuotaQuerying {
 
 struct ProviderAuthenticationController: Sendable {
     private let transport: any ProviderTransport
+    private let nousTransport: any ProviderTransport
     private let now: @Sendable () -> Date
 
-    init(transport: any ProviderTransport = URLSessionProviderTransport(),
+    init(transport: (any ProviderTransport)? = nil,
          now: @escaping @Sendable () -> Date = Date.init) {
-        self.transport = transport
+        self.transport = transport ?? URLSessionProviderTransport()
+        self.nousTransport = transport ?? URLSessionProviderTransport.rejectingRedirects()
         self.now = now
     }
 
     func loginConfiguration(for provider: Provider) -> ProviderLoginConfiguration {
         switch provider {
+        case .jetBrainsAI:
+            return .init(provider: provider, method: .webSession, credentialLabel: nil)
+        case .gemini:
+            return .init(provider: provider, method: .authorizationCode, credentialLabel: nil)
         case .miniMaxChina:
             return .init(provider: provider, method: .apiKey, credentialLabel: "Coding Plan Key")
+        case .miniMaxInternational:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "MiniMax 国际版 Coding Plan Key")
+        case .zhipu:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "智谱国内版 Coding Plan Key")
         case .zai:
-            return .init(provider: provider, method: .apiKey, credentialLabel: "Z.ai Coding Plan Key")
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Z.ai 国际版 Coding Plan Key")
         case .openCodeGo:
             return .init(provider: provider, method: .apiKey, credentialLabel: "OpenCode Go API Key")
+        case .factory:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Factory API Key")
+        case .huggingFace:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Hugging Face 用户 Token（需读取账单权限）")
+        case .gitKraken:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "GitKraken 账户会话 Token")
+        case .amp:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Amp Access Token")
+        case .commandCode:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Command Code API Key")
+        case .ibmBob:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "apikey:通用 Key 或 token:登录 JWT")
+        case .xaiAPI:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "TeamID:ManagementKey")
+        case .volcengine:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "AccessKeyID:SecretAccessKey")
+        case .devPass:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "DevPass API Key")
+        case .v0:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "v0 API Key")
+        case .warp:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Warp API Key")
+        case .llmProxy:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "LLM Proxy Key")
+        case .liteLLM:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "LiteLLM 虚拟 Key（需读取预算权限）")
+        case .bifrost:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Bifrost 虚拟 Key")
+        case .sub2api:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "sub2api 分组 Key")
+        case .newAPI:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "New API Key")
+        case .codebuff:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Codebuff API Key")
+        case .neuralwatt:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Neuralwatt API Key")
+        case .aixy:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Aixy API Key")
+        case .clawRouter:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ClawRouter API Key")
+        case .clinePass:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ClinePass API Key")
+        case .moonshot:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Moonshot 开放平台 API Key")
+        case .antigravity:
+            return .init(provider: provider, method: .authorizationCode, credentialLabel: nil)
+        case .openAIAPI:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "OpenAI Key（需兼容旧余额接口）")
+        case .atlasCloud:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Atlas Cloud API Key（需余额读取权限）")
+        case .kiloCode:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Kilo Code API Key")
+        case .deepInfra:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "DeepInfra API Key")
+        case .hyper:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Hyper API Key")
+        case .venice:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Venice API Key")
+        case .chutes:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Chutes API Key")
+        case .alibabaTokenPlan:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "AccessKeyID:AccessKeySecret（AK/SK）")
+        case .alibabaCodingPlan:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "百炼 Coding Plan Key（Key 查询兼容性待验证）")
         case .deepSeek:
             return .init(provider: provider, method: .apiKey, credentialLabel: "DeepSeek API Key")
-        case .codex, .kimiCode:
+        case .elevenLabs:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ElevenLabs API Key（需 user_read 权限）")
+        case .poe:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Poe API Key")
+        case .synthetic:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "Synthetic API Key")
+        case .v2ex:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "V2EX Personal Access Token")
+        case .xKiro:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "xKiro API Key")
+        case .zenMux:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "ZenMux Management Key（非推理 Key）")
+        case .vercelAIGateway:
+            return .init(provider: provider, method: .apiKey, credentialLabel: "AI Gateway API Key")
+        case .codex, .kimiCode, .copilot, .nousPortal:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
-        case .claude:
+        case .claude, .stepFun, .cursor, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .kiro, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(provider: provider, method: .webSession, credentialLabel: nil)
         case .superGrok:
             return .init(provider: provider, method: .deviceCode, credentialLabel: nil)
@@ -204,18 +499,56 @@ struct ProviderAuthenticationController: Sendable {
         }
     }
 
-    func credential(provider: Provider, apiKey: String) throws -> String {
-        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek else {
-            throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
+    func credential(provider: Provider, apiKey: String, serverAddress: String? = nil, region: ProviderRegion? = nil, organizationID: String? = nil, tokenPlanSite: AlibabaTokenPlanSite? = nil) throws -> String {
+        if provider.requiresGatewayAddress { return try GatewayCredentials.make(provider: provider, key: apiKey, server: serverAddress ?? "").encoded() }
+        if provider == .ibmBob { return try IBMBobCredential(apiKey).envelope().encoded() }
+        if provider == .xaiAPI { return try XAIManagementCredential(apiKey).envelope().encoded() }
+        if provider == .volcengine { return try VolcengineAccessKeys(apiKey).envelope().encoded() }
+        if provider == .alibabaTokenPlan { return try AlibabaTokenPlanCredential(key: apiKey, region: region, site: tokenPlanSite).envelope().encoded() }
+        if provider == .gitKraken {
+            var envelope = try GitKrakenSessionCredential.envelope(token: apiKey, organizationID: organizationID)
+            let identityData = try JSONEncoder().encode([provider.rawValue, envelope.accessToken, envelope.metadata["organizationID"] ?? ""])
+            envelope.metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
+            return try envelope.encoded()
+        }
+        guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.openAIAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) || [.alibabaCodingPlan, .chutes].contains(provider) || [.devPass, .v0, .warp].contains(provider) else {
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("该提供商不使用直接 Key 登录"))
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { throw ProviderIntegrationError.invalidCredentialData }
         if provider == .miniMaxChina { return key }
-        return try ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key).encoded()
+        if provider.requiresRegion, region == nil { throw ProviderIntegrationError.invalidCredentialData }
+        var metadata: [String: String] = provider == .newAPI
+            ? ["serverAddress": try GatewayServerAddress(serverAddress ?? "").value]
+            : provider.requiresRegion ? ["region": region!.rawValue] : [:]
+        if [.clinePass, .codebuff, .neuralwatt, .aixy, .clawRouter].contains(provider) {
+            metadata["sourceCredentialFingerprint"] = try KeyQuotaRequest.fingerprint(provider: provider, key: key)
+        }
+        if provider == .commandCode || provider == .amp || provider == .huggingFace {
+            let identityData = try JSONEncoder().encode([provider.rawValue, key])
+            metadata["sourceCredentialFingerprint"] = SHA256.hash(data: identityData).map { String(format: "%02x", $0) }.joined()
+        }
+        var credential = ProviderCredentialEnvelope(provider: provider, kind: .apiKey, accessToken: key, metadata: metadata)
+        if [Provider.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) {
+            guard let fingerprint = credential.apiKeySourceFingerprint else { throw ProviderIntegrationError.invalidCredentialData }
+            credential.metadata["sourceCredentialFingerprint"] = fingerprint
+        }
+        return try credential.encoded()
     }
 
-    func beginLogin(provider: Provider, callbackURL: URL? = nil) async throws -> ProviderLoginSession {
+    func beginLogin(provider: Provider, callbackURL: URL? = nil, accountID: UUID? = nil) async throws -> ProviderLoginSession {
         switch provider {
+        case .gemini:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请配置自己的 Google iOS OAuth Client ID 后授权"))
+        case .antigravity:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请通过自有 iOS Google Client ID 完成原生授权"))
+        case .jetBrainsAI:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请主动导入官方 Central login export"))
+        case .nousPortal:
+            guard let accountID else { throw ProviderIntegrationError.invalidCredentialData }
+            return try await NousPortalAuthenticator(transport: nousTransport, now: now).begin(accountID: accountID)
+        case .copilot:
+            return try await CopilotProviderAuthenticator(transport: transport, now: now).begin()
         case .kimiCode:
             return try await KimiCodeProviderAuthenticator(transport: transport, now: now).begin()
         case .codex:
@@ -237,13 +570,43 @@ struct ProviderAuthenticationController: Sendable {
                 expiresAt: nil,
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
-        case .miniMaxChina, .openCodeGo, .zai, .deepSeek:
-            throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
+        case .grokBot:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用浏览器中通过 Cursor 账号授权 Grok Bot"))
+        case .zed:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在此账号的临时浏览器中登录 Zed 网页账户"))
+        case .augmentCode:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在此账号的临时浏览器中登录 Augment Code"))
+        case .windsurf:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中登录 Windsurf"))
+        case .manus:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中登录 Manus"))
+        case .devin:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中登录 Devin 并选择组织"))
+        case .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在隔离控制台浏览器中登录"))
+        case .cursor, .abacus, .perplexity, .notionAI:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中完成登录"))
+        case .replicate, .mistral, .sakana, .kiro, .stepFun, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用浏览器中选择站点并登录"))
+        case .openAIAPI, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("该提供商使用直接 Key 配置"))
         }
     }
 
     func continueLogin(_ session: ProviderLoginSession, callbackURL: URL? = nil) async throws -> ProviderLoginProgress {
         switch session.provider {
+        case .nousPortal:
+            return try await NousPortalAuthenticator(transport: nousTransport, now: now).poll(session)
+        case .jetBrainsAI:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请主动导入官方 Central login export"))
+        case .gemini:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请使用 Google 原生授权界面完成配置"))
+        case .antigravity:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在原生 Google 授权页完成回调"))
+        case .replicate, .mistral, .sakana, .kiro:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请使用该账号专用的网页登录界面"))
+        case .copilot:
+            return try await CopilotProviderAuthenticator(transport: transport, now: now).poll(session)
         case .kimiCode:
             return try await KimiCodeProviderAuthenticator(transport: transport, now: now).poll(session)
         case .codex:
@@ -252,14 +615,26 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).poll(session)
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek:
-            throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("该提供商没有可继续的设备授权流程"))
         }
     }
 
     func refreshCredentialIfNeeded(provider: Provider, credential: String) async throws -> ProviderCredentialRefresh {
         let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
         switch provider {
+        case .gemini:
+            return try await GeminiProviderClient(transport: transport, now: now).refreshIfNeeded(envelope)
+        case .antigravity:
+            let updated = try await AntigravityProviderClient(transport: transport, now: now).refreshed(envelope)
+            return .init(credential: updated == envelope ? credential : try updated.encoded(), changed: updated != envelope)
+        case .jetBrainsAI:
+            return .init(credential: credential, changed: false)
+        case .nousPortal:
+            // The local coordinator persists each rotated chain with generation CAS.
+            return .init(credential: credential, changed: false)
+        case .copilot:
+            return try CopilotProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .kimiCode:
             return try await KimiCodeProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .codex:
@@ -268,7 +643,7 @@ struct ProviderAuthenticationController: Sendable {
             return try await SuperGrokProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
         case .qoderInternational:
             return try QoderProviderAuthenticator(transport: transport, now: now).refreshIfNeeded(envelope)
-        case .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek:
+        case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .replicate, .mistral, .sakana, .kiro, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
             return .init(credential: credential, changed: false)
         }
     }

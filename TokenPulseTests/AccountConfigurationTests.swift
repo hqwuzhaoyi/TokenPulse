@@ -5,21 +5,30 @@ import XCTest
 @MainActor
 final class AccountConfigurationTests: XCTestCase {
     func testWatchSelectionPersistsWithWalletSettings() async throws {
-        let states = ConfigurationStateStore()
-        let configurations = ConfigurationStore()
-        let monitor = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
-                                   quotaClient: OfflineClient(), configurationStore: configurations)
-        await monitor.start(refresh: false)
-        await monitor.addAccount(name: "DeepSeek", credential: "fixture", provider: .deepSeek)
-        let account = try XCTUnwrap(monitor.states.first)
-        let settings = AccountReminderSettings(walletCurrency: "USD", walletThresholds: ["USD": 3])
-        await monitor.updateReminders(settings, accountID: account.id)
-        await monitor.updateWatchFavorite(false, accountID: account.id)
-        let restored = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
-                                    quotaClient: OfflineClient(), configurationStore: configurations)
-        await restored.start(refresh: false)
-        XCTAssertEqual(restored.configuration(for: account.id)?.isWatchFavorite, false)
-        XCTAssertEqual(restored.configuration(for: account.id)?.reminders, settings)
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                let states = ConfigurationStateStore()
+                let configurations = ConfigurationStore()
+                let monitor = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
+                                           quotaClient: OfflineClient(), configurationStore: configurations)
+                await monitor.start(refresh: false)
+                await monitor.addAccount(name: "工作 · DeepSeek API Key", credential: "fixture", provider: .deepSeek)
+                let account = try XCTUnwrap(monitor.states.first)
+                let settings = AccountReminderSettings(walletCurrency: "USD", walletThresholds: ["USD": 3])
+                await monitor.updateReminders(settings, accountID: account.id)
+                await monitor.updateWatchFavorite(false, accountID: account.id)
+                let restored = QuotaMonitor(accountStore: states, credentialStore: ConfigurationCredentials(),
+                                            quotaClient: OfflineClient(), configurationStore: configurations)
+                await restored.start(refresh: false)
+                XCTAssertEqual(restored.configuration(for: account.id)?.isWatchFavorite, false)
+                XCTAssertEqual(restored.configuration(for: account.id)?.reminders, settings)
+                let restoredAccount = try XCTUnwrap(restored.configuration(for: account.id)?.account)
+                XCTAssertEqual(restoredAccount.name, "工作 · DeepSeek API Key")
+                XCTAssertEqual(L10n.demoAccountName(restoredAccount), restoredAccount.name)
+                XCTAssertEqual(restoredAccount.id, account.id)
+                XCTAssertEqual(restoredAccount.provider, .deepSeek)
+            }
+        }
     }
 
     func testStartupFinishesInterruptedDeletion() async throws {
@@ -166,29 +175,37 @@ final class AccountConfigurationTests: XCTestCase {
     }
 
     func testAccountSettingsSurviveReconstruction() async throws {
-        let states = ConfigurationStateStore()
-        let configurations = ConfigurationStore()
-        let credentials = ConfigurationCredentials()
-        let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
-                                   quotaClient: OfflineClient(), configurationStore: configurations)
-        await monitor.start()
-        await monitor.addAccount(name: "MiniMax", credential: "fixture")
-        await monitor.addAccount(name: "Z.ai", credential: "fixture", provider: .zai)
-        monitor.reorderAccounts(from: IndexSet(integer: 1), to: 0)
-        await monitor.persistAccountOrder()
-        let account = try XCTUnwrap(monitor.configurations.last)
-        var settings = account.reminders
-        settings.quotaAlertsEnabled = false
-        await monitor.updateReminders(settings, accountID: account.id)
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                let states = ConfigurationStateStore()
+                let configurations = ConfigurationStore()
+                let credentials = ConfigurationCredentials()
+                let monitor = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                           quotaClient: OfflineClient(), configurationStore: configurations)
+                await monitor.start()
+                await monitor.addAccount(name: "MiniMax", credential: "fixture")
+                await monitor.addAccount(name: "Z.ai", credential: "fixture", provider: .zai)
+                monitor.reorderAccounts(from: IndexSet(integer: 1), to: 0)
+                await monitor.persistAccountOrder()
+                let account = try XCTUnwrap(monitor.configurations.last)
+                var settings = account.reminders
+                settings.quotaAlertsEnabled = false
+                settings.thresholds = [61.5, 90, 100]
+                await monitor.updateReminders(settings, accountID: account.id)
 
-        let restored = QuotaMonitor(accountStore: states, credentialStore: credentials,
-                                    quotaClient: OfflineClient(), configurationStore: configurations)
-        await restored.start()
-        XCTAssertEqual(restored.states.count, 2)
-        XCTAssertEqual(restored.states.map(\.account.name), ["Z.ai", "MiniMax"])
-        XCTAssertEqual(restored.configurations.map(\.account.name), ["Z.ai", "MiniMax"])
-        XCTAssertEqual(restored.configuration(for: account.id)?.reminders.quotaAlertsEnabled, false)
-        XCTAssertEqual(restored.configuration(for: account.id)?.reminders.resetRemindersEnabled, true)
+                let restored = QuotaMonitor(accountStore: states, credentialStore: credentials,
+                                            quotaClient: OfflineClient(), configurationStore: configurations)
+                await restored.start()
+                XCTAssertEqual(restored.states.count, 2)
+                XCTAssertEqual(restored.states.map(\.account.name), ["Z.ai", "MiniMax"])
+                XCTAssertEqual(restored.configurations.map(\.account.name), ["Z.ai", "MiniMax"])
+                XCTAssertEqual(restored.configuration(for: account.id)?.reminders.quotaAlertsEnabled, false)
+                XCTAssertEqual(restored.configuration(for: account.id)?.reminders.resetRemindersEnabled, true)
+                XCTAssertEqual(restored.configuration(for: account.id)?.reminders.thresholds, [61.5, 90, 100])
+                XCTAssertEqual(restored.configuration(for: account.id)?.credentialIdentity, account.credentialIdentity)
+                XCTAssertEqual(restored.states.map(\.id), monitor.states.map(\.id))
+            }
+        }
     }
 
     func testSyncKeepsCollectionTimeAndDoesNotRunFreshResultHandler() async throws {

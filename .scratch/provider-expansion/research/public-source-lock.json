@@ -1,0 +1,192 @@
+[
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/Profiled/GeminiUsageService.swift",
+    "sha256": "0b076e09590cf6982803b8f00d9f0bdd869034659d5d95e21c2505482f897fbd"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/KiroACPClient.swift",
+    "sha256": "dadeae440c762abf569e5419499821cb92fcf05f4967d119bcaec224b180c426"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/KiroUsageService.swift",
+    "sha256": "047a93ef2392a53d37c85490140523868f373d142246dae98ea6677d4585e982"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/AntigravityUsageService.swift",
+    "sha256": "f5cb450c87267821a4dff59bf349e2d4347991fba311ed5b8fc95151ce25c60c"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/Profiled/AlibabaTokenPlanUsageService.swift",
+    "sha256": "23d3f29f64c7ffef4f951a0f578c5e5d37296615e2f0b40816a822e1be58561a"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/Profiled/NousPortalUsageService.swift",
+    "sha256": "33179a62dc1dc3cb08c3fea629edd12ace073257d35a9e4b0ebf251b89027614"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/Profiled/JetBrainsAIUsageService.swift",
+    "sha256": "1b1a6bc023493cae008fad309ae949802509d3f35782ac1cddaa5a8c79a80592"
+  },
+  {
+    "repo": "qunqin24/Pulse",
+    "commit": "397c8fc4f1bd52180a452d2f3f0c099def97cf69",
+    "path": "Sources/Pulse/Providers/Profiled/OpenAIPlatformUsageService.swift",
+    "sha256": "ebed3e554f32e4f4bf61eea7a073434b23949e414c707ca090530c4becdc1832"
+  },
+  {
+    "repo": "google-gemini/gemini-cli",
+    "commit": "fb972b2f87fe7d5b06d37eac711490162d98de2c",
+    "path": "packages/core/src/code_assist/oauth2.ts",
+    "sha256": "a3f8c55ad885656ed62144fb74e3f737117f58606a98c095f5e96f0707d9fd68"
+  },
+  {
+    "repo": "google-gemini/gemini-cli",
+    "commit": "fb972b2f87fe7d5b06d37eac711490162d98de2c",
+    "path": "packages/core/src/code_assist/server.ts",
+    "sha256": "c142a19cbecfe34a38cb6a4472bf846d5f8ce7cf23e81acb6f23d0f0fd16bd99"
+  },
+  {
+    "repo": "google-gemini/gemini-cli",
+    "commit": "fb972b2f87fe7d5b06d37eac711490162d98de2c",
+    "path": "packages/core/src/code_assist/types.ts",
+    "sha256": "65b10b0bccb87965afadce906c8c13256d620de6b3e8c002d9ffb683e5b510f4"
+  },
+  {
+    "repo": "modelstudioai/cli",
+    "commit": "8bbbbc722d70fb200641ef22b6f6d033aeae9f74",
+    "path": "packages/commands/src/commands/usage/token-plan.ts",
+    "sha256": "8a4b28f8eb851da795dda62debed1b7584992efd251ba4e2bc464701195680bb"
+  },
+  {
+    "repo": "modelstudioai/cli",
+    "commit": "8bbbbc722d70fb200641ef22b6f6d033aeae9f74",
+    "path": "packages/core/src/auth/refresh-token.ts",
+    "sha256": "0df8873c0b1bc06ddfbd9772454ce84fe8ec7cbea2a428ece93a72d12c0b834f"
+  },
+  {
+    "repo": "modelstudioai/cli",
+    "commit": "8bbbbc722d70fb200641ef22b6f6d033aeae9f74",
+    "path": "packages/core/src/console/gateway.ts",
+    "sha256": "94570113c5597b1e5132114f549b8681b098cc7a9bd432fade038d369592df81"
+  },
+  {
+    "repo": "modelstudioai/cli",
+    "commit": "8bbbbc722d70fb200641ef22b6f6d033aeae9f74",
+    "path": "packages/core/src/client/acs.ts",
+    "sha256": "910d6811d2606ed4264f002c94d6fd528ca16244db2816dd332e297bd339bac3"
+  },
+  {
+    "repo": "modelstudioai/cli",
+    "commit": "8bbbbc722d70fb200641ef22b6f6d033aeae9f74",
+    "path": "packages/core/src/client/client.ts",
+    "sha256": "680db6366e6d101f0cce18cd72904091030210549a99e12f881601ee78ebb2c2"
+  },
+  {
+    "repo": "NousResearch/hermes-agent",
+    "commit": "b7200efef01dce2097c3c5556843ff3cd2764789",
+    "path": "hermes_cli/auth_constants.py",
+    "sha256": "013aefc7b82452728cfd654d3acb08f0250b38168f15ab6f4460e09c79a5a3c2"
+  },
+  {
+    "repo": "NousResearch/hermes-agent",
+    "commit": "b7200efef01dce2097c3c5556843ff3cd2764789",
+    "path": "hermes_cli/auth_device_flow.py",
+    "sha256": "a2cf7a3003fa49fbfa76873cc9755adc0f82cc805ec8b6ea930033ce474f9d00"
+  },
+  {
+    "repo": "NousResearch/hermes-agent",
+    "commit": "b7200efef01dce2097c3c5556843ff3cd2764789",
+    "path": "hermes_cli/auth_nous.py",
+    "sha256": "e2cf853be6adb6f979f7b9ac1af05e2eaf16e1217bb87212c91d36746dc16e99"
+  },
+  {
+    "repo": "NousResearch/hermes-agent",
+    "commit": "b7200efef01dce2097c3c5556843ff3cd2764789",
+    "path": "hermes_cli/nous_account.py",
+    "sha256": "b0659cd80a872ad2e309aff521712cde726179080896ced6b3ff8e05e37aa282"
+  },
+  {
+    "repo": "kiro-web-portal",
+    "commit": "release-7641e207feab0c25",
+    "path": "main.js",
+    "url": "https://assets.app.kiro.dev/releases/7641e207feab0c25/main.js",
+    "sha256": "38176f7972d2e0a24f8f856eabc044f335bf5afc8548f8040ec0e175feea11ff"
+  },
+  {
+    "repo": "kiro-web-portal",
+    "commit": "release-7641e207feab0c25",
+    "path": "vendor.js",
+    "url": "https://assets.app.kiro.dev/releases/7641e207feab0c25/vendor.js",
+    "sha256": "610e1a0770e6b325eef96bd09b071f07cbf38c3e6d018c0fbb0a9bf1799e0e78"
+  },
+  {
+    "repo": "lobehub/lobe-icons",
+    "commit": "79b551cf26aab9ea4ac701fb807160950a5b860f",
+    "path": "packages/static-svg/icons/kiro.svg",
+    "sha256": "1e56073e35799b0d7075d5376ca2d99c3d3bbf51a000a1ec3d4b0df7612c91d6"
+  },
+  {
+    "repo": "google-antigravity/antigravity-cli",
+    "commit": "ae27bff644d78ed0c759b4d8a6b79506f1bed96d",
+    "path": "README.md",
+    "sha256": "b92e6a7dfd8b0db2238ad3a31d781a2edc062985baaa4e531f62c8a2bf1f42f2"
+  },
+  {
+    "repo": "google-antigravity/antigravity-cli",
+    "commit": "ae27bff644d78ed0c759b4d8a6b79506f1bed96d",
+    "path": "CHANGELOG.md",
+    "sha256": "7b100c90d46863fc51bc630b968adc6ff054fcfa2d95a0e2ac498a13dbd96ac3"
+  },
+  {
+    "repo": "google-antigravity/antigravity-sdk-python",
+    "commit": "12f9a4c3becf487302dc799b0f59054f01f3ddb9",
+    "path": "README.md",
+    "sha256": "d714441343f6e1404ac6f8aaf35e5ddd30b5af5fbccf91891ab5937e16000b27"
+  },
+  {
+    "repo": "google-antigravity/antigravity-sdk-python",
+    "commit": "12f9a4c3becf487302dc799b0f59054f01f3ddb9",
+    "path": "google/antigravity/models.py",
+    "sha256": "f1d9adc1ed47c8b44622552008f56c9ba7d8975722f93553cdb8b55462b3088c"
+  },
+  {
+    "repo": "google-antigravity/antigravity-sdk-python",
+    "commit": "12f9a4c3becf487302dc799b0f59054f01f3ddb9",
+    "path": "google/antigravity/connections/local/local_connection.py",
+    "sha256": "db0a610331679963761b5c16a7b18f992d18fd6a876fc1e4bbb24f8e0b4c3c18"
+  },
+  {
+    "repo": "antigravity-cli-release",
+    "commit": "1.2.15-5434575321694208",
+    "path": "darwin-arm/cli_mac_arm64.tar.gz",
+    "url": "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.15-5434575321694208/darwin-arm/cli_mac_arm64.tar.gz",
+    "sha512": "1b75da1501ee3e877fa708116f31bd88fabc7f25d8a4b29ef7948b9647d7ad8549b98f6c23418756a38fa210a1a25a526739005ea7b178e50847b67b967cfc7d",
+    "largeArtifact": true,
+    "manifest_url": "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/darwin_arm64.json",
+    "observed_manifest_version": "1.2.15",
+    "observed_manifest_sha256": "77342945c5cc25837c8ff2254620185f955f6b805fe8227bd7ae9f0d9f11250b"
+  },
+  {
+    "repo": "jetbrains-central-cli-release",
+    "commit": "1.11.0-893e3e103dac07cd29ab1b6b57c877adcaaf7351-dirty",
+    "path": "central_1.11.0_linux_x86_64.tar.gz",
+    "url": "https://jetbrains-central-cli.s3.eu-west-1.amazonaws.com/central/1.11.0/central_1.11.0_linux_x86_64.tar.gz",
+    "sha256": "34c7e468870fdc57d60261034760f72b85c4a9e3f2dbfb9dec006b413f62ae4c",
+    "largeArtifact": true,
+    "binarySHA256": "07d76becc367762e31f59ecbf744a967ce5ef1cbf395b4fc05835e6fb244a042"
+  }
+]

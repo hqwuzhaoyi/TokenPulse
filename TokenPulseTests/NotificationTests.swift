@@ -2,6 +2,26 @@ import XCTest
 @testable import TokenPulse
 
 final class NotificationTests: XCTestCase {
+    func testUnrepresentableProviderResetCannotCreateASchedule() {
+        let now = Date(timeIntervalSince1970: 100)
+        let account = UUID()
+        let window = QuotaWindow(id: "fixture", name: "额度", scope: nil,
+                                 usedPercentage: 96, remainingCount: nil, totalCount: nil,
+                                 resetsAt: Date(timeIntervalSince1970: 1e20))
+        let snapshot = QuotaSnapshot(accountID: account, windows: [window], collectedAt: now)
+        let result = NotificationPlanner().planSuccessfulRefresh(
+            accountID: account, accountName: "Fixture", previousSnapshot: nil, newSnapshot: snapshot,
+            settings: AccountReminderSettings(), ledger: ReminderLedger(), now: now)
+        XCTAssertFalse(result.operations.contains {
+            if case .schedule = $0 { return true }
+            return false
+        })
+        XCTAssertTrue(result.operations.contains {
+            if case .deliver(let notification) = $0 { return notification.kind == .quotaAlert }
+            return false
+        })
+    }
+
     @MainActor
     func testRemovingAccountCancelsItsScheduledNotifications() async throws {
         let suite = "com.tokenpulse.tests.delete-notifications.\(UUID().uuidString)"
@@ -1005,8 +1025,11 @@ final class NotificationTests: XCTestCase {
         XCTAssertTrue(delivered(watch.operations, kind: .confirmedReset).isEmpty)
     }
 
+    private var nextObservationOffset: TimeInterval = 0
     private func snapshot(collectedAt: Date? = nil, windows: [QuotaWindow]) -> QuotaSnapshot {
-        QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt ?? now)
+        let observedAt = collectedAt ?? now.addingTimeInterval(nextObservationOffset)
+        nextObservationOffset = max(nextObservationOffset, observedAt.timeIntervalSince(now) + 1)
+        return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: observedAt)
     }
 
     private func window(id: String,
@@ -1063,12 +1086,697 @@ private struct PermissionTestAdapter: NotificationApplying {
 
 private actor RecordingNotificationAdapter: NotificationApplying {
     private var recordedOperations: [NotificationOperation] = []
+    private var failNext = false
 
     @MainActor func configure() {}
     func authorizationStatus() async -> NotificationAuthorizationStatus { .authorized }
     func requestAuthorization() async throws -> Bool { true }
     func apply(_ operations: [NotificationOperation]) async throws {
+        guard !operations.isEmpty else { return }
+        if failNext {
+            failNext = false
+            throw NotificationAdapterError.authorizationRequired
+        }
         recordedOperations.append(contentsOf: operations)
     }
+    func failNextApply() { failNext = true }
     func operations() -> [NotificationOperation] { recordedOperations }
+}
+
+final class PreciseQuotaThresholdTests: XCTestCase {
+    private let accountID = UUID()
+
+    func testLargeExactCountersDoNotAlertOneUnitBefore80_95Or100AndDoAlertAtBoundary() {
+        let limit = Decimal(string: "100000000000000000")!
+        for threshold in [80.0, 95.0, 100.0] {
+            let boundary = Decimal(threshold) * limit / 100
+            // Deliberately use the rounded display percentage at both observations.
+            let before = plan(used: boundary - 1, total: limit, reported: threshold, thresholds: [threshold], time: 100)
+            XCTAssertTrue(alerts(before).isEmpty, "Below \(threshold)% must not alert")
+            XCTAssertFalse(before.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: threshold))
+            let reached = plan(used: boundary, total: limit, reported: threshold, thresholds: [threshold], time: 101, ledger: before.ledger)
+            XCTAssertEqual(alerts(reached).count, 1)
+            XCTAssertTrue(reached.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: threshold))
+            let repeated = plan(used: boundary, total: limit, reported: threshold, thresholds: [threshold], time: 102, ledger: reached.ledger)
+            XCTAssertTrue(alerts(repeated).isEmpty)
+        }
+    }
+
+    func testRepeatingFractionUsesDecimalBoundaryInsteadOfDisplayedDoubleAndZeroIsValid() {
+        let third = plan(used: 1, total: 3, reported: 50, thresholds: [33, 34])
+        XCTAssertEqual(alerts(third).map(\.body), ["精确额度达到33%"])
+        XCTAssertTrue(third.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: 33))
+        XCTAssertFalse(third.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: 34))
+        XCTAssertEqual(alerts(plan(used: Decimal(string: "2.5"), total: 10, reported: nil, thresholds: [25])).count, 1)
+        XCTAssertTrue(alerts(plan(used: 0, total: 10, reported: 100)).isEmpty)
+    }
+
+    func testExactExhaustionAndOverageReachAllConfiguredThresholdsEvenWithoutPercentage() {
+        for used in [Decimal(10), Decimal(11)] {
+            let result = plan(used: used, total: 10, reported: nil)
+            XCTAssertEqual(alerts(result).map(\.body), ["精确额度达到100%"])
+            for threshold in [80.0, 95.0, 100.0] {
+                XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: "exact", cycle: .provider("stable"), threshold: threshold))
+            }
+        }
+    }
+
+    func testInvalidOrIncompleteExactCountsFallBackToExistingReportedPercentage() {
+        let cases: [(Decimal?, Decimal?)] = [(nil, 100), (90, nil), (-1, 100), (90, 0), (90, -1), (.nan, 100), (90, .nan)]
+        for (used, total) in cases {
+            let result = plan(used: used, total: total, reported: 90)
+            XCTAssertEqual(alerts(result).map(\.body), ["精确额度达到80%"])
+        }
+    }
+
+    func testExplicitExhaustionStillOverridesExactCountsAndUnlimitedStillSuppressesAlerts() {
+        XCTAssertEqual(alerts(plan(used: 1, total: 100, reported: 60, exhausted: true)).map(\.body), ["精确额度达到100%"])
+        XCTAssertTrue(alerts(plan(used: 100, total: 100, reported: 100, unlimited: true)).isEmpty)
+        XCTAssertTrue(alerts(plan(used: 100, total: 100, reported: 100, enabled: false)).isEmpty)
+    }
+
+    func testLegacyWindowsWithoutExactCountsRetainThresholdAndExhaustionRules() {
+        XCTAssertTrue(alerts(plan(used: nil, total: nil, reported: 79.9, includeExact: false)).isEmpty)
+        XCTAssertEqual(alerts(plan(used: nil, total: nil, reported: 80, includeExact: false)).map(\.body), ["精确额度达到80%"])
+        XCTAssertEqual(alerts(plan(used: nil, total: nil, reported: 60, exhausted: true, includeExact: false)).map(\.body), ["精确额度达到100%"])
+        XCTAssertTrue(alerts(plan(used: nil, total: nil, reported: nil, exhausted: true, includeExact: false)).isEmpty)
+    }
+
+    func testContinuousAndLifetimeRecoveryRearmsOnlyOnceAtTheExactBoundaryWithoutResetNotice() {
+        let limit = Decimal(string: "100000000000000000")!, boundary = limit * 80 / 100
+        for semantics in [QuotaResetSemantics.continuousReplenishment, .nonResettingAllowance] {
+            let first = plan(used: boundary, total: limit, reported: 80, thresholds: [80], resetSemantics: semantics)
+            XCTAssertEqual(alerts(first).count, 1)
+            let recovered = plan(used: boundary - 1, total: limit, reported: 80, thresholds: [80], time: 101,
+                                 ledger: first.ledger, resetSemantics: semantics)
+            XCTAssertTrue(recovered.operations.isEmpty)
+            let cycle = recovered.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity
+            XCTAssertNotEqual(cycle, first.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity)
+            let furtherRecovery = plan(used: boundary - 2, total: limit, reported: 80, thresholds: [80], time: 102,
+                                       ledger: recovered.ledger, resetSemantics: semantics)
+            XCTAssertTrue(furtherRecovery.operations.isEmpty)
+            XCTAssertEqual(furtherRecovery.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity, cycle)
+            let crossed = plan(used: boundary, total: limit, reported: 80, thresholds: [80], time: 103,
+                               ledger: furtherRecovery.ledger, resetSemantics: semantics)
+            XCTAssertEqual(alerts(crossed).count, 1)
+            XCTAssertFalse(crossed.operations.contains {
+                if case .deliver(let notification) = $0 { return notification.kind == .confirmedReset }; return false
+            })
+        }
+    }
+
+    func testRoundedPreviousDisplayBelowThresholdCannotRepeatedlyRearmAndMissingUsageKeepsExactObservation() {
+        let limit = Decimal(string: "100000000000000000")!, boundary = limit * 80 / 100
+        let first = plan(used: boundary - 1, total: limit, reported: 80, thresholds: [80], resetSemantics: .continuousReplenishment)
+        let identity = first.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity
+        let lower = plan(used: boundary - 2, total: limit, reported: 80, thresholds: [80], time: 101,
+                         ledger: first.ledger, resetSemantics: .continuousReplenishment)
+        XCTAssertTrue(lower.operations.isEmpty)
+        XCTAssertEqual(lower.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity, identity)
+        let unknown = plan(used: nil, total: limit, reported: nil, thresholds: [80], time: 102,
+                           ledger: lower.ledger, resetSemantics: .continuousReplenishment)
+        XCTAssertTrue(unknown.operations.isEmpty)
+        XCTAssertEqual(unknown.ledger.cycleState(accountID: accountID, windowID: "exact")?.exactCounts,
+                       lower.ledger.cycleState(accountID: accountID, windowID: "exact")?.exactCounts)
+        let lowerAgain = plan(used: boundary - 3, total: limit, reported: 80, thresholds: [80], time: 103,
+                              ledger: unknown.ledger, resetSemantics: .continuousReplenishment)
+        XCTAssertEqual(lowerAgain.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity, identity)
+        XCTAssertTrue(lowerAgain.operations.isEmpty)
+    }
+
+    func testExplicitExhaustionRemainsAuthoritativeForTheNextRecoveryObservation() {
+        let first = plan(used: 1, total: 100, reported: 60, thresholds: [80], exhausted: true, resetSemantics: .nonResettingAllowance)
+        XCTAssertEqual(alerts(first).count, 1)
+        XCTAssertEqual(first.ledger.cycleState(accountID: accountID, windowID: "exact")?.usedPercentage, 100)
+        XCTAssertNil(first.ledger.cycleState(accountID: accountID, windowID: "exact")?.exactCounts)
+        let recovered = plan(used: 1, total: 100, reported: 60, thresholds: [80], time: 101,
+                             ledger: first.ledger, resetSemantics: .nonResettingAllowance)
+        XCTAssertTrue(recovered.operations.isEmpty)
+        XCTAssertNotEqual(recovered.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity,
+                          first.ledger.cycleState(accountID: accountID, windowID: "exact")?.identity)
+        let crossed = plan(used: 80, total: 100, reported: 80, thresholds: [80], time: 102,
+                           ledger: recovered.ledger, resetSemantics: .nonResettingAllowance)
+        XCTAssertEqual(alerts(crossed).count, 1)
+    }
+
+    func testNewPercentageObservationReplacesOldExactCountersAndLegacyCycleStateDecodes() throws {
+        let first = plan(used: 90, total: 100, reported: 90, thresholds: [80], resetSemantics: .nonResettingAllowance)
+        let newer = plan(used: nil, total: nil, reported: 85, thresholds: [80], time: 101,
+                         ledger: first.ledger, includeExact: false, resetSemantics: .nonResettingAllowance)
+        let state = try XCTUnwrap(newer.ledger.cycleState(accountID: accountID, windowID: "exact"))
+        XCTAssertNil(state.exactCounts)
+        XCTAssertEqual(state.usedPercentage, 85)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(state)) as? [String: Any])
+        object.removeValue(forKey: "exactCounts")
+        let legacy = try JSONDecoder().decode(WindowCycleState.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertEqual(legacy, state)
+        let savedLedger = try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(first.ledger))
+        XCTAssertEqual(savedLedger, first.ledger)
+    }
+
+    private func plan(used: Decimal?, total: Decimal?, reported: Double?, thresholds: [Double] = [80, 95, 100],
+                      time: TimeInterval = 100, ledger: ReminderLedger = ReminderLedger(),
+                      exhausted: Bool = false, unlimited: Bool = false, enabled: Bool = true,
+                      includeExact: Bool = true, resetSemantics: QuotaResetSemantics? = nil) -> NotificationPlanningResult {
+        let date = Date(timeIntervalSince1970: time)
+        let window = QuotaWindow(id: "exact", name: "精确额度", scope: nil, isExhausted: exhausted,
+                                 isUnlimited: unlimited, usedPercentage: reported, remainingCount: nil, totalCount: nil,
+                                 resetsAt: nil, cycleID: "stable", exactCounts: includeExact ? DecimalQuotaCounts(used: used, total: total) : nil,
+                                 resetSemantics: resetSemantics)
+        return NotificationPlanner().planSuccessfulRefresh(accountID: accountID, accountName: "测试", previousSnapshot: nil,
+                                                           newSnapshot: QuotaSnapshot(accountID: accountID, windows: [window], collectedAt: date),
+                                                           settings: AccountReminderSettings(quotaAlertsEnabled: enabled, resetRemindersEnabled: false, thresholds: thresholds),
+                                                           ledger: ledger, now: date)
+    }
+    private func alerts(_ result: NotificationPlanningResult) -> [ReminderNotification] {
+        result.operations.compactMap {
+            if case .deliver(let notification) = $0, notification.kind == .quotaAlert { return notification }; return nil
+        }
+    }
+}
+
+final class OrderedQuotaObservationTests: XCTestCase {
+    private let id = UUID()
+    private let planner = NotificationPlanner()
+    private func snap(_ at: Double, cycle: String = "A", used: Double = 50, reset: Double = 1000, empty: Bool = false) -> QuotaSnapshot {
+        .init(accountID: id, windows: empty ? [] : [.init(id: "w", name: "main", scope: nil, usedPercentage: used,
+              remainingCount: nil, totalCount: nil, resetsAt: Date(timeIntervalSince1970: reset), cycleID: cycle)],
+              collectedAt: Date(timeIntervalSince1970: at))
+    }
+    private func apply(_ snapshot: QuotaSnapshot, previous: QuotaSnapshot? = nil, ledger: ReminderLedger = ReminderLedger()) -> NotificationPlanningResult {
+        planner.planSuccessfulRefresh(accountID: id, accountName: "X", previousSnapshot: previous, newSnapshot: snapshot,
+                                       settings: AccountReminderSettings(), ledger: ledger, now: Date(timeIntervalSince1970: 400))
+    }
+    private func kinds(_ result: NotificationPlanningResult) -> [ReminderNotificationKind] {
+        result.operations.compactMap { if case .deliver(let value) = $0 { return value.kind }; return nil }
+    }
+    func testStaleAndEqualProviderCyclesCannotRefireResetThresholdOrRollbackLedger() {
+        let a = snap(100, used: 80), b = snap(200, cycle: "B", used: 20, reset: 2000)
+        let first = apply(a), second = apply(b, previous: a, ledger: first.ledger)
+        XCTAssertTrue(kinds(second).contains(.confirmedReset))
+        for at in [150.0, 200.0] {
+            let replay = apply(snap(at, used: 95), previous: b, ledger: second.ledger)
+            XCTAssertTrue(replay.operations.isEmpty)
+            XCTAssertEqual(replay.ledger, second.ledger)
+        }
+        let c = apply(snap(300, cycle: "C", used: 5, reset: 3000), previous: snap(150), ledger: second.ledger)
+        XCTAssertTrue(kinds(c).contains(.confirmedReset), "The next genuine cycle must still reset")
+        let upgraded = apply(snap(350, cycle: "C", used: 95, reset: 3000), ledger: c.ledger)
+        XCTAssertTrue(kinds(upgraded).contains(.quotaAlert))
+    }
+    func testOldMissingWindowCannotCancelNewPlanAndFreshEmptyFramePreventsResurrection() {
+        let first = apply(snap(100)), latest = apply(snap(200, cycle: "B", used: 20, reset: 2000), ledger: first.ledger)
+        for at in [150.0, 200.0] {
+            let stale = apply(snap(at, empty: true), ledger: latest.ledger)
+            XCTAssertTrue(stale.operations.isEmpty)
+            XCTAssertEqual(stale.ledger, latest.ledger)
+        }
+        let removed = apply(snap(250, empty: true), ledger: latest.ledger)
+        XCTAssertTrue(removed.operations.contains { if case .cancel = $0 { return true }; return false })
+        XCTAssertTrue(removed.ledger.pendingSchedules(accountID: id).isEmpty)
+        XCTAssertEqual(removed.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 250))
+        let resurrected = apply(snap(225, cycle: "B", used: 95, reset: 2500), ledger: removed.ledger)
+        XCTAssertTrue(resurrected.operations.isEmpty)
+        XCTAssertEqual(resurrected.ledger, removed.ledger)
+    }
+    func testStaleSettingsDataPreservesPlansButExplicitDisableAndLatestEnableStillWork() {
+        let latestSnapshot = snap(200, used: 20, reset: 2000), latest = apply(latestSnapshot)
+        for stale in [Optional(snap(150, empty: true)), nil] {
+            let result = planner.planSettingsChange(accountID: id, accountName: "X", latestSnapshot: stale,
+                settings: AccountReminderSettings(), ledger: latest.ledger, now: Date(timeIntervalSince1970: 400))
+            XCTAssertTrue(result.operations.isEmpty)
+            XCTAssertEqual(result.ledger, latest.ledger)
+        }
+        let disabled = planner.planSettingsChange(accountID: id, accountName: "X", latestSnapshot: snap(150),
+            settings: AccountReminderSettings(resetRemindersEnabled: false), ledger: latest.ledger, now: Date(timeIntervalSince1970: 400))
+        XCTAssertTrue(disabled.ledger.pendingSchedules(accountID: id).isEmpty)
+        let enabled = planner.planSettingsChange(accountID: id, accountName: "X", latestSnapshot: latestSnapshot,
+            settings: AccountReminderSettings(), ledger: disabled.ledger, now: Date(timeIntervalSince1970: 400))
+        XCTAssertEqual(enabled.ledger.pendingSchedules(accountID: id).map(\.resetAt), [Date(timeIntervalSince1970: 2000)])
+    }
+    func testOlderPreviousSnapshotCannotManufactureResetOnFreshSameProviderCycle() {
+        let a = snap(100), b = snap(200, cycle: "B", used: 20, reset: 2000)
+        let first = apply(a), latest = apply(b, previous: a, ledger: first.ledger)
+        let sameCycle = apply(snap(250, cycle: "B", used: 95, reset: 2000), previous: a, ledger: latest.ledger)
+        XCTAssertFalse(kinds(sameCycle).contains(.confirmedReset))
+        XCTAssertTrue(kinds(sameCycle).contains(.quotaAlert))
+    }
+    func testQuotaFenceDoesNotSuppressIndependentNewWalletObservation() {
+        var ledger = apply(snap(200)).ledger
+        ledger.setWalletAlertState(.init(accountID: id, currency: "USD", isActive: false, observedAt: Date(timeIntervalSince1970: 100)))
+        var mixed = snap(150, used: 95)
+        let wallet = QuotaWindow(id: "wallet", name: "wallet", scope: nil, usedPercentage: nil, remainingCount: nil, totalCount: nil,
+                                 resetsAt: nil, wallet: .init(currency: "USD", total: 0))
+        mixed = .init(accountID: id, windows: mixed.windows + [wallet], collectedAt: mixed.collectedAt)
+        let result = apply(mixed, ledger: ledger)
+        XCTAssertEqual(kinds(result), [.walletAlert])
+        XCTAssertEqual(result.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 200))
+        XCTAssertEqual(result.ledger.cycleState(accountID: id, windowID: "w"), ledger.cycleState(accountID: id, windowID: "w"))
+        XCTAssertEqual(result.ledger.pendingSchedules(accountID: id), ledger.pendingSchedules(accountID: id))
+    }
+    func testQuotaFenceRoundTripLegacyFallbackAndNewestMergeAreAccountIsolated() throws {
+        let latest = apply(snap(200)).ledger
+        XCTAssertEqual(try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(latest)), latest)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(latest)) as? [String: Any])
+        object.removeValue(forKey: "quotaObservationTimes")
+        let legacy = try JSONDecoder().decode(ReminderLedger.self, from: JSONSerialization.data(withJSONObject: object))
+        XCTAssertEqual(legacy.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 200))
+        var newer = latest; newer.recordQuotaObservation(Date(timeIntervalSince1970: 300), accountID: id)
+        let otherID = UUID(); newer.recordQuotaObservation(Date(timeIntervalSince1970: 50), accountID: otherID)
+        let merged = legacy.merging(newer)
+        XCTAssertEqual(merged.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 300))
+        XCTAssertEqual(merged.quotaObservedAt(accountID: otherID), Date(timeIntervalSince1970: 50))
+        XCTAssertEqual(newer.merging(legacy).quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 300))
+    }
+    func testCredentialReplacementClearsFenceAndIncompatibleMergeCannotBlockNewScope() {
+        var old = ReminderLedger(); _ = old.bindCredentialIdentity("old", accountID: id)
+        old = apply(snap(300), ledger: old).ledger
+        var new = old; _ = new.bindCredentialIdentity("new", accountID: id)
+        XCTAssertNil(new.quotaObservedAt(accountID: id))
+        let merged = new.merging(old)
+        XCTAssertNil(merged.quotaObservedAt(accountID: id))
+        let refreshed = apply(snap(50, cycle: "new", used: 95), ledger: merged)
+        XCTAssertTrue(kinds(refreshed).contains(.quotaAlert))
+        XCTAssertEqual(refreshed.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 50))
+    }
+}
+
+extension NotificationTests {
+    func testBilingualNotificationsPreserveAccountModelsCurrencyAndRegionalAmounts() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let userName = "工作 🌙 / Claude API Key"
+        let quota = QuotaWindow(id: "claude.weekly_scoped.Fable", name: "每周额度", scope: "Fable",
+                                period: .weekly, usedPercentage: 96, remainingCount: nil, totalCount: nil,
+                                resetsAt: reset, cycleID: "weekly-original")
+        let wallet = QuotaWindow(id: "custom.wallet", name: "USD", scope: nil,
+                                 usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                                 wallet: WalletBalance(currency: "USD", total: Decimal(string: "1.23456789")!))
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [quota, wallet], collectedAt: observation)
+        for language in ["zh-Hans", "en"] {
+            for region in ["en_US", "en_DE"] {
+                L10n.withLanguage(language) {
+                    let result = planner.planSuccessfulRefresh(accountID: accountID, accountName: userName, provider: .claude,
+                        previousSnapshot: nil, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                        ledger: ReminderLedger(), now: observation, locale: Locale(identifier: region))
+                    let quotas = delivered(result.operations, kind: .quotaAlert)
+                    XCTAssertEqual(quotas.map(\.title), [language == "en" ? "\(userName) Quota Alert" : "\(userName)额度告警"])
+                    XCTAssertTrue(quotas[0].body.contains(language == "en" ? "Fable Weekly Quota" : "Fable 每周额度"))
+                    XCTAssertTrue(quotas[0].body.contains("95"))
+                    let wallets = delivered(result.operations, kind: .walletAlert)
+                    XCTAssertEqual(wallets.map(\.title), [language == "en" ? "\(userName) Wallet Balance Alert" : "\(userName)钱包余额提醒"])
+                    XCTAssertTrue(wallets[0].body.contains(region == "en_DE" ? "1,23456789 USD" : "1.23456789 USD"))
+                    XCTAssertEqual(scheduled(result.operations).map(\.1), [reset])
+                    XCTAssertEqual(scheduled(result.operations)[0].0.kind, .expectedReset)
+                    XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                                  cycle: .provider("weekly-original"), threshold: 95))
+                    XCTAssertEqual(snapshot.windows[0].name, "每周额度")
+                    XCTAssertEqual(snapshot.windows[0].scope, "Fable")
+                    XCTAssertEqual(snapshot.windows[1].wallet?.currency, "USD")
+                }
+            }
+        }
+    }
+
+    func testLanguageChangesReplaceOnlyFutureContentWithoutRearmingOrReplaying() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 96, remainingCount: nil, totalCount: nil, resetsAt: reset, cycleID: "same-cycle")
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let initial = L10n.withLanguage("zh-Hans") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "我的 API", provider: .claude,
+                previousSnapshot: nil, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                ledger: ReminderLedger(), now: observation)
+        }
+        let original = try XCTUnwrap(scheduled(initial.operations).first)
+        let translated = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "我的 API", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: initial.ledger, now: observation)
+        }
+        let replacement = try XCTUnwrap(scheduled(translated.operations).first)
+        XCTAssertEqual(replacement.0.identifier, original.0.identifier)
+        XCTAssertEqual(replacement.1, original.1)
+        XCTAssertEqual(replacement.0.title, "我的 API Quota Expected to Have Reset")
+        XCTAssertEqual(replacement.0.body, "Weekly Quota")
+        XCTAssertTrue(cancelled(translated.operations).isEmpty)
+        XCTAssertEqual(translated.operations.count, 1)
+        XCTAssertEqual(translated.ledger.pendingSchedules(accountID: accountID).map(\.windowIDs), [Set([quota.id])])
+        let occurrence = ResetOccurrenceRecord(accountID: accountID, windowID: quota.id, identity: .expectedAt(reset))
+        XCTAssertTrue(initial.ledger.hasExpectedReset(occurrence))
+        XCTAssertTrue(translated.ledger.hasExpectedReset(occurrence))
+        XCTAssertEqual(translated.ledger.quotaObservedAt(accountID: accountID), initial.ledger.quotaObservedAt(accountID: accountID))
+        for threshold in [80.0, 95.0] {
+            XCTAssertTrue(translated.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                               cycle: .provider("same-cycle"), threshold: threshold))
+        }
+        let repeated = L10n.withLanguage("en") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "我的 API", provider: .claude,
+                previousSnapshot: snapshot, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                ledger: translated.ledger, now: observation)
+        }
+        XCTAssertTrue(repeated.operations.isEmpty)
+        let afterDelivery = L10n.withLanguage("zh-Hans") {
+            planner.planSettingsChange(accountID: accountID, accountName: "我的 API", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: translated.ledger,
+                now: reset.addingTimeInterval(1))
+        }
+        XCTAssertTrue(scheduled(afterDelivery.operations).isEmpty)
+        XCTAssertTrue(delivered(afterDelivery.operations, kind: .quotaAlert).isEmpty)
+        XCTAssertTrue(delivered(afterDelivery.operations, kind: .confirmedReset).isEmpty)
+        XCTAssertTrue(afterDelivery.ledger.hasExpectedReset(occurrence))
+    }
+
+    func testOldLedgerWithoutRenderedContentMigratesOnlyItsFutureRequest() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 80, remainingCount: nil, totalCount: nil, resetsAt: reset)
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let initial = L10n.withLanguage("zh-Hans") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "用户原名", provider: .claude,
+                previousSnapshot: nil, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                ledger: ReminderLedger(), now: observation)
+        }
+        var archive = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(initial.ledger)) as? [String: Any])
+        var schedules = try XCTUnwrap(archive["pendingResetSchedules"] as? [[String: Any]])
+        for index in schedules.indices {
+            schedules[index].removeValue(forKey: "notification")
+            schedules[index].removeValue(forKey: "notificationWindows")
+        }
+        archive["pendingResetSchedules"] = schedules
+        let legacy = try JSONDecoder().decode(ReminderLedger.self, from: JSONSerialization.data(withJSONObject: archive))
+        XCTAssertNil(legacy.pendingSchedules(accountID: accountID).first?.notification)
+        let result = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "用户原名", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: legacy, now: observation)
+        }
+        XCTAssertEqual(scheduled(result.operations).map { $0.0.identifier }, scheduled(initial.operations).map { $0.0.identifier })
+        XCTAssertEqual(scheduled(result.operations).map(\.1), [reset])
+        XCTAssertEqual(result.operations.count, 1)
+        XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                       cycle: .resetBoundary(reset), threshold: 80))
+        let reopened = try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(result.ledger))
+        let repeated = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "用户原名", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: reopened, now: observation)
+        }
+        XCTAssertTrue(repeated.operations.isEmpty)
+    }
+
+    func testPendingLanguageRemainsDeviceLocalAndOtherAccountsKeepTheirContent() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let otherID = UUID()
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: reset)
+        let firstSnapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let otherSnapshot = QuotaSnapshot(accountID: otherID, windows: [quota], collectedAt: observation)
+        let first = L10n.withLanguage("zh-Hans") {
+            planner.planSettingsChange(accountID: accountID, accountName: "账户一", provider: .claude,
+                latestSnapshot: firstSnapshot, settings: AccountReminderSettings(), ledger: ReminderLedger(), now: observation)
+        }
+        let both = L10n.withLanguage("zh-Hans") {
+            planner.planSettingsChange(accountID: otherID, accountName: "账户二", provider: .claude,
+                latestSnapshot: otherSnapshot, settings: AccountReminderSettings(), ledger: first.ledger, now: observation)
+        }
+        let english = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "账户一", provider: .claude,
+                latestSnapshot: firstSnapshot, settings: AccountReminderSettings(), ledger: both.ledger, now: observation)
+        }
+        XCTAssertEqual(english.ledger.pendingSchedules(accountID: otherID), both.ledger.pendingSchedules(accountID: otherID))
+        XCTAssertEqual(both.ledger.merging(english.ledger).pendingSchedules(accountID: accountID), both.ledger.pendingSchedules(accountID: accountID))
+        XCTAssertEqual(english.ledger.merging(both.ledger).pendingSchedules(accountID: accountID), english.ledger.pendingSchedules(accountID: accountID))
+    }
+
+    func testBilingualConfirmedResetAndZeroOneManyWindowsRemainDistinct() {
+        let observation = Date(timeIntervalSince1970: 100)
+        for language in ["zh-Hans", "en"] {
+            L10n.withLanguage(language) {
+                for count in [0, 1, 2] {
+                    let windows = (0..<count).map { index in
+                        QuotaWindow(id: "claude.weekly.\(index)", name: "每周额度", scope: "Model-\(index)", period: .weekly,
+                                    usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil, cycleID: "old")
+                    }
+                    let before = QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: observation)
+                    let initial = planner.planSuccessfulRefresh(accountID: accountID, accountName: "Custom 用户", provider: .claude,
+                        previousSnapshot: nil, newSnapshot: before, settings: AccountReminderSettings(),
+                        ledger: ReminderLedger(), now: observation)
+                    let changed = windows.map {
+                        QuotaWindow(id: $0.id, name: $0.name, scope: $0.scope, period: $0.period,
+                                    usedPercentage: $0.usedPercentage, remainingCount: nil, totalCount: nil,
+                                    resetsAt: nil, cycleID: "new")
+                    }
+                    let after = QuotaSnapshot(accountID: accountID, windows: changed, collectedAt: observation.addingTimeInterval(1))
+                    let result = planner.planSuccessfulRefresh(accountID: accountID, accountName: "Custom 用户", provider: .claude,
+                        previousSnapshot: before, newSnapshot: after, settings: AccountReminderSettings(), ledger: initial.ledger,
+                        now: observation.addingTimeInterval(1))
+                    let confirmations = delivered(result.operations, kind: .confirmedReset)
+                    XCTAssertEqual(confirmations.count, count == 0 ? 0 : 1)
+                    if let notification = confirmations.first {
+                        XCTAssertEqual(notification.title, language == "en" ? "Custom 用户 Quota Reset Confirmed" : "Custom 用户额度已重置")
+                        XCTAssertTrue(notification.body.contains(language == "en" ? "Model-0 Weekly Quota" : "Model-0 每周额度"))
+                        if count == 2 { XCTAssertTrue(notification.body.contains(language == "en" ? ", " : "、")) }
+                    }
+                    XCTAssertTrue(scheduled(result.operations).isEmpty)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func testRuntimeLanguageReplacementFailureKeepsPersistedHistoryAndRetrySucceeds() async throws {
+        let suite = "com.tokenpulse.tests.notification-language.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "原始用户 🌙", provider: .claude)
+        let observation = Date()
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 96, remainingCount: nil, totalCount: nil,
+                                resetsAt: observation.addingTimeInterval(3600), cycleID: "unchanged")
+        let state = AccountQuotaState(account: account, snapshot: QuotaSnapshot(accountID: account.id, windows: [quota], collectedAt: observation))
+        let configurations = [AccountConfiguration(account: account)]
+        try await L10n.withLanguage("zh-Hans") { try await runtime.fresh(state: state, previous: nil, settings: configurations[0].reminders) }
+        let prior = runtime.ledger
+        let deliveries = await adapter.operations().filter { if case .deliver = $0 { return true }; return false }
+        await adapter.failNextApply()
+        do {
+            try await L10n.withLanguage("en") { try await runtime.settingsChanged(configurations: configurations, states: [state]) }
+            XCTFail("A failed replacement must remain retryable")
+        } catch { XCTAssertEqual(error as? NotificationAdapterError, .authorizationRequired) }
+        XCTAssertEqual(runtime.ledger, prior)
+        let restored = NotificationRuntime(defaults: defaults, adapter: adapter)
+        XCTAssertEqual(restored.ledger, prior)
+        try await L10n.withLanguage("en") { try await restored.settingsChanged(configurations: configurations, states: [state]) }
+        let pending = try XCTUnwrap(restored.ledger.pendingSchedules(accountID: account.id).first)
+        XCTAssertEqual(pending.notificationID, prior.pendingSchedules(accountID: account.id).first?.notificationID)
+        XCTAssertEqual(pending.resetAt, quota.resetsAt)
+        XCTAssertEqual(pending.notification?.title, "原始用户 🌙 Quota Expected to Have Reset")
+        XCTAssertEqual(pending.notification?.body, "Weekly Quota")
+        let currentDeliveries = await adapter.operations().filter { if case .deliver = $0 { return true }; return false }
+        XCTAssertEqual(currentDeliveries, deliveries)
+        let count = await adapter.operations().count
+        try await L10n.withLanguage("en") { try await restored.settingsChanged(configurations: configurations, states: [state]) }
+        let afterRepeated = await adapter.operations().count
+        XCTAssertEqual(afterRepeated, count)
+    }
+
+    @MainActor
+    func testBilingualPermissionAndExplicitDemoNotificationUseDeviceLanguage() async throws {
+        for language in ["zh-Hans", "en", "fr"] {
+            try await L10n.withLanguage(language) {
+                let suite = "com.tokenpulse.tests.demo-notification-language.\(UUID().uuidString)"
+                let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+                defer { defaults.removePersistentDomain(forName: suite) }
+                let adapter = RecordingNotificationAdapter()
+                let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+                let feedback = await runtime.sendDemoNotification()
+                XCTAssertEqual(feedback, .enabled)
+                XCTAssertTrue(feedback.message.contains(language == "zh-Hans" ? "通知权限已开启" : "Notification permissions are enabled"))
+                let operations = await adapter.operations()
+                let notification = try XCTUnwrap(delivered(operations, kind: .quotaAlert).first)
+                XCTAssertEqual(notification.identifier, "tokenpulse.demo.preview")
+                XCTAssertEqual(notification.title, language == "zh-Hans" ? "TokenPulse 演示提醒" : "TokenPulse Demo Reminder")
+                XCTAssertTrue(notification.body.contains(language == "zh-Hans" ? "这是示例通知" : "This is a sample notification"))
+            }
+        }
+    }
+}
+
+extension NotificationTests {
+    @MainActor
+    func testActivationUpdatesCachedNotificationBeforeOfflineQueryAndKeepsLastQuota() async throws {
+        let suite = "com.tokenpulse.tests.notification-activation.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let account = SubscriptionAccount(name: "Offline 用户", provider: .claude)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 20, remainingCount: nil, totalCount: nil,
+                                resetsAt: Date().addingTimeInterval(3600))
+        let snapshot = QuotaSnapshot(accountID: account.id, windows: [quota], collectedAt: Date())
+        let store = NotificationActivationStore(states: [AccountQuotaState(account: account, snapshot: snapshot)])
+        let events = NotificationActivationEvents()
+        let monitor = QuotaMonitor(accountStore: store, credentialStore: NotificationActivationCredentials(),
+                                   quotaClient: NotificationActivationOfflineClient(events: events))
+        await monitor.start(refresh: false)
+        let adapter = RecordingNotificationAdapter()
+        let notifications = NotificationRuntime(defaults: defaults, adapter: adapter)
+        try await L10n.withLanguage("zh-Hans") {
+            try await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
+        }
+        monitor.onActivation = {
+            await events.append("activation")
+            try? await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
+        }
+        await L10n.withLanguage("en") { await monitor.applicationDidBecomeActive() }
+        let observedEvents = await events.values()
+        XCTAssertEqual(observedEvents, ["activation", "query"])
+        XCTAssertEqual(monitor.states.first?.snapshot, snapshot)
+        XCTAssertEqual(monitor.states.first?.lastFailure, .network)
+        let pending = try XCTUnwrap(notifications.ledger.pendingSchedules(accountID: account.id).first)
+        XCTAssertEqual(pending.notification?.body, "Weekly Quota")
+        XCTAssertEqual(pending.resetAt, quota.resetsAt)
+    }
+}
+
+private actor NotificationActivationStore: AccountStateStoring {
+    private var states: [AccountQuotaState]
+    init(states: [AccountQuotaState]) { self.states = states }
+    func load() -> [AccountQuotaState] { states }
+    func save(_ states: [AccountQuotaState]) { self.states = states }
+}
+
+private struct NotificationActivationCredentials: CredentialStoring {
+    func credential(for accountID: UUID) async throws -> String? { "fixture" }
+    func save(_ credential: String, for accountID: UUID) async throws {}
+    func deleteCredential(for accountID: UUID) async throws {}
+}
+
+private actor NotificationActivationEvents {
+    private var events: [String] = []
+    func append(_ event: String) { events.append(event) }
+    func values() -> [String] { events }
+}
+
+private struct NotificationActivationOfflineClient: QuotaQuerying {
+    let events: NotificationActivationEvents
+    func quota(for accountID: UUID, credential: String) async throws -> QuotaSnapshot {
+        await events.append("query")
+        throw RefreshFailure.network
+    }
+}
+
+extension NotificationTests {
+    func testStaleOrMissingSnapshotStillTranslatesPendingContentWithoutChangingObservationFence() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: "Fable", period: .weekly,
+                                usedPercentage: 96, remainingCount: nil, totalCount: nil, resetsAt: reset, cycleID: "local-cycle")
+        let localSnapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let local = L10n.withLanguage("zh-Hans") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "Offline 用户", provider: .claude,
+                previousSnapshot: nil, newSnapshot: localSnapshot, settings: AccountReminderSettings(),
+                ledger: ReminderLedger(), now: observation)
+        }
+        var fencedLedger = local.ledger
+        let remoteObservation = observation.addingTimeInterval(10)
+        fencedLedger.recordQuotaObservation(remoteObservation, accountID: accountID)
+        for cachedSnapshot in [Optional(localSnapshot), nil] {
+            let result = L10n.withLanguage("en") {
+                planner.planSettingsChange(accountID: accountID, accountName: "Offline 用户", provider: .claude,
+                    latestSnapshot: cachedSnapshot, settings: AccountReminderSettings(),
+                    ledger: fencedLedger, now: observation)
+            }
+            XCTAssertEqual(result.operations.count, 1)
+            let replacement = try XCTUnwrap(scheduled(result.operations).first)
+            XCTAssertEqual(replacement.0.body, "Fable Weekly Quota")
+            XCTAssertEqual(replacement.0.identifier, scheduled(local.operations).first?.0.identifier)
+            XCTAssertEqual(replacement.1, reset)
+            XCTAssertEqual(result.ledger.quotaObservedAt(accountID: accountID), remoteObservation)
+            XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                           cycle: .provider("local-cycle"), threshold: 95))
+            XCTAssertTrue(result.ledger.hasExpectedReset(.init(accountID: accountID, windowID: quota.id, identity: .expectedAt(reset))))
+            let cachedInputs = try XCTUnwrap(result.ledger.pendingSchedules(accountID: accountID).first?.notificationWindows)
+            XCTAssertNil(cachedInputs[0].usedPercentage)
+            XCTAssertNil(cachedInputs[0].resetsAt)
+            let repeated = L10n.withLanguage("en") {
+                planner.planSettingsChange(accountID: accountID, accountName: "Offline 用户", provider: .claude,
+                    latestSnapshot: cachedSnapshot, settings: AccountReminderSettings(),
+                    ledger: result.ledger, now: observation)
+            }
+            XCTAssertTrue(repeated.operations.isEmpty)
+        }
+    }
+}
+
+extension NotificationTests {
+    func testLegacyPendingWithoutSnapshotOrDisplayMetadataGetsOnlyALocalizedForecast() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let future = observation.addingTimeInterval(3600)
+        let past = observation.addingTimeInterval(-1)
+        let windowID = "unknown.provider.opaque-window"
+        let futurePlan = PendingResetSchedule(accountID: accountID, notificationID: "original-future-id",
+                                               resetAt: future, windowIDs: [windowID])
+        let pastPlan = PendingResetSchedule(accountID: accountID, notificationID: "already-due-id",
+                                             resetAt: past, windowIDs: [windowID])
+        let expectedFuture = ResetOccurrenceRecord(accountID: accountID, windowID: windowID, identity: .expectedAt(future))
+        let confirmedPast = ResetOccurrenceRecord(accountID: accountID, windowID: windowID, identity: .expectedAt(past))
+        var original = ReminderLedger()
+        original.replacePendingSchedules(accountID: accountID, with: [futurePlan, pastPlan])
+        original.recordExpectedReset(expectedFuture)
+        original.recordConfirmedReset(confirmedPast)
+        original.recordQuotaAlert(accountID: accountID, windowID: windowID, cycle: .provider("old-cycle"), threshold: 80)
+        // This archive has neither new presentation field and may predate the observation fence.
+        let legacy = try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(original))
+        for hasObservationFence in [false, true] {
+            var prior = legacy
+            if hasObservationFence { prior.recordQuotaObservation(observation, accountID: accountID) }
+            for language in ["zh-Hans", "en"] {
+                let result = L10n.withLanguage(language) {
+                    planner.planSettingsChange(accountID: accountID, accountName: "User 原名", provider: .claude,
+                        latestSnapshot: nil, settings: AccountReminderSettings(), ledger: prior, now: observation)
+                }
+                XCTAssertEqual(result.operations.count, 1)
+                if hasObservationFence {
+                    let replacement = try XCTUnwrap(scheduled(result.operations).first)
+                    XCTAssertEqual(replacement.0.identifier, "original-future-id")
+                    XCTAssertEqual(replacement.1, future)
+                    XCTAssertEqual(replacement.0.kind, .expectedReset)
+                    XCTAssertEqual(replacement.0.title, language == "en" ? "User 原名 Quota Expected to Have Reset" : "User 原名额度预计已重置")
+                    XCTAssertEqual(replacement.0.body, language == "en"
+                                   ? "This account’s quota is expected to have reset. Refresh to confirm."
+                                   : "该账号额度预计已重置，请刷新确认。")
+                    XCTAssertEqual(result.ledger.pendingSchedules(accountID: accountID).map(\.windowIDs),
+                                   [Set([windowID]), Set([windowID])])
+                    XCTAssertEqual(result.ledger.pendingSchedules(accountID: accountID).last, pastPlan)
+                } else {
+                    // Missing data without a protected newer observation still cancels, in either language.
+                    XCTAssertTrue(scheduled(result.operations).isEmpty)
+                    XCTAssertEqual(cancelled(result.operations), [["already-due-id", "original-future-id"]])
+                    XCTAssertTrue(result.ledger.pendingSchedules(accountID: accountID).isEmpty)
+                }
+                XCTAssertEqual(result.ledger.quotaObservedAt(accountID: accountID), prior.quotaObservedAt(accountID: accountID))
+                XCTAssertEqual(result.ledger.hasExpectedReset(expectedFuture), hasObservationFence)
+                XCTAssertTrue(result.ledger.hasConfirmedReset(confirmedPast))
+                XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: windowID,
+                                                               cycle: .provider("old-cycle"), threshold: 80))
+                let repeated = L10n.withLanguage(language) {
+                    planner.planSettingsChange(accountID: accountID, accountName: "User 原名", provider: .claude,
+                        latestSnapshot: nil, settings: AccountReminderSettings(), ledger: result.ledger, now: observation)
+                }
+                XCTAssertTrue(repeated.operations.isEmpty)
+                let disabled = L10n.withLanguage(language) {
+                    planner.planSettingsChange(accountID: accountID, accountName: "User 原名", provider: .claude,
+                        latestSnapshot: nil, settings: AccountReminderSettings(resetRemindersEnabled: false),
+                        ledger: result.ledger, now: observation)
+                }
+                XCTAssertTrue(scheduled(disabled.operations).isEmpty)
+                XCTAssertTrue(disabled.ledger.pendingSchedules(accountID: accountID).isEmpty)
+            }
+        }
+    }
 }

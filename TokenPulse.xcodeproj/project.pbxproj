@@ -7,6 +7,212 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        1A1800000000000000000052 /* WatchPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000051; };
+        1A1800000000000000000042 /* WidgetContentPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000041; };
+        1A1800000000000000000043 /* WidgetContentPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000041; };
+        1A1800000000000000000044 /* WidgetContentPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000041; };
+        1A1800000000000000000045 /* QuotaWidgetContent.swift in App Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000002D; };
+
+        1A1800000000000000000032 /* ProviderSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000031; };
+        1A1800000000000000000021 /* AddAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000011; };
+        1A1800000000000000000022 /* QuotaViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000012; };
+
+        1A1800000000000000000002 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000001; };
+        1A1800000000000000000003 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000001; };
+        1A1800000000000000000004 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000001; };
+        1A1800000000000000000005 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1A1800000000000000000001; };
+        CD1200000000000000000005 = {isa = PBXBuildFile; fileRef = CD1200000000000000000004; };
+        CD1200000000000000000002 = {isa = PBXBuildFile; fileRef = CD1200000000000000000001; };
+        CD1200000000000000000003 = {isa = PBXBuildFile; fileRef = CD1200000000000000000001; };
+        57F000000000000000000332 /* NousPortalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000331; };
+		57F000000000000000000301 /* NousPortalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000300; };
+		57F000000000000000000302 /* NousPortalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000300; };
+		57F000000000000000000304 /* DeviceOAuthCredentialVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000303; };
+		57F000000000000000000305 /* DeviceOAuthCredentialVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000303; };
+		57F000000000000000000307 /* NousDeviceLoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000306; };
+		57F000000000000000000308 /* NousDeviceLoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000306; };
+		57F00000000000000000030A /* WatchNousAuthorizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000309; };
+        57F000000000000000000202 /* ClaudeSessionScopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000201; };
+		57F000000000000000000121 /* WindsurfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000120; };
+		57F000000000000000000122 /* WindsurfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000120; };
+		57F000000000000000000124 /* WindsurfProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000123; };
+		57F000000000000000000111 /* ManusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000110; };
+		57F000000000000000000112 /* ManusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000110; };
+		57F000000000000000000114 /* ManusProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000113; };
+		57F000000000000000000101 /* DevinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000100; };
+		57F000000000000000000102 /* DevinProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000100; };
+		57F000000000000000000104 /* DevinProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000103; };
+		AE2000000000000000000225 /* SakanaProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000222; };
+		AE2000000000000000000645 /* KiroProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000642; };
+		AE2000000000000000000224 /* SakanaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000221; };
+		AE2000000000000000000644 /* KiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000641; };
+		AE2000000000000000000648 /* KiroCBOR.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000646; };
+		AE2000000000000000000223 /* SakanaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000221; };
+		AE2000000000000000000643 /* KiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000641; };
+		AE2000000000000000000647 /* KiroCBOR.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000646; };
+		AE2000000000000000000215 /* MistralProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000212; };
+		AE2000000000000000000214 /* MistralProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000211; };
+		AE2000000000000000000213 /* MistralProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000211; };
+		AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000202; };
+		AE2000000000000000000204 /* ReplicateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000201; };
+		AE2000000000000000000203 /* ReplicateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000201; };
+        6A8E00000000000000000133 /* LLMProxyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000131; };
+        6A8E00000000000000000134 /* LLMProxyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000131; };
+        6A8E00000000000000000135 /* LLMProxyProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000132; };
+        6A8E00000000000000000123 /* LiteLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000121; };
+        6A8E00000000000000000124 /* LiteLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000121; };
+        6A8E00000000000000000125 /* LiteLLMProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000122; };
+        6A8E00000000000000000113 /* BifrostProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000111; };
+        6A8E00000000000000000114 /* BifrostProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000111; };
+        6A8E00000000000000000115 /* BifrostProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000112; };
+        6A8E00000000000000000104 /* GatewayQuotaSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000101; };
+        6A8E00000000000000000105 /* GatewayQuotaSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000101; };
+        6A8E00000000000000000106 /* Sub2APIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000102; };
+        6A8E00000000000000000107 /* Sub2APIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000102; };
+        6A8E00000000000000000108 /* Sub2APIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000103; };
+		2E6300000000000000000473 /* LongCatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000471; };
+		2E6300000000000000000474 /* LongCatProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000471; };
+		2E6300000000000000000475 /* LongCatProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000472; };
+
+		2E6300000000000000000433 /* OllamaCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000431; };
+		2E6300000000000000000434 /* OllamaCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000431; };
+		2E6300000000000000000435 /* OllamaCloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000432; };
+
+		2E6300000000000000000423 /* QoderChinaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000421; };
+		2E6300000000000000000424 /* QoderChinaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000421; };
+		2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000422; };
+
+		2E6300000000000000000413 /* XiaomiCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000411; };
+		2E6300000000000000000414 /* XiaomiCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000411; };
+		2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6300000000000000000412; };
+
+        C02300000000000000000033 /* GrokBotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000031; };
+        C02300000000000000000034 /* GrokBotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000031; };
+        C02300000000000000000035 /* GrokBotProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000032; };
+        C02300000000000000000023 /* ZedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000021; };
+        C02300000000000000000024 /* ZedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000021; };
+        C02300000000000000000025 /* ZedProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000022; };
+        C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000011; };
+        C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000011; };
+        C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02300000000000000000012; };
+		E23600000000000000000003 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
+		E23600000000000000000004 /* ClawRouterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000001; };
+		E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23600000000000000000002; };
+		E23500000000000000000003 /* AixyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23500000000000000000001; };
+		E23500000000000000000004 /* AixyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23500000000000000000001; };
+		E23500000000000000000005 /* AixyProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23500000000000000000002; };
+		E22900000000000000000003 /* NeuralwattProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22900000000000000000001; };
+		E22900000000000000000004 /* NeuralwattProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22900000000000000000001; };
+		E22900000000000000000005 /* NeuralwattProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22900000000000000000002; };
+		E22100000000000000000003 /* CodebuffProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000001; };
+		E22100000000000000000004 /* CodebuffProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000001; };
+		E22100000000000000000005 /* CodebuffProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22100000000000000000002; };
+		E22000000000000000000003 /* ClinePassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000001; };
+		F35700000000000000000003 /* TypeSafeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35700000000000000000001; };
+		F35200000000000000000003 /* QwenCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35200000000000000000001; };
+		F35300000000000000000003 /* HostedWebProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35300000000000000000001; };
+		E22000000000000000000004 /* ClinePassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000001; };
+		F35700000000000000000004 /* TypeSafeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35700000000000000000001; };
+		F35200000000000000000004 /* QwenCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35200000000000000000001; };
+		F35300000000000000000004 /* HostedWebProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35300000000000000000001; };
+		E22000000000000000000005 /* ClinePassProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22000000000000000000002; };
+		F35700000000000000000005 /* TypeSafeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35700000000000000000002; };
+		F35200000000000000000005 /* QwenCloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35200000000000000000002; };
+		F35300000000000000000005 /* HostedWebProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35300000000000000000002; };
+		AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000001001; };
+		57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000001; };
+		2E6200000000000000000003 /* MoonshotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000001; };
+		2E6200000000000000000004 /* MoonshotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000001; };
+		2E6200000000000000000005 /* MoonshotProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000002; };
+
+        C02200000000000000000013 /* FactoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000011; };
+        C02200000000000000000014 /* FactoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000011; };
+        C02200000000000000000015 /* FactoryProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000012; };
+        6A8E00000000000000000025 /* DecimalQuotaCountsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000022; };
+		AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000032; };
+		AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000031; };
+		AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000031; };
+		AE2000000000000000000025 /* GitKrakenProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000022; };
+		AE2000000000000000000024 /* GitKrakenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000021; };
+		AE2000000000000000000023 /* GitKrakenProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000021; };
+		AE2000000000000000000015 /* AmpProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000012; };
+		AE2000000000000000000014 /* AmpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000011; };
+		AE2000000000000000000013 /* AmpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000011; };
+		AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000002; };
+		AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
+		AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2000000000000000000001; };
+		57F000000000000000000051 /* ZenMuxProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000050; };
+		57F000000000000000000052 /* ZenMuxProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000050; };
+		57F000000000000000000054 /* ZenMuxProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000053; };
+		57F000000000000000000041 /* XKiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
+		A44200000000000000000002 /* JetBrainsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44200000000000000000001; };
+		A44200000000000000000005 /* JetBrainsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44200000000000000000004; };
+		57F000000000000000000042 /* XKiroProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000040; };
+		A44200000000000000000003 /* JetBrainsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44200000000000000000001; };
+		A44200000000000000000006 /* JetBrainsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44200000000000000000004; };
+		57F000000000000000000044 /* XKiroProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000043; };
+		A44200000000000000000008 /* JetBrainsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44200000000000000000007; };
+		57F000000000000000000031 /* PartialWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000030; };
+		57F000000000000000000021 /* V2EXProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000020; };
+		57F000000000000000000022 /* V2EXProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000020; };
+		57F000000000000000000024 /* V2EXProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000023; };
+		57F000000000000000000011 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
+		57F000000000000000000012 /* SyntheticProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000010; };
+		57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F000000000000000000013; };
+		2E6200000000000000000305 /* CursorAccountAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000301; };
+		2E6200000000000000000306 /* CursorAccountAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000301; };
+		2E6200000000000000000307 /* CursorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000302; };
+		2E6200000000000000000308 /* CursorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000302; };
+		2E6200000000000000000309 /* CursorSessionLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000303; };
+		2E6200000000000000000310 /* CursorProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000304; };
+
+		2E6200000000000000000023 /* ChutesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000021; };
+		2E6200000000000000000024 /* ChutesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000021; };
+		2E6200000000000000000025 /* ChutesProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000022; };
+
+		2E6200000000000000000013 /* AlibabaCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000011; };
+		2E6200000000000000000014 /* AlibabaCodingPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000011; };
+		2E6200000000000000000015 /* AlibabaCodingPlanProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6200000000000000000012; };
+
+
+        6A8E00000000000000000033 /* IBMBobProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000031; };
+        6A8E00000000000000000034 /* IBMBobProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000031; };
+        6A8E00000000000000000035 /* IBMBobProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000032; };
+        6A8E00000000000000000013 /* XAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000011; };
+        6A8E00000000000000000014 /* XAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000011; };
+        6A8E00000000000000000015 /* XAIAPIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000012; };
+        6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000001; };
+        6A8E00000000000000000203 /* AlibabaTokenPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000201; };
+        6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000001; };
+        6A8E00000000000000000204 /* AlibabaTokenPlanProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000201; };
+        6A8E00000000000000000005 /* VolcengineProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000002; };
+        6A8E00000000000000000205 /* AlibabaTokenPlanProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8E00000000000000000202; };
+        C02200000000000000000043 /* WarpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000041; };
+        C02200000000000000000044 /* WarpProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000041; };
+        C02200000000000000000045 /* WarpProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000042; };
+        C02200000000000000000033 /* V0Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000031; };
+        C02200000000000000000034 /* V0Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000031; };
+        C02200000000000000000035 /* V0ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000032; };
+        C02200000000000000000023 /* DevPassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000021; };
+        C02200000000000000000024 /* DevPassProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000021; };
+        C02200000000000000000025 /* DevPassProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02200000000000000000022; };
+		E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
+		E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000001; };
+		E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11000000000000000000002; };
+		57EF00000000000000000002 /* StepFunProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000001; };
+		57EF00000000000000000003 /* StepFunProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000001; };
+		57EF00000000000000000005 /* ProviderRedirectPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000004; };
+		57EF00000000000000000006 /* ProviderRedirectPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000004; };
+		57EF00000000000000000008 /* WebSessionContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000007; };
+		57EF00000000000000000009 /* WebSessionContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF00000000000000000007; };
+		57EF0000000000000000000B /* StepFunSessionLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF0000000000000000000A; };
+		57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EF0000000000000000000C; };
+        6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A7E00000000000000000001; };
+        6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A7E00000000000000000001; };
+        6A7E00000000000000000005 /* NewAPIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A7E00000000000000000002; };
+        C01100000000000000000003 /* CopilotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01100000000000000000001; };
+        C01100000000000000000004 /* CopilotProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01100000000000000000001; };
+        C01100000000000000000005 /* CopilotProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01100000000000000000002; };
 		F30000000000000000000003 /* KimiCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001; };
 		F30000000000000000000004 /* KimiCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000001; };
 		F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000000000000000000002; };
@@ -14,9 +220,46 @@
 		F20000000000000000000005 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000006 /* QoderProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001; };
 		F20000000000000000000007 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
+		FA0900000000000000000002 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A44101000000000000000002 /* AntigravityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44101000000000000000001; };
+		A44001000000000000000002 /* OpenAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44001000000000000000001; };
+		A330060000000000000002 /* NotionAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330060000000000000001; };
+		A330040000000000000002 /* PerplexityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330040000000000000001; };
+		A330010000000000000002 /* AbacusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330010000000000000001; };
+		A2200B0000000000000002 /* VeniceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200B0000000000000001; };
+		A220090000000000000002 /* HyperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220090000000000000001; };
+		A220070000000000000002 /* DeepInfraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220070000000000000001; };
+		A220050000000000000002 /* KiloCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220050000000000000001; };
+		A220020000000000000002 /* AtlasCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220020000000000000001; };
+		A220010000000000000002 /* WalletExpansionHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220010000000000000001; };
 		F20000000000000000000008 /* DeepSeekProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002; };
+		FA0900000000000000000003 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000001; };
+		A44101000000000000000003 /* AntigravityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44101000000000000000001; };
+		A44001000000000000000003 /* OpenAIAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44001000000000000000001; };
+		A330060000000000000003 /* NotionAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330060000000000000001; };
+		A330040000000000000003 /* PerplexityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330040000000000000001; };
+		A330010000000000000003 /* AbacusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330010000000000000001; };
+		A2200B0000000000000003 /* VeniceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200B0000000000000001; };
+		A220090000000000000003 /* HyperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220090000000000000001; };
+		A220070000000000000003 /* DeepInfraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220070000000000000001; };
+		A220050000000000000003 /* KiloCodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220050000000000000001; };
+		A220020000000000000003 /* AtlasCloudProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220020000000000000001; };
+		A220010000000000000003 /* WalletExpansionHTTP.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220010000000000000001; };
 		F20000000000000000000009 /* QoderProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003; };
 		F2000000000000000000000A /* WalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000004; };
+		FA0900000000000000000005 /* WalletProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0900000000000000000004; };
+		A44102000000000000000002 /* AntigravityProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44102000000000000000001; };
+		A44002000000000000000002 /* OpenAIAPIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44002000000000000000001; };
+		A330070000000000000002 /* NotionAIProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330070000000000000001; };
+		A330050000000000000002 /* PerplexityProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330050000000000000001; };
+		A330030000000000000002 /* AbacusProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330030000000000000001; };
+		A330020000000000000002 /* SessionQuotaTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A330020000000000000001; };
+		A2200C0000000000000002 /* VeniceProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200C0000000000000001; };
+		A2200A0000000000000002 /* HyperProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2200A0000000000000001; };
+		A220080000000000000002 /* DeepInfraProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220080000000000000001; };
+		A220060000000000000002 /* KiloCodeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220060000000000000001; };
+		A220040000000000000002 /* AtlasCloudProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220040000000000000001; };
+		A220030000000000000002 /* WalletExpansionTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A220030000000000000001; };
 		DE0000000000000000000003 /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0000000000000000000001; };
 		DE0000000000000000000004 /* DemoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0000000000000000000001; };
 		DE0000000000000000000005 /* DemoModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0000000000000000000002; };
@@ -119,7 +362,14 @@
 		B000000000000000000000AC /* TokenPulseWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B00000000000000000000063 /* TokenPulseWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B000000000000000000000B0 /* TokenPulseWatchWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B00000000000000000000095 /* TokenPulseWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C00000000000000000000002 /* TokenPulseTests/ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */; };
-		C00000000000000000000004 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */; };
+		C00000000000000000000004 /* TokenPulseTests/PlatformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */; };
+        C02400000000000000000011 /* GoogleNativeOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000010; };
+        C02400000000000000000012 /* GoogleNativeOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000010; };
+        C02400000000000000000021 /* GoogleNativeOAuthLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000020; };
+        C02400000000000000000031 /* GoogleNativeOAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000030; };
+        C02400000000000000000041 /* GeminiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000040; };
+        C02400000000000000000042 /* GeminiProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000040; };
+        C02400000000000000000051 /* GeminiProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02400000000000000000050; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -190,13 +440,176 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        1A1800000000000000000051 /* WatchPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WatchPresentationTests.swift; sourceTree = SOURCE_ROOT; };
+        1A1800000000000000000041 /* WidgetContentPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWidgets/WidgetContentPresentation.swift; sourceTree = SOURCE_ROOT; };
+        1A1800000000000000000031 /* ProviderSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ProviderSelectionTests.swift; sourceTree = SOURCE_ROOT; };
+        1A1800000000000000000011 /* AddAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/AddAccountView.swift; sourceTree = SOURCE_ROOT; };
+        1A1800000000000000000012 /* QuotaViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/QuotaViews.swift; sourceTree = SOURCE_ROOT; };
+
+        1A1800000000000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = TokenPulse/Resources/Localizable.xcstrings; sourceTree = SOURCE_ROOT; };
+        CD1200000000000000000004 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CodexResetFeedTests.swift; sourceTree = SOURCE_ROOT; };
+        CD1200000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CodexResetFeed.swift; sourceTree = SOURCE_ROOT; };
+        57F000000000000000000331 /* NousPortalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NousPortalTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000300 /* NousPortalProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/NousPortalProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000303 /* DeviceOAuthCredentialVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Platform/DeviceOAuthCredentialVault.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000306 /* NousDeviceLoginModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/NousDeviceLoginModel.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000309 /* WatchNousAuthorizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseWatch/WatchNousAuthorizationView.swift; sourceTree = SOURCE_ROOT; };
+        57F000000000000000000201 /* ClaudeSessionScopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClaudeSessionScopeTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000120 /* WindsurfProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WindsurfProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000123 /* WindsurfProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WindsurfProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000110 /* ManusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ManusProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000113 /* ManusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ManusProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000100 /* DevinProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DevinProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000103 /* DevinProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DevinProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000222 /* SakanaProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SakanaProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000642 /* KiroProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KiroProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000221 /* SakanaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SakanaProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000641 /* KiroProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KiroProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000646 /* KiroCBOR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KiroCBOR.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000212 /* MistralProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/MistralProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000211 /* MistralProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/MistralProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000202 /* ReplicateProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplicateProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000201 /* ReplicateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ReplicateProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000131 /* LLMProxyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/LLMProxyProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000132 /* LLMProxyProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/LLMProxyProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000121 /* LiteLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/LiteLLMProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000122 /* LiteLLMProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/LiteLLMProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000111 /* BifrostProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/BifrostProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000112 /* BifrostProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/BifrostProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000101 /* GatewayQuotaSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GatewayQuotaSupport.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000102 /* Sub2APIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/Sub2APIProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000103 /* Sub2APIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/Sub2APIProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		2E6300000000000000000471 /* LongCatProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/LongCatProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6300000000000000000472 /* LongCatProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/LongCatProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6300000000000000000431 /* OllamaCloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/OllamaCloudProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6300000000000000000432 /* OllamaCloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/OllamaCloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6300000000000000000421 /* QoderChinaProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderChinaProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6300000000000000000422 /* QoderChinaProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderChinaProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6300000000000000000411 /* XiaomiCodingPlanProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XiaomiCodingPlanProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6300000000000000000412 /* XiaomiCodingPlanProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XiaomiCodingPlanProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+        C02300000000000000000031 /* GrokBotProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GrokBotProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000032 /* GrokBotProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GrokBotProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000021 /* ZedProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZedProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000022 /* ZedProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ZedProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000011 /* AugmentCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AugmentCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02300000000000000000012 /* AugmentCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AugmentCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		E23600000000000000000001 /* ClawRouterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClawRouterProvider.swift; sourceTree = SOURCE_ROOT; };
+		E23600000000000000000002 /* ClawRouterProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClawRouterProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		E23500000000000000000001 /* AixyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AixyProvider.swift; sourceTree = SOURCE_ROOT; };
+		E23500000000000000000002 /* AixyProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AixyProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		E22900000000000000000001 /* NeuralwattProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/NeuralwattProvider.swift; sourceTree = SOURCE_ROOT; };
+		E22900000000000000000002 /* NeuralwattProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NeuralwattProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		E22100000000000000000001 /* CodebuffProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CodebuffProvider.swift; sourceTree = SOURCE_ROOT; };
+		E22100000000000000000002 /* CodebuffProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CodebuffProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		E22000000000000000000001 /* ClinePassProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ClinePassProvider.swift; sourceTree = SOURCE_ROOT; };
+		F35700000000000000000001 /* TypeSafeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/TypeSafeProvider.swift; sourceTree = SOURCE_ROOT; };
+		F35200000000000000000001 /* QwenCloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QwenCloudProvider.swift; sourceTree = SOURCE_ROOT; };
+		F35300000000000000000001 /* HostedWebProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HostedWebProviders.swift; sourceTree = SOURCE_ROOT; };
+		E22000000000000000000002 /* ClinePassProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ClinePassProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		F35700000000000000000002 /* TypeSafeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/TypeSafeProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		F35200000000000000000002 /* QwenCloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QwenCloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		F35300000000000000000002 /* HostedWebProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/HostedWebProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QuotaDatePrecisionTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ReplenishmentSemanticsTests.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000001 /* MoonshotProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/MoonshotProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000002 /* MoonshotProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/MoonshotProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+        C02200000000000000000011 /* FactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/FactoryProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000012 /* FactoryProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/FactoryProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000022 /* DecimalQuotaCountsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DecimalQuotaCountsTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000032 /* HuggingFaceProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/HuggingFaceProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000031 /* HuggingFaceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HuggingFaceProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000022 /* GitKrakenProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GitKrakenProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000021 /* GitKrakenProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GitKrakenProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000012 /* AmpProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AmpProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000011 /* AmpProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AmpProvider.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000002 /* CommandCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CommandCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		AE2000000000000000000001 /* CommandCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CommandCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000050 /* ZenMuxProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ZenMuxProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000053 /* ZenMuxProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ZenMuxProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000040 /* XKiroProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XKiroProvider.swift; sourceTree = SOURCE_ROOT; };
+		A44200000000000000000001 /* JetBrainsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/JetBrainsProvider.swift; sourceTree = SOURCE_ROOT; };
+		A44200000000000000000004 /* JetBrainsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/JetBrainsImportView.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000043 /* XKiroProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XKiroProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A44200000000000000000007 /* JetBrainsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/JetBrainsProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000030 /* PartialWalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PartialWalletTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000020 /* V2EXProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/V2EXProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000023 /* V2EXProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/V2EXProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000010 /* SyntheticProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/SyntheticProvider.swift; sourceTree = SOURCE_ROOT; };
+		57F000000000000000000013 /* SyntheticProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SyntheticProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000301 /* CursorAccountAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CursorAccountAuthenticator.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000302 /* CursorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CursorProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000303 /* CursorSessionLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/CursorSessionLoginView.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000304 /* CursorProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CursorProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6200000000000000000021 /* ChutesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ChutesProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000022 /* ChutesProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ChutesProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+		2E6200000000000000000011 /* AlibabaCodingPlanProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AlibabaCodingPlanProvider.swift; sourceTree = SOURCE_ROOT; };
+		2E6200000000000000000012 /* AlibabaCodingPlanProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AlibabaCodingPlanProviderTests.swift; sourceTree = SOURCE_ROOT; };
+
+
+        6A8E00000000000000000031 /* IBMBobProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/IBMBobProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000032 /* IBMBobProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/IBMBobProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000011 /* XAIAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/XAIAPIProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000012 /* XAIAPIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/XAIAPIProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000001 /* VolcengineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/VolcengineProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000201 /* AlibabaTokenPlanProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AlibabaTokenPlanProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000002 /* VolcengineProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/VolcengineProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A8E00000000000000000202 /* AlibabaTokenPlanProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AlibabaTokenPlanProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000041 /* WarpProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WarpProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000042 /* WarpProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WarpProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000031 /* V0Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/V0Provider.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000032 /* V0ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/V0ProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000021 /* DevPassProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DevPassProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02200000000000000000022 /* DevPassProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DevPassProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		E11000000000000000000001 /* ElevenLabsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ElevenLabsProvider.swift; sourceTree = SOURCE_ROOT; };
+		E11000000000000000000002 /* ElevenLabsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ElevenLabsProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		57EF00000000000000000001 /* StepFunProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/StepFunProvider.swift; sourceTree = SOURCE_ROOT; };
+		57EF00000000000000000004 /* ProviderRedirectPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/ProviderRedirectPolicy.swift; sourceTree = SOURCE_ROOT; };
+		57EF00000000000000000007 /* WebSessionContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WebSessionContainer.swift; sourceTree = SOURCE_ROOT; };
+		57EF0000000000000000000A /* StepFunSessionLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/StepFunSessionLoginView.swift; sourceTree = SOURCE_ROOT; };
+		57EF0000000000000000000C /* StepFunProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/StepFunProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        6A7E00000000000000000001 /* NewAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/NewAPIProvider.swift; sourceTree = SOURCE_ROOT; };
+        6A7E00000000000000000002 /* NewAPIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NewAPIProviderTests.swift; sourceTree = SOURCE_ROOT; };
+        C01100000000000000000001 /* CopilotProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/CopilotProvider.swift; sourceTree = SOURCE_ROOT; };
+        C01100000000000000000002 /* CopilotProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/CopilotProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F30000000000000000000001 /* KimiCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KimiCodeProvider.swift; sourceTree = SOURCE_ROOT; };
 		F30000000000000000000002 /* KimiCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KimiCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F2000000000000000000000B /* WalletPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletPresentationTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000001 /* QoderProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/QoderProvider.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000002 /* DeepSeekProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepSeekProvider.swift; sourceTree = SOURCE_ROOT; };
+		FA0900000000000000000001 /* WalletProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WalletProvider.swift; sourceTree = SOURCE_ROOT; };
+		A44101000000000000000001 /* AntigravityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AntigravityProvider.swift; sourceTree = SOURCE_ROOT; };
+		A44001000000000000000001 /* OpenAIAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/OpenAIAPIProvider.swift; sourceTree = SOURCE_ROOT; };
+		A330060000000000000001 /* NotionAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/NotionAIProvider.swift; sourceTree = SOURCE_ROOT; };
+		A330040000000000000001 /* PerplexityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/PerplexityProvider.swift; sourceTree = SOURCE_ROOT; };
+		A330010000000000000001 /* AbacusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AbacusProvider.swift; sourceTree = SOURCE_ROOT; };
+		A2200B0000000000000001 /* VeniceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/VeniceProvider.swift; sourceTree = SOURCE_ROOT; };
+		A220090000000000000001 /* HyperProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/HyperProvider.swift; sourceTree = SOURCE_ROOT; };
+		A220070000000000000001 /* DeepInfraProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/DeepInfraProvider.swift; sourceTree = SOURCE_ROOT; };
+		A220050000000000000001 /* KiloCodeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/KiloCodeProvider.swift; sourceTree = SOURCE_ROOT; };
+		A220020000000000000001 /* AtlasCloudProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/AtlasCloudProvider.swift; sourceTree = SOURCE_ROOT; };
+		A220010000000000000001 /* WalletExpansionHTTP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/WalletExpansionHTTP.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000003 /* QoderProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/QoderProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		F20000000000000000000004 /* WalletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletTests.swift; sourceTree = SOURCE_ROOT; };
+		FA0900000000000000000004 /* WalletProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A44102000000000000000001 /* AntigravityProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AntigravityProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A44002000000000000000001 /* OpenAIAPIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/OpenAIAPIProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A330070000000000000001 /* NotionAIProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/NotionAIProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A330050000000000000001 /* PerplexityProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PerplexityProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A330030000000000000001 /* AbacusProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AbacusProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A330020000000000000001 /* SessionQuotaTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/SessionQuotaTestSupport.swift; sourceTree = SOURCE_ROOT; };
+		A2200C0000000000000001 /* VeniceProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/VeniceProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A2200A0000000000000001 /* HyperProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/HyperProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A220080000000000000001 /* DeepInfraProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DeepInfraProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A220060000000000000001 /* KiloCodeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/KiloCodeProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A220040000000000000001 /* AtlasCloudProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/AtlasCloudProviderTests.swift; sourceTree = SOURCE_ROOT; };
+		A220030000000000000001 /* WalletExpansionTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/WalletExpansionTestSupport.swift; sourceTree = SOURCE_ROOT; };
 		DE0000000000000000000001 /* DemoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Application/DemoMode.swift; sourceTree = SOURCE_ROOT; };
 		DE0000000000000000000002 /* DemoModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/DemoModeTests.swift; sourceTree = SOURCE_ROOT; };
 		D00000000000000000000001 /* ProviderIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/ProviderIcon.swift; sourceTree = SOURCE_ROOT; };
@@ -257,7 +670,12 @@
 		B00000000000000000000085 /* TokenPulseWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenPulseWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000095 /* TokenPulseWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TokenPulseWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/ProviderTests.swift; sourceTree = SOURCE_ROOT; };
-		C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift; sourceTree = "<absolute>"; };
+		C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/PlatformTests.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000010 /* GoogleNativeOAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GoogleNativeOAuth.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000020 /* GoogleNativeOAuthLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/UI/GoogleNativeOAuthLoginView.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000030 /* GoogleNativeOAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GoogleNativeOAuthTests.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000040 /* GeminiProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulse/Providers/GeminiProvider.swift; sourceTree = SOURCE_ROOT; };
+        C02400000000000000000050 /* GeminiProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPulseTests/GeminiProviderTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -303,7 +721,7 @@
 			isa = PBXGroup;
 			children = (
 				C00000000000000000000001 /* TokenPulseTests/ProviderTests.swift */,
-				C00000000000000000000003 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift */,
+				C00000000000000000000003 /* TokenPulseTests/PlatformTests.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -335,6 +753,7 @@
 				B00000000000000000000015 /* TokenPulse/Platform/WidgetSnapshotStore.swift */,
 				B00000000000000000000016 /* TokenPulse/Providers/ClaudeProvider.swift */,
 				B00000000000000000000017 /* TokenPulse/Providers/CodexProvider.swift */,
+                CD1200000000000000000001,
 				B00000000000000000000018 /* TokenPulse/Providers/ProviderHTTP.swift */,
 				B00000000000000000000019 /* TokenPulse/Providers/ProviderIntegration.swift */,
 				B0000000000000000000001A /* TokenPulse/Providers/SuperGrokProvider.swift */,
@@ -342,21 +761,185 @@
 				F10000000000000000000001 /* TokenPulse/Providers/OpenCodeGoProvider.swift */,
 				F20000000000000000000001 /* QoderProvider.swift */,
 				F20000000000000000000002 /* DeepSeekProvider.swift */,
+				FA0900000000000000000001 /* WalletProvider.swift */,
+				A44101000000000000000001 /* AntigravityProvider.swift */,
+				A44001000000000000000001 /* OpenAIAPIProvider.swift */,
+				A330060000000000000001 /* NotionAIProvider.swift */,
+				A330040000000000000001 /* PerplexityProvider.swift */,
+				A330010000000000000001 /* AbacusProvider.swift */,
+				A2200B0000000000000001 /* VeniceProvider.swift */,
+				A220090000000000000001 /* HyperProvider.swift */,
+				A220070000000000000001 /* DeepInfraProvider.swift */,
+				A220050000000000000001 /* KiloCodeProvider.swift */,
+				A220020000000000000001 /* AtlasCloudProvider.swift */,
+				A220010000000000000001 /* WalletExpansionHTTP.swift */,
 				F30000000000000000000001 /* KimiCodeProvider.swift */,
+				2E6300000000000000000471 /* LongCatProvider.swift */,
+				2E6300000000000000000431 /* OllamaCloudProvider.swift */,
+				2E6300000000000000000421 /* QoderChinaProvider.swift */,
+				2E6300000000000000000411 /* XiaomiCodingPlanProvider.swift */,
+                C02400000000000000000010 /* GoogleNativeOAuth.swift */,
+                C02400000000000000000020 /* GoogleNativeOAuthLoginView.swift */,
+                C02400000000000000000030 /* GoogleNativeOAuthTests.swift */,
+                C02400000000000000000040 /* GeminiProvider.swift */,
+                C02400000000000000000050 /* GeminiProviderTests.swift */,
+                C02300000000000000000031 /* GrokBotProvider.swift */,
+                C02300000000000000000032 /* GrokBotProviderTests.swift */,
+
+                C02300000000000000000021 /* ZedProvider.swift */,
+                C02300000000000000000022 /* ZedProviderTests.swift */,
+
+                C02300000000000000000011 /* AugmentCodeProvider.swift */,
+                C02300000000000000000012 /* AugmentCodeProviderTests.swift */,
+
+				E23600000000000000000001 /* ClawRouterProvider.swift */,
+				E23500000000000000000001 /* AixyProvider.swift */,
+				E22900000000000000000001 /* NeuralwattProvider.swift */,
+				E22100000000000000000001 /* CodebuffProvider.swift */,
+				E22000000000000000000001 /* ClinePassProvider.swift */,
+				F35700000000000000000001 /* TypeSafeProvider.swift */,
+				F35200000000000000000001 /* QwenCloudProvider.swift */,
+				F35300000000000000000001 /* HostedWebProviders.swift */,
+				2E6200000000000000000001 /* MoonshotProvider.swift */,
+                C02200000000000000000011 /* FactoryProvider.swift */,
+                C02200000000000000000012 /* FactoryProviderTests.swift */,
+
+				2E6200000000000000000303 /* CursorSessionLoginView.swift */,
+				2E6200000000000000000302 /* CursorProvider.swift */,
+				2E6200000000000000000301 /* CursorAccountAuthenticator.swift */,
+				2E6200000000000000000021 /* ChutesProvider.swift */,
+				2E6200000000000000000011 /* AlibabaCodingPlanProvider.swift */,
+                C02200000000000000000041 /* WarpProvider.swift */,
+                C02200000000000000000042 /* WarpProviderTests.swift */,
+
+                C02200000000000000000031 /* V0Provider.swift */,
+                C02200000000000000000032 /* V0ProviderTests.swift */,
+
+                C02200000000000000000021 /* DevPassProvider.swift */,
+                C02200000000000000000022 /* DevPassProviderTests.swift */,
+
+
+				E11000000000000000000001 /* ElevenLabsProvider.swift */,
+				AE2000000000000000000001 /* CommandCodeProvider.swift */,
+				AE2000000000000000000221 /* SakanaProvider.swift */,
+				AE2000000000000000000641 /* KiroProvider.swift */,
+				AE2000000000000000000646 /* KiroCBOR.swift */,
+				AE2000000000000000000211 /* MistralProvider.swift */,
+				AE2000000000000000000201 /* ReplicateProvider.swift */,
+				AE2000000000000000000031 /* HuggingFaceProvider.swift */,
+				AE2000000000000000000021 /* GitKrakenProvider.swift */,
+				AE2000000000000000000011 /* AmpProvider.swift */,
+				57EF0000000000000000000C /* StepFunProviderTests.swift */,
+				57EF0000000000000000000A /* StepFunSessionLoginView.swift */,
+				57EF00000000000000000007 /* WebSessionContainer.swift */,
+				57EF00000000000000000004 /* ProviderRedirectPolicy.swift */,
+				57EF00000000000000000001 /* StepFunProvider.swift */,
+                6A8E00000000000000000022 /* DecimalQuotaCountsTests.swift */,
+                6A8E00000000000000000031 /* IBMBobProvider.swift */,
+                6A8E00000000000000000032 /* IBMBobProviderTests.swift */,
+                6A8E00000000000000000011 /* XAIAPIProvider.swift */,
+                6A8E00000000000000000012 /* XAIAPIProviderTests.swift */,
+                6A8E00000000000000000001 /* VolcengineProvider.swift */,
+                6A8E00000000000000000201 /* AlibabaTokenPlanProvider.swift */,
+                6A8E00000000000000000002 /* VolcengineProviderTests.swift */,
+                6A8E00000000000000000202 /* AlibabaTokenPlanProviderTests.swift */,
+                6A8E00000000000000000101 /* GatewayQuotaSupport.swift */,
+                6A8E00000000000000000131 /* LLMProxyProvider.swift */,
+                6A8E00000000000000000132 /* LLMProxyProviderTests.swift */,
+                6A8E00000000000000000121 /* LiteLLMProvider.swift */,
+                6A8E00000000000000000122 /* LiteLLMProviderTests.swift */,
+                6A8E00000000000000000111 /* BifrostProvider.swift */,
+                6A8E00000000000000000112 /* BifrostProviderTests.swift */,
+                6A8E00000000000000000102 /* Sub2APIProvider.swift */,
+                6A8E00000000000000000103 /* Sub2APIProviderTests.swift */,
+                6A7E00000000000000000001 /* NewAPIProvider.swift */,
+                6A7E00000000000000000002 /* NewAPIProviderTests.swift */,
+                C01100000000000000000001 /* CopilotProvider.swift */,
+                C01100000000000000000002 /* CopilotProviderTests.swift */,
 				F30000000000000000000002 /* KimiCodeProviderTests.swift */,
+                57F000000000000000000331 /* NousPortalTests.swift */,
+				57F000000000000000000309 /* WatchNousAuthorizationView.swift */,
+				57F000000000000000000306 /* NousDeviceLoginModel.swift */,
+				57F000000000000000000303 /* DeviceOAuthCredentialVault.swift */,
+				57F000000000000000000300 /* NousPortalProvider.swift */,
+                57F000000000000000000201 /* ClaudeSessionScopeTests.swift */,
+				57F000000000000000000123 /* WindsurfProviderTests.swift */,
+				57F000000000000000000120 /* WindsurfProvider.swift */,
+				57F000000000000000000113 /* ManusProviderTests.swift */,
+				57F000000000000000000110 /* ManusProvider.swift */,
+				57F000000000000000000103 /* DevinProviderTests.swift */,
+				57F000000000000000000100 /* DevinProvider.swift */,
+				2E6300000000000000000472 /* LongCatProviderTests.swift */,
+				2E6300000000000000000432 /* OllamaCloudProviderTests.swift */,
+				2E6300000000000000000422 /* QoderChinaProviderTests.swift */,
+				2E6300000000000000000412 /* XiaomiCodingPlanProviderTests.swift */,
+				E23600000000000000000002 /* ClawRouterProviderTests.swift */,
+				E23500000000000000000002 /* AixyProviderTests.swift */,
+				E22900000000000000000002 /* NeuralwattProviderTests.swift */,
+				E22100000000000000000002 /* CodebuffProviderTests.swift */,
+				E22000000000000000000002 /* ClinePassProviderTests.swift */,
+				F35700000000000000000002 /* TypeSafeProviderTests.swift */,
+				F35200000000000000000002 /* QwenCloudProviderTests.swift */,
+				F35300000000000000000002 /* HostedWebProviderTests.swift */,
+				57F000000000000000000001 /* ReplenishmentSemanticsTests.swift */,
+				2E6200000000000000000002 /* MoonshotProviderTests.swift */,
+				57F000000000000000000053 /* ZenMuxProviderTests.swift */,
+				57F000000000000000000050 /* ZenMuxProvider.swift */,
+				57F000000000000000000043 /* XKiroProviderTests.swift */,
+				A44200000000000000000007 /* JetBrainsProviderTests.swift */,
+				57F000000000000000000040 /* XKiroProvider.swift */,
+				A44200000000000000000001 /* JetBrainsProvider.swift */,
+				A44200000000000000000004 /* JetBrainsImportView.swift */,
+				57F000000000000000000030 /* PartialWalletTests.swift */,
+				57F000000000000000000023 /* V2EXProviderTests.swift */,
+				57F000000000000000000020 /* V2EXProvider.swift */,
+				57F000000000000000000013 /* SyntheticProviderTests.swift */,
+				57F000000000000000000010 /* SyntheticProvider.swift */,
+				2E6200000000000000000304 /* CursorProviderTests.swift */,
+				2E6200000000000000000022 /* ChutesProviderTests.swift */,
+				2E6200000000000000000012 /* AlibabaCodingPlanProviderTests.swift */,
+				E11000000000000000000002 /* ElevenLabsProviderTests.swift */,
+				AE2000000000000000001001 /* QuotaDatePrecisionTests.swift */,
+				AE2000000000000000000002 /* CommandCodeProviderTests.swift */,
+				AE2000000000000000000222 /* SakanaProviderTests.swift */,
+				AE2000000000000000000642 /* KiroProviderTests.swift */,
+				AE2000000000000000000212 /* MistralProviderTests.swift */,
+				AE2000000000000000000202 /* ReplicateProviderTests.swift */,
+				AE2000000000000000000032 /* HuggingFaceProviderTests.swift */,
+				AE2000000000000000000022 /* GitKrakenProviderTests.swift */,
+				AE2000000000000000000012 /* AmpProviderTests.swift */,
 				F20000000000000000000003 /* QoderProviderTests.swift */,
 				F20000000000000000000004 /* WalletTests.swift */,
+				FA0900000000000000000004 /* WalletProviderTests.swift */,
+				A44102000000000000000001 /* AntigravityProviderTests.swift */,
+				A44002000000000000000001 /* OpenAIAPIProviderTests.swift */,
+				A330070000000000000001 /* NotionAIProviderTests.swift */,
+				A330050000000000000001 /* PerplexityProviderTests.swift */,
+				A330030000000000000001 /* AbacusProviderTests.swift */,
+				A330020000000000000001 /* SessionQuotaTestSupport.swift */,
+				A2200C0000000000000001 /* VeniceProviderTests.swift */,
+				A2200A0000000000000001 /* HyperProviderTests.swift */,
+				A220080000000000000001 /* DeepInfraProviderTests.swift */,
+				A220060000000000000001 /* KiloCodeProviderTests.swift */,
+				A220040000000000000001 /* AtlasCloudProviderTests.swift */,
+				A220030000000000000001 /* WalletExpansionTestSupport.swift */,
 				F2000000000000000000000B /* WalletPresentationTests.swift */,
 				B0000000000000000000001C /* TokenPulse/TokenPulseApp.swift */,
 				B0000000000000000000001D /* TokenPulse/UI/AccountSettingsView.swift */,
 				B0000000000000000000001E /* TokenPulse/UI/ContentView.swift */,
 				B0000000000000000000001F /* TokenPulse/UI/ProviderSignInView.swift */,
 				B00000000000000000000020 /* TokenPulse/UI/QuotaFormatting.swift */,
+                1A1800000000000000000011,
+                1A1800000000000000000012,
+                1A1800000000000000000001 /* Localizable.xcstrings */,
 				DE0000000000000000000002 /* DemoModeTests.swift */,
+                1A1800000000000000000031,
+                1A1800000000000000000051,
 				B00000000000000000000021 /* TokenPulseTests/AccountConfigurationTests.swift */,
 				B00000000000000000000022 /* TokenPulseTests/KeychainCredentialStoreTests.swift */,
 				B00000000000000000000023 /* TokenPulseTests/MiniMaxQuotaClientTests.swift */,
 				B00000000000000000000024 /* TokenPulseTests/NotificationTests.swift */,
+                CD1200000000000000000004,
 				B00000000000000000000025 /* TokenPulseTests/QuotaMonitorTests.swift */,
 				B00000000000000000000026 /* TokenPulseWatch/Info.plist */,
 				B00000000000000000000027 /* TokenPulseWatch/TokenPulseWatch.entitlements */,
@@ -366,6 +949,7 @@
 				B0000000000000000000002B /* TokenPulseWatchWidgets/TokenPulseWatchWidgetsBundle.swift */,
 				B0000000000000000000002C /* TokenPulseWidgets/Info.plist */,
 				B0000000000000000000002D /* TokenPulseWidgets/QuotaWidgetContent.swift */,
+                1A1800000000000000000041,
 				B0000000000000000000002E /* TokenPulseWidgets/QuotaWidgetIntent.swift */,
 				B0000000000000000000002F /* TokenPulseWidgets/TokenPulseWidgetsBundle.swift */,
 				B00000000000000000000031 /* Products */,
@@ -526,6 +1110,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000002 /* Localizable.xcstrings in Resources */,
 				F00000000000000000000001 /* AppIcons.xcassets in Resources */,
 				D00000000000000000000015,
 				D00000000000000000000016,
@@ -543,6 +1128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000003 /* Localizable.xcstrings in Resources */,
 				F00000000000000000000002 /* AppIcons.xcassets in Resources */,
 				D0000000000000000000000F,
 				D00000000000000000000010,
@@ -553,6 +1139,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000004 /* Localizable.xcstrings in Resources */,
 				D0000000000000000000000C,
 				D0000000000000000000000D,
 			);
@@ -562,6 +1149,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000005 /* Localizable.xcstrings in Resources */,
 				D00000000000000000000012,
 				D00000000000000000000013,
 			);
@@ -574,6 +1162,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000042,
+                1A1800000000000000000045,
 				B00000000000000000000033 /* TokenPulse/Application/AccountQuotaClient.swift in Sources */,
 				B00000000000000000000034 /* TokenPulse/Application/AppRuntime.swift in Sources */,
 				B00000000000000000000035 /* TokenPulse/Application/NotificationRuntime.swift in Sources */,
@@ -595,6 +1185,7 @@
 				B00000000000000000000044 /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */,
 				B00000000000000000000045 /* TokenPulse/Providers/ClaudeProvider.swift in Sources */,
 				B00000000000000000000046 /* TokenPulse/Providers/CodexProvider.swift in Sources */,
+                CD1200000000000000000002,
 				B00000000000000000000047 /* TokenPulse/Providers/ProviderHTTP.swift in Sources */,
 				B00000000000000000000048 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */,
 				B00000000000000000000049 /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */,
@@ -602,12 +1193,91 @@
 				F10000000000000000000002 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				F20000000000000000000005 /* QoderProvider.swift in Sources */,
 				F20000000000000000000007 /* DeepSeekProvider.swift in Sources */,
+				FA0900000000000000000002 /* WalletProvider.swift in Sources */,
+				A44101000000000000000002 /* AntigravityProvider.swift in Sources */,
+				A44001000000000000000002 /* OpenAIAPIProvider.swift in Sources */,
+				A330060000000000000002 /* NotionAIProvider.swift in Sources */,
+				A330040000000000000002 /* PerplexityProvider.swift in Sources */,
+				A330010000000000000002 /* AbacusProvider.swift in Sources */,
+				A2200B0000000000000002 /* VeniceProvider.swift in Sources */,
+				A220090000000000000002 /* HyperProvider.swift in Sources */,
+				A220070000000000000002 /* DeepInfraProvider.swift in Sources */,
+				A220050000000000000002 /* KiloCodeProvider.swift in Sources */,
+				A220020000000000000002 /* AtlasCloudProvider.swift in Sources */,
+				A220010000000000000002 /* WalletExpansionHTTP.swift in Sources */,
+                6A8E00000000000000000033 /* IBMBobProvider.swift in Sources */,
+                6A8E00000000000000000013 /* XAIAPIProvider.swift in Sources */,
+                6A8E00000000000000000003 /* VolcengineProvider.swift in Sources */,
+                6A8E00000000000000000203 /* AlibabaTokenPlanProvider.swift in Sources */,
+                6A8E00000000000000000104 /* GatewayQuotaSupport.swift in Sources */,
+                6A8E00000000000000000133 /* LLMProxyProvider.swift in Sources */,
+                6A8E00000000000000000123 /* LiteLLMProvider.swift in Sources */,
+                6A8E00000000000000000113 /* BifrostProvider.swift in Sources */,
+                6A8E00000000000000000106 /* Sub2APIProvider.swift in Sources */,
+                6A7E00000000000000000003 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000003 /* KimiCodeProvider.swift in Sources */,
+				57F000000000000000000301 /* NousPortalProvider.swift in Sources */,
+				57F000000000000000000304 /* DeviceOAuthCredentialVault.swift in Sources */,
+				57F000000000000000000307 /* NousDeviceLoginModel.swift in Sources */,
+				57F000000000000000000121 /* WindsurfProvider.swift in Sources */,
+				57F000000000000000000111 /* ManusProvider.swift in Sources */,
+				57F000000000000000000101 /* DevinProvider.swift in Sources */,
+				2E6300000000000000000473 /* LongCatProvider.swift in Sources */,
+				2E6300000000000000000433 /* OllamaCloudProvider.swift in Sources */,
+				2E6300000000000000000423 /* QoderChinaProvider.swift in Sources */,
+				2E6300000000000000000413 /* XiaomiCodingPlanProvider.swift in Sources */,
+                C02400000000000000000011 /* GoogleNativeOAuth.swift in Sources */,
+                C02400000000000000000021 /* GoogleNativeOAuthLoginView.swift in Sources */,
+                C02400000000000000000041 /* GeminiProvider.swift in Sources */,
+                C02300000000000000000033 /* GrokBotProvider.swift in Sources */,
+                C02300000000000000000023 /* ZedProvider.swift in Sources */,
+                C02300000000000000000013 /* AugmentCodeProvider.swift in Sources */,
+				E23600000000000000000003 /* ClawRouterProvider.swift in Sources */,
+				E23500000000000000000003 /* AixyProvider.swift in Sources */,
+				E22900000000000000000003 /* NeuralwattProvider.swift in Sources */,
+				E22100000000000000000003 /* CodebuffProvider.swift in Sources */,
+				E22000000000000000000003 /* ClinePassProvider.swift in Sources */,
+				F35700000000000000000003 /* TypeSafeProvider.swift in Sources */,
+				F35200000000000000000003 /* QwenCloudProvider.swift in Sources */,
+				F35300000000000000000003 /* HostedWebProviders.swift in Sources */,
+				2E6200000000000000000003 /* MoonshotProvider.swift in Sources */,
+                C02200000000000000000013 /* FactoryProvider.swift in Sources */,
+				57F000000000000000000051 /* ZenMuxProvider.swift in Sources */,
+				57F000000000000000000041 /* XKiroProvider.swift in Sources */,
+				A44200000000000000000002 /* JetBrainsProvider.swift in Sources */,
+				A44200000000000000000005 /* JetBrainsImportView.swift in Sources */,
+				57F000000000000000000021 /* V2EXProvider.swift in Sources */,
+				57F000000000000000000011 /* SyntheticProvider.swift in Sources */,
+				2E6200000000000000000309 /* CursorSessionLoginView.swift in Sources */,
+				2E6200000000000000000307 /* CursorProvider.swift in Sources */,
+				2E6200000000000000000305 /* CursorAccountAuthenticator.swift in Sources */,
+				2E6200000000000000000023 /* ChutesProvider.swift in Sources */,
+				2E6200000000000000000013 /* AlibabaCodingPlanProvider.swift in Sources */,
+                C02200000000000000000043 /* WarpProvider.swift in Sources */,
+                C02200000000000000000033 /* V0Provider.swift in Sources */,
+                C02200000000000000000023 /* DevPassProvider.swift in Sources */,
+				E11000000000000000000003 /* ElevenLabsProvider.swift in Sources */,
+				AE2000000000000000000003 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000223 /* SakanaProvider.swift in Sources */,
+				AE2000000000000000000643 /* KiroProvider.swift in Sources */,
+				AE2000000000000000000647 /* KiroCBOR.swift in Sources */,
+				AE2000000000000000000213 /* MistralProvider.swift in Sources */,
+				AE2000000000000000000203 /* ReplicateProvider.swift in Sources */,
+				AE2000000000000000000033 /* HuggingFaceProvider.swift in Sources */,
+				AE2000000000000000000023 /* GitKrakenProvider.swift in Sources */,
+				AE2000000000000000000013 /* AmpProvider.swift in Sources */,
+				57EF00000000000000000002 /* StepFunProvider.swift in Sources */,
+				57EF00000000000000000005 /* ProviderRedirectPolicy.swift in Sources */,
+				57EF00000000000000000008 /* WebSessionContainer.swift in Sources */,
+				57EF0000000000000000000B /* StepFunSessionLoginView.swift in Sources */,
+                C01100000000000000000003 /* CopilotProvider.swift in Sources */,
 				B0000000000000000000004B /* TokenPulse/TokenPulseApp.swift in Sources */,
 				B0000000000000000000004C /* TokenPulse/UI/AccountSettingsView.swift in Sources */,
 				B0000000000000000000004D /* TokenPulse/UI/ContentView.swift in Sources */,
 				B0000000000000000000004E /* TokenPulse/UI/ProviderSignInView.swift in Sources */,
 				B0000000000000000000004F /* TokenPulse/UI/QuotaFormatting.swift in Sources */,
+                1A1800000000000000000021,
+                1A1800000000000000000022,
 				D00000000000000000000014,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -616,18 +1286,93 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000052,
 				DE0000000000000000000005 /* DemoModeTests.swift in Sources */,
+                1A1800000000000000000032,
 				F20000000000000000000009 /* QoderProviderTests.swift in Sources */,
 				F30000000000000000000005 /* KimiCodeProviderTests.swift in Sources */,
+                57F000000000000000000332 /* NousPortalTests.swift in Sources */,
+                57F000000000000000000202 /* ClaudeSessionScopeTests.swift in Sources */,
+				57F000000000000000000124 /* WindsurfProviderTests.swift in Sources */,
+				57F000000000000000000114 /* ManusProviderTests.swift in Sources */,
+				57F000000000000000000104 /* DevinProviderTests.swift in Sources */,
+				2E6300000000000000000475 /* LongCatProviderTests.swift in Sources */,
+				2E6300000000000000000435 /* OllamaCloudProviderTests.swift in Sources */,
+				2E6300000000000000000425 /* QoderChinaProviderTests.swift in Sources */,
+				2E6300000000000000000415 /* XiaomiCodingPlanProviderTests.swift in Sources */,
+                C02400000000000000000031 /* GoogleNativeOAuthTests.swift in Sources */,
+                C02400000000000000000051 /* GeminiProviderTests.swift in Sources */,
+                C02300000000000000000035 /* GrokBotProviderTests.swift in Sources */,
+                C02300000000000000000025 /* ZedProviderTests.swift in Sources */,
+                C02300000000000000000015 /* AugmentCodeProviderTests.swift in Sources */,
+				E23600000000000000000005 /* ClawRouterProviderTests.swift in Sources */,
+				E23500000000000000000005 /* AixyProviderTests.swift in Sources */,
+				E22900000000000000000005 /* NeuralwattProviderTests.swift in Sources */,
+				E22100000000000000000005 /* CodebuffProviderTests.swift in Sources */,
+				E22000000000000000000005 /* ClinePassProviderTests.swift in Sources */,
+				F35700000000000000000005 /* TypeSafeProviderTests.swift in Sources */,
+				F35200000000000000000005 /* QwenCloudProviderTests.swift in Sources */,
+				F35300000000000000000005 /* HostedWebProviderTests.swift in Sources */,
+				57F000000000000000000002 /* ReplenishmentSemanticsTests.swift in Sources */,
+				2E6200000000000000000005 /* MoonshotProviderTests.swift in Sources */,
+                C02200000000000000000015 /* FactoryProviderTests.swift in Sources */,
+				57F000000000000000000054 /* ZenMuxProviderTests.swift in Sources */,
+				57F000000000000000000044 /* XKiroProviderTests.swift in Sources */,
+				A44200000000000000000008 /* JetBrainsProviderTests.swift in Sources */,
+				57F000000000000000000031 /* PartialWalletTests.swift in Sources */,
+				57F000000000000000000024 /* V2EXProviderTests.swift in Sources */,
+				57F000000000000000000014 /* SyntheticProviderTests.swift in Sources */,
+				2E6200000000000000000310 /* CursorProviderTests.swift in Sources */,
+				2E6200000000000000000025 /* ChutesProviderTests.swift in Sources */,
+				2E6200000000000000000015 /* AlibabaCodingPlanProviderTests.swift in Sources */,
+                C02200000000000000000045 /* WarpProviderTests.swift in Sources */,
+                C02200000000000000000035 /* V0ProviderTests.swift in Sources */,
+                C02200000000000000000025 /* DevPassProviderTests.swift in Sources */,
+				E11000000000000000000005 /* ElevenLabsProviderTests.swift in Sources */,
+				AE2000000000000000001002 /* QuotaDatePrecisionTests.swift in Sources */,
+				AE2000000000000000000005 /* CommandCodeProviderTests.swift in Sources */,
+				AE2000000000000000000225 /* SakanaProviderTests.swift in Sources */,
+				AE2000000000000000000645 /* KiroProviderTests.swift in Sources */,
+				AE2000000000000000000215 /* MistralProviderTests.swift in Sources */,
+				AE2000000000000000000205 /* ReplicateProviderTests.swift in Sources */,
+				AE2000000000000000000035 /* HuggingFaceProviderTests.swift in Sources */,
+				AE2000000000000000000025 /* GitKrakenProviderTests.swift in Sources */,
+				AE2000000000000000000015 /* AmpProviderTests.swift in Sources */,
+				57EF0000000000000000000D /* StepFunProviderTests.swift in Sources */,
+                6A8E00000000000000000025 /* DecimalQuotaCountsTests.swift in Sources */,
+                6A8E00000000000000000035 /* IBMBobProviderTests.swift in Sources */,
+                6A8E00000000000000000015 /* XAIAPIProviderTests.swift in Sources */,
+                6A8E00000000000000000005 /* VolcengineProviderTests.swift in Sources */,
+                6A8E00000000000000000205 /* AlibabaTokenPlanProviderTests.swift in Sources */,
+                6A8E00000000000000000135 /* LLMProxyProviderTests.swift in Sources */,
+                6A8E00000000000000000125 /* LiteLLMProviderTests.swift in Sources */,
+                6A8E00000000000000000115 /* BifrostProviderTests.swift in Sources */,
+                6A8E00000000000000000108 /* Sub2APIProviderTests.swift in Sources */,
+                6A7E00000000000000000005 /* NewAPIProviderTests.swift in Sources */,
+                C01100000000000000000005 /* CopilotProviderTests.swift in Sources */,
 				F2000000000000000000000A /* WalletTests.swift in Sources */,
+				FA0900000000000000000005 /* WalletProviderTests.swift in Sources */,
+				A44102000000000000000002 /* AntigravityProviderTests.swift in Sources */,
+				A44002000000000000000002 /* OpenAIAPIProviderTests.swift in Sources */,
+				A330070000000000000002 /* NotionAIProviderTests.swift in Sources */,
+				A330050000000000000002 /* PerplexityProviderTests.swift in Sources */,
+				A330030000000000000002 /* AbacusProviderTests.swift in Sources */,
+				A330020000000000000002 /* SessionQuotaTestSupport.swift in Sources */,
+				A2200C0000000000000002 /* VeniceProviderTests.swift in Sources */,
+				A2200A0000000000000002 /* HyperProviderTests.swift in Sources */,
+				A220080000000000000002 /* DeepInfraProviderTests.swift in Sources */,
+				A220060000000000000002 /* KiloCodeProviderTests.swift in Sources */,
+				A220040000000000000002 /* AtlasCloudProviderTests.swift in Sources */,
+				A220030000000000000002 /* WalletExpansionTestSupport.swift in Sources */,
 				F2000000000000000000000C /* WalletPresentationTests.swift in Sources */,
 				B00000000000000000000057 /* TokenPulseTests/AccountConfigurationTests.swift in Sources */,
 				B00000000000000000000058 /* TokenPulseTests/KeychainCredentialStoreTests.swift in Sources */,
 				B00000000000000000000059 /* TokenPulseTests/MiniMaxQuotaClientTests.swift in Sources */,
 				B0000000000000000000005A /* TokenPulseTests/NotificationTests.swift in Sources */,
+                CD1200000000000000000005,
 				B0000000000000000000005B /* TokenPulseTests/QuotaMonitorTests.swift in Sources */,
 				C00000000000000000000002 /* TokenPulseTests/ProviderTests.swift in Sources */,
-				C00000000000000000000004 /* /Users/admin/workspace/open/TokenPulse/TokenPulseTests/PlatformTests.swift in Sources */,
+				C00000000000000000000004 /* TokenPulseTests/PlatformTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -656,6 +1401,7 @@
 				B00000000000000000000075 /* TokenPulse/Platform/WidgetSnapshotStore.swift in Sources */,
 				B00000000000000000000076 /* TokenPulse/Providers/ClaudeProvider.swift in Sources */,
 				B00000000000000000000077 /* TokenPulse/Providers/CodexProvider.swift in Sources */,
+                CD1200000000000000000003,
 				B00000000000000000000078 /* TokenPulse/Providers/ProviderHTTP.swift in Sources */,
 				B00000000000000000000079 /* TokenPulse/Providers/ProviderIntegration.swift in Sources */,
 				B0000000000000000000007A /* TokenPulse/Providers/SuperGrokProvider.swift in Sources */,
@@ -663,7 +1409,82 @@
 				F10000000000000000000003 /* TokenPulse/Providers/OpenCodeGoProvider.swift in Sources */,
 				F20000000000000000000006 /* QoderProvider.swift in Sources */,
 				F20000000000000000000008 /* DeepSeekProvider.swift in Sources */,
+				FA0900000000000000000003 /* WalletProvider.swift in Sources */,
+				A44101000000000000000003 /* AntigravityProvider.swift in Sources */,
+				A44001000000000000000003 /* OpenAIAPIProvider.swift in Sources */,
+				A330060000000000000003 /* NotionAIProvider.swift in Sources */,
+				A330040000000000000003 /* PerplexityProvider.swift in Sources */,
+				A330010000000000000003 /* AbacusProvider.swift in Sources */,
+				A2200B0000000000000003 /* VeniceProvider.swift in Sources */,
+				A220090000000000000003 /* HyperProvider.swift in Sources */,
+				A220070000000000000003 /* DeepInfraProvider.swift in Sources */,
+				A220050000000000000003 /* KiloCodeProvider.swift in Sources */,
+				A220020000000000000003 /* AtlasCloudProvider.swift in Sources */,
+				A220010000000000000003 /* WalletExpansionHTTP.swift in Sources */,
+                6A8E00000000000000000034 /* IBMBobProvider.swift in Sources */,
+                6A8E00000000000000000014 /* XAIAPIProvider.swift in Sources */,
+                6A8E00000000000000000004 /* VolcengineProvider.swift in Sources */,
+                6A8E00000000000000000204 /* AlibabaTokenPlanProvider.swift in Sources */,
+                6A8E00000000000000000105 /* GatewayQuotaSupport.swift in Sources */,
+                6A8E00000000000000000134 /* LLMProxyProvider.swift in Sources */,
+                6A8E00000000000000000124 /* LiteLLMProvider.swift in Sources */,
+                6A8E00000000000000000114 /* BifrostProvider.swift in Sources */,
+                6A8E00000000000000000107 /* Sub2APIProvider.swift in Sources */,
+                6A7E00000000000000000004 /* NewAPIProvider.swift in Sources */,
 				F30000000000000000000004 /* KimiCodeProvider.swift in Sources */,
+				57F000000000000000000302 /* NousPortalProvider.swift in Sources */,
+				57F000000000000000000305 /* DeviceOAuthCredentialVault.swift in Sources */,
+				57F000000000000000000308 /* NousDeviceLoginModel.swift in Sources */,
+				57F00000000000000000030A /* WatchNousAuthorizationView.swift in Sources */,
+				57F000000000000000000122 /* WindsurfProvider.swift in Sources */,
+				57F000000000000000000112 /* ManusProvider.swift in Sources */,
+				57F000000000000000000102 /* DevinProvider.swift in Sources */,
+				2E6300000000000000000474 /* LongCatProvider.swift in Sources */,
+				2E6300000000000000000434 /* OllamaCloudProvider.swift in Sources */,
+				2E6300000000000000000424 /* QoderChinaProvider.swift in Sources */,
+				2E6300000000000000000414 /* XiaomiCodingPlanProvider.swift in Sources */,
+                C02400000000000000000012 /* GoogleNativeOAuth.swift in Sources */,
+                C02400000000000000000042 /* GeminiProvider.swift in Sources */,
+                C02300000000000000000034 /* GrokBotProvider.swift in Sources */,
+                C02300000000000000000024 /* ZedProvider.swift in Sources */,
+                C02300000000000000000014 /* AugmentCodeProvider.swift in Sources */,
+				E23600000000000000000004 /* ClawRouterProvider.swift in Sources */,
+				E23500000000000000000004 /* AixyProvider.swift in Sources */,
+				E22900000000000000000004 /* NeuralwattProvider.swift in Sources */,
+				E22100000000000000000004 /* CodebuffProvider.swift in Sources */,
+				E22000000000000000000004 /* ClinePassProvider.swift in Sources */,
+				F35700000000000000000004 /* TypeSafeProvider.swift in Sources */,
+				F35200000000000000000004 /* QwenCloudProvider.swift in Sources */,
+				F35300000000000000000004 /* HostedWebProviders.swift in Sources */,
+				2E6200000000000000000004 /* MoonshotProvider.swift in Sources */,
+                C02200000000000000000014 /* FactoryProvider.swift in Sources */,
+				57F000000000000000000052 /* ZenMuxProvider.swift in Sources */,
+				57F000000000000000000042 /* XKiroProvider.swift in Sources */,
+				A44200000000000000000003 /* JetBrainsProvider.swift in Sources */,
+				A44200000000000000000006 /* JetBrainsImportView.swift in Sources */,
+				57F000000000000000000022 /* V2EXProvider.swift in Sources */,
+				57F000000000000000000012 /* SyntheticProvider.swift in Sources */,
+				2E6200000000000000000308 /* CursorProvider.swift in Sources */,
+				2E6200000000000000000306 /* CursorAccountAuthenticator.swift in Sources */,
+				2E6200000000000000000024 /* ChutesProvider.swift in Sources */,
+				2E6200000000000000000014 /* AlibabaCodingPlanProvider.swift in Sources */,
+                C02200000000000000000044 /* WarpProvider.swift in Sources */,
+                C02200000000000000000034 /* V0Provider.swift in Sources */,
+                C02200000000000000000024 /* DevPassProvider.swift in Sources */,
+				E11000000000000000000004 /* ElevenLabsProvider.swift in Sources */,
+				AE2000000000000000000004 /* CommandCodeProvider.swift in Sources */,
+				AE2000000000000000000224 /* SakanaProvider.swift in Sources */,
+				AE2000000000000000000644 /* KiroProvider.swift in Sources */,
+				AE2000000000000000000648 /* KiroCBOR.swift in Sources */,
+				AE2000000000000000000214 /* MistralProvider.swift in Sources */,
+				AE2000000000000000000204 /* ReplicateProvider.swift in Sources */,
+				AE2000000000000000000034 /* HuggingFaceProvider.swift in Sources */,
+				AE2000000000000000000024 /* GitKrakenProvider.swift in Sources */,
+				AE2000000000000000000014 /* AmpProvider.swift in Sources */,
+				57EF00000000000000000003 /* StepFunProvider.swift in Sources */,
+				57EF00000000000000000006 /* ProviderRedirectPolicy.swift in Sources */,
+				57EF00000000000000000009 /* WebSessionContainer.swift in Sources */,
+                C01100000000000000000004 /* CopilotProvider.swift in Sources */,
 				B0000000000000000000007C /* TokenPulseWatch/TokenPulseWatchApp.swift in Sources */,
 				B0000000000000000000007D /* TokenPulseWatch/WatchAccountPagesView.swift in Sources */,
 				D0000000000000000000000E,
@@ -675,6 +1496,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000043,
 				B00000000000000000000086 /* TokenPulse/Domain/Models.swift in Sources */,
 				B00000000000000000000087 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */,
 				B00000000000000000000088 /* TokenPulse/Notifications/ReminderModels.swift in Sources */,
@@ -692,6 +1514,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                1A1800000000000000000044,
 				B00000000000000000000096 /* TokenPulse/Domain/Models.swift in Sources */,
 				B00000000000000000000097 /* TokenPulse/Domain/AccountConfiguration.swift in Sources */,
 				B00000000000000000000098 /* TokenPulse/Notifications/ReminderModels.swift in Sources */,
@@ -737,7 +1560,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/TokenPulse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				DEVELOPMENT_TEAM = 58M23C5WLR;
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -755,9 +1578,10 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG TOKENPULSE_APP";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -766,10 +1590,11 @@
 		B00000000000000000000054 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+                EXCLUDED_SOURCE_FILE_NAMES = (QuotaWidgetContent.swift, QuotaWidgetIntent.swift, WidgetContentPresentation.swift);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/TokenPulse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				DEVELOPMENT_TEAM = 58M23C5WLR;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "TokenPulse/Platform/TokenPulse-Info.plist";
@@ -786,6 +1611,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -796,7 +1622,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -815,6 +1641,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TokenPulse.app/TokenPulse";
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
@@ -826,7 +1653,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -841,6 +1668,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TokenPulse.app/TokenPulse";
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
@@ -853,7 +1681,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulseWatch/TokenPulseWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -874,6 +1702,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -885,7 +1714,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TokenPulseWatch/TokenPulseWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TokenPulseWatch/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -902,6 +1731,7 @@
 				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -913,7 +1743,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -934,6 +1764,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -945,7 +1776,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TokenPulseWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -962,6 +1793,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 1;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -973,7 +1805,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -994,6 +1826,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -1005,7 +1838,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = TokenPulse/Platform/Widget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026101301;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TokenPulseWatchWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -1022,6 +1855,7 @@
 				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
@@ -1041,6 +1875,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Debug;
 		};
@@ -1054,6 +1889,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 6.0;
+                SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};

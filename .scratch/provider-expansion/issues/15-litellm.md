@@ -1,0 +1,38 @@
+# 15: LiteLLM 用户与团队预算接入
+
+**Status:** done
+
+**Type:** integration
+
+**What to build:** 用户配置 LiteLLM 地址与虚拟 Key，在双端分别查看对应用户及团队预算。
+
+**Blocked by:** 12 — New API 自定义地址与余额查询
+
+## 当前验收标准（用户于2026-10-02调整）
+
+- [x] 完成本票接入实现，并确认provider图标存在。真实账号/设备验证不再作为关票条件。
+
+下方保留原实现要求与历史验证清单；未勾选不代表当前额外关票门槛。
+
+## 原 Acceptance criteria（历史）
+
+- [ ] 按 Key 身份查询对应用户和团队，验证返回标识一致；不能展示同一响应中其他团队的预算。
+- [ ] Key 无权读取预算时明确显示权限或未提供状态，不产生零预算、耗尽提示或无限查询回退。
+- [ ] 缺少上限时不绘制使用率；仅使用返回的预算周期与重置时间，用户和团队窗口分别提醒。
+- [ ] 完成添加、凭证安全保存、多账号隔离、重新打开后恢复、账号删除与同步；iCloud 关闭时本机可用。
+- [ ] iPhone 与 Watch 分别直连提供商查询；Watch 已取得配置和凭证后，不依赖手机或 Mac 在线。
+- [ ] 账号卡片、详情、iPhone 小组件和 Watch 展示保持数值、单位、采集时间与过期状态一致；支持演示数据并保持演示与真实账号隔离。
+- [ ] 适用的额度告警、重置提醒或低余额提醒沿用现有规则；失败保留旧数据，缺失指标不补零，预计重置不等同于确认恢复。
+- [ ] 增加有意义的请求契约、解析边界、账号隔离和提醒行为验证；运行相关测试和完整 unsigned TokenPulse target 构建，覆盖 App、Widgets 与 Watch 资源。
+- [ ] 新增图标优先官方资产或既有 Lobe Icons 来源，固定来源版本、记录版权许可，并验证模板渲染与矢量资产。
+- [ ] 记录实际账号查询、凭证失效和双端独立刷新证据；没有凭证或设备时准确保留未验收项，模拟响应通过不能代替真实验收。
+- [ ] 更新提供商支持范围、登录说明、领域用语与验证边界。
+
+## Evidence
+
+参考 Pulse 固定版本的[接入说明](https://github.com/qunqin24/Pulse/blob/397c8fc4f1bd52180a452d2f3f0c099def97cf69/Docs/providers/litellm.md)。参考代码与模拟响应只作为契约线索，不能视为真实账号验证。
+
+
+## 2026-10-02 wave3 evidence
+
+`.liteLLM` gateway地址/Key绑定、双端Key→user/team只读GET、严格返回身份/绑定团队筛选、Decimal预算独立窗口、权限未提供status与无回退、UI/Watch/widget/demo/适用提醒和图标映射均已实现。SF puzzlepiece.extension.fill存在；主源/许可/边界在[专属文档](../../../docs/litellm-provider-integration.md)。新增回归和小模块Swift6语义检查通过，parse/PBX/diff通过；实际XCTest和target构建交root，未请求真实Key或部署、未启动模拟器。当前AC完成，旧真实验证记录保持未验。
