@@ -46,6 +46,7 @@ enum ReminderNotificationKind: String, Codable, Equatable, Sendable {
     case expectedReset
     case confirmedReset
     case walletAlert
+    case codexResetPreview
 }
 
 struct ReminderNotification: Codable, Equatable, Sendable {
@@ -280,4 +281,8 @@ struct PendingResetSchedule: Codable, Equatable, Sendable {
     let notificationID: String
     let resetAt: Date
     let windowIDs: Set<String>
+    /// Rendered on this device; absent in older ledgers. Remote pending schedules never merge.
+    var notification: ReminderNotification? = nil
+    /// Stable display inputs for this pending request, independent of newer synchronized observations.
+    var notificationWindows: [QuotaWindow]? = nil
 }

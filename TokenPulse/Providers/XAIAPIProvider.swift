@@ -82,6 +82,7 @@ struct XAIAPIProviderClient: Sendable {
             QuotaWindow(id: "xaiAPI.team.\(teamID).wallet.USD", name: "已入账预付余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         unit: "USD", wallet: wallet)
-        ], collectedAt: collectedAt, providerPlanName: "团队 \(teamID)")
+        ], collectedAt: collectedAt, providerPlanName: "团队 \(teamID)",
+           providerPlanPresentation: .team(identifier: teamID))
     }
 }

@@ -22,7 +22,7 @@ struct KiroProviderClient: Sendable {
             let session = try WebProviderSession.credential(provider: .kiro, origin: origin, accountID: accountID,
                 accessToken: jar.header, expiresAt: jar.expiresAt, remoteAccountID: identity.userID,
                 metadata: ["kiroProfileArn": identity.profileArn, "kiroIdp": identity.idp, "kiroCookieExpiries": try expiryJSON(jar.expiries)])
-            return [WebLoginCredentialChoice(id: identity.userID, title: "Kiro 订阅账号", credential: try session.encoded())]
+            return [WebLoginCredentialChoice(id: identity.userID, title: L10n.text("Kiro 订阅账号"), credential: try session.encoded())]
         })
     }
 
@@ -244,8 +244,10 @@ enum KiroProviderParser {
                     guard try text(bonus, "status") == "ACTIVE" else { continue }
                     guard let code = try text(bonus, "bonusCode"), !code.isEmpty, codes.insert(code).inserted else { throw RefreshFailure.unreadableResponse }
                     let expiry = try date(bonus, "expiresAt")
+                    let providerName = try text(bonus, "displayName")
                     if expiry.map({ $0 > collectedAt }) != false,
-                       let window = try window(bonus, id: "kiro.\(resource).bonus.\(code)", name: try text(bonus, "displayName") ?? "额外额度", unit: unit, reset: nil, expiry: expiry, period: nil) { windows.append(window) }
+                       let window = try window(bonus, id: "kiro.\(resource).bonus.\(code)", name: providerName ?? "额外额度", unit: unit, reset: nil, expiry: expiry, period: nil,
+                                               presentationLabel: providerName == nil ? .extraAllowance : nil) { windows.append(window) }
                 }
             }
             if let credits = item["overageCredits"], credits != .null {
@@ -279,7 +281,7 @@ enum KiroProviderParser {
     }
 
     private static func window(_ item: [String: KiroCBOR.Value], id: String, name: String, unit: String,
-                               reset: Date?, expiry: Date?, period: QuotaPeriod?) throws -> QuotaWindow? {
+                               reset: Date?, expiry: Date?, period: QuotaPeriod?, presentationLabel: QuotaPresentationLabel? = nil) throws -> QuotaWindow? {
         let used = try number(item, "currentUsageWithPrecision") ?? number(item, "currentUsage")
         let total = try number(item, "usageLimitWithPrecision") ?? number(item, "usageLimit")
         guard used != nil || total != nil else { return nil }
@@ -292,7 +294,7 @@ enum KiroProviderParser {
             exactCounts: DecimalQuotaCounts(used: used.flatMap { Decimal(string: String($0), locale: Locale(identifier: "en_US_POSIX")) },
                 remaining: remaining.flatMap { Decimal(string: String($0), locale: Locale(identifier: "en_US_POSIX")) },
                 total: total.flatMap { Decimal(string: String($0), locale: Locale(identifier: "en_US_POSIX")) }),
-            resetSemantics: period == nil ? .nonResettingAllowance : nil)
+            resetSemantics: period == nil ? .nonResettingAllowance : nil, presentationLabel: presentationLabel)
     }
 
     private static func number(_ object: [String: KiroCBOR.Value], _ key: String) throws -> Double? {

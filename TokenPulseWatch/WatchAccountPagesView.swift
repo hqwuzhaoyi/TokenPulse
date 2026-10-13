@@ -4,19 +4,23 @@ struct WatchAccountPagesView: View {
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject var runtime: AppRuntime
     @ObservedObject var monitor: QuotaMonitor
+    var selectionStore = WatchWidgetSelectionStore()
+    var automaticallyRefresh = true
     @State private var selection: UUID?
 
     var body: some View {
         NavigationStack {
             Group {
                 if displayedStates.isEmpty {
-                    ContentUnavailableView {
-                        Label("没有账号", systemImage: "applewatch")
-                    } description: {
-                        Text("等待 iCloud 同步账号配置，或体验示例数据。")
-                    } actions: {
-                        Button("体验演示 / Try Demo") { Task { await runtime.setDemoMode(true) } }
-                            .disabled(runtime.isSwitchingMode)
+                    ScrollView {
+                        ContentUnavailableView {
+                            Label("没有账号", systemImage: "applewatch")
+                        } description: {
+                            Text("等待 iCloud 同步账号配置，或体验示例数据。")
+                        } actions: {
+                            Button("体验演示") { Task { await runtime.setDemoMode(true) } }
+                                .disabled(runtime.isSwitchingMode)
+                        }
                     }
                 } else {
                     TabView(selection: $selection) {
@@ -38,9 +42,9 @@ struct WatchAccountPagesView: View {
                     .tabViewStyle(.page)
                 }
             }
-            .navigationTitle(runtime.isDemoMode ? "演示 · TokenPulse" : "TokenPulse")
+            .navigationTitle(runtime.isDemoMode ? L10n.text("演示 · TokenPulse") : "TokenPulse")
             .onChange(of: scenePhase) { _, phase in
-                guard phase == .active else { return }
+                guard phase == .active, automaticallyRefresh else { return }
                 Task { await runtime.refresh() }
             }
             .onOpenURL { url in
@@ -52,9 +56,9 @@ struct WatchAccountPagesView: View {
                 selection = id
             }
             .toolbar {
-                ToolbarItem {
+                ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink {
-                        WatchWidgetSettingsView(accounts: displayedStates.map(\.account), runtime: runtime)
+                        WatchWidgetSettingsView(accounts: displayedStates.map(\.account), runtime: runtime, store: selectionStore)
                     } label: {
                         Label("表盘设置", systemImage: "gearshape")
                     }
@@ -77,12 +81,12 @@ private struct WatchWidgetSettingsView: View {
     let accounts: [SubscriptionAccount]
     @ObservedObject var runtime: AppRuntime
     @State private var selectedAccountID: UUID?
-    private let store = WatchWidgetSelectionStore()
+    let store: WatchWidgetSelectionStore
 
     var body: some View {
         Form {
             Section {
-                Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                Button(runtime.isDemoMode ? L10n.text("退出演示") : L10n.text("体验演示")) {
                     Task { await runtime.setDemoMode(!runtime.isDemoMode) }
                 }
                 .disabled(runtime.isSwitchingMode)
@@ -95,10 +99,10 @@ private struct WatchWidgetSettingsView: View {
                 NavigationLink {
                     WatchWidgetAccountSelectionView(
                         accounts: accounts,
-                        selectedAccountID: $selectedAccountID
+                        selectedAccountID: $selectedAccountID, store: store
                     )
                 } label: {
-                    LabeledContent("表盘显示账号", value: selectedAccount?.name ?? "未选择")
+                    LabeledContent("表盘显示账号", value: selectedAccount.map { L10n.demoAccountName($0) } ?? L10n.text("未选择"))
                 }
             }
         }
@@ -119,7 +123,7 @@ private struct WatchWidgetAccountSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     let accounts: [SubscriptionAccount]
     @Binding var selectedAccountID: UUID?
-    private let store = WatchWidgetSelectionStore()
+    let store: WatchWidgetSelectionStore
 
     var body: some View {
         List(accounts) { account in
@@ -133,18 +137,20 @@ private struct WatchWidgetAccountSelectionView: View {
                 HStack(spacing: 6) {
                     ProviderIcon(provider: account.provider, size: 14)
                     VStack(alignment: .leading) {
-                        Text(account.name)
+                        Text(L10n.demoAccountName(account))
                         Text(account.provider.displayName)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
                     if selectedAccountID == account.id {
-                        Image(systemName: "checkmark")
+                        Image(systemName: "checkmark").accessibilityHidden(true)
                     }
                 }
             }
             .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(selectedAccountID == account.id ? L10n.text("已选择") : L10n.text("未选择"))
         }
         .navigationTitle("选择账号")
     }
@@ -164,13 +170,14 @@ private struct WatchAccountPage: View {
         ScrollView {
             VStack(spacing: 8) {
                 ProviderIcon(provider: state.account.provider, size: 24)
-                Text(state.account.name).font(.headline).lineLimit(1)
+                Text(L10n.demoAccountName(state.account)).font(.headline)
+                    .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
                 Text(providerDescription)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
                 if let snapshot = state.snapshot {
-                    if let status = snapshot.quotaStatusText {
+                    if let status = QuotaFormatting.quotaStatus(snapshot.quotaStatusText, provider: state.account.provider) {
                         Text(status).font(.caption2).foregroundStyle(.secondary)
                     } else if snapshot.isNoPlan == true {
                         Text("按量计费，无套餐或 Key 上限").font(.caption2)
@@ -184,8 +191,8 @@ private struct WatchAccountPage: View {
                     ForEach(snapshot.windows(for: state.account.provider, surface: .detail)) { window in
                         if let wallet = window.wallet {
                             VStack(alignment: .leading, spacing: 3) {
-                                Text(wallet.currency).font(.caption.bold())
-                                LabeledContent(wallet.isMonetary ? "总可用" : "剩余 \(wallet.currency)",
+                                Text(QuotaFormatting.balanceUnit(wallet)).font(.caption.bold())
+                                LabeledContent(wallet.isMonetary ? L10n.text("总可用") : L10n.format("剩余 %@", QuotaFormatting.balanceUnit(wallet)),
                                                value: QuotaFormatting.balance(wallet.total, wallet: wallet))
                                 if wallet.isMonetary {
                                     LabeledContent("赠送", value: QuotaFormatting.balance(wallet.granted, wallet: wallet))
@@ -196,27 +203,32 @@ private struct WatchAccountPage: View {
                         } else if window.scope == nil || window.hasDetailValues {
                             VStack(alignment: .leading, spacing: 3) {
                                 if let percentage = QuotaFormatting.effectiveUsedPercentage(window) {
+                                    Text(L10n.windowDisplayName(window, provider: state.account.provider))
+                                        .font(.caption2).fixedSize(horizontal: false, vertical: true)
+                                        .accessibilityHidden(true)
                                     Gauge(value: min(max(percentage, 0), 100), in: 0...100) {
-                                    Text(window.displayName)
-                                } currentValueLabel: {
-                                    Text(window.isExhausted == true
-                                         ? "已用尽"
-                                         : "\(percentage.formatted(.number.precision(.fractionLength(0...1))))%")
-                                }
+                                        EmptyView()
+                                    } currentValueLabel: {
+                                        Text(window.isExhausted == true
+                                             ? L10n.text("已用尽")
+                                             : (percentage / 100).formatted(.percent.precision(.fractionLength(0...1))))
+                                    }
                                     .gaugeStyle(.accessoryCircular)
+                                    .accessibilityLabel(L10n.windowDisplayName(window, provider: state.account.provider))
+                                    .accessibilityValue(QuotaFormatting.usage(window))
                                 } else {
-                                    LabeledContent(window.displayName, value: QuotaFormatting.usage(window))
+                                    LabeledContent(L10n.windowDisplayName(window, provider: state.account.provider), value: QuotaFormatting.usage(window))
                                         .font(.caption)
                                 }
                                 if let overage = QuotaFormatting.overageDescription(window) {
                                     Text(overage).font(.caption2)
                                 }
                                 if !window.isUnlimited, let counts = window.exactCounts {
-                                    if let used = counts.used { LabeledContent("已用", value: QuotaFormatting.count(used, unit: window.unit)).font(.caption2) }
-                                    if let remaining = counts.remaining { LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit)).font(.caption2) }
-                                    if let total = counts.total { LabeledContent("预算", value: QuotaFormatting.count(total, unit: window.unit)).font(.caption2) }
+                                    if let used = counts.used { LabeledContent("已用", value: QuotaFormatting.count(used, window: window)).font(.caption2) }
+                                    if let remaining = counts.remaining { LabeledContent("剩余", value: QuotaFormatting.count(remaining, window: window)).font(.caption2) }
+                                    if let total = counts.total { LabeledContent(QuotaFormatting.totalLabel(window), value: QuotaFormatting.count(total, window: window)).font(.caption2) }
                                 } else if !window.isUnlimited, let remaining = window.remainingCount {
-                                    LabeledContent("剩余", value: QuotaFormatting.count(remaining, unit: window.unit))
+                                    LabeledContent("剩余", value: QuotaFormatting.count(remaining, window: window))
                                         .font(.caption2)
                                 }
                                 LabeledContent(
@@ -232,7 +244,7 @@ private struct WatchAccountPage: View {
                             }
                         } else {
                             LabeledContent(
-                                window.displayName,
+                                L10n.windowDisplayName(window, provider: state.account.provider),
                                 value: QuotaFormatting.usage(window)
                             )
                             .font(.caption2)
@@ -253,7 +265,7 @@ private struct WatchAccountPage: View {
                         Label(QuotaFormatting.quotaExceededBadge, systemImage: "exclamationmark.circle.fill")
                             .font(.caption2).foregroundStyle(.orange)
                     }
-                    Text("采集于 \(snapshot.collectedAt.formatted(date: .omitted, time: .shortened))")
+                    Text(L10n.format("采集于 %@", snapshot.collectedAt.formatted(date: .omitted, time: .shortened)))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 } else {
@@ -262,11 +274,12 @@ private struct WatchAccountPage: View {
 
                 if let failure = state.lastFailure {
                     Label(
-                        failure == .invalidCredential ? "凭证尚未同步或已失效" : failure.displayName,
+                        failure == .invalidCredential ? L10n.text("凭证尚未同步或已失效") : failure.displayName,
                         systemImage: failure == .invalidCredential ? "key.slash" : "exclamationmark.triangle"
                     )
                     .font(.caption2)
                     .foregroundStyle(.orange)
+                    .id("watch-error-\(state.id.uuidString)")
                 }
 
                 if state.account.provider == .jetBrainsAI, !isDemoMode {
@@ -287,7 +300,11 @@ private struct WatchAccountPage: View {
                     }
                 }
                 .disabled(isRefreshing)
+                .accessibilityLabel("刷新")
+                .accessibilityValue(isRefreshing ? L10n.text("正在刷新") : "")
+                .accessibilityHint("独立查询此账号的最新额度")
             }
+            .padding(.horizontal, 8)
         }
         .sheet(isPresented: $showingJetBrainsImport) {
             if let identity = monitor.configuration(for: state.id)?.credentialIdentity {
@@ -316,9 +333,21 @@ private struct WatchAccountPage: View {
     }
 
     private var providerDescription: String {
-        if let plan = state.snapshot?.providerPlanName { return "\(state.account.provider.displayName) · \(plan)" }
+        if let snapshot = state.snapshot, let plan = QuotaFormatting.providerPlanName(snapshot.providerPlanName, presentation: snapshot.providerPlanPresentation) { return L10n.format("%@ · %@", state.account.provider.displayName, plan) }
         guard state.account.provider == .codex,
               let plan = state.snapshot?.subscriptionPlan else { return state.account.provider.displayName }
-        return "\(state.account.provider.displayName) · \(plan.displayName)"
+        return L10n.format("%@ · %@", state.account.provider.displayName, plan.displayName)
     }
 }
+
+#if DEBUG
+extension WatchAccountPagesView {
+    /// Reuses the production account page without the paging host for fixture viewport checks.
+    static func accountFixture(state: AccountQuotaState, monitor: QuotaMonitor) -> some View {
+        WatchAccountPage(state: state, monitor: monitor, isDemoMode: true, date: Date(),
+                         isRefreshing: monitor.refreshingAccountIDs.contains(state.id)) {
+            await monitor.refresh(accountID: state.id)
+        }
+    }
+}
+#endif

@@ -86,6 +86,68 @@ final class CopilotProviderTests: XCTestCase {
         XCTAssertTrue(completed)
     }
 
+    @MainActor
+    func testLocalizedDeviceCodeExpiryAndDenialRecoverWithoutChangingRequestIdentity() async throws {
+        for language in ["zh-Hans", "en"] {
+            for denied in [false, true] {
+                try await L10n.withLanguage(language) {
+                    let cancelledTransport = CopilotTransportStub([(200, deviceReply)])
+                    let cancelled = DeviceLoginModel(controller: ProviderAuthenticationController(transport: cancelledTransport),
+                                                     sleep: { _ in throw CancellationError() })
+                    await cancelled.authorize(provider: .copilot) { _ in XCTFail("Cancelled sign-in must not save a credential") }
+                    XCTAssertNil(cancelled.message)
+                    XCTAssertEqual(cancelled.session?.userCode, "TEST-CODE")
+                    let cancelledRequests = await cancelledTransport.requests
+                    XCTAssertEqual(cancelledRequests.count, 1)
+                    let failure = denied ? #"{"error":"access_denied"}"# : #"{"error":"expired_token"}"#
+                    let transport = CopilotTransportStub([(200, deviceReply), (200, failure), (200, deviceReply), (200, tokenReply)])
+                    let model = DeviceLoginModel(controller: ProviderAuthenticationController(transport: transport), sleep: { _ in })
+                    var saved: [String] = []
+                    await model.authorize(provider: .copilot) { saved.append($0) }
+                    let expected: String
+                    if language == "en" {
+                        expected = denied ? "GitHub authorization was denied or is no longer valid. Please start again."
+                            : "Authorization has expired. Please start again."
+                    } else {
+                        expected = denied ? "GitHub 授权已拒绝或失效，请重新开始。" : "授权已过期，请重新开始。"
+                    }
+                    XCTAssertEqual(model.message, expected)
+                    XCTAssertNil(model.session)
+                    XCTAssertTrue(saved.isEmpty)
+                    await model.authorize(provider: .copilot) { saved.append($0) }
+                    XCTAssertEqual(saved.count, 1)
+                    XCTAssertNil(model.message)
+                    XCTAssertEqual(model.session?.userCode, "TEST-CODE")
+                    XCTAssertEqual(model.session?.authorizationURL.absoluteString, "https://github.com/login/device")
+                    let credential = try ProviderCredentialEnvelope.decode(try XCTUnwrap(saved.first), expectedProvider: .copilot)
+                    XCTAssertEqual(credential.accessToken, "oauth-fixture")
+                    let requests = await transport.requests
+                    XCTAssertEqual(requests.count, 4)
+                    let bodies = try requests.map { request in
+                        try XCTUnwrap(JSONSerialization.jsonObject(with: try XCTUnwrap(request.httpBody)) as? NSDictionary)
+                    }
+                    let deviceBody: NSDictionary = ["client_id": "Iv1.b507a08c87ecfe98", "scope": "read:user"]
+                    let pollBody: NSDictionary = ["client_id": "Iv1.b507a08c87ecfe98", "device_code": "device-fixture",
+                                                  "grant_type": "urn:ietf:params:oauth:grant-type:device_code"]
+                    // JSON object key order is unspecified; compare every key and value instead of encoded bytes.
+                    XCTAssertEqual(bodies, [deviceBody, pollBody, deviceBody, pollBody])
+                    XCTAssertEqual(requests.map(\.url?.absoluteString), [
+                        "https://github.com/login/device/code", "https://github.com/login/oauth/access_token",
+                        "https://github.com/login/device/code", "https://github.com/login/oauth/access_token",
+                    ])
+                    for request in requests {
+                        XCTAssertEqual(request.httpMethod, "POST")
+                        XCTAssertEqual(request.allHTTPHeaderFields, ["Accept": "application/json", "Content-Type": "application/json"])
+                    }
+                    XCTAssertEqual(model.session?.provider, .copilot)
+                    XCTAssertEqual(model.session?.deviceCode, "device-fixture")
+                    XCTAssertEqual(credential.metadata["client_id"], "Iv1.b507a08c87ecfe98")
+                    XCTAssertEqual(credential.metadata["scope"], "read:user")
+                }
+            }
+        }
+    }
+
     func testExpiryAndVerificationURLValidationRejectBeforePolling() async throws {
         let transport = CopilotTransportStub([(200, deviceReply)])
         let session = try await ProviderAuthenticationController(transport: transport, now: { Date(timeIntervalSince1970: 100) }).beginLogin(provider: .copilot)
@@ -217,7 +279,9 @@ final class CopilotProviderTests: XCTestCase {
         let delivered = first.operations.compactMap { if case .deliver(let value) = $0 { return value }; return nil }
         XCTAssertEqual(delivered.map(\.kind), [.quotaAlert])
         XCTAssertFalse(delivered[0].body.contains("Chat"))
-        XCTAssertTrue(delivered[0].body.contains("Completions达到100%"))
+        let completions = try XCTUnwrap(windows.first { $0.id == "copilot.completions" })
+        XCTAssertTrue(delivered[0].body.contains(L10n.windowDisplayName(completions, provider: .copilot)))
+        XCTAssertTrue(delivered[0].body.contains(1.0.formatted(.percent.precision(.fractionLength(0)))))
         let schedules = first.operations.compactMap { if case .schedule(let value, _) = $0 { return value }; return nil }
         XCTAssertEqual(schedules.map(\.kind), [.expectedReset])
         XCTAssertTrue(schedules[0].title.contains("预计"))

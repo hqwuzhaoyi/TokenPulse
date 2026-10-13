@@ -4,20 +4,27 @@ import XCTest
 @MainActor
 final class QuotaMonitorTests: XCTestCase {
     func testDeletedAccountCredentialCleanupCanBeRetried() async throws {
-        let account = SubscriptionAccount(name: "Delete")
-        let store = MemoryAccountStore(initial: [AccountQuotaState(account: account)])
-        let credentials = MemoryCredentialStore(values: [account.id: "fixture"], deleteFailuresRemaining: 1)
-        let monitor = QuotaMonitor(accountStore: store, credentialStore: credentials, quotaClient: StubQuotaClient())
-        await monitor.start(refresh: false)
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                let account = SubscriptionAccount(name: "Delete")
+                let store = MemoryAccountStore(initial: [AccountQuotaState(account: account)])
+                let credentials = MemoryCredentialStore(values: [account.id: "fixture"], deleteFailuresRemaining: 1)
+                let monitor = QuotaMonitor(accountStore: store, credentialStore: credentials, quotaClient: StubQuotaClient())
+                await monitor.start(refresh: false)
 
-        await monitor.deleteAccount(accountID: account.id)
+                await monitor.deleteAccount(accountID: account.id)
 
-        XCTAssertTrue(monitor.states.isEmpty)
-        XCTAssertTrue(monitor.hasPendingCredentialCleanup)
-        await monitor.retryPendingCredentialCleanup()
-        XCTAssertFalse(monitor.hasPendingCredentialCleanup)
-        let credential = await credentials.credential(for: account.id)
-        XCTAssertNil(credential)
+                XCTAssertTrue(monitor.states.isEmpty)
+                XCTAssertTrue(monitor.hasPendingCredentialCleanup)
+                XCTAssertEqual(monitor.storageMessage, language == "en"
+                               ? "The account was deleted, but its credentials could not be cleared. Try again."
+                               : "账号已删除，凭证清理失败，请重试。")
+                await monitor.retryPendingCredentialCleanup()
+                XCTAssertFalse(monitor.hasPendingCredentialCleanup)
+                let credential = await credentials.credential(for: account.id)
+                XCTAssertNil(credential)
+            }
+        }
     }
 
     func testRefreshKeepsTwoAccountsIsolatedAndPersistsSuccessfulSnapshots() async throws {
@@ -116,7 +123,7 @@ final class QuotaMonitorTests: XCTestCase {
         let requestCount = await client.totalRequestCount()
         XCTAssertEqual(credentialCount, 0)
         XCTAssertEqual(requestCount, 0)
-        XCTAssertEqual(monitor.storageMessage, "无法安全保存账号")
+        XCTAssertEqual(monitor.storageMessage, L10n.text("无法安全保存账号"))
     }
 
     func testCancelledRefreshDoesNotOverwriteOrPersistOldState() async throws {
@@ -138,31 +145,40 @@ final class QuotaMonitorTests: XCTestCase {
     }
 
     func testFailedStateSaveAndCredentialRollbackRemainVisibleAndRetryable() async throws {
-        let store = MemoryAccountStore(saveError: TestStoreError.failed)
-        let credentials = MemoryCredentialStore(deleteFailuresRemaining: 2)
-        let client = StubQuotaClient(defaultResult: .failure(.server))
-        let monitor = QuotaMonitor(accountStore: store, credentialStore: credentials, quotaClient: client)
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                let store = MemoryAccountStore(saveError: TestStoreError.failed)
+                let credentials = MemoryCredentialStore(deleteFailuresRemaining: 2)
+                let client = StubQuotaClient(defaultResult: .failure(.server))
+                let monitor = QuotaMonitor(accountStore: store, credentialStore: credentials, quotaClient: client)
 
-        await monitor.addAccount(name: "双重失败", credential: "placeholder-key")
+                await monitor.addAccount(name: "双重失败", credential: "placeholder-key")
 
-        let retainedCredentialCount = await credentials.credentialCount()
-        XCTAssertTrue(monitor.states.isEmpty)
-        XCTAssertTrue(monitor.hasPendingCredentialCleanup)
-        XCTAssertEqual(retainedCredentialCount, 1)
-        XCTAssertEqual(monitor.storageMessage, "账号未保存，凭证清理失败，请重试。")
+                let retainedCredentialCount = await credentials.credentialCount()
+                XCTAssertTrue(monitor.states.isEmpty)
+                XCTAssertTrue(monitor.hasPendingCredentialCleanup)
+                XCTAssertEqual(retainedCredentialCount, 1)
+                XCTAssertEqual(monitor.storageMessage, language == "en"
+                               ? "The account was not saved and its credentials could not be cleared. Try again."
+                               : "账号未保存，凭证清理失败，请重试。")
 
-        await monitor.retryPendingCredentialCleanup()
+                await monitor.retryPendingCredentialCleanup()
 
-        let retainedAfterRetryCount = await credentials.credentialCount()
-        XCTAssertTrue(monitor.hasPendingCredentialCleanup)
-        XCTAssertEqual(retainedAfterRetryCount, 1)
-        XCTAssertEqual(monitor.storageMessage, "凭证清理仍失败，请重试。")
+                let retainedAfterRetryCount = await credentials.credentialCount()
+                XCTAssertTrue(monitor.hasPendingCredentialCleanup)
+                XCTAssertEqual(retainedAfterRetryCount, 1)
+                XCTAssertEqual(monitor.storageMessage, language == "en"
+                               ? "Credentials still could not be cleared. Try again."
+                               : "凭证清理仍失败，请重试。")
 
-        await monitor.retryPendingCredentialCleanup()
+                await monitor.retryPendingCredentialCleanup()
 
-        let cleanedCredentialCount = await credentials.credentialCount()
-        XCTAssertFalse(monitor.hasPendingCredentialCleanup)
-        XCTAssertEqual(cleanedCredentialCount, 0)
+                let cleanedCredentialCount = await credentials.credentialCount()
+                XCTAssertFalse(monitor.hasPendingCredentialCleanup)
+                XCTAssertEqual(cleanedCredentialCount, 0)
+                XCTAssertNil(monitor.storageMessage)
+            }
+        }
     }
 
     private func snapshot(accountID: UUID, used: Double, collectedAt: Date) -> QuotaSnapshot {
@@ -474,5 +490,74 @@ final class MiniMaxRawKeyScopeRegressionTests: XCTestCase {
         XCTAssertNil(monitor.states[0].lastFailure)
         let sent = await client.receivedCredential(for: id)
         XCTAssertEqual(sent, "demo")
+    }
+}
+
+extension QuotaMonitorTests {
+    func testBilingualAPIKeyAccountsKeepNamesCredentialsAndGatewayScopeOnSave() async throws {
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                for provider in [Provider.miniMaxChina, .newAPI] {
+                    let id = UUID()
+                    let name = "我的 work 🌙 · \(provider.rawValue)"
+                    let credential = try ProviderAuthenticationController().credential(
+                        provider: provider, apiKey: " synthetic-fixture ", serverAddress: "https://relay.example/prefix/v1/")
+                    let snapshot = QuotaSnapshot(accountID: id, windows: [], collectedAt: Date(timeIntervalSince1970: 100))
+                    let states = MemoryAccountStore()
+                    let keys = MemoryCredentialStore()
+                    let client = StubQuotaClient(results: [id: [.success(snapshot)]])
+                    let monitor = QuotaMonitor(accountStore: states, credentialStore: keys, quotaClient: client)
+                    await monitor.addAccount(name: name, credential: credential, provider: provider, accountID: id)
+                    let account = try XCTUnwrap(monitor.states.first?.account)
+                    XCTAssertEqual(account.id, id)
+                    XCTAssertEqual(account.name, name)
+                    XCTAssertEqual(account.provider, provider)
+                    XCTAssertEqual(monitor.states.first?.snapshot?.accountID, id)
+                    let stored = await keys.credential(for: id)
+                    let sent = await client.receivedCredential(for: id)
+                    XCTAssertEqual(stored, credential)
+                    XCTAssertEqual(sent, credential)
+                    // Presentation follows language; persisted inputs and provider scopes remain unchanged.
+                    XCTAssertEqual(provider.displayName(language: language), provider == .newAPI ? "New API" : language == "en" ? "MiniMax China" : "MiniMax 国内版")
+                    if provider == .newAPI {
+                        XCTAssertEqual(monitor.configuration(for: id)?.serverAddress, "https://relay.example/prefix")
+                        let envelope = try ProviderCredentialEnvelope.decode(credential, expectedProvider: provider)
+                        XCTAssertEqual(envelope.accessToken, "synthetic-fixture")
+                    } else {
+                        XCTAssertEqual(credential, "synthetic-fixture")
+                }
+                let reopened = QuotaMonitor(accountStore: states, credentialStore: keys, quotaClient: client)
+                await reopened.start(refresh: false)
+                XCTAssertEqual(reopened.states.first?.account, account)
+                }
+            }
+        }
+    }
+
+    func testBilingualAPIKeySaveFailureRollsBackDirectAndGatewayAccountsWithoutQuery() async throws {
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                for provider in [Provider.miniMaxChina, .newAPI] {
+                    let id = UUID()
+                    let credential = try ProviderAuthenticationController().credential(
+                        provider: provider, apiKey: "synthetic-fixture", serverAddress: "https://relay.example/v1")
+                    let keys = MemoryCredentialStore()
+                    let client = StubQuotaClient()
+                    let monitor = QuotaMonitor(accountStore: MemoryAccountStore(saveError: TestStoreError.failed),
+                                               credentialStore: keys, quotaClient: client)
+                    await monitor.addAccount(name: "保存失败 fixture", credential: credential, provider: provider, accountID: id)
+                    XCTAssertTrue(monitor.states.isEmpty)
+                    let stored = await keys.credential(for: id)
+                    let requests = await client.totalRequestCount()
+                    XCTAssertNil(stored)
+                    XCTAssertEqual(requests, 0)
+                    XCTAssertEqual(monitor.storageMessage, L10n.text("无法安全保存账号"))
+                    XCTAssertEqual(L10n.text("账号未保存，请重试。", language: language),
+                                   language == "en" ? "The account was not saved. Please try again." : "账号未保存，请重试。")
+                }
+            }
+        }
+        XCTAssertThrowsError(try ProviderAuthenticationController().credential(provider: .miniMaxChina, apiKey: "  "))
+        XCTAssertThrowsError(try ProviderAuthenticationController().credential(provider: .newAPI, apiKey: "fixture", serverAddress: "https://user:password@relay.example"))
     }
 }

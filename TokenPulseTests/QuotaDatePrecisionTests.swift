@@ -53,3 +53,21 @@ final class QuotaDatePrecisionTests: XCTestCase {
                     remainingCount: nil, totalCount: nil, resetsAt: end, resetDatePrecision: .day)
     }
 }
+
+import Testing
+
+struct QuotaDateLocalizationTests {
+    @Test func dateOnlyBoundariesRetainTheirCalendarDayAcrossRegionsLanguagesAndZones() {
+        let date = Date(timeIntervalSince1970: 1791849600)
+        for language in ["zh-Hans", "en", "fr"] {
+            for region in ["zh_CN", "en_US", "en_GB", "de_DE"] {
+                for offset in [-12, -8, 0, 8, 14] {
+                    L10n.withLanguage(language) {
+                        #expect(QuotaFormatting.resetDate(date, locale: Locale(identifier: region),
+                            timeZone: TimeZone(secondsFromGMT: offset * 3600)!, precision: .day) == "2026-10-13")
+                    }
+                }
+            }
+        }
+    }
+}

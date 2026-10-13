@@ -14,7 +14,7 @@ struct GoogleNativeOAuth: Sendable {
 
     static func redirectURL(clientID: String) throws -> URL {
         let suffix = ".apps.googleusercontent.com"
-        guard clientID.hasSuffix(suffix) else { throw ProviderIntegrationError.unsupportedLogin("请输入 Google 注册的 iOS OAuth Client ID") }
+        guard clientID.hasSuffix(suffix) else { throw ProviderIntegrationError.unsupportedLogin(L10n.text("请输入 Google 注册的 iOS OAuth Client ID")) }
         let prefix = String(clientID.dropLast(suffix.count))
         guard !prefix.isEmpty, prefix.utf8.allSatisfy({ (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 }) else { throw ProviderIntegrationError.invalidCredentialData }
         return URL(string: "com.googleusercontent.apps.\(prefix):/oauth2redirect")!
@@ -139,9 +139,9 @@ struct GoogleNativeOAuth: Sendable {
               reply.expires_in.isFinite, reply.expires_in > 0, reply.expires_in <= 31_536_000 else { throw RefreshFailure.unreadableResponse }
         // RFC 6749 §5.1 permits omission when the granted scope equals the request.
         let granted = reply.scope ?? previous?.metadata["grantedScopes"] ?? requestedScopes.joined(separator: " ")
-        guard Set(granted.split(separator: " ").map(String.init)).isSuperset(of: requestedScopes) else { throw ProviderIntegrationError.unsupportedLogin("Google 未授予查询所需权限，请重新授权") }
+        guard Set(granted.split(separator: " ").map(String.init)).isSuperset(of: requestedScopes) else { throw ProviderIntegrationError.unsupportedLogin(L10n.text("Google 未授予查询所需权限，请重新授权")) }
         let refresh = reply.refresh_token ?? previous?.refreshToken
-        guard let refresh, !refresh.isEmpty else { throw ProviderIntegrationError.unsupportedLogin("Google 未返回离线刷新令牌，请重新同意授权") }
+        guard let refresh, !refresh.isEmpty else { throw ProviderIntegrationError.unsupportedLogin(L10n.text("Google 未返回离线刷新令牌，请重新同意授权")) }
         guard Self.headerSafe(refresh) else { throw RefreshFailure.unreadableResponse }
         var envelope = previous ?? .init(provider: provider, kind: .oauth, accessToken: reply.access_token)
         envelope.accessToken = reply.access_token; envelope.refreshToken = refresh

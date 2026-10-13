@@ -23,3 +23,41 @@ struct PhoneQuotaWidget: Widget {
         ])
     }
 }
+
+#if DEBUG
+#Preview("Small", as: .systemSmall) {
+    PhoneQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+
+#Preview("Medium", as: .systemMedium) {
+    PhoneQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .medium)
+}
+
+#Preview("Large", as: .systemLarge) {
+    PhoneQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .large)
+}
+
+#Preview("Lock Screen Circular", as: .accessoryCircular) {
+    PhoneQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+
+#Preview("Lock Screen Rectangular", as: .accessoryRectangular) {
+    PhoneQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+
+#Preview("Lock Screen Inline", as: .accessoryInline) {
+    PhoneQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+#endif

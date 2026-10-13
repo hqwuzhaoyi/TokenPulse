@@ -72,7 +72,7 @@ struct AugmentCodeProviderClient: Sendable {
         .init(loginURL: URL(string: "\(origin)/")!, allowedOrigins: [origin], makeCredentials: { cookies, _, id, now in
             let envelope = try WebProviderSession.cookieCredential(cookies: cookies, policy: policy, provider: .augmentCode,
                 origin: origin, accountID: id, now: now, metadata: ["cookiePolicy": "augmentCode-v1"])
-            return [.init(id: id.uuidString, title: "Augment Code 当前登录账号", credential: try envelope.encoded())]
+            return [.init(id: id.uuidString, title: L10n.text("Augment Code 当前登录账号"), credential: try envelope.encoded())]
         })
     }
 }

@@ -134,7 +134,8 @@ enum DemoMode {
         case .xiaomiCodingPlan: [
             QuotaWindow(id: "xiaomi.plan.0", name: "月度 Token 额度", scope: nil, period: .monthly,
                         usedPercentage: 37.5, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
-                        unit: "tokens", exactCounts: .init(used: 3_750_000, remaining: 6_250_000, total: 10_000_000)),
+                        unit: "tokens", exactCounts: .init(used: 3_750_000, remaining: 6_250_000, total: 10_000_000),
+                        presentationLabel: .monthlyTokenAllowance),
             QuotaWindow(id: "xiaomi.wallet.CNY", name: "API 钱包余额", scope: nil,
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
                         wallet: .init(currency: "CNY", total: 42.75, granted: 2.75, toppedUp: 40))
@@ -157,7 +158,7 @@ enum DemoMode {
                         usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(12 * 86400),
                         unit: "credits", exactCounts: .init(used: 130946, remaining: 319054, total: nil))
         ]
-        case .factory: accountID == accounts().first(where: { $0.name.contains("Standard / Premium") })?.id
+        case .factory: accountID == UUID(uuidString: "DE000000-0000-0000-0000-000000000037")
             ? [window("factory.legacy.standard", "每月额度", .monthly, 35, scope: "Standard"),
                window("factory.legacy.premium", "每月额度", .monthly, 70, scope: "Premium")]
             : [window("factory.rate.standard.fiveHour", "5 小时额度", .fiveHour, 35, scope: "Standard"),
@@ -378,17 +379,19 @@ enum DemoMode {
         case .aixy: [
             QuotaWindow(id: "aixy.team", name: "每月预算", scope: "团队 · 共享", period: .monthly,
                 usedPercentage: 80, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400),
-                unit: "USD", exactCounts: .init(used: 80, remaining: 20, total: 100)),
+                unit: "USD", exactCounts: .init(used: 80, remaining: 20, total: 100),
+                presentationScope: .init(kind: .team, name: nil, isShared: true)),
             QuotaWindow(id: "aixy.key", name: "每月监控预算", scope: "Key", period: .monthly,
                 usedPercentage: 60, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(86400),
-                unit: "USD", exactCounts: .init(used: 12, remaining: 8, total: 20))
+                unit: "USD", exactCounts: .init(used: 12, remaining: 8, total: 20),
+                presentationScope: .init(kind: .apiKey, name: nil, isShared: false))
         ]
         case .clawRouter: [
             QuotaWindow(id: "clawRouter.monthly", name: "每月预算", scope: nil, period: .monthly,
                 usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: nil,
                 cycleID: "demo-claw-budget", unit: "USD", exactCounts: .init(used: 7, remaining: 13, total: 20))
         ]
-        case .antigravity: [QuotaWindow(id: "antigravity.bucket.demo", name: "Gemini 模型组", scope: nil, period: .fiveHour, usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(7200))]
+        case .antigravity: [QuotaWindow(id: "antigravity.bucket.demo", name: "Gemini 模型组", scope: nil, period: .fiveHour, usedPercentage: 35, remainingCount: nil, totalCount: nil, resetsAt: now.addingTimeInterval(7200), presentationLabel: .geminiModelGroup)]
         case .openAIAPI: [WalletExpansionHTTP.walletWindow(id: "openAIAPI.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.30")!))]
         case .atlasCloud: [WalletExpansionHTTP.walletWindow(id: "atlasCloud.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "42.50")!))]
         case .kiloCode: [WalletExpansionHTTP.walletWindow(id: "kiloCode.wallet.USD", wallet: WalletBalance(currency: "USD", total: Decimal(string: "12.75")!)), QuotaWindow(id: "kiloCode.pass", name: "Kilo Pass 当期额度", scope: nil, period: .other, usedPercentage: 25, remainingCount: 21.375, totalCount: 28.5, resetsAt: now.addingTimeInterval(12 * 86_400), unit: "USD")]

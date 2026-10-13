@@ -66,7 +66,7 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
                     self.browser = nil
                     guard let callback, error == nil else {
                         self.busy = false
-                        self.message = (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin ? nil : "Google 授权未完成"
+                        self.message = (error as? ASWebAuthenticationSessionError)?.code == .canceledLogin ? nil : L10n.text("Google 授权未完成")
                         return
                     }
                     self.task = Task { @MainActor [weak self] in
@@ -87,11 +87,11 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
             session.presentationContextProvider = self
             session.prefersEphemeralWebBrowserSession = true
             browser = session
-            if !session.start() { browser = nil; busy = false; message = "无法打开 Google 授权窗口" }
+            if !session.start() { browser = nil; busy = false; message = L10n.text("无法打开 Google 授权窗口") }
         } catch {
             busy = false
             if case ProviderIntegrationError.unsupportedLogin(let reason) = error { message = reason }
-            else { message = "Google Client ID 格式无效" }
+            else { message = L10n.text("Google Client ID 格式无效") }
         }
     }
 
@@ -99,9 +99,9 @@ final class GoogleNativeOAuthLoginModel: NSObject, ObservableObject, ASWebAuthen
         // Explicit cancel clears runID before this path. A still-active request can
         // also be cancelled by its transport; that interruption needs feedback.
         guard !taskCancelled else { return nil }
-        if error is CancellationError { return "Google 授权请求意外中断，请重试" }
+        if error is CancellationError { return L10n.text("Google 授权请求意外中断，请重试") }
         if case ProviderIntegrationError.unsupportedLogin(let reason) = error { return reason }
-        return (ProviderHTTP.refreshFailure(error) as? RefreshFailure)?.displayName ?? "Google 授权未完成"
+        return (ProviderHTTP.refreshFailure(error) as? RefreshFailure)?.displayName ?? L10n.text("Google 授权未完成")
     }
 
     func cancel() {

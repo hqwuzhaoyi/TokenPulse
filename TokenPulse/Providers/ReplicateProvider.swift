@@ -19,7 +19,9 @@ struct ReplicateProviderClient: Sendable {
                 let scoped = try WebProviderSession.credential(provider: .replicate, origin: origin, accountID: accountID,
                     accessToken: base.accessToken, expiresAt: base.expiresAt, remoteAccountID: account.id,
                     metadata: ["accountKind": account.kind, "accountUsername": account.username])
-                return WebLoginCredentialChoice(id: account.id, title: account.title, credential: try scoped.encoded())
+                let title = account.kind == "organization"
+                    ? L10n.format("组织 · %@", account.username) : L10n.format("个人 · %@", account.username)
+                return WebLoginCredentialChoice(id: account.id, title: title, credential: try scoped.encoded())
             }
         })
     }

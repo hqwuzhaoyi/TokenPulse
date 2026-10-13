@@ -7,7 +7,7 @@ enum StepFunSite: String, Codable, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
     var host: String { self == .china ? "platform.stepfun.com" : "platform.stepfun.ai" }
     var cookieDomain: String { self == .china ? "stepfun.com" : "stepfun.ai" }
-    var displayName: String { self == .china ? "国内站 · stepfun.com" : "国际站 · stepfun.ai" }
+    var displayName: String { self == .china ? L10n.text("国内站 · stepfun.com") : L10n.text("国际站 · stepfun.ai") }
     var origin: String { "https://\(host)" }
     var usageURL: URL { URL(string: "\(origin)/plan-usage")! }
     func endpoint(_ method: String) -> URL {

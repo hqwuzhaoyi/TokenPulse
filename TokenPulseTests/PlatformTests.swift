@@ -343,27 +343,45 @@ final class PlatformTests: XCTestCase {
 
     @MainActor
     func testSyncTimesOnlyAdvanceOnSuccessfulRequestOrReceivedUpdate() async throws {
-        let suite = "com.tokenpulse.tests.sync.\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
-        var now = Date(timeIntervalSince1970: 100)
-        let settings = CloudSyncSettings(defaults: defaults, now: { now })
-        await settings.perform {}
-        XCTAssertEqual(settings.lastRequestedAt, now)
-        XCTAssertNil(settings.lastReceivedAt, "A submitted request is not a remote receipt")
-        now = Date(timeIntervalSince1970: 200)
-        await settings.perform { throw CloudSyncError.unavailable }
-        XCTAssertEqual(settings.lastRequestedAt, Date(timeIntervalSince1970: 100))
-        XCTAssertNotNil(settings.errorMessage)
-        XCTAssertFalse(settings.isSyncing)
-        settings.received()
-        XCTAssertEqual(settings.lastReceivedAt, now)
-        let restored = CloudSyncSettings(defaults: defaults)
-        XCTAssertEqual(restored.lastRequestedAt, settings.lastRequestedAt)
-        XCTAssertEqual(restored.lastReceivedAt, settings.lastReceivedAt)
-        await settings.perform {}
-        XCTAssertNil(settings.errorMessage)
-        XCTAssertEqual(settings.lastRequestedAt, now)
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                let suite = "com.tokenpulse.tests.sync.\(UUID().uuidString)"
+                let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+                defer { defaults.removePersistentDomain(forName: suite) }
+                var now = Date(timeIntervalSince1970: 100)
+                let settings = CloudSyncSettings(defaults: defaults, now: { now })
+                await settings.perform {}
+                XCTAssertEqual(settings.lastRequestedAt, now)
+                XCTAssertNil(settings.lastReceivedAt, "A submitted request is not a remote receipt")
+                now = Date(timeIntervalSince1970: 200)
+                await settings.perform { throw CloudSyncError.unavailable }
+                XCTAssertEqual(settings.lastRequestedAt, Date(timeIntervalSince1970: 100))
+                XCTAssertEqual(settings.errorMessage, language == "en"
+                               ? "Unable to submit an iCloud sync request. Check your iCloud sign-in and sync permissions."
+                               : "无法提交 iCloud 同步请求，请检查 iCloud 登录和同步权限。")
+                XCTAssertFalse(settings.isSyncing)
+                settings.received()
+                XCTAssertEqual(settings.lastReceivedAt, now)
+                let restored = CloudSyncSettings(defaults: defaults)
+                XCTAssertEqual(restored.lastRequestedAt, settings.lastRequestedAt)
+                XCTAssertEqual(restored.lastReceivedAt, settings.lastReceivedAt)
+                settings.report(CloudSyncError.invalidPayload)
+                XCTAssertEqual(settings.errorMessage, language == "en"
+                               ? "Unable to read iCloud account data. Make sure both devices use the same app version."
+                               : "无法读取 iCloud 账号数据，请确认两端应用版本一致。")
+                let rawError = NSError(domain: "private-server", code: 1,
+                                       userInfo: [NSLocalizedDescriptionKey: "Raw 服务 message"])
+                settings.report(rawError)
+                XCTAssertEqual(settings.errorMessage, language == "en"
+                               ? "Sync failed. Try again later."
+                               : "同步失败，请稍后重试。")
+                XCTAssertEqual(settings.lastRequestedAt, Date(timeIntervalSince1970: 100))
+                XCTAssertEqual(settings.lastReceivedAt, now)
+                await settings.perform {}
+                XCTAssertNil(settings.errorMessage)
+                XCTAssertEqual(settings.lastRequestedAt, now)
+            }
+        }
     }
 
     @MainActor
@@ -693,3 +711,116 @@ private actor IdentitySyncFailedQuery: QuotaQuerying {
         throw RefreshFailure.network
     }
 }
+
+extension PlatformTests {
+    func testWidgetEmptyStatesAndSavedEntityDisplayFollowLanguageWithoutChangingBinding() throws {
+        let sample = try XCTUnwrap(DemoMode.accounts().first { $0.provider == .miniMaxChina })
+        let custom = SubscriptionAccount(name: "演示 · 用户自定 🌙", provider: .miniMaxChina)
+        for language in ["zh-Hans", "en", "fr"] {
+            L10n.withLanguage(language) {
+                let chinese = language == "zh-Hans"
+                XCTAssertEqual(WidgetContentPresentation.emptyMessage(selectionRequired: true, accountSelectionMissing: false, hasAvailableAccounts: false),
+                               chinese ? "请先添加账号" : "Add an account first")
+                XCTAssertEqual(WidgetContentPresentation.emptyMessage(selectionRequired: true, accountSelectionMissing: false, hasAvailableAccounts: true),
+                               chinese ? "请选择展示账号" : "Choose an account to display")
+                XCTAssertEqual(WidgetContentPresentation.emptyMessage(selectionRequired: false, accountSelectionMissing: true, hasAvailableAccounts: true),
+                               chinese ? "所选账号尚未同步" : "The selected account has not synced yet")
+                XCTAssertEqual(WidgetContentPresentation.entityTitle(name: custom.name, identifier: custom.id.uuidString), custom.name)
+                XCTAssertEqual(WidgetContentPresentation.entityTitle(name: sample.name, identifier: sample.id.uuidString),
+                               chinese ? "演示 · MiniMax 国内版" : "Demo · MiniMax China")
+                XCTAssertEqual(WidgetContentPresentation.entitySubtitle("MiniMax 国内版"), chinese ? "MiniMax 国内版" : "MiniMax China")
+                XCTAssertEqual(WidgetContentPresentation.entitySubtitle("Unknown Provider Label 🌙"), "Unknown Provider Label 🌙")
+                XCTAssertEqual(custom.provider.rawValue, "miniMaxChina")
+                XCTAssertEqual(sample.name, "演示 · MiniMax 国内版")
+            }
+        }
+    }
+
+    func testWidgetAccessibleOutputKeepsPluralResetCountsAndStaleStatesDistinct() {
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        let account = SubscriptionAccount(name: "我的 Codex 🌙", provider: .codex)
+        let window = QuotaWindow(id: "codex.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                 usedPercentage: 50, remainingCount: nil, totalCount: nil, resetsAt: date.addingTimeInterval(-60))
+        for language in ["zh-Hans", "en"] {
+            L10n.withLanguage(language) {
+                for count in [0, 1, 3] {
+                    let snapshot = WidgetAccountSnapshot(account: account, windows: [window], collectedAt: date,
+                                                         lastFailure: .network, remainingResetCount: count, subscriptionPlan: .pro)
+                    let summary = WidgetContentPresentation.accessibilitySummary(snapshot, at: date)
+                    XCTAssertTrue(summary.contains(account.name))
+                    XCTAssertTrue(summary.contains(language == "en" ? "Needs Update" : "待更新"))
+                    XCTAssertTrue(summary.contains(language == "en" ? "Network connection failed" : "网络连接失败"))
+                    XCTAssertTrue(summary.contains(language == "en" ? "Previous successful data" : "上次成功数据"))
+                    XCTAssertEqual(WidgetContentPresentation.resetCount(snapshot),
+                                   language == "en" ? "Available: \(count) \(count == 1 ? "reset" : "resets")" : "可重置 \(count) 次")
+                    XCTAssertEqual(snapshot.id, account.id)
+                    XCTAssertEqual(snapshot.windows.first?.name, "每周额度")
+                }
+                let failedFirst = WidgetAccountSnapshot(account: account, windows: [], collectedAt: nil, lastFailure: .network)
+                XCTAssertEqual(WidgetContentPresentation.status(failedFirst), language == "en" ? "Refresh Failed" : "刷新失败")
+                XCTAssertFalse(WidgetContentPresentation.accessibilitySummary(failedFirst, at: date)
+                    .contains(language == "en" ? "Previous data retained" : "保留旧数据"))
+            }
+        }
+    }
+
+    func testWidgetTimingPreservesContinuousRecoveryAndDateOnlyPrecisionAndWalletUnits() {
+        let boundary = Date(timeIntervalSince1970: 1_788_220_800)
+        let continuous = QuotaWindow(id: "codex.weekly", name: "每周额度", scope: nil,
+                                     usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                                     resetSemantics: .continuousReplenishment)
+        let day = QuotaWindow(id: "codex.weekly", name: "每周额度", scope: nil,
+                              usedPercentage: 40, remainingCount: nil, totalCount: nil, resetsAt: boundary, resetDatePrecision: .day)
+        let wallet = QuotaWindow(id: "poe.points", name: "points 余额", scope: nil,
+                                 usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                                 wallet: WalletBalance(currency: "points", total: 1234, isMonetary: false))
+        for language in ["zh-Hans", "en"] {
+            L10n.withLanguage(language) {
+                let continuousMetric = WidgetQuotaMetric(id: continuous.id, title: "Weekly", window: continuous)
+                let dayMetric = WidgetQuotaMetric(id: day.id, title: "Weekly", window: day)
+                let walletMetric = WidgetQuotaMetric(id: wallet.id, title: "points", window: wallet)
+                XCTAssertEqual(WidgetContentPresentation.resetText(continuousMetric),
+                               language == "en" ? "Allowance replenishment Continuous replenishment" : "额度补充 持续补充")
+                XCTAssertTrue(WidgetContentPresentation.resetText(dayMetric).contains("2026-09-01"))
+                XCTAssertEqual(WidgetContentPresentation.resetText(walletMetric), language == "en" ? "Service Credit Balance" : "服务积分余额")
+                XCTAssertTrue(WidgetContentPresentation.metricSummary(walletMetric).contains("points"))
+                XCTAssertFalse(WidgetContentPresentation.metricSummary(walletMetric).contains("USD"))
+                XCTAssertEqual(wallet.wallet?.total, 1234)
+            }
+        }
+    }
+}
+
+#if DEBUG
+extension PlatformTests {
+    func testWidgetDebugEntriesExerciseRealRendererFamiliesWithoutWritingAccountData() {
+        let date = Date(timeIntervalSince1970: 1_788_220_800)
+        for family in [WidgetPresentationFamily.single, .medium, .large] {
+            for scenario in WidgetDebugFixture.supportedScenarios {
+                let entry = WidgetDebugFixture.entry(scenario: scenario, family: family, date: date)
+                XCTAssertEqual(entry.date, date)
+                if ["empty", "unselected", "missing"].contains(scenario) {
+                    XCTAssertTrue(entry.accounts.isEmpty)
+                    XCTAssertEqual(entry.accountSelectionMissing, scenario == "missing")
+                    XCTAssertEqual(entry.hasAvailableAccounts, scenario != "empty")
+                } else {
+                    XCTAssertEqual(entry.accounts.count, family.accountLimit)
+                    XCTAssertEqual(Set(entry.accounts.map(\.id)).count, family.accountLimit)
+                    if scenario == "replenishment" {
+                        XCTAssertEqual(entry.accounts.first?.displayMetrics.first?.window?.resetSemantics, .continuousReplenishment)
+                        XCTAssertNil(entry.accounts.first?.displayMetrics.first?.window?.resetsAt)
+                    }
+                    if scenario == "wallet" {
+                        XCTAssertEqual(entry.accounts.first?.displayMetrics.first?.window?.wallet?.currency, "USD")
+                        XCTAssertNil(entry.accounts.first?.displayMetrics.first?.ringFraction)
+                    }
+                    if scenario == "dateOnly" {
+                        XCTAssertEqual(entry.accounts.first?.displayMetrics.first?.window?.resetDatePrecision, .day)
+                        XCTAssertEqual(entry.accounts.first?.needsUpdate(at: date.addingTimeInterval(7 * 86_400)), false)
+                    }
+                }
+            }
+        }
+    }
+}
+#endif

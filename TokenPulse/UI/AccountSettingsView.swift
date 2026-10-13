@@ -10,14 +10,14 @@ struct AccountSettingsView: View {
         NavigationStack(path: $path) {
             List {
                 Section {
-                    Button(runtime.isDemoMode ? "退出演示 / Exit Demo" : "体验演示 / Try Demo") {
+                    Button(runtime.isDemoMode ? L10n.text("退出演示") : L10n.text("体验演示")) {
                         Task { await runtime.setDemoMode(!runtime.isDemoMode) }
                     }
                     .disabled(runtime.isSwitchingMode)
                 } footer: {
                     Text(runtime.isDemoMode
-                         ? "当前显示示例数据，可刷新、添加或删除演示账号。退出后恢复真实账号。"
-                         : "无需第三方账号即可体验额度、账号管理、提醒和小组件。")
+                         ? L10n.text("当前显示示例数据，可刷新、添加或删除演示账号。退出后恢复真实账号。")
+                         : L10n.text("无需第三方账号即可体验额度、账号管理、提醒和小组件。"))
                 }
                 if runtime.isDemoMode {
                     Section("同步") {
@@ -38,7 +38,7 @@ struct AccountSettingsView: View {
                             HStack(spacing: 10) {
                                 ProviderIcon(provider: configuration.account.provider, size: 24)
                                 VStack(alignment: .leading) {
-                                    Text(configuration.account.name)
+                                    Text(L10n.demoAccountName(configuration.account))
                                     Text(configuration.account.provider.displayName).font(.caption).foregroundStyle(.secondary)
                                 }
                             }
@@ -77,8 +77,8 @@ private struct NotificationSettingsSection: View {
                     Task {
                         let feedback = await notifications.sendDemoNotification()
                         monitor.setSynchronizationMessage(feedback == .enabled
-                            ? "演示通知已提交，可在通知中心查看。"
-                            : feedback.message)
+                            ? L10n.text("演示通知已提交，可在通知中心查看。")
+                            : L10n.text(feedback.message))
                         isUpdating = false
                     }
                 }
@@ -88,8 +88,8 @@ private struct NotificationSettingsSection: View {
             Text("通知")
         } footer: {
             Text(isDemoMode
-                 ? "演示提醒使用系统通知权限，仅用于示例账号。退出演示会取消未触发的演示提醒。"
-                 : "关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。")
+                 ? L10n.text("演示提醒使用系统通知权限，仅用于示例账号。退出演示会取消未触发的演示提醒。")
+                 : L10n.text("关闭会暂停所有额度与重置提醒，但保留每个账号的提醒类型和阈值。"))
         }
     }
 
@@ -101,7 +101,7 @@ private struct NotificationSettingsSection: View {
                 configurations: monitor.configurations,
                 states: monitor.states
             )
-            monitor.setSynchronizationMessage(feedback.message)
+            monitor.setSynchronizationMessage(L10n.text(feedback.message))
             isUpdating = false
         }
     }
@@ -140,7 +140,7 @@ private struct CloudSyncSettingsSection: View {
             }
             .disabled(!settings.isEnabled)
             .allowsHitTesting(!settings.isSyncing)
-            .accessibilityValue(settings.isSyncing ? "正在同步" : "")
+            .accessibilityValue(settings.isSyncing ? L10n.text("正在同步") : "")
             if let error = settings.errorMessage {
                 Label(error, systemImage: "exclamationmark.triangle")
                     .font(.caption).foregroundStyle(.orange)
@@ -190,18 +190,18 @@ private struct AccountPreferencesView: View {
                             if configuration.account.provider == .stepFun, snapshot.windows.isEmpty {
                                 Text("当前账号没有可用的 Step Plan")
                             }
-                            if let plan = snapshot.providerPlanName {
+                            if let plan = QuotaFormatting.providerPlanName(snapshot.providerPlanName, presentation: snapshot.providerPlanPresentation) {
                                 LabeledContent("套餐", value: plan)
                             }
-                            if let status = snapshot.quotaStatusText {
+                            if let status = QuotaFormatting.quotaStatus(snapshot.quotaStatusText, provider: configuration.account.provider) {
                                 Text(status).font(.subheadline).foregroundStyle(.secondary)
                             }
                             ForEach(snapshot.windows(for: configuration.account.provider, surface: .detail)) { window in
                                 if window.scope == nil || window.hasDetailValues {
-                                    QuotaWindowView(window: window)
+                                    QuotaWindowView(window: window, provider: configuration.account.provider)
                                 } else {
                                     LabeledContent(
-                                        window.displayName,
+                                        L10n.windowDisplayName(window, provider: configuration.account.provider),
                                         value: QuotaFormatting.usage(window)
                                     )
                                 }
@@ -220,7 +220,9 @@ private struct AccountPreferencesView: View {
                             if let status = QuotaFormatting.walletCollectionStatus(failure: snapshot.walletFailure, collectedAt: snapshot.walletCollectedAt) {
                                 Text(status).font(.caption).foregroundStyle(snapshot.walletFailure == nil ? Color.secondary : Color.orange)
                             }
-                            Text("\(snapshot.walletFailure == nil ? "采集于" : "套餐采集于") \(snapshot.collectedAt.formatted())").font(.caption)
+                            Text(snapshot.walletFailure == nil
+                                 ? L10n.format("采集于 %@", snapshot.collectedAt.formatted())
+                                 : L10n.format("套餐采集于 %@", snapshot.collectedAt.formatted())).font(.caption)
                         } else { Text("尚无成功采集数据") }
                         if let failure = state.lastFailure { Text(failure.displayName).foregroundStyle(.orange) }
                         Button("刷新") { Task { await monitor.refresh(accountID: accountID) } }
@@ -282,10 +284,10 @@ private struct AccountPreferencesView: View {
                                 AlibabaTokenPlanSitePicker(site: $tokenPlanSite)
                             }
                             Text(configuration.account.provider == .alibabaTokenPlan
-                                 ? "选择北京或新加坡及账号所属站点。输入 AK:SK，不是 sk-sp 推理 Key；仅查询个人 Token Plan。更换地区或站点需要重新输入凭证。"
+                                 ? L10n.text("选择北京或新加坡及账号所属站点。输入 AK:SK，不是 sk-sp 推理 Key；仅查询个人 Token Plan。更换地区或站点需要重新输入凭证。")
                                  : configuration.account.provider == .moonshot
-                                 ? "地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。"
-                                 : "地区与凭证绑定。Key 查询兼容性待验证；要求控制台会话时不会显示零额度。")
+                                 ? L10n.text("地区与凭证绑定；更换地区需要对应 Key，并清除旧余额和提醒记录。")
+                                 : L10n.text("地区与凭证绑定。Key 查询兼容性待验证；要求控制台会话时不会显示零额度。"))
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         if configuration.account.provider.requiresGatewayAddress {
@@ -313,7 +315,7 @@ private struct AccountPreferencesView: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         if configuration.account.provider == .openAIAPI {
-                            Text(OpenAIAPIProviderClient.connectionNotice)
+                            Text(L10n.text(OpenAIAPIProviderClient.connectionNotice))
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         SecureField(credentialLabel(configuration.account.provider), text: $credential)
@@ -330,7 +332,7 @@ private struct AccountPreferencesView: View {
                                         : credential
                                     await monitor.replaceCredential(encoded, accountID: accountID)
                                     credential = ""
-                                } catch { self.error = configuration.account.provider.requiresGatewayAddress ? "请输入有效的 服务器地址与 Key；地址不能包含用户信息、查询或片段。" : "无法保存凭证" }
+                                } catch { self.error = configuration.account.provider.requiresGatewayAddress ? L10n.text("请输入有效的服务器地址与 Key；地址不能包含用户信息、查询或片段。") : L10n.text("无法保存凭证") }
                             }
                         }.disabled(credential.isEmpty || configuration.account.provider.requiresRegion && region == nil || configuration.account.provider == .alibabaTokenPlan && tokenPlanSite == nil)
                     } else {
@@ -342,7 +344,7 @@ private struct AccountPreferencesView: View {
                 }
             } else { Text("账号配置尚未同步") }
         }
-        .navigationTitle(monitor.configuration(for: accountID)?.account.name ?? "账号")
+        .navigationTitle(monitor.configuration(for: accountID).map { L10n.demoAccountName($0.account) } ?? L10n.text("账号"))
         .onAppear {
             serverAddress = monitor.configuration(for: accountID)?.serverAddress ?? ""
             region = monitor.configuration(for: accountID)?.providerRegion
@@ -358,8 +360,8 @@ private struct AccountPreferencesView: View {
             Button("取消", role: .cancel) {}
         } message: {
             Text(isDemoMode
-                 ? "将移除此演示账号及其示例数据。真实账号不受影响。"
-                 : "将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。")
+                 ? L10n.text("将移除此演示账号及其示例数据。真实账号不受影响。")
+                 : L10n.text("将移除此账号的凭证、额度数据和提醒；开启 iCloud 同步后也会从其他设备移除。"))
         }
         .sheet(isPresented: $showingLogin) {
             if let provider = monitor.configuration(for: accountID)?.account.provider {
@@ -426,7 +428,7 @@ private struct AccountPreferencesView: View {
                 let currency = configuration.reminders.walletCurrency ?? currencies[0]
                 let input = walletThreshold.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard let value = Decimal(string: input, locale: .autoupdatingCurrent), !value.isNaN, value >= 0 else {
-                    error = "请输入大于或等于 0 的金额。"
+                    error = L10n.text("请输入大于或等于 0 的金额。")
                     return
                 }
                 error = nil
@@ -445,7 +447,7 @@ private struct AccountPreferencesView: View {
         let values = pieces.compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
         guard values.count == pieces.count, !values.isEmpty,
               values.allSatisfy({ $0.isFinite && $0 > 0 && $0 <= 100 }) else {
-            error = "请输入 0 到 100 之间的比例，使用英文逗号分隔。"
+            error = L10n.text("请输入大于 0 且不超过 100 的比例，使用英文逗号分隔。")
             return
         }
         error = nil
@@ -468,7 +470,7 @@ private struct AccountPreferencesView: View {
     }
 
     private func credentialLabel(_ provider: Provider) -> String {
-        ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key"
+        L10n.text(ProviderAuthenticationController().loginConfiguration(for: provider).credentialLabel ?? "API Key")
     }
 }
 

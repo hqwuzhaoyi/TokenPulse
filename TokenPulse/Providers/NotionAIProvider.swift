@@ -29,7 +29,7 @@ struct NotionAIProviderClient: Sendable {
             let scoped = try WebProviderSession.credential(provider: .notionAI, origin: origin, accountID: accountID,
                 accessToken: base.accessToken, expiresAt: base.expiresAt, remoteAccountID: space.userID,
                 metadata: ["workspaceID": space.id])
-            let title = "\(space.name) · \(space.tier ?? "套餐未提供") · \(space.id.prefix(8))"
+            let title = L10n.format("%@ · %@ · %@", space.name, space.tier ?? L10n.text("套餐未提供"), String(space.id.prefix(8)))
             return .init(id: space.id, title: title, credential: try scoped.encoded())
         }
     }

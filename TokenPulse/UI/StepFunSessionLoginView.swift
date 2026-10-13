@@ -24,7 +24,7 @@ struct StepFunSessionLoginView: View {
             if let message = model.message {
                 Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal)
             }
-            Button(model.verifying ? "正在验证" : "完成登录并验证") {
+            Button(model.verifying ? L10n.text("正在验证") : L10n.text("完成登录并验证")) {
                 model.beginVerification()
             }
             .buttonStyle(.borderedProminent).disabled(model.verifying)
@@ -126,8 +126,8 @@ final class StepFunSessionLoginModel: ObservableObject {
             guard runID == run, !container.closed, !Task.isCancelled else { return }
             let failure = error as? RefreshFailure
             message = failure == .invalidCredential
-                ? "未读取到有效会话及匹配的设备标识，请完成登录后重试。"
-                : failure?.displayName ?? "无法验证套餐，请检查网络后重试。"
+                ? L10n.text("未读取到有效会话及匹配的设备标识，请完成登录后重试。")
+                : failure?.displayName ?? L10n.text("无法验证套餐，请检查网络后重试。")
         }
     }
 }

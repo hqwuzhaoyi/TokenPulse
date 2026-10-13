@@ -10,7 +10,7 @@ final class GoogleNativeOAuthTests: XCTestCase {
         for (provider, validator) in [(Provider.antigravity, AntigravityProviderClient.validateConfiguredProject), (.gemini, GeminiProviderClient.validateConfiguredProject)] as [(Provider, @Sendable (String?) throws -> String?)] {
             XCTAssertThrowsError(try GoogleNativeOAuth(clientID: "invalid-client", transport: GoogleFixtureTransport([]), now: { instant }).begin(provider: provider, configuredProject: "my project!", validateProject: validator)) {
                 guard case ProviderIntegrationError.unsupportedLogin(let message) = $0 else { return XCTFail("Expected project input feedback") }
-                XCTAssertTrue(message.contains("项目 ID 格式无效"))
+                XCTAssertEqual(message, L10n.text("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。"))
             }
             let prepared = try auth.begin(provider: provider, configuredProject: "  valid-project \n", validateProject: validator)
             XCTAssertEqual(prepared.project, "valid-project")
@@ -168,7 +168,15 @@ final class GoogleNativeOAuthTests: XCTestCase {
 
     @MainActor
     func testUnexpectedTransportCancellationHasFeedbackButExplicitTaskCancellationIsSilent() {
-        XCTAssertEqual(GoogleNativeOAuthLoginModel.failureMessage(CancellationError(), taskCancelled: false), "Google 授权请求意外中断，请重试")
+        for (language, expected) in [("zh-Hans", "Google 授权请求意外中断，请重试"),
+                                     ("en", "The Google authorization request was interrupted. Please try again.")] {
+            L10n.withLanguage(language) {
+                XCTAssertEqual(GoogleNativeOAuthLoginModel.failureMessage(CancellationError(), taskCancelled: false), expected)
+                let sourceText = "Provider-specific 原文: account/organization Ω"
+                XCTAssertEqual(GoogleNativeOAuthLoginModel.failureMessage(ProviderIntegrationError.unsupportedLogin(sourceText),
+                                                                          taskCancelled: false), sourceText)
+            }
+        }
         XCTAssertNil(GoogleNativeOAuthLoginModel.failureMessage(CancellationError(), taskCancelled: true))
         XCTAssertNil(GoogleNativeOAuthLoginModel.failureMessage(RefreshFailure.network, taskCancelled: true))
     }

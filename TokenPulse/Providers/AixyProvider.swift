@@ -79,10 +79,13 @@ struct AixyProviderClient: Sendable {
             let scopeName = ["organization": "组织", "project": "项目", "team": "团队", "user": "用户", "api_key": "Key"][budget.scope ?? ""]
             let scope = [scopeName, budget.target_name, budget.shared == true ? "共享" : nil]
                 .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+            let scopePresentation = QuotaScopePresentation(kind: budget.scope.flatMap(QuotaScopePresentation.Kind.init(rawValue:)),
+                                                           name: budget.target_name, isShared: budget.shared == true)
             let window = QuotaWindow(id: "aixy.\(id)", name: "\(shape.1)\(hard ? "预算" : "监控预算")\(used == nil ? "（用量未提供）" : "")", scope: scope.isEmpty ? nil : scope,
                 period: shape.2, usedPercentage: percentage, remainingCount: nil, totalCount: nil,
                 resetsAt: interval == "lifetime" ? nil : KeyQuotaRequest.date(budget.resets_at), unit: "USD",
-                exactCounts: counts, resetSemantics: interval == "lifetime" ? .nonResettingAllowance : nil)
+                exactCounts: counts, resetSemantics: interval == "lifetime" ? .nonResettingAllowance : nil,
+                presentationScope: scope.isEmpty ? nil : scopePresentation)
             return (interval, hard, window)
         }
         // Applicable limits overlap, so keep them separate rather than discarding a scope.

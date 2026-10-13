@@ -11,8 +11,8 @@ struct CursorSessionLoginView: View {
     var body: some View {
         VStack(spacing: 12) {
             Text(provider == .grokBot
-                 ? "通过 Cursor 账号授权，仅查询独立 Grok Bot 每周额度；不会合并 Cursor 月度额度或 SuperGrok。此临时浏览器不读取编辑器或 Safari 登录。"
-                 : "在此账号专用临时浏览器中登录 Cursor。此非官方接入使用 Cursor/Grok 客户端的已知授权页；不读取编辑器或 Safari 登录。")
+                 ? L10n.text("通过 Cursor 账号授权，仅查询独立 Grok Bot 每周额度；不会合并 Cursor 月度额度或 SuperGrok。此临时浏览器不读取编辑器或 Safari 登录。")
+                 : L10n.text("在此账号专用临时浏览器中登录 Cursor。此非官方接入使用 Cursor/Grok 客户端的已知授权页；不读取编辑器或 Safari 登录。"))
                 .font(.caption).foregroundStyle(.secondary).padding(.horizontal)
             if let container = model.container { CursorAccountWebView(webView: container.webView).id(ObjectIdentifier(container.webView)) }
             if let message = model.message { Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal) }
@@ -91,9 +91,9 @@ final class CursorSessionLoginModel: ObservableObject {
             } catch is CancellationError { return }
             catch {
                 guard runID == run, !Task.isCancelled, !container.closed else { return }
-                if error as? ProviderIntegrationError == .loginExpired { message = "授权已过期，请重新登录。" }
-                else if error as? ProviderIntegrationError == .invalidCredential || error as? RefreshFailure == .invalidCredential { message = "Cursor 授权被拒绝或已过期，请重新登录。" }
-                else { message = (error as? RefreshFailure)?.displayName ?? "无法完成授权与额度验证，请重试。" }
+                if error as? ProviderIntegrationError == .loginExpired { message = L10n.text("授权已过期，请重新登录。") }
+                else if error as? ProviderIntegrationError == .invalidCredential || error as? RefreshFailure == .invalidCredential { message = L10n.text("Cursor 授权被拒绝或已过期，请重新登录。") }
+                else { message = (error as? RefreshFailure)?.displayName ?? L10n.text("无法完成授权与额度验证，请重试。") }
             }
         }
         task = newTask

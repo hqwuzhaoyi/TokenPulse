@@ -309,6 +309,41 @@ final class StepFunProviderTests: XCTestCase {
     }
 
     @MainActor
+    func testLocalizedWebSignInRecoversFromMissingCookiesAndKeepsSelectedSiteIdentity() async throws {
+        for language in ["zh-Hans", "en"] {
+            try await L10n.withLanguage(language) {
+                let accountID = UUID()
+                var availableCookies: [HTTPCookie] = []
+                var saved: [String] = []
+                var queried: [String] = []
+                let model = StepFunSessionLoginModel(accountID: accountID, onCredential: { saved.append($0) },
+                    readCookies: { _ in availableCookies }, query: { _, credential in queried.append(credential) },
+                    loadPage: { _, url in XCTAssertEqual(url, StepFunSite.international.usageURL) })
+                model.start(site: .international)
+                try await XCTUnwrap(model.beginVerification()).value
+                XCTAssertEqual(model.message, language == "en"
+                    ? "No valid session with a matching device identifier was found. Finish signing in and try again."
+                    : "未读取到有效会话及匹配的设备标识，请完成登录后重试。")
+                XCTAssertTrue(saved.isEmpty)
+                XCTAssertTrue(queried.isEmpty)
+                XCTAssertFalse(model.verifying)
+                availableCookies = [cookie("Oasis-Token", "fixture-token", domain: StepFunSite.international.host),
+                                    cookie("Oasis-Webid", "fixture-device", domain: StepFunSite.international.host)]
+                try await XCTUnwrap(model.beginVerification()).value
+                XCTAssertEqual(saved.count, 1)
+                XCTAssertEqual(queried, saved)
+                let envelope = try ProviderCredentialEnvelope.decode(try XCTUnwrap(saved.first), expectedProvider: .stepFun)
+                XCTAssertEqual(envelope.metadata["localAccountID"], accountID.uuidString)
+                XCTAssertEqual(envelope.metadata["site"], StepFunSite.international.rawValue)
+                XCTAssertTrue(envelope.accessToken.contains("fixture-token"))
+                XCTAssertTrue(envelope.accessToken.contains("fixture-device"))
+                XCTAssertNil(model.container)
+                XCTAssertFalse(model.verifying)
+            }
+        }
+    }
+
+    @MainActor
     func testDismissalAndSiteSwitchDuringCookieReadCannotQueryTheOldSite() async throws {
         for switching in [false, true] {
             let cookies = HeldStepFunCookieReader(cookies: [cookie("Oasis-Token", "fixture", domain: StepFunSite.china.host),

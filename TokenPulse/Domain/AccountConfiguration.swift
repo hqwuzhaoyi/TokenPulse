@@ -3,7 +3,11 @@ import Foundation
 enum AlibabaTokenPlanSite: String, Codable, CaseIterable, Identifiable, Sendable {
     case domestic, international
     var id: String { rawValue }
-    var displayName: String { self == .domestic ? "阿里云国内站" : "Alibaba Cloud 国际站" }
+    var displayName: String { displayName(language: nil) }
+
+    func displayName(language: String?) -> String {
+        L10n.text(self == .domestic ? "阿里云国内站" : "Alibaba Cloud 国际站", language: language)
+    }
 }
 
 struct AccountConfiguration: Codable, Equatable, Identifiable, Sendable {

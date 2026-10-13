@@ -24,3 +24,29 @@ struct WatchQuotaWidget: Widget {
         .supportedFamilies([.accessoryCorner, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }
+
+#if DEBUG
+#Preview("Watch Circular", as: .accessoryCircular) {
+    WatchQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+
+#Preview("Watch Corner", as: .accessoryCorner) {
+    WatchQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+
+#Preview("Watch Rectangular", as: .accessoryRectangular) {
+    WatchQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+
+#Preview("Watch Inline", as: .accessoryInline) {
+    WatchQuotaWidget()
+} timeline: {
+    WidgetPlaceholder.entry(family: .single)
+}
+#endif

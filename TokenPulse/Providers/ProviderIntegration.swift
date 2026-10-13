@@ -167,7 +167,7 @@ struct ProviderQuotaClient: QuotaQuerying {
         case .zoomMate:
             return try await ZoomMateProviderClient(transport: transport, now: now).quota(accountID: accountID, credential: envelope)
         case .miniMaxChina:
-            throw ProviderIntegrationError.unsupportedLogin("MiniMax 由既有客户端处理")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("MiniMax 由既有客户端处理"))
         case .claude:
             return try await ClaudeProviderClient(transport: transport, now: now)
                 .quota(accountID: accountID, credential: envelope)
@@ -512,7 +512,7 @@ struct ProviderAuthenticationController: Sendable {
             return try envelope.encoded()
         }
         guard provider == .miniMaxChina || provider == .zai || provider == .openCodeGo || provider == .deepSeek || provider == .elevenLabs || provider == .poe || provider == .vercelAIGateway || provider == .miniMaxInternational || provider == .zhipu || provider == .newAPI || provider == .moonshot || provider == .clinePass || provider == .factory || provider == .codebuff || provider == .neuralwatt || provider == .aixy || provider == .clawRouter || [.openAIAPI, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice].contains(provider) || [.commandCode, .amp, .huggingFace].contains(provider) || [.synthetic, .v2ex, .xKiro, .zenMux].contains(provider) || [.alibabaCodingPlan, .chutes].contains(provider) || [.devPass, .v0, .warp].contains(provider) else {
-            throw ProviderIntegrationError.unsupportedLogin("该提供商不使用直接 Key 登录")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("该提供商不使用直接 Key 登录"))
         }
         let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !key.isEmpty else { throw ProviderIntegrationError.invalidCredentialData }
@@ -539,11 +539,11 @@ struct ProviderAuthenticationController: Sendable {
     func beginLogin(provider: Provider, callbackURL: URL? = nil, accountID: UUID? = nil) async throws -> ProviderLoginSession {
         switch provider {
         case .gemini:
-            throw ProviderIntegrationError.unsupportedLogin("请配置自己的 Google iOS OAuth Client ID 后授权")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请配置自己的 Google iOS OAuth Client ID 后授权"))
         case .antigravity:
-            throw ProviderIntegrationError.unsupportedLogin("请通过自有 iOS Google Client ID 完成原生授权")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请通过自有 iOS Google Client ID 完成原生授权"))
         case .jetBrainsAI:
-            throw ProviderIntegrationError.unsupportedLogin("请主动导入官方 Central login export")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请主动导入官方 Central login export"))
         case .nousPortal:
             guard let accountID else { throw ProviderIntegrationError.invalidCredentialData }
             return try await NousPortalAuthenticator(transport: nousTransport, now: now).begin(accountID: accountID)
@@ -571,25 +571,25 @@ struct ProviderAuthenticationController: Sendable {
                 metadata: ["completion": "ClaudeSessionLoginView"]
             )
         case .grokBot:
-            throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中通过 Cursor 账号授权 Grok Bot")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用浏览器中通过 Cursor 账号授权 Grok Bot"))
         case .zed:
-            throw ProviderIntegrationError.unsupportedLogin("请在此账号的临时浏览器中登录 Zed 网页账户")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在此账号的临时浏览器中登录 Zed 网页账户"))
         case .augmentCode:
-            throw ProviderIntegrationError.unsupportedLogin("请在此账号的临时浏览器中登录 Augment Code")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在此账号的临时浏览器中登录 Augment Code"))
         case .windsurf:
-            throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中登录 Windsurf")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中登录 Windsurf"))
         case .manus:
-            throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中登录 Manus")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中登录 Manus"))
         case .devin:
-            throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中登录 Devin 并选择组织")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中登录 Devin 并选择组织"))
         case .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat:
-            throw ProviderIntegrationError.unsupportedLogin("请在隔离控制台浏览器中登录")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在隔离控制台浏览器中登录"))
         case .cursor, .abacus, .perplexity, .notionAI:
-            throw ProviderIntegrationError.unsupportedLogin("请在账号专用临时浏览器中完成登录")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用临时浏览器中完成登录"))
         case .replicate, .mistral, .sakana, .kiro, .stepFun, .raycastAI, .t3Chat, .zoomMate, .qwenCloud, .typeSafe:
-            throw ProviderIntegrationError.unsupportedLogin("请在账号专用浏览器中选择站点并登录")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在账号专用浏览器中选择站点并登录"))
         case .openAIAPI, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .newAPI, .sub2api, .bifrost, .liteLLM, .llmProxy, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp:
-            throw ProviderIntegrationError.unsupportedLogin("该提供商使用直接 Key 配置")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("该提供商使用直接 Key 配置"))
         }
     }
 
@@ -598,13 +598,13 @@ struct ProviderAuthenticationController: Sendable {
         case .nousPortal:
             return try await NousPortalAuthenticator(transport: nousTransport, now: now).poll(session)
         case .jetBrainsAI:
-            throw ProviderIntegrationError.unsupportedLogin("请主动导入官方 Central login export")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请主动导入官方 Central login export"))
         case .gemini:
-            throw ProviderIntegrationError.unsupportedLogin("请使用 Google 原生授权界面完成配置")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请使用 Google 原生授权界面完成配置"))
         case .antigravity:
-            throw ProviderIntegrationError.unsupportedLogin("请在原生 Google 授权页完成回调")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请在原生 Google 授权页完成回调"))
         case .replicate, .mistral, .sakana, .kiro:
-            throw ProviderIntegrationError.unsupportedLogin("Use the account-isolated web login view")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("请使用该账号专用的网页登录界面"))
         case .copilot:
             return try await CopilotProviderAuthenticator(transport: transport, now: now).poll(session)
         case .kimiCode:
@@ -616,7 +616,7 @@ struct ProviderAuthenticationController: Sendable {
         case .qoderInternational:
             return try await QoderProviderAuthenticator(transport: transport, now: now).poll(session)
         case .openAIAPI, .typeSafe, .qwenCloud, .raycastAI, .t3Chat, .zoomMate, .claude, .miniMaxChina, .openCodeGo, .zai, .deepSeek, .elevenLabs, .poe, .vercelAIGateway, .miniMaxInternational, .zhipu, .stepFun, .newAPI, .clinePass, .moonshot, .factory, .codebuff, .neuralwatt, .aixy, .clawRouter, .atlasCloud, .kiloCode, .deepInfra, .hyper, .venice, .commandCode, .amp, .gitKraken, .huggingFace, .synthetic, .v2ex, .xKiro, .zenMux, .alibabaCodingPlan, .alibabaTokenPlan, .chutes, .cursor, .volcengine, .xaiAPI, .ibmBob, .devPass, .v0, .warp, .devin, .manus, .windsurf, .sub2api, .bifrost, .liteLLM, .llmProxy, .xiaomiCodingPlan, .qoderChina, .ollamaCloud, .longCat, .abacus, .perplexity, .notionAI, .augmentCode, .zed, .grokBot:
-            throw ProviderIntegrationError.unsupportedLogin("该提供商没有可继续的设备授权流程")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("该提供商没有可继续的设备授权流程"))
         }
     }
 

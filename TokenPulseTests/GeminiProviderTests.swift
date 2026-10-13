@@ -19,7 +19,7 @@ final class GeminiProviderTests: XCTestCase {
                 XCTFail("Invalid project must fail before HTTPS")
             } catch {
                 guard case ProviderIntegrationError.unsupportedLogin(let message) = error else { return XCTFail("Expected project input feedback") }
-                XCTAssertTrue(message.contains("项目 ID 格式无效"))
+                XCTAssertEqual(message, L10n.text("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。"))
             }
         }
         let requests = await transport.requests

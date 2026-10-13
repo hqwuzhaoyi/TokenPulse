@@ -1086,13 +1086,20 @@ private struct PermissionTestAdapter: NotificationApplying {
 
 private actor RecordingNotificationAdapter: NotificationApplying {
     private var recordedOperations: [NotificationOperation] = []
+    private var failNext = false
 
     @MainActor func configure() {}
     func authorizationStatus() async -> NotificationAuthorizationStatus { .authorized }
     func requestAuthorization() async throws -> Bool { true }
     func apply(_ operations: [NotificationOperation]) async throws {
+        guard !operations.isEmpty else { return }
+        if failNext {
+            failNext = false
+            throw NotificationAdapterError.authorizationRequired
+        }
         recordedOperations.append(contentsOf: operations)
     }
+    func failNextApply() { failNext = true }
     func operations() -> [NotificationOperation] { recordedOperations }
 }
 
@@ -1351,5 +1358,425 @@ final class OrderedQuotaObservationTests: XCTestCase {
         let refreshed = apply(snap(50, cycle: "new", used: 95), ledger: merged)
         XCTAssertTrue(kinds(refreshed).contains(.quotaAlert))
         XCTAssertEqual(refreshed.ledger.quotaObservedAt(accountID: id), Date(timeIntervalSince1970: 50))
+    }
+}
+
+extension NotificationTests {
+    func testBilingualNotificationsPreserveAccountModelsCurrencyAndRegionalAmounts() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let userName = "工作 🌙 / Claude API Key"
+        let quota = QuotaWindow(id: "claude.weekly_scoped.Fable", name: "每周额度", scope: "Fable",
+                                period: .weekly, usedPercentage: 96, remainingCount: nil, totalCount: nil,
+                                resetsAt: reset, cycleID: "weekly-original")
+        let wallet = QuotaWindow(id: "custom.wallet", name: "USD", scope: nil,
+                                 usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                                 wallet: WalletBalance(currency: "USD", total: Decimal(string: "1.23456789")!))
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [quota, wallet], collectedAt: observation)
+        for language in ["zh-Hans", "en"] {
+            for region in ["en_US", "en_DE"] {
+                L10n.withLanguage(language) {
+                    let result = planner.planSuccessfulRefresh(accountID: accountID, accountName: userName, provider: .claude,
+                        previousSnapshot: nil, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                        ledger: ReminderLedger(), now: observation, locale: Locale(identifier: region))
+                    let quotas = delivered(result.operations, kind: .quotaAlert)
+                    XCTAssertEqual(quotas.map(\.title), [language == "en" ? "\(userName) Quota Alert" : "\(userName)额度告警"])
+                    XCTAssertTrue(quotas[0].body.contains(language == "en" ? "Fable Weekly Quota" : "Fable 每周额度"))
+                    XCTAssertTrue(quotas[0].body.contains("95"))
+                    let wallets = delivered(result.operations, kind: .walletAlert)
+                    XCTAssertEqual(wallets.map(\.title), [language == "en" ? "\(userName) Wallet Balance Alert" : "\(userName)钱包余额提醒"])
+                    XCTAssertTrue(wallets[0].body.contains(region == "en_DE" ? "1,23456789 USD" : "1.23456789 USD"))
+                    XCTAssertEqual(scheduled(result.operations).map(\.1), [reset])
+                    XCTAssertEqual(scheduled(result.operations)[0].0.kind, .expectedReset)
+                    XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                                  cycle: .provider("weekly-original"), threshold: 95))
+                    XCTAssertEqual(snapshot.windows[0].name, "每周额度")
+                    XCTAssertEqual(snapshot.windows[0].scope, "Fable")
+                    XCTAssertEqual(snapshot.windows[1].wallet?.currency, "USD")
+                }
+            }
+        }
+    }
+
+    func testLanguageChangesReplaceOnlyFutureContentWithoutRearmingOrReplaying() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 96, remainingCount: nil, totalCount: nil, resetsAt: reset, cycleID: "same-cycle")
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let initial = L10n.withLanguage("zh-Hans") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "我的 API", provider: .claude,
+                previousSnapshot: nil, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                ledger: ReminderLedger(), now: observation)
+        }
+        let original = try XCTUnwrap(scheduled(initial.operations).first)
+        let translated = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "我的 API", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: initial.ledger, now: observation)
+        }
+        let replacement = try XCTUnwrap(scheduled(translated.operations).first)
+        XCTAssertEqual(replacement.0.identifier, original.0.identifier)
+        XCTAssertEqual(replacement.1, original.1)
+        XCTAssertEqual(replacement.0.title, "我的 API Quota Expected to Have Reset")
+        XCTAssertEqual(replacement.0.body, "Weekly Quota")
+        XCTAssertTrue(cancelled(translated.operations).isEmpty)
+        XCTAssertEqual(translated.operations.count, 1)
+        XCTAssertEqual(translated.ledger.pendingSchedules(accountID: accountID).map(\.windowIDs), [Set([quota.id])])
+        let occurrence = ResetOccurrenceRecord(accountID: accountID, windowID: quota.id, identity: .expectedAt(reset))
+        XCTAssertTrue(initial.ledger.hasExpectedReset(occurrence))
+        XCTAssertTrue(translated.ledger.hasExpectedReset(occurrence))
+        XCTAssertEqual(translated.ledger.quotaObservedAt(accountID: accountID), initial.ledger.quotaObservedAt(accountID: accountID))
+        for threshold in [80.0, 95.0] {
+            XCTAssertTrue(translated.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                               cycle: .provider("same-cycle"), threshold: threshold))
+        }
+        let repeated = L10n.withLanguage("en") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "我的 API", provider: .claude,
+                previousSnapshot: snapshot, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                ledger: translated.ledger, now: observation)
+        }
+        XCTAssertTrue(repeated.operations.isEmpty)
+        let afterDelivery = L10n.withLanguage("zh-Hans") {
+            planner.planSettingsChange(accountID: accountID, accountName: "我的 API", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: translated.ledger,
+                now: reset.addingTimeInterval(1))
+        }
+        XCTAssertTrue(scheduled(afterDelivery.operations).isEmpty)
+        XCTAssertTrue(delivered(afterDelivery.operations, kind: .quotaAlert).isEmpty)
+        XCTAssertTrue(delivered(afterDelivery.operations, kind: .confirmedReset).isEmpty)
+        XCTAssertTrue(afterDelivery.ledger.hasExpectedReset(occurrence))
+    }
+
+    func testOldLedgerWithoutRenderedContentMigratesOnlyItsFutureRequest() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 80, remainingCount: nil, totalCount: nil, resetsAt: reset)
+        let snapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let initial = L10n.withLanguage("zh-Hans") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "用户原名", provider: .claude,
+                previousSnapshot: nil, newSnapshot: snapshot, settings: AccountReminderSettings(),
+                ledger: ReminderLedger(), now: observation)
+        }
+        var archive = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(initial.ledger)) as? [String: Any])
+        var schedules = try XCTUnwrap(archive["pendingResetSchedules"] as? [[String: Any]])
+        for index in schedules.indices {
+            schedules[index].removeValue(forKey: "notification")
+            schedules[index].removeValue(forKey: "notificationWindows")
+        }
+        archive["pendingResetSchedules"] = schedules
+        let legacy = try JSONDecoder().decode(ReminderLedger.self, from: JSONSerialization.data(withJSONObject: archive))
+        XCTAssertNil(legacy.pendingSchedules(accountID: accountID).first?.notification)
+        let result = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "用户原名", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: legacy, now: observation)
+        }
+        XCTAssertEqual(scheduled(result.operations).map { $0.0.identifier }, scheduled(initial.operations).map { $0.0.identifier })
+        XCTAssertEqual(scheduled(result.operations).map(\.1), [reset])
+        XCTAssertEqual(result.operations.count, 1)
+        XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                       cycle: .resetBoundary(reset), threshold: 80))
+        let reopened = try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(result.ledger))
+        let repeated = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "用户原名", provider: .claude,
+                latestSnapshot: snapshot, settings: AccountReminderSettings(), ledger: reopened, now: observation)
+        }
+        XCTAssertTrue(repeated.operations.isEmpty)
+    }
+
+    func testPendingLanguageRemainsDeviceLocalAndOtherAccountsKeepTheirContent() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let otherID = UUID()
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: reset)
+        let firstSnapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let otherSnapshot = QuotaSnapshot(accountID: otherID, windows: [quota], collectedAt: observation)
+        let first = L10n.withLanguage("zh-Hans") {
+            planner.planSettingsChange(accountID: accountID, accountName: "账户一", provider: .claude,
+                latestSnapshot: firstSnapshot, settings: AccountReminderSettings(), ledger: ReminderLedger(), now: observation)
+        }
+        let both = L10n.withLanguage("zh-Hans") {
+            planner.planSettingsChange(accountID: otherID, accountName: "账户二", provider: .claude,
+                latestSnapshot: otherSnapshot, settings: AccountReminderSettings(), ledger: first.ledger, now: observation)
+        }
+        let english = L10n.withLanguage("en") {
+            planner.planSettingsChange(accountID: accountID, accountName: "账户一", provider: .claude,
+                latestSnapshot: firstSnapshot, settings: AccountReminderSettings(), ledger: both.ledger, now: observation)
+        }
+        XCTAssertEqual(english.ledger.pendingSchedules(accountID: otherID), both.ledger.pendingSchedules(accountID: otherID))
+        XCTAssertEqual(both.ledger.merging(english.ledger).pendingSchedules(accountID: accountID), both.ledger.pendingSchedules(accountID: accountID))
+        XCTAssertEqual(english.ledger.merging(both.ledger).pendingSchedules(accountID: accountID), english.ledger.pendingSchedules(accountID: accountID))
+    }
+
+    func testBilingualConfirmedResetAndZeroOneManyWindowsRemainDistinct() {
+        let observation = Date(timeIntervalSince1970: 100)
+        for language in ["zh-Hans", "en"] {
+            L10n.withLanguage(language) {
+                for count in [0, 1, 2] {
+                    let windows = (0..<count).map { index in
+                        QuotaWindow(id: "claude.weekly.\(index)", name: "每周额度", scope: "Model-\(index)", period: .weekly,
+                                    usedPercentage: 20, remainingCount: nil, totalCount: nil, resetsAt: nil, cycleID: "old")
+                    }
+                    let before = QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: observation)
+                    let initial = planner.planSuccessfulRefresh(accountID: accountID, accountName: "Custom 用户", provider: .claude,
+                        previousSnapshot: nil, newSnapshot: before, settings: AccountReminderSettings(),
+                        ledger: ReminderLedger(), now: observation)
+                    let changed = windows.map {
+                        QuotaWindow(id: $0.id, name: $0.name, scope: $0.scope, period: $0.period,
+                                    usedPercentage: $0.usedPercentage, remainingCount: nil, totalCount: nil,
+                                    resetsAt: nil, cycleID: "new")
+                    }
+                    let after = QuotaSnapshot(accountID: accountID, windows: changed, collectedAt: observation.addingTimeInterval(1))
+                    let result = planner.planSuccessfulRefresh(accountID: accountID, accountName: "Custom 用户", provider: .claude,
+                        previousSnapshot: before, newSnapshot: after, settings: AccountReminderSettings(), ledger: initial.ledger,
+                        now: observation.addingTimeInterval(1))
+                    let confirmations = delivered(result.operations, kind: .confirmedReset)
+                    XCTAssertEqual(confirmations.count, count == 0 ? 0 : 1)
+                    if let notification = confirmations.first {
+                        XCTAssertEqual(notification.title, language == "en" ? "Custom 用户 Quota Reset Confirmed" : "Custom 用户额度已重置")
+                        XCTAssertTrue(notification.body.contains(language == "en" ? "Model-0 Weekly Quota" : "Model-0 每周额度"))
+                        if count == 2 { XCTAssertTrue(notification.body.contains(language == "en" ? ", " : "、")) }
+                    }
+                    XCTAssertTrue(scheduled(result.operations).isEmpty)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func testRuntimeLanguageReplacementFailureKeepsPersistedHistoryAndRetrySucceeds() async throws {
+        let suite = "com.tokenpulse.tests.notification-language.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let adapter = RecordingNotificationAdapter()
+        let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+        let account = SubscriptionAccount(name: "原始用户 🌙", provider: .claude)
+        let observation = Date()
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 96, remainingCount: nil, totalCount: nil,
+                                resetsAt: observation.addingTimeInterval(3600), cycleID: "unchanged")
+        let state = AccountQuotaState(account: account, snapshot: QuotaSnapshot(accountID: account.id, windows: [quota], collectedAt: observation))
+        let configurations = [AccountConfiguration(account: account)]
+        try await L10n.withLanguage("zh-Hans") { try await runtime.fresh(state: state, previous: nil, settings: configurations[0].reminders) }
+        let prior = runtime.ledger
+        let deliveries = await adapter.operations().filter { if case .deliver = $0 { return true }; return false }
+        await adapter.failNextApply()
+        do {
+            try await L10n.withLanguage("en") { try await runtime.settingsChanged(configurations: configurations, states: [state]) }
+            XCTFail("A failed replacement must remain retryable")
+        } catch { XCTAssertEqual(error as? NotificationAdapterError, .authorizationRequired) }
+        XCTAssertEqual(runtime.ledger, prior)
+        let restored = NotificationRuntime(defaults: defaults, adapter: adapter)
+        XCTAssertEqual(restored.ledger, prior)
+        try await L10n.withLanguage("en") { try await restored.settingsChanged(configurations: configurations, states: [state]) }
+        let pending = try XCTUnwrap(restored.ledger.pendingSchedules(accountID: account.id).first)
+        XCTAssertEqual(pending.notificationID, prior.pendingSchedules(accountID: account.id).first?.notificationID)
+        XCTAssertEqual(pending.resetAt, quota.resetsAt)
+        XCTAssertEqual(pending.notification?.title, "原始用户 🌙 Quota Expected to Have Reset")
+        XCTAssertEqual(pending.notification?.body, "Weekly Quota")
+        let currentDeliveries = await adapter.operations().filter { if case .deliver = $0 { return true }; return false }
+        XCTAssertEqual(currentDeliveries, deliveries)
+        let count = await adapter.operations().count
+        try await L10n.withLanguage("en") { try await restored.settingsChanged(configurations: configurations, states: [state]) }
+        let afterRepeated = await adapter.operations().count
+        XCTAssertEqual(afterRepeated, count)
+    }
+
+    @MainActor
+    func testBilingualPermissionAndExplicitDemoNotificationUseDeviceLanguage() async throws {
+        for language in ["zh-Hans", "en", "fr"] {
+            try await L10n.withLanguage(language) {
+                let suite = "com.tokenpulse.tests.demo-notification-language.\(UUID().uuidString)"
+                let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+                defer { defaults.removePersistentDomain(forName: suite) }
+                let adapter = RecordingNotificationAdapter()
+                let runtime = NotificationRuntime(defaults: defaults, adapter: adapter)
+                let feedback = await runtime.sendDemoNotification()
+                XCTAssertEqual(feedback, .enabled)
+                XCTAssertTrue(feedback.message.contains(language == "zh-Hans" ? "通知权限已开启" : "Notification permissions are enabled"))
+                let operations = await adapter.operations()
+                let notification = try XCTUnwrap(delivered(operations, kind: .quotaAlert).first)
+                XCTAssertEqual(notification.identifier, "tokenpulse.demo.preview")
+                XCTAssertEqual(notification.title, language == "zh-Hans" ? "TokenPulse 演示提醒" : "TokenPulse Demo Reminder")
+                XCTAssertTrue(notification.body.contains(language == "zh-Hans" ? "这是示例通知" : "This is a sample notification"))
+            }
+        }
+    }
+}
+
+extension NotificationTests {
+    @MainActor
+    func testActivationUpdatesCachedNotificationBeforeOfflineQueryAndKeepsLastQuota() async throws {
+        let suite = "com.tokenpulse.tests.notification-activation.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: "notificationsEnabled")
+        let account = SubscriptionAccount(name: "Offline 用户", provider: .claude)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: nil, period: .weekly,
+                                usedPercentage: 20, remainingCount: nil, totalCount: nil,
+                                resetsAt: Date().addingTimeInterval(3600))
+        let snapshot = QuotaSnapshot(accountID: account.id, windows: [quota], collectedAt: Date())
+        let store = NotificationActivationStore(states: [AccountQuotaState(account: account, snapshot: snapshot)])
+        let events = NotificationActivationEvents()
+        let monitor = QuotaMonitor(accountStore: store, credentialStore: NotificationActivationCredentials(),
+                                   quotaClient: NotificationActivationOfflineClient(events: events))
+        await monitor.start(refresh: false)
+        let adapter = RecordingNotificationAdapter()
+        let notifications = NotificationRuntime(defaults: defaults, adapter: adapter)
+        try await L10n.withLanguage("zh-Hans") {
+            try await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
+        }
+        monitor.onActivation = {
+            await events.append("activation")
+            try? await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
+        }
+        await L10n.withLanguage("en") { await monitor.applicationDidBecomeActive() }
+        let observedEvents = await events.values()
+        XCTAssertEqual(observedEvents, ["activation", "query"])
+        XCTAssertEqual(monitor.states.first?.snapshot, snapshot)
+        XCTAssertEqual(monitor.states.first?.lastFailure, .network)
+        let pending = try XCTUnwrap(notifications.ledger.pendingSchedules(accountID: account.id).first)
+        XCTAssertEqual(pending.notification?.body, "Weekly Quota")
+        XCTAssertEqual(pending.resetAt, quota.resetsAt)
+    }
+}
+
+private actor NotificationActivationStore: AccountStateStoring {
+    private var states: [AccountQuotaState]
+    init(states: [AccountQuotaState]) { self.states = states }
+    func load() -> [AccountQuotaState] { states }
+    func save(_ states: [AccountQuotaState]) { self.states = states }
+}
+
+private struct NotificationActivationCredentials: CredentialStoring {
+    func credential(for accountID: UUID) async throws -> String? { "fixture" }
+    func save(_ credential: String, for accountID: UUID) async throws {}
+    func deleteCredential(for accountID: UUID) async throws {}
+}
+
+private actor NotificationActivationEvents {
+    private var events: [String] = []
+    func append(_ event: String) { events.append(event) }
+    func values() -> [String] { events }
+}
+
+private struct NotificationActivationOfflineClient: QuotaQuerying {
+    let events: NotificationActivationEvents
+    func quota(for accountID: UUID, credential: String) async throws -> QuotaSnapshot {
+        await events.append("query")
+        throw RefreshFailure.network
+    }
+}
+
+extension NotificationTests {
+    func testStaleOrMissingSnapshotStillTranslatesPendingContentWithoutChangingObservationFence() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let reset = observation.addingTimeInterval(3600)
+        let quota = QuotaWindow(id: "claude.weekly", name: "每周额度", scope: "Fable", period: .weekly,
+                                usedPercentage: 96, remainingCount: nil, totalCount: nil, resetsAt: reset, cycleID: "local-cycle")
+        let localSnapshot = QuotaSnapshot(accountID: accountID, windows: [quota], collectedAt: observation)
+        let local = L10n.withLanguage("zh-Hans") {
+            planner.planSuccessfulRefresh(accountID: accountID, accountName: "Offline 用户", provider: .claude,
+                previousSnapshot: nil, newSnapshot: localSnapshot, settings: AccountReminderSettings(),
+                ledger: ReminderLedger(), now: observation)
+        }
+        var fencedLedger = local.ledger
+        let remoteObservation = observation.addingTimeInterval(10)
+        fencedLedger.recordQuotaObservation(remoteObservation, accountID: accountID)
+        for cachedSnapshot in [Optional(localSnapshot), nil] {
+            let result = L10n.withLanguage("en") {
+                planner.planSettingsChange(accountID: accountID, accountName: "Offline 用户", provider: .claude,
+                    latestSnapshot: cachedSnapshot, settings: AccountReminderSettings(),
+                    ledger: fencedLedger, now: observation)
+            }
+            XCTAssertEqual(result.operations.count, 1)
+            let replacement = try XCTUnwrap(scheduled(result.operations).first)
+            XCTAssertEqual(replacement.0.body, "Fable Weekly Quota")
+            XCTAssertEqual(replacement.0.identifier, scheduled(local.operations).first?.0.identifier)
+            XCTAssertEqual(replacement.1, reset)
+            XCTAssertEqual(result.ledger.quotaObservedAt(accountID: accountID), remoteObservation)
+            XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: quota.id,
+                                                           cycle: .provider("local-cycle"), threshold: 95))
+            XCTAssertTrue(result.ledger.hasExpectedReset(.init(accountID: accountID, windowID: quota.id, identity: .expectedAt(reset))))
+            let cachedInputs = try XCTUnwrap(result.ledger.pendingSchedules(accountID: accountID).first?.notificationWindows)
+            XCTAssertNil(cachedInputs[0].usedPercentage)
+            XCTAssertNil(cachedInputs[0].resetsAt)
+            let repeated = L10n.withLanguage("en") {
+                planner.planSettingsChange(accountID: accountID, accountName: "Offline 用户", provider: .claude,
+                    latestSnapshot: cachedSnapshot, settings: AccountReminderSettings(),
+                    ledger: result.ledger, now: observation)
+            }
+            XCTAssertTrue(repeated.operations.isEmpty)
+        }
+    }
+}
+
+extension NotificationTests {
+    func testLegacyPendingWithoutSnapshotOrDisplayMetadataGetsOnlyALocalizedForecast() throws {
+        let observation = Date(timeIntervalSince1970: 100)
+        let future = observation.addingTimeInterval(3600)
+        let past = observation.addingTimeInterval(-1)
+        let windowID = "unknown.provider.opaque-window"
+        let futurePlan = PendingResetSchedule(accountID: accountID, notificationID: "original-future-id",
+                                               resetAt: future, windowIDs: [windowID])
+        let pastPlan = PendingResetSchedule(accountID: accountID, notificationID: "already-due-id",
+                                             resetAt: past, windowIDs: [windowID])
+        let expectedFuture = ResetOccurrenceRecord(accountID: accountID, windowID: windowID, identity: .expectedAt(future))
+        let confirmedPast = ResetOccurrenceRecord(accountID: accountID, windowID: windowID, identity: .expectedAt(past))
+        var original = ReminderLedger()
+        original.replacePendingSchedules(accountID: accountID, with: [futurePlan, pastPlan])
+        original.recordExpectedReset(expectedFuture)
+        original.recordConfirmedReset(confirmedPast)
+        original.recordQuotaAlert(accountID: accountID, windowID: windowID, cycle: .provider("old-cycle"), threshold: 80)
+        // This archive has neither new presentation field and may predate the observation fence.
+        let legacy = try JSONDecoder().decode(ReminderLedger.self, from: JSONEncoder().encode(original))
+        for hasObservationFence in [false, true] {
+            var prior = legacy
+            if hasObservationFence { prior.recordQuotaObservation(observation, accountID: accountID) }
+            for language in ["zh-Hans", "en"] {
+                let result = L10n.withLanguage(language) {
+                    planner.planSettingsChange(accountID: accountID, accountName: "User 原名", provider: .claude,
+                        latestSnapshot: nil, settings: AccountReminderSettings(), ledger: prior, now: observation)
+                }
+                XCTAssertEqual(result.operations.count, 1)
+                if hasObservationFence {
+                    let replacement = try XCTUnwrap(scheduled(result.operations).first)
+                    XCTAssertEqual(replacement.0.identifier, "original-future-id")
+                    XCTAssertEqual(replacement.1, future)
+                    XCTAssertEqual(replacement.0.kind, .expectedReset)
+                    XCTAssertEqual(replacement.0.title, language == "en" ? "User 原名 Quota Expected to Have Reset" : "User 原名额度预计已重置")
+                    XCTAssertEqual(replacement.0.body, language == "en"
+                                   ? "This account’s quota is expected to have reset. Refresh to confirm."
+                                   : "该账号额度预计已重置，请刷新确认。")
+                    XCTAssertEqual(result.ledger.pendingSchedules(accountID: accountID).map(\.windowIDs),
+                                   [Set([windowID]), Set([windowID])])
+                    XCTAssertEqual(result.ledger.pendingSchedules(accountID: accountID).last, pastPlan)
+                } else {
+                    // Missing data without a protected newer observation still cancels, in either language.
+                    XCTAssertTrue(scheduled(result.operations).isEmpty)
+                    XCTAssertEqual(cancelled(result.operations), [["already-due-id", "original-future-id"]])
+                    XCTAssertTrue(result.ledger.pendingSchedules(accountID: accountID).isEmpty)
+                }
+                XCTAssertEqual(result.ledger.quotaObservedAt(accountID: accountID), prior.quotaObservedAt(accountID: accountID))
+                XCTAssertEqual(result.ledger.hasExpectedReset(expectedFuture), hasObservationFence)
+                XCTAssertTrue(result.ledger.hasConfirmedReset(confirmedPast))
+                XCTAssertTrue(result.ledger.containsQuotaAlert(accountID: accountID, windowID: windowID,
+                                                               cycle: .provider("old-cycle"), threshold: 80))
+                let repeated = L10n.withLanguage(language) {
+                    planner.planSettingsChange(accountID: accountID, accountName: "User 原名", provider: .claude,
+                        latestSnapshot: nil, settings: AccountReminderSettings(), ledger: result.ledger, now: observation)
+                }
+                XCTAssertTrue(repeated.operations.isEmpty)
+                let disabled = L10n.withLanguage(language) {
+                    planner.planSettingsChange(accountID: accountID, accountName: "User 原名", provider: .claude,
+                        latestSnapshot: nil, settings: AccountReminderSettings(resetRemindersEnabled: false),
+                        ledger: result.ledger, now: observation)
+                }
+                XCTAssertTrue(scheduled(disabled.operations).isEmpty)
+                XCTAssertTrue(disabled.ledger.pendingSchedules(accountID: accountID).isEmpty)
+            }
+        }
     }
 }

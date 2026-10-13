@@ -39,7 +39,7 @@ struct JetBrainsImportView: View {
                             guard runID == run, !Task.isCancelled else { return }
                             if let bindCredential, !(await bindCredential(value)) {
                                 try? await JetBrainsSessionCoordinator.shared.cancelImport(accountID: accountID, vault: .shared, attemptID: run)
-                                message = "账号配置已改变，请重新打开此账号并导入匹配的独立授权。"
+                                message = L10n.text("账号配置已改变，请重新打开此账号并导入匹配的独立授权。")
                                 return
                             }
                             guard runID == run, !Task.isCancelled else { return }
@@ -47,7 +47,7 @@ struct JetBrainsImportView: View {
                             dismiss()
                         } catch {
                             guard runID == run, !Task.isCancelled else { return }
-                            message = "尚未完成导入。可继续本次已保存的授权；若刷新结果不明或已关闭本页，请重新登录并导出独立授权。"
+                            message = L10n.text("尚未完成导入。可继续本次已保存的授权；若刷新结果不明或已关闭本页，请重新登录并导出独立授权。")
                         }
                     }
                 }.disabled(running || transfer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

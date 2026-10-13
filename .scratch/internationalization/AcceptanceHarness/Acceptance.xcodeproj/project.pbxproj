@@ -1,0 +1,27 @@
+// !$*UTF8*$!
+{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
+ A1 = {isa = PBXProject; buildConfigurationList = C1; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en, Base); mainGroup = G1; productRefGroup = G2; projectDirPath = ""; projectRoot = ""; targets = (T1); };
+ G1 = {isa = PBXGroup; children = (F1,F3,F4,F5,F6,G2); sourceTree = "<group>";};
+ G2 = {isa = PBXGroup; name = Products; children = (F2); sourceTree = "<group>";};
+ F1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAcceptance.swift; sourceTree = "<group>";};
+ F3 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationAcceptance.swift; sourceTree = "<group>";};
+ B3 = {isa = PBXBuildFile; fileRef = F3;};
+ F4 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAcceptance.swift; sourceTree = "<group>";};
+ B4 = {isa = PBXBuildFile; fileRef = F4;};
+ F5 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotaSupplementAcceptance.swift; sourceTree = "<group>";};
+ B5 = {isa = PBXBuildFile; fileRef = F5;};
+ F6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetRendererAcceptance.swift; sourceTree = "<group>";};
+ B6 = {isa = PBXBuildFile; fileRef = F6;};
+ F2 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = Acceptance.xctest; sourceTree = BUILT_PRODUCTS_DIR;};
+ B1 = {isa = PBXBuildFile; fileRef = F1;};
+ S1 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B1,B3,B4,B5,B6); runOnlyForDeploymentPostprocessing = 0;};
+ R1 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;};
+ H1 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;};
+ T1 = {isa = PBXNativeTarget; buildConfigurationList = C2; buildPhases = (S1,H1,R1); buildRules = (); dependencies = (); name = Acceptance; productName = Acceptance; productReference = F2; productType = "com.apple.product-type.bundle.ui-testing";};
+ C1 = {isa = XCConfigurationList; buildConfigurations = (D1,E1); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+ C2 = {isa = XCConfigurationList; buildConfigurations = (D2,E2); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
+ D1 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0;};};
+ E1 = {isa = XCBuildConfiguration; name = Release; buildSettings = {SDKROOT = iphoneos; IPHONEOS_DEPLOYMENT_TARGET = 17.0;};};
+ D2 = {isa = XCBuildConfiguration; name = Debug; buildSettings = {PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.i18n.acceptance; PRODUCT_NAME = "$(TARGET_NAME)"; GENERATE_INFOPLIST_FILE = YES; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = "1,2"; SWIFT_OPTIMIZATION_LEVEL = "-Onone";};};
+ E2 = {isa = XCBuildConfiguration; name = Release; buildSettings = {PRODUCT_BUNDLE_IDENTIFIER = com.tokenpulse.i18n.acceptance; PRODUCT_NAME = "$(TARGET_NAME)"; GENERATE_INFOPLIST_FILE = YES; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = "1,2";};};
+}; rootObject = A1; }

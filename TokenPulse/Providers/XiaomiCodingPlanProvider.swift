@@ -98,7 +98,8 @@ struct XiaomiCodingPlanProviderClient: Sendable {
                 windows.append(.init(id: "xiaomi.plan.\(index)", name: bucket.name ?? "月度 Token 额度", scope: nil, period: .monthly,
                     isExhausted: used >= total, usedPercentage: percentage,
                     remainingCount: nil, totalCount: nil, resetsAt: reset, unit: "tokens",
-                    exactCounts: .init(used: used, remaining: max(total - used, 0), total: total)))
+                    exactCounts: .init(used: used, remaining: max(total - used, 0), total: total),
+                    presentationLabel: bucket.name == nil ? .monthlyTokenAllowance : nil))
             }
         }
         if let balance { windows.append(try balanceWindow(balance)) }

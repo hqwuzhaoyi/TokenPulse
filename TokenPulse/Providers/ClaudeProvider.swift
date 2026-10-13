@@ -192,7 +192,7 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
                 organizationID: organization.id, expiresAt: sessionExpiresAt).encoded()
             onCredential(credential)
         } catch {
-            message = "无法保存 Claude 登录信息"
+            message = L10n.text("无法保存 Claude 登录信息")
         }
     }
 
@@ -233,11 +233,11 @@ final class ClaudeSessionLoginModel: NSObject, ObservableObject, WKNavigationDel
                 let name = (organization["name"] as? String) ?? id
                 return ClaudeOrganization(id: id, name: name)
             }
-            message = organizations.isEmpty ? "登录成功，但未返回可选组织" : nil
+            message = organizations.isEmpty ? L10n.text("登录成功，但未返回可选组织") : nil
         } catch is CancellationError {
             return
         } catch {
-            message = "无法读取 Claude 组织，请稍后重试"
+            message = L10n.text("无法读取 Claude 组织，请稍后重试")
         }
     }
 }

@@ -10,6 +10,10 @@ final class QuotaMonitor: ObservableObject {
     @Published private(set) var synchronizationMessage: String?
     @Published private var pendingCredentialCleanupAccountIDs: Set<UUID> = []
 
+    @Published private(set) var codexResetStatus: CodexResetStatus?
+    @Published private(set) var codexResetUnavailable = false
+    var fetchCodexResets: (@MainActor () async throws -> CodexResetStatus)?
+
     private let accountStore: AccountStateStoring
     private let credentialStore: CredentialStoring
     private let quotaClient: QuotaQuerying
@@ -19,6 +23,7 @@ final class QuotaMonitor: ObservableObject {
     private var credentialRevisions: [UUID: Int] = [:]
     private var pendingCredentialRefreshes: Set<UUID> = []
 
+    var onActivation: (@MainActor () async -> Void)?
     var onChange: (@MainActor () async -> Void)?
     var onFreshSnapshot: (@MainActor (AccountQuotaState, AccountQuotaState?) async -> Void)?
 
@@ -56,7 +61,7 @@ final class QuotaMonitor: ObservableObject {
             states.removeAll { deletedIDs.contains($0.id) }
             if states.count != storedCount {
                 do { try await accountStore.save(states) }
-                catch { storageMessage = "账号已删除，本地额度缓存清理失败。" }
+                catch { storageMessage = L10n.text("账号已删除，本地额度缓存清理失败。") }
             }
             for configuration in configurations where !states.contains(where: { $0.id == configuration.id }) {
                 states.append(AccountQuotaState(account: configuration.account))
@@ -77,12 +82,13 @@ final class QuotaMonitor: ObservableObject {
         } catch is CancellationError {
             return
         } catch {
-            storageMessage = "无法读取本地账号"
+            storageMessage = L10n.text("无法读取本地账号")
         }
     }
 
     func applicationDidBecomeActive() async {
         guard started else { return }
+        await onActivation?()
         await refreshAll()
     }
 
@@ -94,7 +100,7 @@ final class QuotaMonitor: ObservableObject {
 
         if provider.requiresGatewayAddress, trimmedCredential != "demo",
            (try? ProviderCredentialEnvelope.decode(trimmedCredential, expectedProvider: provider).gatewayIdentity) == nil {
-            storageMessage = "服务器地址与凭证无法绑定"
+            storageMessage = L10n.text("服务器地址与凭证无法绑定")
             return
         }
         let account = SubscriptionAccount(id: accountID, name: trimmedName, provider: provider)
@@ -107,21 +113,21 @@ final class QuotaMonitor: ObservableObject {
                 states.removeAll { $0.id == account.id }
                 do {
                     try await credentialStore.deleteCredential(for: account.id, provider: provider)
-                    storageMessage = "无法安全保存账号"
+                    storageMessage = L10n.text("无法安全保存账号")
                 } catch {
                     pendingCredentialCleanupAccountIDs.insert(account.id)
-                    storageMessage = "账号未保存，凭证清理失败，请重试。"
+                    storageMessage = L10n.text("账号未保存，凭证清理失败，请重试。")
                 }
                 return
             }
         } catch {
-            storageMessage = "无法安全保存账号"
+            storageMessage = L10n.text("无法安全保存账号")
             return
         }
         synchronizedConfigurations.append(AccountConfiguration(account: account))
         if sourceIdentity(trimmedCredential, provider: provider) != nil {
             do { try bindScopedCredential(trimmedCredential, accountID: account.id, replacing: true) }
-            catch { storageMessage = "服务器地址与凭证无法绑定" }
+            catch { storageMessage = L10n.text("服务器地址与凭证无法绑定") }
         }
         await persistConfigurations()
         await refresh(accountID: account.id)
@@ -200,7 +206,13 @@ final class QuotaMonitor: ObservableObject {
         do {
             try await accountStore.save(states)
         } catch {
-            storageMessage = "无法保存刷新结果"
+            storageMessage = L10n.text("无法保存刷新结果")
+        }
+        if previous.account.provider == .codex, let fetchCodexResets, !Task.isCancelled {
+            do {
+                codexResetStatus = try await fetchCodexResets()
+                codexResetUnavailable = false
+            } catch { codexResetUnavailable = true }
         }
         await onChange?()
     }
@@ -246,7 +258,7 @@ final class QuotaMonitor: ObservableObject {
             try await accountStore.save(states)
             try await configurationStore?.save(synchronizedConfigurations)
         } catch {
-            storageMessage = "无法保存账号顺序"
+            storageMessage = L10n.text("无法保存账号顺序")
         }
         await onChange?()
     }
@@ -267,7 +279,7 @@ final class QuotaMonitor: ObservableObject {
                 try await accountStore.save(states.filter { $0.id != accountID })
             }
         } catch {
-            storageMessage = "无法删除账号，请重试。"
+            storageMessage = L10n.text("无法删除账号，请重试。")
             return false
         }
         if let index = synchronizedConfigurations.firstIndex(where: { $0.id == accountID }) {
@@ -276,7 +288,7 @@ final class QuotaMonitor: ObservableObject {
         states.removeAll { $0.id == accountID }
         if configurationStore != nil {
             do { try await accountStore.save(states) }
-            catch { storageMessage = "账号已删除，本地额度缓存清理失败。" }
+            catch { storageMessage = L10n.text("账号已删除，本地额度缓存清理失败。") }
         }
         await cleanupCredential(for: accountID)
         await onChange?()
@@ -291,7 +303,7 @@ final class QuotaMonitor: ObservableObject {
             pendingCredentialCleanupAccountIDs.remove(accountID)
         } catch {
             pendingCredentialCleanupAccountIDs.insert(accountID)
-            storageMessage = "账号已删除，凭证清理失败，请重试。"
+            storageMessage = L10n.text("账号已删除，凭证清理失败，请重试。")
         }
     }
 
@@ -302,7 +314,7 @@ final class QuotaMonitor: ObservableObject {
                 guard configuration(for: accountID)?.credentialIdentity == expectedIdentity,
                       let provider = configuration(for: accountID)?.account.provider,
                       sourceIdentity(credential, provider: provider) == expectedIdentity else {
-                    storageMessage = "请使用与此服务账号一致的用户及授权范围。"
+                    storageMessage = L10n.text("请使用与此服务账号一致的用户及授权范围。")
                     return
                 }
             }
@@ -338,7 +350,7 @@ final class QuotaMonitor: ObservableObject {
             }
             if refreshingAccountIDs.contains(accountID) { pendingCredentialRefreshes.insert(accountID) }
             else { await refresh(accountID: accountID) }
-        } catch { storageMessage = "无法安全保存凭证" }
+        } catch { storageMessage = L10n.text("无法安全保存凭证") }
     }
 
     func mergeSynchronized(configurations incoming: [AccountConfiguration], states incomingStates: [AccountQuotaState]) async {
@@ -385,7 +397,7 @@ final class QuotaMonitor: ObservableObject {
         do {
             try await configurationStore?.save(synchronizedConfigurations)
             try await accountStore.save(states)
-        } catch { storageMessage = "无法保存同步数据" }
+        } catch { storageMessage = L10n.text("无法保存同步数据") }
         for accountID in deletedIDs { await cleanupCredential(for: accountID) }
     }
 
@@ -452,7 +464,7 @@ final class QuotaMonitor: ObservableObject {
 
     private func persistConfigurations() async {
         do { try await configurationStore?.save(synchronizedConfigurations) }
-        catch { storageMessage = "无法保存账号设置" }
+        catch { storageMessage = L10n.text("无法保存账号设置") }
         await onChange?()
     }
 
@@ -472,7 +484,7 @@ final class QuotaMonitor: ObservableObject {
             }
         }
         storageMessage = hasPendingCredentialCleanup
-            ? "凭证清理仍失败，请重试。"
+            ? L10n.text("凭证清理仍失败，请重试。")
             : nil
     }
 }

@@ -6,8 +6,16 @@ struct ProviderSignInView: View {
     let completion: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var login = DeviceLoginModel()
+    @StateObject private var login: DeviceLoginModel
     @State private var attempt = 0
+
+    init(provider: Provider, accountID: UUID = UUID(), loginModel: DeviceLoginModel? = nil,
+         completion: @escaping (String) -> Void) {
+        self.provider = provider
+        self.accountID = accountID
+        self.completion = completion
+        _login = StateObject(wrappedValue: loginModel ?? DeviceLoginModel())
+    }
 
     var body: some View {
         NavigationStack {
@@ -55,7 +63,7 @@ struct ProviderSignInView: View {
                                         .font(.caption).foregroundStyle(.secondary)
                                 }
                                 Link(destination: session.authorizationURL) {
-                                    Label("前往 \(provider.displayName) 授权", systemImage: "safari")
+                                    Label(L10n.format("前往 %@ 授权", provider.displayName), systemImage: "safari")
                                         .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(.borderedProminent)
@@ -70,7 +78,7 @@ struct ProviderSignInView: View {
                                         Text("GitHub 授权页会显示 VS Code / Copilot 客户端。TokenPulse 使用其公开客户端，仅请求 read:user 权限。这是非官方接入，请手动输入本页授权码。")
                                             .font(.footnote)
                                     }
-                                    ProgressView(login.reconnecting ? "正在恢复连接，授权码仍然有效" : "正在等待授权结果")
+                                    ProgressView(login.reconnecting ? L10n.text("正在恢复连接，授权码仍然有效") : L10n.text("正在等待授权结果"))
                                 }
                             }
                         } else if login.message == nil {
@@ -80,7 +88,7 @@ struct ProviderSignInView: View {
                             Section {
                                 Label(message, systemImage: "exclamationmark.triangle")
                                     .foregroundStyle(.orange)
-                                Button(login.session == nil ? "重新授权" : "继续等待", systemImage: "arrow.clockwise") {
+                                Button(login.session == nil ? L10n.text("重新授权") : L10n.text("继续等待"), systemImage: "arrow.clockwise") {
                                     attempt += 1
                                 }
                             }
@@ -92,7 +100,7 @@ struct ProviderSignInView: View {
                     }
                 }
             }
-            .navigationTitle("登录 \(provider.displayName)")
+            .navigationTitle(L10n.format("登录 %@", provider.displayName))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -182,16 +190,51 @@ final class DeviceLoginModel: ObservableObject {
             case .unsupportedLogin(let reason): message = reason
             case .loginExpired:
                 session = nil
-                message = "授权已过期，请重新开始。"
+                message = L10n.text("授权已过期，请重新开始。")
             case .invalidCredential where provider == .copilot:
                 session = nil
-                message = "GitHub 授权已拒绝或失效，请重新开始。"
-            case .network: message = "网络暂不可用，请恢复连接后继续授权。"
-            default: message = "登录未完成，请重试或检查账号授权设置。"
+                message = L10n.text("GitHub 授权已拒绝或失效，请重新开始。")
+            case .network: message = L10n.text("网络暂不可用，请恢复连接后继续授权。")
+            default: message = L10n.text("登录未完成，请重试或检查账号授权设置。")
             }
         } catch {
             guard !Task.isCancelled, activeRunID == runID else { return }
-            message = "登录未完成，请重试。"
+            message = L10n.text("登录未完成，请重试。")
         }
     }
 }
+
+#if DEBUG
+extension DeviceLoginModel {
+    /// An isolated device-code flow for visual checks. No requests leave this fixture transport.
+    static func authorizationFixture(failingInitially: Bool = false) -> DeviceLoginModel {
+        DeviceLoginModel(controller: ProviderAuthenticationController(
+            transport: AuthorizationFixtureTransport(failingInitially: failingInitially)),
+            sleep: { try await Task.sleep(for: .seconds(max(1, $0))) })
+    }
+}
+
+private actor AuthorizationFixtureTransport: ProviderTransport {
+    private var remainingFailures: Int
+
+    init(failingInitially: Bool) {
+        remainingFailures = failingInitially ? 3 : 0
+    }
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        let body: String
+        if request.url?.path == "/login/device/code" {
+            body = #"{"user_code":"TEST-CODE","device_code":"visual-fixture","verification_uri":"https://github.com/login/device","expires_in":900,"interval":1}"#
+        } else {
+            if remainingFailures > 0 {
+                remainingFailures -= 1
+                throw ProviderIntegrationError.network
+            }
+            body = #"{"error":"authorization_pending"}"#
+        }
+        let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil,
+                                       headerFields: ["Content-Type": "application/json"])!
+        return (Data(body.utf8), response)
+    }
+}
+#endif

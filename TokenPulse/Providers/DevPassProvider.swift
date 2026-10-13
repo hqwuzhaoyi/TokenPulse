@@ -61,6 +61,7 @@ struct DevPassProviderClient: Sendable {
         }
         return QuotaSnapshot(accountID: accountID, windows: windows, collectedAt: collectedAt,
                              providerPlanName: key.devPlan == "none" ? "按量计费" : key.devPlan.capitalized,
+                             providerPlanPresentation: key.devPlan == "none" ? .payAsYouGo : nil,
                              isNoPlan: key.devPlan == "none" && windows.isEmpty ? true : nil)
     }
 

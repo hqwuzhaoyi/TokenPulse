@@ -3,11 +3,12 @@ import Foundation
 struct NotificationPlanner: Sendable {
     func planSuccessfulRefresh(accountID: UUID,
                                accountName: String,
+                               provider: Provider? = nil,
                                previousSnapshot: QuotaSnapshot?,
                                newSnapshot: QuotaSnapshot,
                                settings: AccountReminderSettings,
                                ledger: ReminderLedger,
-                               now: Date) -> NotificationPlanningResult {
+                               now: Date, locale: Locale = .autoupdatingCurrent) -> NotificationPlanningResult {
         var ledger = ledger
         var operations: [NotificationOperation] = []
         var quotaMessages: [String] = []
@@ -43,7 +44,7 @@ struct NotificationPlanner: Sendable {
                    settings.resetRemindersEnabled,
                    !alreadyExpected,
                    !alreadyConfirmed {
-                    confirmedResetWindows.append(window.displayName)
+                    confirmedResetWindows.append(L10n.windowDisplayName(window, provider: provider))
                 }
             }
 
@@ -78,26 +79,27 @@ struct NotificationPlanner: Sendable {
                     threshold: threshold
                 )
             }
-            quotaMessages.append("\(window.displayName)达到\(format(highest))%")
+            quotaMessages.append(L10n.format("%@达到%@", L10n.windowDisplayName(window, provider: provider),
+                                            (highest / 100).formatted(.percent.precision(.fractionLength(0...2)).locale(locale))))
         }
 
         if !quotaMessages.isEmpty {
             operations.append(.deliver(ReminderNotification(
                 identifier: "quota.\(accountID.uuidString).\(milliseconds(newSnapshot.collectedAt))",
-                title: "\(accountName)额度告警",
-                body: quotaMessages.joined(separator: "；"),
+                title: L10n.format("%@额度告警", accountName),
+                body: quotaMessages.joined(separator: L10n.text("；")),
                 kind: .quotaAlert
             )))
         }
 
         let walletMessages = walletMessages(
-            accountID: accountID, snapshot: newSnapshot, settings: settings, ledger: &ledger
+            accountID: accountID, snapshot: newSnapshot, settings: settings, ledger: &ledger, locale: locale
         )
         if !walletMessages.isEmpty {
             operations.append(.deliver(ReminderNotification(
                 identifier: "wallet.\(accountID.uuidString).\(milliseconds(newSnapshot.collectedAt))",
-                title: "\(accountName)钱包余额提醒",
-                body: walletMessages.joined(separator: "；"),
+                title: L10n.format("%@钱包余额提醒", accountName),
+                body: walletMessages.joined(separator: L10n.text("；")),
                 kind: .walletAlert
             )))
         }
@@ -105,8 +107,8 @@ struct NotificationPlanner: Sendable {
         if !confirmedResetWindows.isEmpty {
             operations.append(.deliver(ReminderNotification(
                 identifier: "reset.confirmed.\(accountID.uuidString).\(milliseconds(newSnapshot.collectedAt))",
-                title: "\(accountName)额度已重置",
-                body: confirmedResetWindows.joined(separator: "、"),
+                title: L10n.format("%@额度已重置", accountName),
+                body: confirmedResetWindows.joined(separator: L10n.text("、")),
                 kind: .confirmedReset
             )))
         }
@@ -115,6 +117,7 @@ struct NotificationPlanner: Sendable {
             operations.append(contentsOf: reconcileResetSchedules(
                 accountID: accountID,
                 accountName: accountName,
+                provider: provider,
                 snapshot: newSnapshot,
                 settings: settings,
                 ledger: &ledger,
@@ -130,6 +133,7 @@ struct NotificationPlanner: Sendable {
 
     func planSettingsChange(accountID: UUID,
                             accountName: String,
+                            provider: Provider? = nil,
                             latestSnapshot: QuotaSnapshot?,
                             settings: AccountReminderSettings,
                             ledger: ReminderLedger,
@@ -138,6 +142,7 @@ struct NotificationPlanner: Sendable {
         let operations = reconcileResetSchedules(
             accountID: accountID,
             accountName: accountName,
+            provider: provider,
             snapshot: latestSnapshot,
             settings: settings,
             ledger: &ledger,
@@ -153,7 +158,7 @@ struct NotificationPlanner: Sendable {
     private func walletMessages(accountID: UUID,
                                  snapshot: QuotaSnapshot,
                                  settings: AccountReminderSettings,
-                                 ledger: inout ReminderLedger) -> [String] {
+                                 ledger: inout ReminderLedger, locale: Locale) -> [String] {
         // A retained wallet is historical data: neither alert nor rearm its state from a failed collection.
         guard snapshot.walletFailure == nil else { return [] }
         var messages: [String] = []
@@ -164,14 +169,15 @@ struct NotificationPlanner: Sendable {
                               active: wallet.total <= settings.walletThreshold(for: wallet.currency),
                               enabled: settings.effectiveWalletAlertsEnabled, observedAt: snapshot.collectedAt,
                               ledger: &ledger) {
-            messages.append("\(wallet.currency) 可用余额 \(wallet.total)，已达到低余额阈值")
+            messages.append(L10n.format("可用余额 %@，已达到低余额阈值",
+                                        QuotaFormatting.money(wallet.total, currency: wallet.currency, locale: locale)))
         }
         if !wallets.isEmpty || !snapshot.windows.contains(where: { $0.wallet?.isMonetary == false }),
            let available = snapshot.walletAvailable,
            observeWalletAlert(accountID: accountID, currency: nil, active: !available,
                               enabled: settings.effectiveWalletAlertsEnabled, observedAt: snapshot.collectedAt,
                               ledger: &ledger) {
-            messages.append("余额不足，无法调用 API")
+            messages.append(L10n.text("余额不足，无法调用 API"))
         }
         return messages
     }
@@ -315,22 +321,65 @@ struct NotificationPlanner: Sendable {
 
     private func reconcileResetSchedules(accountID: UUID,
                                          accountName: String,
+                                         provider: Provider?,
                                          snapshot: QuotaSnapshot?,
                                          settings: AccountReminderSettings,
                                          ledger: inout ReminderLedger,
                                          now: Date) -> [NotificationOperation] {
         // Settings may explicitly disable reminders, but stale/missing data
         // cannot remove or rearrange schedules established by a newer frame.
-        if settings.resetRemindersEnabled, let latest = ledger.quotaObservedAt(accountID: accountID),
-           snapshot.map({ $0.collectedAt >= latest }) != true { return [] }
         let existing = ledger.pendingSchedules(accountID: accountID)
+        if settings.resetRemindersEnabled, let latest = ledger.quotaObservedAt(accountID: accountID),
+           snapshot.map({ $0.collectedAt >= latest }) != true {
+            // Local pending display inputs can change language even when a remote observation
+            // fences out older/missing quota data. They cannot alter the schedule itself.
+            let updated = existing.map { schedule in
+                guard schedule.resetAt > now else { return schedule }
+                if let windows = schedule.notificationWindows, Set(windows.map(\.id)) == schedule.windowIDs {
+                    return renderedSchedule(schedule, accountName: accountName, provider: provider, windows: windows)
+                }
+                // Legacy plans may lack every display input. Preserve their event identity,
+                // and translate only an accurate account-level forecast instead of guessing names.
+                var updated = schedule
+                updated.notification = ReminderNotification(
+                    identifier: schedule.notificationID,
+                    title: L10n.format("%@额度预计已重置", accountName),
+                    body: L10n.text("该账号额度预计已重置，请刷新确认。"),
+                    kind: .expectedReset
+                )
+                return updated
+            }
+            let changed = zip(existing, updated).compactMap { old, new -> PendingResetSchedule? in
+                old.notification != new.notification ? new : nil
+            }
+            guard !changed.isEmpty else { return [] }
+            ledger.replacePendingSchedules(accountID: accountID, with: updated)
+            return changed.sorted { $0.resetAt < $1.resetAt }.compactMap { schedule in
+                schedule.notification.map { .schedule($0, at: schedule.resetAt) }
+            }
+        }
+        let windowsByID = Dictionary(uniqueKeysWithValues: (snapshot?.windows ?? []).map { ($0.id, $0) })
         let desired = desiredResetSchedules(
             accountID: accountID,
             snapshot: snapshot,
             enabled: settings.resetRemindersEnabled,
             now: now
-        )
-        guard scheduleSignatures(existing) != scheduleSignatures(desired) else { return [] }
+        ).map { schedule in
+            renderedSchedule(schedule, accountName: accountName, provider: provider,
+                             windows: schedule.windowIDs.compactMap { windowsByID[$0] })
+        }
+        // Content is device-local. Updating a future request must not touch occurrence history.
+        if scheduleSignatures(existing) == scheduleSignatures(desired) {
+            let existingByID = Dictionary(uniqueKeysWithValues: existing.map { ($0.notificationID, $0) })
+            let changed = desired.filter { existingByID[$0.notificationID]?.notification != $0.notification }
+            // An upgrade can add trusted display inputs without changing today's
+            // rendered text. Persist those inputs for later offline language changes.
+            if existing != desired { ledger.replacePendingSchedules(accountID: accountID, with: desired) }
+            guard !changed.isEmpty else { return [] }
+            return changed.sorted { $0.resetAt < $1.resetAt }.compactMap { schedule in
+                schedule.notification.map { .schedule($0, at: schedule.resetAt) }
+            }
+        }
 
         var operations: [NotificationOperation] = []
         for schedule in existing where schedule.resetAt > now {
@@ -344,17 +393,11 @@ struct NotificationPlanner: Sendable {
         }
         ledger.replacePendingSchedules(accountID: accountID, with: desired)
 
-        if let snapshot {
-            let windowsByID = Dictionary(uniqueKeysWithValues: snapshot.windows.map { ($0.id, $0) })
+        if snapshot != nil {
             for schedule in desired.sorted(by: { $0.resetAt < $1.resetAt }) {
-                let names = schedule.windowIDs.compactMap { windowsByID[$0]?.displayName }.sorted()
-                let notification = ReminderNotification(
-                    identifier: schedule.notificationID,
-                    title: "\(accountName)额度预计已重置",
-                    body: names.joined(separator: "、"),
-                    kind: .expectedReset
-                )
-                operations.append(.schedule(notification, at: schedule.resetAt))
+                if let notification = schedule.notification {
+                    operations.append(.schedule(notification, at: schedule.resetAt))
+                }
                 for windowID in schedule.windowIDs {
                     ledger.recordExpectedReset(ResetOccurrenceRecord(
                         accountID: accountID,
@@ -370,6 +413,25 @@ struct NotificationPlanner: Sendable {
             operations.append(.cancel(identifiers: obsoleteIDs))
         }
         return operations
+    }
+
+    private func renderedSchedule(_ schedule: PendingResetSchedule, accountName: String,
+                                  provider: Provider?, windows: [QuotaWindow]) -> PendingResetSchedule {
+        var result = schedule
+        // Cache only name semantics. Usage, monetary values and reset observations stay in the snapshot.
+        result.notificationWindows = windows.map {
+            QuotaWindow(id: $0.id, name: $0.name, scope: $0.scope, period: $0.period,
+                        usedPercentage: nil, remainingCount: nil, totalCount: nil, resetsAt: nil,
+                        presentationLabel: $0.presentationLabel, presentationScope: $0.presentationScope)
+        }.sorted { $0.id < $1.id }
+        let names = windows.map { L10n.windowDisplayName($0, provider: provider) }.sorted()
+        result.notification = ReminderNotification(
+            identifier: schedule.notificationID,
+            title: L10n.format("%@额度预计已重置", accountName),
+            body: names.joined(separator: L10n.text("、")),
+            kind: .expectedReset
+        )
+        return result
     }
 
     private func desiredResetSchedules(accountID: UUID,
@@ -462,10 +524,6 @@ struct NotificationPlanner: Sendable {
 
     private func normalizedThresholds(_ thresholds: [Double]) -> [Double] {
         Array(Set(thresholds.filter { $0.isFinite && $0 > 0 && $0 <= 100 })).sorted()
-    }
-
-    private func format(_ threshold: Double) -> String {
-        threshold.formatted(.number.precision(.fractionLength(0...2)))
     }
 
     private func milliseconds(_ date: Date) -> Int64 {

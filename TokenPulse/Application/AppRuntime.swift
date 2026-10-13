@@ -17,6 +17,7 @@ final class AppRuntime: ObservableObject {
     private let accountCredentials: ProviderScopedCredentialStore
     private var realMonitor: QuotaMonitor?
     private var realNotifications: NotificationRuntime?
+    private let codexResetFeed = CodexResetFeed()
     private var started = false
     private lazy var sync = ICloudSyncRuntime(
         onIncoming: { [weak self] payload, isExternalUpdate in
@@ -70,6 +71,21 @@ final class AppRuntime: ObservableObject {
     private func bindMonitor() {
         let source = monitor
         let sourceNotifications = notifications
+        if !isDemoMode {
+            source.fetchCodexResets = { [weak self, weak source] in
+                guard let self, let source, self.monitor === source, !self.isSwitchingMode else { throw CancellationError() }
+                let status = try await self.codexResetFeed.status()
+                guard !Task.isCancelled, self.monitor === source, !self.isDemoMode, !self.isSwitchingMode else { throw CancellationError() }
+                do {
+                    try await sourceNotifications.codexResetPreview(status, configurations: source.configurations)
+                } catch { source.setSynchronizationMessage(L10n.text("重置预告已更新，提醒暂未投递。")) }
+                return status
+            }
+        }
+        source.onActivation = { [weak self, weak source] in
+            guard let self, let source, self.monitor === source, !self.isSwitchingMode else { return }
+            await self.reconcilePendingReminders()
+        }
         source.onChange = { [weak self, weak source] in
             guard let self, let source, self.monitor === source, !self.isSwitchingMode else { return }
             await self.publish()
@@ -81,7 +97,7 @@ final class AppRuntime: ObservableObject {
                     state: state, previous: previous,
                     settings: source.configuration(for: state.id)?.reminders ?? AccountReminderSettings()
                 )
-            } catch { source.setSynchronizationMessage("额度已更新，提醒暂未投递。") }
+            } catch { source.setSynchronizationMessage(L10n.text("额度已更新，提醒暂未投递。")) }
         }
     }
 
@@ -99,7 +115,7 @@ final class AppRuntime: ObservableObject {
         } else {
             do { try await notifications.deactivate() }
             catch {
-                monitor.setSynchronizationMessage("演示提醒清理失败，请稍后重试退出演示。")
+                monitor.setSynchronizationMessage(L10n.text("演示提醒清理失败，请稍后重试退出演示。"))
                 return
             }
             monitor = realMonitor ?? Self.makeRealMonitor(suiteName: defaultsSuiteName, credentials: accountCredentials)
@@ -113,12 +129,12 @@ final class AppRuntime: ObservableObject {
         bindMonitor()
         await monitor.start(refresh: false)
         do { try await widgetStore.save(states: monitor.states, configurations: monitor.configurations, isDemoMode: enabled) }
-        catch { monitor.setSynchronizationMessage("小组件更新失败，本机账号与查询仍可使用。") }
+        catch { monitor.setSynchronizationMessage(L10n.text("小组件更新失败，本机账号与查询仍可使用。")) }
         await widgetStore.setDemoMode(enabled)
         started = true
         do {
             try await notifications.settingsChanged(configurations: monitor.configurations, states: monitor.states)
-        } catch { monitor.setSynchronizationMessage("提醒未启用或投递失败，可在账号设置中检查通知权限。") }
+        } catch { monitor.setSynchronizationMessage(L10n.text("提醒未启用或投递失败，可在账号设置中检查通知权限。")) }
         await scheduleBackgroundRefresh()
         let source = monitor
         Task { [weak self] in
@@ -143,6 +159,8 @@ final class AppRuntime: ObservableObject {
         let demo = isDemoMode
         await source.start(refresh: false)
         guard monitor === source, !isSwitchingMode else { return }
+        await reconcilePendingReminders()
+        guard monitor === source, !isSwitchingMode else { return }
         await widgetStore.setDemoMode(demo)
         guard monitor === source, !isSwitchingMode else { return }
         if !demo, cloudSync.isEnabled {
@@ -159,7 +177,18 @@ final class AppRuntime: ObservableObject {
     func refresh() async {
         guard !isSwitchingMode else { return }
         if !started { await start() }
-        else { await monitor.refreshAll() }
+        else { await monitor.applicationDidBecomeActive() }
+    }
+
+    private func reconcilePendingReminders() async {
+        guard !isSwitchingMode else { return }
+        let source = monitor
+        let sourceNotifications = notifications
+        do {
+            try await sourceNotifications.settingsChanged(configurations: source.configurations, states: source.states)
+        } catch {
+            source.setSynchronizationMessage(L10n.text("提醒未启用或投递失败，可在账号设置中检查通知权限。"))
+        }
     }
 
     func publish() async {
@@ -169,10 +198,10 @@ final class AppRuntime: ObservableObject {
         let demo = isDemoMode
         do {
             try await sourceNotifications.settingsChanged(configurations: source.configurations, states: source.states)
-        } catch { source.setSynchronizationMessage("提醒未启用或投递失败，可在账号设置中检查通知权限。") }
+        } catch { source.setSynchronizationMessage(L10n.text("提醒未启用或投递失败，可在账号设置中检查通知权限。")) }
         do {
             try await widgetStore.save(states: source.states, configurations: source.configurations, isDemoMode: demo)
-        } catch { source.setSynchronizationMessage("小组件更新失败，本机账号与查询仍可使用。") }
+        } catch { source.setSynchronizationMessage(L10n.text("小组件更新失败，本机账号与查询仍可使用。")) }
         guard monitor === source, !demo else { return }
         await synchronizeNow()
     }
@@ -221,10 +250,10 @@ final class AppRuntime: ObservableObject {
         do {
             try await sourceNotifications.settingsChanged(configurations: source.configurations, states: source.states)
             try await sourceNotifications.merge(payload.ledger)
-        } catch { source.setSynchronizationMessage("提醒尚不可用，可检查通知权限。") }
+        } catch { source.setSynchronizationMessage(L10n.text("提醒尚不可用，可检查通知权限。")) }
         do {
             try await widgetStore.save(states: source.states, configurations: source.configurations)
-        } catch { source.setSynchronizationMessage("同步数据已到达，显示或提醒更新失败。") }
+        } catch { source.setSynchronizationMessage(L10n.text("同步数据已到达，显示或提醒更新失败。")) }
     }
 
     func scheduleBackgroundRefresh() async {

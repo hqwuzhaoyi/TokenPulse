@@ -35,7 +35,7 @@ final class NousDeviceLoginModel: ObservableObject {
                     case .completed(let value):
                         let envelope = try ProviderCredentialEnvelope.decode(value, expectedProvider: .nousPortal)
                         guard envelope.sourceCredentialIdentity == expectedIdentity else {
-                            message = "请授权与此服务账号一致的 Nous 用户和组织。"
+                            message = L10n.text("请授权与此服务账号一致的 Nous 用户和组织。")
                             return
                         }
                         completion(value)
@@ -44,7 +44,7 @@ final class NousDeviceLoginModel: ObservableObject {
                 }
             } catch {
                 guard runID == run, !Task.isCancelled else { return }
-                message = (error as? RefreshFailure)?.displayName ?? "授权尚未完成，请重试。"
+                message = (error as? RefreshFailure)?.displayName ?? L10n.text("授权尚未完成，请重试。")
             }
         }
         task = work

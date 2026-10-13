@@ -1,0 +1,16 @@
+# Keep reproducible acceptance sources and reports; raw captures/results stay local.
+*
+!.gitignore
+!*.md
+!10-coverage-preflight.py
+!issues/
+!issues/*.md
+!08-ui/
+!08-ui/*.md
+!AcceptanceHarness/
+!AcceptanceHarness/*.swift
+!AcceptanceHarness/Acceptance.xcodeproj/
+!AcceptanceHarness/Acceptance.xcodeproj/project.pbxproj
+!AcceptanceHarness/Acceptance.xcodeproj/xcshareddata/
+!AcceptanceHarness/Acceptance.xcodeproj/xcshareddata/xcschemes/
+!AcceptanceHarness/Acceptance.xcodeproj/xcshareddata/xcschemes/*.xcscheme

@@ -60,7 +60,7 @@ struct GeminiProviderClient: Sendable {
     static func validateConfiguredProject(_ value: String?) throws -> String? {
         guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else { return nil }
         guard validProject(value) else {
-            throw ProviderIntegrationError.unsupportedLogin("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。")
+            throw ProviderIntegrationError.unsupportedLogin(L10n.text("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。"))
         }
         return value
     }
@@ -137,7 +137,8 @@ struct GeminiProviderClient: Sendable {
             return QuotaWindow(id: "gemini.\(model)", name: model, scope: nil, period: .other,
                 isExhausted: bucket.remainingFraction.map { $0 == 0 }, usedPercentage: bucket.remainingFraction.map { (1 - $0) * 100 },
                 remainingCount: nil, totalCount: nil, resetsAt: reset, unit: bucket.tokenType ?? "额度单位",
-                exactCounts: amount.map { .init(remaining: $0) })
+                exactCounts: amount.map { .init(remaining: $0) },
+                presentationUnit: bucket.tokenType == nil ? .unspecifiedQuotaUnit : nil)
         }
         return .init(accountID: accountID, windows: windows, collectedAt: collectedAt, providerPlanName: plan)
     }

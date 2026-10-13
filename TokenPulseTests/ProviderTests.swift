@@ -133,26 +133,32 @@ final class ProviderTests: XCTestCase {
 
     @MainActor
     func testPersistentNetworkFailureStopsAndRetryPreservesAuthorizationCode() async {
-        let transport = ProviderTransportStub([
-            .response(200, #"{"user_code":"TEST-CODE","device_auth_id":"device-test","interval":1}"#),
-            .failure(.networkConnectionLost), .failure(.timedOut), .failure(.notConnectedToInternet),
-            .response(200, #"{"authorization_code":"test-code","code_verifier":"test-verifier"}"#),
-            .response(200, #"{"access_token":"test-access","refresh_token":"test-refresh","expires_in":3600}"#),
-        ])
-        let model = DeviceLoginModel(controller: ProviderAuthenticationController(transport: transport), sleep: { _ in })
-        var completions = 0
-        await model.authorize(provider: .codex) { _ in completions += 1 }
-        XCTAssertEqual(completions, 0)
-        XCTAssertNotNil(model.message)
-        XCTAssertEqual(model.session?.userCode, "TEST-CODE")
-        XCTAssertFalse(model.reconnecting)
-        let beforeRetry = await transport.requests()
-        XCTAssertEqual(beforeRetry.count, 4)
-        await model.authorize(provider: .codex) { _ in completions += 1 }
-        XCTAssertEqual(completions, 1)
-        XCTAssertNil(model.message)
-        let requests = await transport.requests()
-        XCTAssertEqual(requests.filter { $0.url?.path.hasSuffix("usercode") == true }.count, 1)
+        for language in ["zh-Hans", "en"] {
+            await L10n.withLanguage(language) {
+                let transport = ProviderTransportStub([
+                    .response(200, #"{"user_code":"TEST-CODE","device_auth_id":"device-test","interval":1}"#),
+                    .failure(.networkConnectionLost), .failure(.timedOut), .failure(.notConnectedToInternet),
+                    .response(200, #"{"authorization_code":"test-code","code_verifier":"test-verifier"}"#),
+                    .response(200, #"{"access_token":"test-access","refresh_token":"test-refresh","expires_in":3600}"#),
+                ])
+                let model = DeviceLoginModel(controller: ProviderAuthenticationController(transport: transport), sleep: { _ in })
+                var completions = 0
+                await model.authorize(provider: .codex) { _ in completions += 1 }
+                XCTAssertEqual(completions, 0)
+                XCTAssertEqual(model.message, language == "en"
+                    ? "The network is temporarily unavailable. Reconnect to continue authorization."
+                    : "网络暂不可用，请恢复连接后继续授权。")
+                XCTAssertEqual(model.session?.userCode, "TEST-CODE")
+                XCTAssertFalse(model.reconnecting)
+                let beforeRetry = await transport.requests()
+                XCTAssertEqual(beforeRetry.count, 4)
+                await model.authorize(provider: .codex) { _ in completions += 1 }
+                XCTAssertEqual(completions, 1)
+                XCTAssertNil(model.message)
+                let requests = await transport.requests()
+                XCTAssertEqual(requests.filter { $0.url?.path.hasSuffix("usercode") == true }.count, 1)
+            }
+        }
     }
 
     func testDirectKeyEncodingPreservesMiniMaxAndWrapsOtherKeyProviders() throws {

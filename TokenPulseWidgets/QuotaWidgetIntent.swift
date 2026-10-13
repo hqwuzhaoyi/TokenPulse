@@ -11,7 +11,8 @@ struct WidgetAccountEntity: AppEntity {
     let providerName: String
 
     var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(name)", subtitle: "\(providerName)")
+        DisplayRepresentation(title: "\(WidgetContentPresentation.entityTitle(name: name, identifier: id))",
+                              subtitle: "\(WidgetContentPresentation.entitySubtitle(providerName))")
     }
 }
 

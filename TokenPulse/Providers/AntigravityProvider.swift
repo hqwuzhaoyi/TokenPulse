@@ -102,7 +102,7 @@ struct AntigravityProviderClient: Sendable {
     static func validateConfiguredProject(_ value: String?) throws -> String? {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines)
         do { return try project(trimmed, required: false) }
-        catch { throw ProviderIntegrationError.unsupportedLogin("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。") }
+        catch { throw ProviderIntegrationError.unsupportedLogin(L10n.text("项目 ID 格式无效，请输入 Cloud 项目 ID；留空则使用已激活项目。")) }
     }
 
     static func fingerprint(_ envelope: ProviderCredentialEnvelope, accountID: UUID) throws -> String {
@@ -173,7 +173,9 @@ struct AntigravityProviderClient: Sendable {
                     period: period, isExhausted: fraction.map { $0 == 0 } ?? amount.map { $0 == 0 },
                     usedPercentage: fraction.map { $0 == 0 ? 100 : min((1 - $0) * 100, Double(100).nextDown) }, remainingCount: nil, totalCount: nil,
                     resetsAt: reset, unit: amount == nil ? nil : "单位（类型未提供）",
-                    exactCounts: amount.map { .init(remaining: Decimal($0)) }))
+                    exactCounts: amount.map { .init(remaining: Decimal($0)) },
+                    presentationLabel: enabled ? .providerModel : .modelDisabled,
+                    presentationUnit: amount == nil ? nil : .unspecifiedUnitType))
             }
         }
         return .init(accountID: accountID, windows: windows, collectedAt: collectedAt,

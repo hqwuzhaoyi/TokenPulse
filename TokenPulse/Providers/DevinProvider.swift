@@ -18,7 +18,7 @@ enum DevinWebSession {
         return try organizations.sorted().map { organization in
             let envelope = try WebProviderSession.credential(provider: .devin, origin: origin, accountID: accountID,
                 accessToken: token, remoteAccountID: user, metadata: ["organizationID": organization])
-            return WebLoginCredentialChoice(id: organization, title: "组织 \(organization)", credential: try envelope.encoded())
+            return WebLoginCredentialChoice(id: organization, title: L10n.format("组织 %@", organization), credential: try envelope.encoded())
         }
     }
 

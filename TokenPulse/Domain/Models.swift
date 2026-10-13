@@ -61,21 +61,23 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         default: .none
         }
     }
-    var displayName: String {
+    var displayName: String { displayName(language: nil) }
+
+    func displayName(language: String?) -> String {
         switch self {
-        case .miniMaxChina: "MiniMax 国内版"
-        case .miniMaxInternational: "MiniMax 国际版"
-        case .zhipu: "智谱国内版"
+        case .miniMaxChina: L10n.text("MiniMax 国内版", language: language)
+        case .miniMaxInternational: L10n.text("MiniMax 国际版", language: language)
+        case .zhipu: L10n.text("智谱国内版", language: language)
         case .claude: "Claude"
         case .codex: "Codex"
         case .openCodeGo: "OpenCode Go"
         case .zai: "Z.ai"
         case .superGrok: "SuperGrok"
-        case .qoderInternational: "Qoder 国际版"
+        case .qoderInternational: L10n.text("Qoder 国际版", language: language)
         case .deepSeek: "DeepSeek"
         case .poe: "Poe"
         case .vercelAIGateway: "Vercel AI Gateway"
-        case .kimiCode: "Kimi Code 国内版"
+        case .kimiCode: L10n.text("Kimi Code 国内版", language: language)
         case .elevenLabs: "ElevenLabs"
         case .stepFun: "StepFun"
         case .newAPI: "New API"
@@ -89,7 +91,7 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .aixy: "Aixy"
         case .neuralwatt: "Neuralwatt"
         case .codebuff: "Codebuff"
-        case .moonshot: "Moonshot API 钱包"
+        case .moonshot: L10n.text("Moonshot API 钱包", language: language)
         case .factory: "Factory"
         case .augmentCode: "Augment Code"
         case .zed: "Zed"
@@ -108,11 +110,11 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .v2ex: "V2EX"
         case .xKiro: "xKiro"
         case .zenMux: "ZenMux"
-        case .alibabaCodingPlan: "阿里百炼 Coding Plan"
-        case .alibabaTokenPlan: "阿里百炼 Token Plan"
+        case .alibabaCodingPlan: L10n.text("阿里百炼 Coding Plan", language: language)
+        case .alibabaTokenPlan: L10n.text("阿里百炼 Token Plan", language: language)
         case .chutes: "Chutes"
         case .cursor: "Cursor"
-        case .volcengine: "火山方舟"
+        case .volcengine: L10n.text("火山方舟", language: language)
         case .xaiAPI: "xAI API"
         case .ibmBob: "IBM Bob"
         case .typeSafe: "TypeSafe"
@@ -132,14 +134,14 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
         case .mistral: "Mistral"
         case .sakana: "Sakana AI"
         case .kiro: "Kiro"
-        case .xiaomiCodingPlan: "小米 Coding Plan"
-        case .qoderChina: "Qoder 国内版"
+        case .xiaomiCodingPlan: L10n.text("小米 Coding Plan", language: language)
+        case .qoderChina: L10n.text("Qoder 国内版", language: language)
         case .ollamaCloud: "Ollama Cloud"
         case .longCat: "LongCat"
         case .notionAI: "Notion AI"
         case .perplexity: "Perplexity API"
         case .abacus: "Abacus AI"
-        case .openAIAPI: "OpenAI API（Legacy 余额）"
+        case .openAIAPI: L10n.text("OpenAI API（Legacy 余额）", language: language)
         case .antigravity: "Antigravity"
         }
     }
@@ -148,7 +150,15 @@ enum Provider: String, Codable, CaseIterable, Identifiable, Sendable {
 enum ProviderRegion: String, Codable, CaseIterable, Identifiable, Sendable {
     case china, international
     var id: String { rawValue }
-    var displayName: String { self == .china ? "国内（中国）" : "国际" }
+    var displayName: String { displayName(language: nil) }
+
+    func displayName(language: String?) -> String {
+        L10n.text(self == .china ? "国内（中国）" : "国际", language: language)
+    }
+
+    var cloudDisplayName: String {
+        L10n.text(self == .china ? "北京（cn-beijing）" : "新加坡（ap-southeast-1）")
+    }
 }
 
 struct SubscriptionAccount: Codable, Equatable, Identifiable, Sendable {
@@ -273,6 +283,37 @@ struct DecimalQuotaCounts: Codable, Equatable, Sendable {
     }
 }
 
+/// App-owned fallback provenance. Raw provider names and stable identity remain unchanged.
+enum QuotaPresentationLabel: String, Codable, Equatable, Sendable {
+    case monthlyTokenAllowance
+    case extraAllowance
+    case geminiModelGroup
+    case providerModel
+    case modelDisabled
+}
+
+enum QuotaPresentationUnit: String, Codable, Equatable, Sendable {
+    case unspecifiedQuotaUnit
+    case unspecifiedUnitType
+}
+
+/// Localized scope components retain the provider/user name as an uninterpreted value.
+struct QuotaScopePresentation: Codable, Equatable, Sendable {
+    enum Kind: String, Codable, Equatable, Sendable {
+        case organization, project, team, user
+        case apiKey = "api_key"
+    }
+    let kind: Kind?
+    let name: String?
+    let isShared: Bool
+}
+
+/// App-generated account descriptions, separate from actual provider plan/brand names.
+enum QuotaPlanPresentation: Codable, Equatable, Sendable {
+    case payAsYouGo
+    case team(identifier: String)
+}
+
 struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -298,6 +339,10 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
     let exactCounts: DecimalQuotaCounts?
     /// nil preserves existing exact-time behavior; day stores a UTC calendar-date anchor.
     let resetDatePrecision: QuotaDatePrecision?
+    /// Nil in legacy archives where provider text and an app fallback cannot be distinguished.
+    let presentationLabel: QuotaPresentationLabel?
+    let presentationUnit: QuotaPresentationUnit?
+    let presentationScope: QuotaScopePresentation?
 
     init(id: String,
          name: String,
@@ -318,7 +363,10 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
          exactCounts: DecimalQuotaCounts? = nil,
          resetSemantics: QuotaResetSemantics? = nil,
          nextReplenishmentAt: Date? = nil,
-         resetDatePrecision: QuotaDatePrecision? = nil) {
+         resetDatePrecision: QuotaDatePrecision? = nil,
+         presentationLabel: QuotaPresentationLabel? = nil,
+         presentationUnit: QuotaPresentationUnit? = nil,
+         presentationScope: QuotaScopePresentation? = nil) {
         self.id = id
         self.name = name
         self.scope = scope
@@ -339,6 +387,9 @@ struct QuotaWindow: Codable, Equatable, Identifiable, Sendable {
         self.nextReplenishmentAt = nextReplenishmentAt
         self.exactCounts = exactCounts
         self.resetDatePrecision = resetDatePrecision
+        self.presentationLabel = presentationLabel
+        self.presentationUnit = presentationUnit
+        self.presentationScope = presentationScope
     }
 
     func needsUpdate(at date: Date) -> Bool {
@@ -367,6 +418,7 @@ struct QuotaSnapshot: Codable, Equatable, Sendable {
     /// A one-way identity for web-session cache matching; never contains cookies.
     var sourceCredentialFingerprint: String? = nil
     var providerPlanName: String? = nil
+    var providerPlanPresentation: QuotaPlanPresentation? = nil
     var walletCollectedAt: Date? = nil
     var walletFailure: RefreshFailure? = nil
 
@@ -407,20 +459,22 @@ enum RefreshFailure: String, Codable, Equatable, Sendable, Error {
     case googleProjectRequired
     case consoleSessionRequired
 
-    var displayName: String {
+    var displayName: String { displayName(language: nil) }
+
+    func displayName(language: String?) -> String {
         switch self {
-        case .invalidCredential: "凭证无效或已过期，请重新登录"
-        case .managementKeyRequired: "Management Key 无效或权限不足；普通推理 Key 无权查询"
-        case .network: "网络连接失败"
-        case .rateLimited: "请求过于频繁"
-        case .server: "提供商服务异常"
-        case .unreadableResponse: "无法读取额度响应"
-        case .noQuotaWindows: "未返回套餐额度窗口"
-        case .subscriptionRequired: "当前凭证没有可用的订阅套餐"
-        case .insufficientPermissions: "Key 缺少所需的查询权限，请检查权限设置"
-        case .googleClientUnsupported: "Google quota 服务不支持此 OAuth client，请检查客户端注册"
-        case .googleProjectRequired: "Google quota 访问被拒绝或项目未就绪，请检查 client、项目权限与账户资格"
-        case .consoleSessionRequired: "该接口要求控制台登录会话，当前 Key 无法查询；请在对应站点检查。"
+        case .invalidCredential: L10n.text("凭证无效或已过期，请重新登录", language: language)
+        case .managementKeyRequired: L10n.text("Management Key 无效或权限不足；普通推理 Key 无权查询", language: language)
+        case .network: L10n.text("网络连接失败", language: language)
+        case .rateLimited: L10n.text("请求过于频繁", language: language)
+        case .server: L10n.text("提供商服务异常", language: language)
+        case .unreadableResponse: L10n.text("无法读取额度响应", language: language)
+        case .noQuotaWindows: L10n.text("未返回套餐额度窗口", language: language)
+        case .subscriptionRequired: L10n.text("当前凭证没有可用的订阅套餐", language: language)
+        case .insufficientPermissions: L10n.text("Key 缺少所需的查询权限，请检查权限设置", language: language)
+        case .googleClientUnsupported: L10n.text("Google quota 服务不支持此 OAuth client，请检查客户端注册", language: language)
+        case .googleProjectRequired: L10n.text("Google quota 访问被拒绝或项目未就绪，请检查 client、项目权限与账户资格", language: language)
+        case .consoleSessionRequired: L10n.text("该接口要求控制台登录会话，当前 Key 无法查询；请在对应站点检查。", language: language)
         }
     }
 }

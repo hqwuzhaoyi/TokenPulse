@@ -101,7 +101,7 @@ struct ZedProviderClient: Sendable {
             allowedOrigins: ["https://zed.dev", "https://dashboard.zed.dev", origin], makeCredentials: { cookies, _, id, now in
                 let envelope = try WebProviderSession.cookieCredential(cookies: cookies, policy: policy, provider: .zed,
                     origin: origin, accountID: id, now: now, metadata: ["cookiePolicy": "zed-v1"])
-                return [.init(id: id.uuidString, title: "Zed 当前登录账号", credential: try envelope.encoded())]
+                return [.init(id: id.uuidString, title: L10n.text("Zed 当前登录账号"), credential: try envelope.encoded())]
             })
     }
 }

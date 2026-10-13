@@ -7,8 +7,8 @@ enum CloudSyncError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unavailable: "无法提交 iCloud 同步请求，请检查 iCloud 登录和同步权限。"
-        case .invalidPayload: "无法读取 iCloud 账号数据，请确认两端应用版本一致。"
+        case .unavailable: L10n.text("无法提交 iCloud 同步请求，请检查 iCloud 登录和同步权限。")
+        case .invalidPayload: L10n.text("无法读取 iCloud 账号数据，请确认两端应用版本一致。")
         }
     }
 }
@@ -65,7 +65,7 @@ final class CloudSyncSettings: ObservableObject {
     }
 
     func report(_ error: Error) {
-        errorMessage = (error as? CloudSyncError)?.errorDescription ?? "同步失败，请稍后重试。"
+        errorMessage = (error as? CloudSyncError)?.errorDescription ?? L10n.text("同步失败，请稍后重试。")
     }
 }
 

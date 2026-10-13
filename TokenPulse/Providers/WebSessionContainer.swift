@@ -223,22 +223,22 @@ extension Provider {
         case .longCat:
             .init(loginURL: LongCatProviderClient.loginURL, allowedOrigins: [LongCatProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in
-                      [.init(id: "longcat", title: "LongCat 平台账号", credential: try LongCatProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                      [.init(id: "longcat", title: L10n.text("LongCat 平台账号"), credential: try LongCatProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
                   })
         case .ollamaCloud:
             .init(loginURL: OllamaCloudProviderClient.loginURL, allowedOrigins: [OllamaCloudProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in
-                      [.init(id: "ollama", title: "Ollama Cloud 账号", credential: try OllamaCloudProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                      [.init(id: "ollama", title: L10n.text("Ollama Cloud 账号"), credential: try OllamaCloudProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
                   })
         case .qoderChina:
             .init(loginURL: QoderChinaProviderClient.loginURL, allowedOrigins: [QoderChinaProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in
-                      [.init(id: "qoder-cn", title: "Qoder 国内网页账号", credential: try QoderChinaProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                      [.init(id: "qoder-cn", title: L10n.text("Qoder 国内网页账号"), credential: try QoderChinaProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
                   })
         case .xiaomiCodingPlan:
             .init(loginURL: XiaomiCodingPlanProviderClient.loginURL, allowedOrigins: [XiaomiCodingPlanProviderClient.origin],
                   makeCredentials: { cookies, _, accountID, now in
-                      [.init(id: "xiaomi", title: "MiMo 控制台账号", credential: try XiaomiCodingPlanProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
+                      [.init(id: "xiaomi", title: L10n.text("MiMo 控制台账号"), credential: try XiaomiCodingPlanProviderClient.credential(cookies: cookies, accountID: accountID, now: now))]
                   })
         case .abacus: AbacusProviderClient.loginProfile
         case .perplexity: PerplexityProviderClient.loginProfile
@@ -271,7 +271,7 @@ struct WebProviderSessionLoginView: View {
                 }.frame(maxHeight: 160)
             }
             if let message = model.message { Text(message).font(.caption).foregroundStyle(.orange).padding(.horizontal) }
-            Button(model.verifying ? "正在验证" : "完成登录并验证") { model.beginVerification() }
+            Button(model.verifying ? L10n.text("正在验证") : L10n.text("完成登录并验证")) { model.beginVerification() }
                 .buttonStyle(.borderedProminent).disabled(model.verifying)
             Button("清除会话并重新登录") { model.start() }.disabled(model.verifying)
             Text("登录完成后验证额度，再保存此账号的会话。会话过期时可重新登录。")
@@ -327,7 +327,7 @@ final class WebProviderSessionLoginModel: ObservableObject {
                       Set(candidates.map(\.id)).count == candidates.count else { throw RefreshFailure.invalidCredential }
                 if candidates.count == 1 { try await validate(candidates[0], run: run, container: container) }
                 else { choices = candidates }
-            } catch { if active(run, container) { message = (error as? RefreshFailure)?.displayName ?? "无法验证登录，请完成登录后重试。" } }
+            } catch { if active(run, container) { message = (error as? RefreshFailure)?.displayName ?? L10n.text("无法验证登录，请完成登录后重试。") } }
         }
     }
     func choose(_ choice: WebLoginCredentialChoice) {
@@ -336,7 +336,7 @@ final class WebProviderSessionLoginModel: ObservableObject {
         task = Task { @MainActor in
             defer { if runID == run { verifying = false; task = nil } }
             do { try await validate(choice, run: run, container: container) }
-            catch { if active(run, container) { message = (error as? RefreshFailure)?.displayName ?? "无法验证所选账号，请重试。" } }
+            catch { if active(run, container) { message = (error as? RefreshFailure)?.displayName ?? L10n.text("无法验证所选账号，请重试。") } }
         }
     }
     private func active(_ run: UUID, _ container: WebSessionContainer) -> Bool {
