@@ -89,3 +89,8 @@
 先使用本地 App Store Connect API Key 建立认证（团队 Key 需要 Key ID、Issuer ID 和 `.p8`，个人 Key 使用 CLI 对应参数），不要把私钥内容写入仓库、日志或聊天。Xcode 的既有登录不等同于 asc 已认证。认证后用 `asc auth status --validate` 检查，再对经过验证的新构建执行上传。使用 `asc builds upload --app 6809847584 --ipa <exported-ipa> --wait` 等命令前，核对本机版本帮助和本次发布范围。上传、TestFlight 分发和正式 App Store 提交是不同阶段，分别记录实际结果。
 
 认证后续结果：`TokenPulse` asc profile 已存入 System Keychain 并成为默认身份；`asc auth status --validate` 返回 `works`，`asc apps view --id 6809847584` 成功返回 TokenPulse / `com.tokenpulse.app`。认证与应用读取已验证，尚未用 asc 上传、分发或提交审核。
+
+
+## 2026-10-13 国际化构建已发布
+
+`0.1.0 (2026101301)` 已通过 asc 上传和处理，Beta审核APPROVED，Internal Beta/Public Beta均IN_BETA_TESTING。包含简体中文/英文、Codex重置预告及Watch/Widget显示修复；免登录演示审核说明已更新。完整源码、构建、签名、符号与分发记录见 [本次发布记录](releases/2026-10-13-testflight.md)。
