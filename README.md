@@ -2,10 +2,6 @@
 
 在 iPhone 和 Apple Watch 上查看多个 AI 服务账号的套餐额度、预算、积分、GPU 时长和钱包余额，支持设备独立刷新、额度与低余额提醒、桌面小组件。
 
-> **原参考仓库：[qunqin24/Pulse](https://github.com/qunqin24/Pulse)**
->
-> TokenPulse 的产品设计、提供商接入研究及渠道图标参考了 Pulse，并实现了面向 iOS / watchOS 的原生应用。原始参考版本为 [8d7fd60](https://github.com/qunqin24/Pulse/tree/8d7fd60454ce383dd0a136a30790c1e277f8069b)；本次提供商扩展以 [397c8fc4](https://github.com/qunqin24/Pulse/tree/397c8fc4f1bd52180a452d2f3f0c099def97cf69) 和各接入文档固定的官方来源为契约线索。
-
 ## 功能
 
 - **多提供商、多账号**：78 个代码入口，涵盖订阅、API 钱包和自托管网关；同一提供商可配置多个账号。69 张扩展票已按用户“完整实现+图标存在”标准全部完成。
