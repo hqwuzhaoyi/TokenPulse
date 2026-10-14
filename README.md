@@ -49,4 +49,6 @@ open TokenPulse.xcodeproj
 
 ## 社区与友链
 
-[Telegram](https://t.me/+pxMdrhguRVkyZGFl) · [LINUX DO 社区](https://linux.do/)
+有想法、功能建议或使用问题，欢迎加入 [Telegram 交流群](https://t.me/+pxMdrhguRVkyZGFl)，一起聊聊。
+
+[LINUX DO 社区](https://linux.do/)
