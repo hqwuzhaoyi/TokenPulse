@@ -49,4 +49,4 @@ Thanks to [Pulse](https://github.com/qunqin24/Pulse), [Lobe Icons](https://githu
 
 ## Community
 
-[LINUX DO](https://linux.do/)
+[Telegram](https://t.me/+pxMdrhguRVkyZGFl) · [LINUX DO](https://linux.do/)

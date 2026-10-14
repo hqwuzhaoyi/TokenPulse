@@ -47,6 +47,6 @@ open TokenPulse.xcodeproj
 
 感谢 [Pulse](https://github.com/qunqin24/Pulse)、[Lobe Icons](https://github.com/lobehub/lobe-icons) 和 [OpenAI Codex](https://github.com/openai/codex)。
 
-## 友情链接
+## 社区与友链
 
-[LINUX DO 社区](https://linux.do/)
+[Telegram](https://t.me/+pxMdrhguRVkyZGFl) · [LINUX DO 社区](https://linux.do/)
