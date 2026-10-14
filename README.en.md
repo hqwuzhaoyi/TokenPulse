@@ -49,4 +49,6 @@ Thanks to [Pulse](https://github.com/qunqin24/Pulse), [Lobe Icons](https://githu
 
 ## Community
 
-[Telegram](https://t.me/+pxMdrhguRVkyZGFl) · [LINUX DO](https://linux.do/)
+Join our [Telegram group](https://t.me/+pxMdrhguRVkyZGFl) to share ideas, suggest features, ask questions, or discuss your experience with TokenPulse.
+
+[LINUX DO](https://linux.do/)
