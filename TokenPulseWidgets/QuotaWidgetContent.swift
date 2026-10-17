@@ -8,6 +8,15 @@ struct QuotaWidgetEntry: TimelineEntry {
     let selectionRequired: Bool
     let accountSelectionMissing: Bool
     let hasAvailableAccounts: Bool
+
+    var timelineDates: [Date] {
+        let quotaDates = accounts.flatMap(\.windows).compactMap(\.resetsAt)
+        let previewDates = accounts.filter { $0.account.provider == .codex }.flatMap { account in
+            [account.codexResetStatus?.data.scheduledReset?.scheduledFor,
+             account.codexResetStatus?.data.activeWatch?.expiresAt].compactMap { $0 }
+        }
+        return Set(quotaDates + previewDates).filter { $0 > date }.sorted()
+    }
 }
 
 #if !TOKENPULSE_APP
@@ -26,8 +35,7 @@ struct QuotaTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: QuotaWidgetIntent, in context: Context) async -> Timeline<QuotaWidgetEntry> {
         let entry = await entry(for: configuration, family: presentationFamily(context.family), invocation: "phone.timeline")
-        let dates = Set(entry.accounts.flatMap(\.windows).compactMap(\.resetsAt))
-            .filter { $0 > entry.date }.sorted()
+        let dates = entry.timelineDates
         return Timeline(
             entries: [entry] + dates.map {
                 QuotaWidgetEntry(
@@ -92,8 +100,7 @@ struct WatchQuotaTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: WatchQuotaWidgetIntent, in context: Context) async -> Timeline<QuotaWidgetEntry> {
         let entry = await entry(for: configuration, invocation: "watch.timeline")
-        let dates = Set(entry.accounts.flatMap(\.windows).compactMap(\.resetsAt))
-            .filter { $0 > entry.date }.sorted()
+        let dates = entry.timelineDates
         return Timeline(
             entries: [entry] + dates.map {
                 QuotaWidgetEntry(
@@ -599,7 +606,7 @@ private struct MediumAccountColumn: View {
                 }
             }
             Spacer(minLength: 0)
-            HomeScreenAccountFooter(account: account)
+            HomeScreenAccountFooter(account: account, date: date)
         }
         .padding(.horizontal, 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -626,6 +633,7 @@ private struct LargeAccountRow: View {
                     }
                 }
             }
+            ResetPreviewLine(account: account, date: date, lineLimit: 1)
         }
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -681,13 +689,14 @@ private struct HomeScreenAccountContent: View {
                 }
                 Spacer(minLength: 0)
             }
-            HomeScreenAccountFooter(account: account)
+            HomeScreenAccountFooter(account: account, date: date)
         }
     }
 }
 
 private struct HomeScreenAccountFooter: View {
     let account: WidgetAccountSnapshot
+    let date: Date
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
@@ -698,12 +707,36 @@ private struct HomeScreenAccountFooter: View {
                     .minimumScaleFactor(0.65)
                     .allowsTightening(true)
             }
+            ResetPreviewLine(account: account, date: date)
             AccountStatus(account: account, fontSize: 9)
                 .lineLimit(2)
                 .minimumScaleFactor(0.6)
                 .allowsTightening(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+}
+
+private struct ResetPreviewLine: View {
+    let account: WidgetAccountSnapshot
+    let date: Date
+    var lineLimit = 2
+
+    var body: some View {
+        if let summary = WidgetContentPresentation.resetPreview(account, at: date) {
+            Label(summary, systemImage: account.codexResetStatus?.data.scheduledReset == nil
+                  ? "sparkles" : "calendar.badge.clock")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(.white.opacity(0.85))
+                .lineLimit(lineLimit)
+                .minimumScaleFactor(0.8)
+                .allowsTightening(true)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(summary)
+                .accessibilityHint(L10n.text("公告与预测来自第三方来源，不代表 OpenAI 官方承诺；实际额度以账号刷新结果为准。"))
         }
     }
 }
@@ -1098,7 +1131,7 @@ enum WidgetDebugFixture {
     }
 
     static let supportedScenarios: Set<String> = [
-        "quota", "wallet", "empty", "unselected", "missing", "stale", "replenishment", "dateOnly", "longName", "exhausted"
+        "quota", "wallet", "empty", "unselected", "missing", "stale", "replenishment", "dateOnly", "longName", "exhausted", "resetScheduled", "resetForecast", "resetPending", "resetExpired", "resetUnavailable"
     ]
 
     static func entry(scenario: String, family: WidgetPresentationFamily, date: Date = Date()) -> QuotaWidgetEntry {
@@ -1135,6 +1168,17 @@ enum WidgetDebugFixture {
                                  remainingCount: nil, totalCount: nil, resetsAt: resetsAt,
                                  resetSemantics: resetSemantics, resetDatePrecision: resetDatePrecision)
         }
+        let isResetScenario = scenario.hasPrefix("reset")
+        let resetStatus: CodexResetStatus? = isResetScenario ? CodexResetStatus(
+            data: .init(latestReset: nil,
+                        scheduledReset: ["resetScheduled", "resetPending"].contains(scenario)
+                            ? .init(id: "widget-preview", resetType: "banked", announcedAt: date,
+                                    scheduledFor: date.addingTimeInterval(scenario == "resetPending" ? -60 : 3_600),
+                                    text: "Fixture announcement") : nil,
+                        activeWatch: .init(level: "strong", resetChancePercent: 80, forecastWindow: "Today",
+                                           observedAt: date, expiresAt: date.addingTimeInterval(scenario == "resetExpired" ? -60 : 3_600),
+                                           text: "Fixture forecast")),
+            meta: .init(generatedAt: date)) : nil
         let collectedAt: Date = date.addingTimeInterval(-600)
         let lastFailure: RefreshFailure? = scenario == "stale" ? .network : nil
         let accounts: [WidgetAccountSnapshot] = (0..<family.accountLimit).map { index -> WidgetAccountSnapshot in
@@ -1144,9 +1188,14 @@ enum WidgetDebugFixture {
                 ? "我的研发账号 · Very Long Research Account 🌙 \(index + 1)" : "Fixture \(index + 1)"
             let account: SubscriptionAccount = SubscriptionAccount(id: accountID, name: name, provider: provider)
             let remainingResetCount: Int = index == 0 ? 1 : index == 1 ? 0 : 3
-            return WidgetAccountSnapshot(account: account, windows: [window], collectedAt: collectedAt,
+            let windows = isResetScenario ? [QuotaWindow(
+                id: "codex.fiveHour", name: "5 小时额度", scope: nil, period: .fiveHour,
+                usedPercentage: 42, remainingCount: nil, totalCount: nil, resetsAt: date.addingTimeInterval(7_200)), window] : [window]
+            return WidgetAccountSnapshot(account: account, windows: windows, collectedAt: collectedAt,
                                          lastFailure: lastFailure, remainingResetCount: remainingResetCount,
-                                         subscriptionPlan: .pro)
+                                         subscriptionPlan: isResetScenario ? .plus : .pro,
+                                         codexResetStatus: resetStatus,
+                                         codexResetUnavailable: scenario == "resetUnavailable")
         }
         return QuotaWidgetEntry(date: date, accounts: accounts, selectionRequired: false,
                                 accountSelectionMissing: false, hasAvailableAccounts: true)

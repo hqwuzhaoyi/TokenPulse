@@ -17,6 +17,8 @@ struct WidgetAccountSnapshot: Codable, Equatable, Identifiable, Sendable {
     var providerPlanPresentation: QuotaPlanPresentation? = nil
     var isNoPlan: Bool? = nil
     var quotaStatusText: String? = nil
+    var codexResetStatus: CodexResetStatus? = nil
+    var codexResetUnavailable: Bool? = nil
 
     var id: UUID { account.id }
 
@@ -239,7 +241,8 @@ actor WidgetSnapshotStore {
         return (try? JSONDecoder().decode([WidgetAccountSnapshot].self, from: data)) ?? []
     }
 
-    func save(states: [AccountQuotaState], configurations: [AccountConfiguration] = [], isDemoMode: Bool = false) throws {
+    func save(states: [AccountQuotaState], configurations: [AccountConfiguration] = [], isDemoMode: Bool = false,
+              codexResetStatus: CodexResetStatus? = nil, codexResetUnavailable: Bool = false) throws {
         let settingsByID = Dictionary(uniqueKeysWithValues: configurations.map { ($0.id, $0.reminders) })
         let snapshots = states.map { state in
             WidgetAccountSnapshot(
@@ -257,7 +260,9 @@ actor WidgetSnapshotStore {
                 providerPlanName: state.snapshot?.providerPlanName,
                 providerPlanPresentation: state.snapshot?.providerPlanPresentation,
                 isNoPlan: state.snapshot?.isNoPlan,
-                quotaStatusText: state.snapshot?.quotaStatusText
+                quotaStatusText: state.snapshot?.quotaStatusText,
+                codexResetStatus: state.account.provider == .codex ? codexResetStatus : nil,
+                codexResetUnavailable: state.account.provider == .codex ? codexResetUnavailable : nil
             )
         }
         try save(snapshots, isDemoMode: isDemoMode)

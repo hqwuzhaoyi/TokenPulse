@@ -46,6 +46,30 @@ enum WidgetContentPresentation {
         return L10n.format("可重置 %@", QuotaFormatting.remainingResets(account.remainingResetCount))
     }
 
+    static func resetPreview(_ account: WidgetAccountSnapshot, at date: Date) -> String? {
+        guard account.account.provider == .codex, let status = account.codexResetStatus else { return nil }
+        let summary: String
+        if let reset = status.data.scheduledReset {
+            let time: String
+            if let scheduled = reset.scheduledFor {
+                time = scheduled <= date ? L10n.text("待确认")
+                    : scheduled.formatted(.dateTime.month(.twoDigits).day(.twoDigits).hour().minute())
+            } else {
+                time = L10n.text("时间待定")
+            }
+            summary = L10n.format("重置预告 · %@", time)
+        } else if let watch = status.activeWatch(at: date) {
+            if let chance = CodexResetStatus.chanceText(watch.resetChancePercent) {
+                summary = L10n.format("AI 重置预测 %@ · %@", chance, watch.forecastWindow)
+            } else {
+                summary = L10n.format("AI 重置预测 · %@", watch.forecastWindow)
+            }
+        } else {
+            return nil
+        }
+        return account.codexResetUnavailable == true ? L10n.format("%@ · 旧数据", summary) : summary
+    }
+
     static func resetText(_ metric: WidgetQuotaMetric) -> String {
         guard let window = metric.window else { return L10n.text("时间未提供") }
         if let wallet = window.wallet {

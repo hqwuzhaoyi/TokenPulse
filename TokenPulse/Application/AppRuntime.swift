@@ -128,7 +128,8 @@ final class AppRuntime: ObservableObject {
         defaults.set(enabled, forKey: DemoMode.enabledKey)
         bindMonitor()
         await monitor.start(refresh: false)
-        do { try await widgetStore.save(states: monitor.states, configurations: monitor.configurations, isDemoMode: enabled) }
+        do { try await widgetStore.save(states: monitor.states, configurations: monitor.configurations, isDemoMode: enabled,
+                                   codexResetStatus: monitor.codexResetStatus, codexResetUnavailable: monitor.codexResetUnavailable) }
         catch { monitor.setSynchronizationMessage(L10n.text("小组件更新失败，本机账号与查询仍可使用。")) }
         await widgetStore.setDemoMode(enabled)
         started = true
@@ -200,7 +201,8 @@ final class AppRuntime: ObservableObject {
             try await sourceNotifications.settingsChanged(configurations: source.configurations, states: source.states)
         } catch { source.setSynchronizationMessage(L10n.text("提醒未启用或投递失败，可在账号设置中检查通知权限。")) }
         do {
-            try await widgetStore.save(states: source.states, configurations: source.configurations, isDemoMode: demo)
+            try await widgetStore.save(states: source.states, configurations: source.configurations, isDemoMode: demo,
+                                       codexResetStatus: source.codexResetStatus, codexResetUnavailable: source.codexResetUnavailable)
         } catch { source.setSynchronizationMessage(L10n.text("小组件更新失败，本机账号与查询仍可使用。")) }
         guard monitor === source, !demo else { return }
         await synchronizeNow()
@@ -252,7 +254,8 @@ final class AppRuntime: ObservableObject {
             try await sourceNotifications.merge(payload.ledger)
         } catch { source.setSynchronizationMessage(L10n.text("提醒尚不可用，可检查通知权限。")) }
         do {
-            try await widgetStore.save(states: source.states, configurations: source.configurations)
+            try await widgetStore.save(states: source.states, configurations: source.configurations,
+                                       codexResetStatus: source.codexResetStatus, codexResetUnavailable: source.codexResetUnavailable)
         } catch { source.setSynchronizationMessage(L10n.text("同步数据已到达，显示或提醒更新失败。")) }
     }
 
