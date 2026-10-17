@@ -39,10 +39,35 @@ struct CodexResetFeedTests {
         let notification = try #require(status.previewNotification(at: now, language: language))
         #expect(status.hasVisiblePreview(at: now))
         #expect(notification.kind == .codexResetPreview)
-        #expect(notification.title == (language == "en" ? "Codex Banked Reset Announcement" : "Codex 重置次数发放预告"))
-        #expect(notification.body.contains(language == "en" ? "awaiting confirmation of execution" : "等待执行确认"))
-        #expect(notification.body.contains("Reset coming"))
-        #expect(notification.body.contains("https://codex-resets.com"))
+        #expect(notification.title == (language == "en" ? "Codex Reset Preview · Awaiting confirmation" : "Codex 重置预告 · 待确认"))
+        #expect(notification.body.contains(language == "en" ? "Local time" : "本地时间"))
+        #expect(!notification.body.contains("Reset coming"))
+        #expect(!notification.body.contains("https://codex-resets.com"))
+    }
+
+    @Test(arguments: ["zh-Hans", "en"]) func upcomingNotificationHighlightsTimeAndKeepsExactLocalDate(language: String) throws {
+        let future = scheduled.replacingOccurrences(of: "11:30:00.000Z", with: "14:00:00.000Z")
+        let status = try CodexResetStatus.decode(fixture(scheduled: future))
+        let shanghai = try #require(TimeZone(identifier: "Asia/Shanghai"))
+        let utc = try #require(TimeZone(secondsFromGMT: 0))
+        let locale = Locale(identifier: "en_GB")
+        let localNotice = try #require(status.previewNotification(at: now, language: language, locale: locale, timeZone: shanghai))
+        let utcNotice = try #require(status.previewNotification(at: now, language: language, locale: locale, timeZone: utc))
+        #expect(localNotice.title == (language == "en" ? "Codex Reset Preview · in 2 hours" : "Codex 重置预告 · 2小时后"))
+        #expect(localNotice.title == utcNotice.title)
+        #expect(localNotice.body.contains("22:00"))
+        #expect(utcNotice.body.contains("14:00"))
+        #expect(localNotice.body.hasSuffix(language == "en" ? "Local time" : "本地时间"))
+        #expect(localNotice.identifier == "codex.preview.scheduled.event-1")
+        #expect(!localNotice.body.contains("Reset coming"))
+    }
+
+    @Test func headlineRoundsDurationAndUsesAppLanguageRatherThanRegion() {
+        let date = now.addingTimeInterval(7_199)
+        #expect(CodexResetStatus.scheduledPreviewHeadline(for: date, at: now, language: "en", locale: Locale(identifier: "zh_CN")) == "in 2 hours")
+        #expect(CodexResetStatus.scheduledPreviewHeadline(for: date, at: now, language: "zh-Hans", locale: Locale(identifier: "en_US")) == "2小时后")
+        #expect(CodexResetStatus.scheduledPreviewHeadline(for: now, at: now, language: "en") == "Awaiting confirmation")
+        #expect(CodexResetStatus.scheduledPreviewHeadline(for: nil, at: now, language: "en") == "Time to be determined")
     }
 
     @Test(arguments: ["zh-Hans", "en"]) func expiredWatchCannotNotify(language: String) throws {
@@ -56,11 +81,12 @@ struct CodexResetFeedTests {
         let rawWatch = watch(expires: "2026-10-12T12:00:00Z")
         let forecast = try CodexResetStatus.decode(fixture(watch: rawWatch))
         let notification = try #require(forecast.previewNotification(at: now, language: language, locale: Locale(identifier: "en_US")))
-        #expect(notification.title.contains(language == "en" ? "Not an Official Commitment" : "非官方承诺"))
+        #expect(notification.body.contains(language == "en" ? "Unofficial" : "非官方"))
         #expect(notification.body.contains("Today"))
-        #expect(notification.body.contains("80%"))
-        #expect(notification.body.contains(language == "en" ? "valid until" : "有效至"))
-        #expect(notification.body.contains("Possible reset"))
+        #expect(notification.title == (language == "en" ? "Codex Reset Forecast · 80%" : "Codex 重置预测 · 80%"))
+        #expect(!notification.body.contains("80%"))
+        #expect(!notification.body.contains(language == "en" ? "valid until" : "有效至"))
+        #expect(!notification.body.contains("Possible reset"))
         let both = try CodexResetStatus.decode(fixture(scheduled: scheduled, watch: rawWatch))
         #expect(both.previewNotification(at: now, language: language)?.identifier == "codex.preview.scheduled.event-1")
         #expect(both.previewNotification(at: now.addingTimeInterval(86_401), language: language) == nil)
@@ -91,8 +117,8 @@ struct CodexResetFeedTests {
         let zh = try #require(status.previewNotification(at: now, language: "zh-Hans"))
         let en = try #require(status.previewNotification(at: now, language: "en"))
         let fallback = try #require(status.previewNotification(at: now, language: "fr"))
-        #expect(zh.body.contains(rawText))
-        #expect(en.body.contains(rawText))
+        #expect(!zh.body.contains(rawText))
+        #expect(!en.body.contains(rawText))
         #expect(en.title != zh.title)
         #expect(fallback == en)
         #expect(en.identifier == zh.identifier)
@@ -106,7 +132,7 @@ struct CodexResetFeedTests {
         for language in ["zh-Hans", "en"] {
             let notice = try #require(forecast.previewNotification(at: now, language: language))
             #expect(notice.body.contains("设置"))
-            #expect(notice.body.contains("取消 · 80% · %@ 原文"))
+            #expect(!notice.body.contains("取消 · 80% · %@ 原文"))
         }
         #expect(forecast.data.activeWatch?.forecastWindow == "设置")
         #expect(forecast.data.activeWatch?.text == "取消 · 80% · %@ 原文")
@@ -117,14 +143,90 @@ struct CodexResetFeedTests {
         let unspecified = scheduled.replacingOccurrences(of: "\"2026-10-11T11:30:00.000Z\"", with: "null")
         let status = try CodexResetStatus.decode(fixture(scheduled: unspecified))
         #expect(status.data.scheduledReset?.scheduledFor == nil)
-        #expect(status.previewNotification(at: now, language: "en")?.body.hasPrefix("Time to be determined;") == true)
-        #expect(status.previewNotification(at: now, language: "zh-Hans")?.body.hasPrefix("时间待定，") == true)
+        #expect(status.previewNotification(at: now, language: "en")?.title == "Codex Reset Preview · Time to be determined")
+        #expect(status.previewNotification(at: now, language: "zh-Hans")?.title == "Codex 重置预告 · 时间待定")
         for chance in [nil, -1, 101] as [Int?] { #expect(CodexResetStatus.chanceText(chance) == nil) }
         let unknownChance = try CodexResetStatus.decode(fixture(watch: watch(expires: "2026-10-12T12:00:00Z").replacingOccurrences(of: "80", with: "null")))
         let notice = try #require(unknownChance.previewNotification(at: now, language: "en"))
         #expect(!notice.body.contains("probability"))
-        #expect(notice.body.contains("Possible reset"))
-        #expect(notice.body.contains("valid until"))
+        #expect(notice.title == "Codex Reset Forecast")
+        #expect(notice.body == "Today · AI forecast · Unofficial")
+    }
+
+    @Test(arguments: ["zh-Hans", "en"]) func widgetPreviewPrioritizesAnnouncementsAndExpiresForecasts(language: String) throws {
+        let expiry = now.addingTimeInterval(1)
+        let forecast = try CodexResetStatus.decode(fixture(watch: watch(expires: "2026-10-11T12:00:01Z")))
+        var account = WidgetAccountSnapshot(account: SubscriptionAccount(name: "Codex", provider: .codex),
+                                           windows: [], collectedAt: now, lastFailure: nil, codexResetStatus: forecast)
+        L10n.withLanguage(language) {
+            #expect(WidgetContentPresentation.resetPreview(account, at: now)?.contains("80") == true)
+            #expect(WidgetContentPresentation.resetPreview(account, at: expiry) == nil)
+        }
+        let entry = QuotaWidgetEntry(date: now, accounts: [account], selectionRequired: false,
+                                    accountSelectionMissing: false, hasAvailableAccounts: true)
+        #expect(entry.timelineDates == [expiry])
+        account.codexResetStatus = try CodexResetStatus.decode(fixture(scheduled: scheduled, watch: watch(expires: "2026-10-11T12:00:01Z")))
+        account.codexResetUnavailable = true
+        L10n.withLanguage(language) {
+            let summary = WidgetContentPresentation.resetPreview(account, at: expiry)
+            #expect(summary?.contains(language == "en" ? "Reset preview" : "重置预告") == true)
+            #expect(summary?.contains(language == "en" ? "Awaiting confirmation" : "待确认") == true)
+            #expect(summary?.contains(language == "en" ? "Cached" : "旧数据") == true)
+            #expect(summary?.contains("80") == false)
+        }
+        account.codexResetStatus = try CodexResetStatus.decode(fixture(latest: scheduled))
+        #expect(WidgetContentPresentation.resetPreview(account, at: now) == nil)
+    }
+
+    @Test func widgetTimelineChangesAtScheduledTimeWithoutClaimingAReset() throws {
+        let future = scheduled.replacingOccurrences(of: "11:30:00.000Z", with: "12:30:00.000Z")
+        let status = try CodexResetStatus.decode(fixture(scheduled: future))
+        let account = WidgetAccountSnapshot(account: SubscriptionAccount(name: "Codex", provider: .codex),
+                                           windows: [], collectedAt: now, lastFailure: nil, codexResetStatus: status)
+        let entry = QuotaWidgetEntry(date: now, accounts: [account], selectionRequired: false,
+                                    accountSelectionMissing: false, hasAvailableAccounts: true)
+        #expect(entry.timelineDates == [now.addingTimeInterval(1_800)])
+        L10n.withLanguage("en") {
+            #expect(WidgetContentPresentation.resetPreview(account, at: now)?.contains("Awaiting confirmation") == false)
+            #expect(WidgetContentPresentation.resetPreview(account, at: now.addingTimeInterval(1_800))?.contains("Awaiting confirmation") == true)
+        }
+    }
+
+    @Test func widgetStorageCarriesPreviewOnlyForCodexAndClearsCancelledPreview() async throws {
+        let suite = "CodexResetFeedTests.widget.\(UUID())"
+        defer { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
+        let store = WidgetSnapshotStore(defaults: UserDefaults(suiteName: suite))
+        let status = try CodexResetStatus.decode(fixture(scheduled: scheduled))
+        let states = [Provider.codex, .superGrok].map {
+            AccountQuotaState(account: SubscriptionAccount(name: "Account", provider: $0))
+        }
+        try await store.save(states: states, codexResetStatus: status, codexResetUnavailable: true)
+        let saved = await store.load()
+        #expect(saved[0].codexResetStatus == status)
+        #expect(saved[0].codexResetUnavailable == true)
+        #expect(saved[1].codexResetStatus == nil)
+        #expect(WidgetContentPresentation.resetPreview(saved[1], at: now) == nil)
+        let cancelled = try CodexResetStatus.decode(fixture())
+        try await store.save(states: states, codexResetStatus: cancelled)
+        let cleared = await store.load()
+        #expect(cleared[0].codexResetUnavailable == false)
+        #expect(WidgetContentPresentation.resetPreview(cleared[0], at: now) == nil)
+        try await store.save(states: states, isDemoMode: true, codexResetStatus: status)
+        #expect(await store.load() == cleared)
+        await store.setDemoMode(true)
+        #expect(await store.load().first?.codexResetStatus == status)
+    }
+
+    @Test func legacyWidgetSnapshotDecodesWithoutPreviewFields() throws {
+        let account = WidgetAccountSnapshot(account: SubscriptionAccount(name: "Legacy", provider: .codex),
+                                           windows: [], collectedAt: now, lastFailure: nil)
+        let encoded = try JSONEncoder().encode(account)
+        let object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        #expect(object["codexResetStatus"] == nil)
+        #expect(object["codexResetUnavailable"] == nil)
+        let decoded = try JSONDecoder().decode(WidgetAccountSnapshot.self, from: encoded)
+        #expect(decoded == account)
+        #expect(WidgetContentPresentation.resetPreview(decoded, at: now) == nil)
     }
 
     @Test func probabilityKeepsRegionalPercentFormattingAndExactReportedBoundaries() {
@@ -217,7 +319,7 @@ struct CodexResetFeedTests {
         #expect(await adapter.operations.count == 1)
         let operation = try #require(await adapter.operations.first)
         guard case .deliver(let delivered) = operation else { Issue.record("Expected an immediate preview delivery"); return }
-        #expect(delivered.title == "Codex 重置次数发放预告")
+        #expect(delivered.title == "Codex 重置预告 · 待确认")
         #expect(delivered.identifier == "codex.preview.scheduled.event-1")
         #expect(defaults.stringArray(forKey: "codexResetPreviewDelivered") == [delivered.identifier])
         #expect(configuration.reminders.resetRemindersEnabled)

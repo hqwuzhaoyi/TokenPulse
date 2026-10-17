@@ -205,6 +205,23 @@
         }
       }
     },
+    "%@ · AI 预测 · 非官方": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · AI forecast · Unofficial"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · AI 预测 · 非官方"
+          }
+        }
+      }
+    },
     "%@ · 共享": {
       "extractionState": "manual",
       "localizations": {
@@ -218,6 +235,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ · 共享"
+          }
+        }
+      }
+    },
+    "%@ · 待确认": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · Awaiting confirmation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 待确认"
+          }
+        }
+      }
+    },
+    "%@ · 旧数据": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · Cached"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 旧数据"
+          }
+        }
+      }
+    },
+    "%@ · 本地时间": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · Local time"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 本地时间"
+          }
+        }
+      }
+    },
+    "%@ · 概率 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@ chance"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 概率 %@"
           }
         }
       }
@@ -1500,6 +1585,57 @@
         }
       }
     },
+    "AI 重置预测": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Reset Forecast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 重置预测"
+          }
+        }
+      }
+    },
+    "AI 重置预测 %@ · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI reset forecast %@ · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 重置预测 %@ · %@"
+          }
+        }
+      }
+    },
+    "AI 重置预测 · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI reset forecast · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 重置预测 · %@"
+          }
+        }
+      }
+    },
     "AI 重置预测 · 非官方承诺": {
       "extractionState": "manual",
       "localizations": {
@@ -1513,6 +1649,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI 重置预测 · 非官方承诺"
+          }
+        }
+      }
+    },
+    "AI 预测 · 非官方": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI forecast · Unofficial"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 预测 · 非官方"
           }
         }
       }
@@ -1823,23 +1976,6 @@
         }
       }
     },
-    "Codex 重置次数发放预告": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Codex Banked Reset Announcement"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Codex 重置次数发放预告"
-          }
-        }
-      }
-    },
     "Codex 重置预告": {
       "extractionState": "manual",
       "localizations": {
@@ -1857,6 +1993,57 @@
         }
       }
     },
+    "Codex 重置预告 · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex Reset Preview · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex 重置预告 · %@"
+          }
+        }
+      }
+    },
+    "Codex 重置预测": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex Reset Forecast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex 重置预测"
+          }
+        }
+      }
+    },
+    "Codex 重置预测 · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex Reset Forecast · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex 重置预测 · %@"
+          }
+        }
+      }
+    },
     "Codex 重置预测（非官方承诺）": {
       "extractionState": "manual",
       "localizations": {
@@ -1870,6 +2057,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Codex 重置预测（非官方承诺）"
+          }
+        }
+      }
+    },
+    "Codex 重置预测（非官方）": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex Reset Forecast (Unofficial)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex 重置预测（非官方）"
           }
         }
       }
@@ -6090,6 +6294,23 @@
         }
       }
     },
+    "待确认": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awaiting confirmation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待确认"
+          }
+        }
+      }
+    },
     "总 credits": {
       "extractionState": "manual",
       "localizations": {
@@ -7310,6 +7531,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "更新凭证"
+          }
+        }
+      }
+    },
+    "更新失败 · 显示上次预告": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update failed · Showing cached preview"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新失败 · 显示上次预告"
           }
         }
       }
@@ -9214,6 +9452,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "站点"
+          }
+        }
+      }
+    },
+    "第三方预告 · Codex Resets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Third-party preview · Codex Resets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第三方预告 · Codex Resets"
           }
         }
       }
@@ -11173,19 +11428,36 @@
         }
       }
     },
-    "重置次数发放预告": {
+    "重置预告": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Banked Reset Announcement"
+            "value": "Reset Preview"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置次数发放预告"
+            "value": "重置预告"
+          }
+        }
+      }
+    },
+    "重置预告 · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset preview · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置预告 · %@"
           }
         }
       }

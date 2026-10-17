@@ -218,59 +218,109 @@ private struct CodexResetSection: View {
     let status: CodexResetStatus?
     let unavailable: Bool
     var now: Date = Date()
+    @State private var isExpanded = false
 
     var body: some View {
         if let status, status.hasVisiblePreview(at: now) {
             Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    if let reset = status.data.scheduledReset {
-                        Label(L10n.text(reset.resetType == "banked" ? "重置次数发放预告" : "已公告 · 等待执行"), systemImage: "calendar.badge.clock")
-                            .font(.subheadline.weight(.semibold))
-                        if let date = reset.scheduledFor {
-                            Text(L10n.format("预定时间：%@", CodexResetStatus.dateText(date)))
-                            if date <= now {
-                                Text("预定时间已过，尚未确认执行。")
-                                    .foregroundStyle(Color.secondary)
-                            }
-                        } else {
-                            Text("重置时间待定")
-                        }
-                        Text(reset.text).font(.subheadline)
-                    } else if let watch = status.activeWatch(at: now) {
-                        Label("AI 重置预测 · 非官方承诺", systemImage: "sparkles")
-                            .font(.subheadline.weight(.semibold))
-                        Text(L10n.format("预测时段：%@", watch.forecastWindow))
-                        if let chance = CodexResetStatus.chanceText(watch.resetChancePercent) {
-                            Text(L10n.format("预测概率 %@", chance))
-                        }
-                        Text(watch.text).font(.subheadline)
-                        Text(L10n.format("有效至 %@", CodexResetStatus.dateText(watch.expiresAt)))
-                            .font(.caption).foregroundStyle(Color.secondary)
+                VStack(alignment: .leading, spacing: 0) {
+                    DisclosureGroup(isExpanded: $isExpanded) {
+                        details(status)
+                            .padding(.top, 8)
+                    } label: {
+                        summary(status)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityValue(L10n.text(isExpanded ? "已展开" : "已收起"))
+                            .accessibilityIdentifier("codex-reset-preview-disclosure")
                     }
-                    if let latest = status.data.latestReset {
-                        Text(L10n.format(latest.resetType == "banked" ? "来源最近报告发放重置次数：%@" : "来源最近报告重置：%@",
-                                         CodexResetStatus.dateText(latest.announcedAt)))
-                            .font(.caption).foregroundStyle(Color.secondary)
-                    }
-                    Text(L10n.format("数据更新于 %@", CodexResetStatus.dateText(status.meta.generatedAt)))
-                        .font(.caption).foregroundStyle(Color.secondary)
-                    if unavailable {
-                        Text("重置预告暂时无法更新，当前显示上次数据")
-                            .font(.caption).foregroundStyle(Color.secondary)
-                    }
-                }
-            } header: {
-                Text("Codex 重置预告")
-            } footer: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("开启通知及 Codex 账号的重置提醒后，刷新发现新预告时提醒。后台检查时间由系统安排。")
-                    Text("公告与预测来自第三方来源，不代表 OpenAI 官方承诺；实际额度以账号刷新结果为准。")
-                    Link("数据来源：Codex Resets", destination: CodexResetStatus.sourceURL)
-                        .foregroundStyle(Color.secondary)
-                        .accessibilityHint(L10n.format("打开数据来源 %@", CodexResetStatus.sourceURL.absoluteString))
+                    .tint(.secondary)
                 }
             }
         }
+    }
+
+    private func summary(_ status: CodexResetStatus) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Codex 重置预告", systemImage: status.data.scheduledReset == nil ? "sparkles" : "calendar.badge.clock")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+            if let reset = status.data.scheduledReset {
+                highlight(CodexResetStatus.scheduledPreviewHeadline(for: reset.scheduledFor, at: now))
+                if let date = reset.scheduledFor {
+                    Text(L10n.format("%@ · 本地时间", CodexResetStatus.dateText(date)))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Text("第三方预告 · Codex Resets")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            } else if let watch = status.activeWatch(at: now) {
+                if let chance = CodexResetStatus.chanceText(watch.resetChancePercent) {
+                    highlight(chance)
+                        .accessibilityLabel(L10n.format("预测概率 %@", chance))
+                } else {
+                    highlight(L10n.text("AI 重置预测"))
+                }
+                Text(watch.forecastWindow)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                Text("AI 预测 · 非官方")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            if unavailable {
+                Label("更新失败 · 显示上次预告", systemImage: "exclamationmark.circle")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.vertical, 4)
+    }
+
+    private func highlight(_ value: String) -> some View {
+        Text(value)
+            .font(.system(.largeTitle, design: .rounded).weight(.bold))
+            .monospacedDigit()
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(.yellow.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func details(_ status: CodexResetStatus) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Divider()
+            if let reset = status.data.scheduledReset {
+                if let date = reset.scheduledFor, date <= now {
+                    Text("预定时间已过，尚未确认执行。")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Text(reset.text).font(.subheadline)
+            } else if let watch = status.activeWatch(at: now) {
+                Text(watch.text).font(.subheadline)
+                Text(L10n.format("有效至 %@", CodexResetStatus.dateText(watch.expiresAt)))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                if let latest = status.data.latestReset {
+                    Text(L10n.format(latest.resetType == "banked" ? "来源最近报告发放重置次数：%@" : "来源最近报告重置：%@",
+                                     CodexResetStatus.dateText(latest.announcedAt)))
+                }
+                Text(L10n.format("数据更新于 %@", CodexResetStatus.dateText(status.meta.generatedAt)))
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("开启通知及 Codex 账号的重置提醒后，刷新发现新预告时提醒。后台检查时间由系统安排。")
+                Text("公告与预测来自第三方来源，不代表 OpenAI 官方承诺；实际额度以账号刷新结果为准。")
+                Link("数据来源：Codex Resets", destination: CodexResetStatus.sourceURL)
+                    .accessibilityHint(L10n.format("打开数据来源 %@", CodexResetStatus.sourceURL.absoluteString))
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -538,7 +588,7 @@ private extension EnvironmentValues {
 }
 
 private enum CodexAcceptanceScenario: String, Identifiable {
-    case scheduled, forecast, empty, historyOnly, expired, canceled, retainedFailure
+    case scheduled, upcoming, unknownTime, forecast, unknownChance, empty, historyOnly, expired, canceled, retainedFailure
     var id: String { rawValue }
 }
 
@@ -554,17 +604,18 @@ private final class CodexAcceptanceSequence {
         calls += 1
         if scenario == .retainedFailure, calls > 1 { throw URLError(.notConnectedToInternet) }
         let announcement = CodexResetStatus.Announcement(
-            id: "fixture-announcement", resetType: "usage", announcedAt: now.addingTimeInterval(-120),
-            scheduledFor: now.addingTimeInterval(-60), text: "Original announcement 原文")
+            id: "fixture-announcement", resetType: "banked", announcedAt: now.addingTimeInterval(-120),
+            scheduledFor: scenario == .unknownTime ? nil : now.addingTimeInterval(scenario == .upcoming ? 7_200 : -60),
+            text: "Original announcement 原文")
         let watch = CodexResetStatus.Watch(
-            level: "high", resetChancePercent: 75, forecastWindow: "Original window 原文",
+            level: "high", resetChancePercent: scenario == .unknownChance ? nil : 75, forecastWindow: "Next 24 hours",
             observedAt: now, expiresAt: now.addingTimeInterval(scenario == .expired ? -60 : 900),
             text: "Original prediction 原文")
         let empty = scenario == .empty || (scenario == .canceled && calls > 1)
         return CodexResetStatus(
             data: .init(latestReset: scenario == .historyOnly ? announcement : nil,
-                        scheduledReset: scenario == .scheduled ? announcement : nil,
-                        activeWatch: !empty && [.forecast, .expired, .canceled, .retainedFailure].contains(scenario) ? watch : nil),
+                        scheduledReset: [.scheduled, .upcoming, .unknownTime].contains(scenario) ? announcement : nil,
+                        activeWatch: !empty && [.forecast, .unknownChance, .expired, .canceled, .retainedFailure].contains(scenario) ? watch : nil),
             meta: .init(generatedAt: now))
     }
 }
